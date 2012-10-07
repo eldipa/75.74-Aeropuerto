@@ -1,0 +1,2 @@
+sharedmemory.o: sharedmemory.cpp ../os/oserror.h sharedmemory.h \
+  ../os/key.h commonipc.h
