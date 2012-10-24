@@ -3,11 +3,11 @@
 
 class Rfid {
 public:
-	Rfid( int rfid ) : rfid(rfid) {
-	}
-	virtual ~Rfid();
+   Rfid( int rfid ) : rfid(rfid) {
+   }
+   virtual ~Rfid();
 private:
-	int rfid;
+   int rfid;
 };
 
 #endif /* RFID_H_ */
