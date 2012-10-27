@@ -53,7 +53,7 @@ export timeit = 0
 #  SUBMODULES = .
 #
 #  Note that the order is important and is honored in the building process.
-SUBMODULES = common os ipc api processes
+SUBMODULES = log common os ipc api processes
 
 #
 # END OF THE CONFIGURATION
