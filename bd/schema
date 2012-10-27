@@ -1,0 +1,38 @@
+BEGIN TRANSACTION;
+create table Fecha(
+id integer primary key,
+anio integer,
+mes integer,
+dia integer,
+hora integer,
+minuto integer);
+
+create table Vuelo(
+id integer primary key,
+compania text,
+origen text,
+destino text,
+fecha_checkin_id integer, 
+duracion integer,
+fecha_llegada_id integer,
+zona integer,
+foreign key(fecha_checkin_id) references Fecha(id),
+foreign key(fecha_llegada_id) references Fecha(id)
+);
+
+create table Equipaje(
+rfid integer primary key,
+vuelo integer,
+foreign key(vuelo) references Vuelo(id)
+);
+
+create table Pasajero(
+id integer primary key,
+dni integer unique,
+boleto integer,
+vuelo interger,
+
+foreign key(vuelo) references Vuelo(id)
+);
+
+COMMIT;
