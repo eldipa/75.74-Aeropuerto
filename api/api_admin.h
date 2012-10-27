@@ -61,7 +61,7 @@ public:
    bool alta_pasajero( int num_vuelo, Pasajero& );
    
 
-
+   std::string get_escala( Equipaje& );
    
 };
 

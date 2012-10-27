@@ -4,6 +4,8 @@
 #include <vector>
 #include <string>
 
+#include "contenedor.h"
+
 /*
  * Zona: Cada zona tiene un area de carga y puestos.
  * Cada puesto tiene asignada una escala.puede o no tener un Contenedor en cada momento.
@@ -13,57 +15,53 @@
  **/
 class ApiZona {
 private:
+   int num_zona;
 
 public:
-   ApiZona();
+   ApiZona( int num_zona );
    virtual ~ApiZona();
 
+   
    /* API que usa el robot de vuelo */
 
    /*
     * Crea un puesto de equipaje por cada escala.En cada puesto de equipaje
     * puede o no puede haber un contenedor.
     */
-   void crear_puestos_equipaje( int num_zona, std::vector<std::string> escalas );
+   void crear_puestos_equipaje( std::vector<std::string> escalas );
 
    /*
     * Libera los puestos de equipaje.
     */
-   void liberar_puestos_equipaje( int num_zona );
+   void liberar_puestos_equipaje();
 
    /*
     * Retorna True si el puesto de equipaje de esa escala tiene contenedor
     **/
-   bool tiene_contenedor( int num_zona, std::string& escala );
-
+   bool tiene_contenedor(std::string& escala );
+ 
    /*
-    * Bloquea hasta que llegue un Contenedor al puesto de equipaje
+    * Pide un contenedor y se 
+    * bloquea hasta que llegue un Contenedor al puesto de equipaje
     **/
-   void esperar_contenedor( int num_zona, std::string& escala );
-
+   Contenedor& esperar_contenedor(std::string& escala );
+ 
    /*
     * Pone Contenedor en el puesto de equipaje y desbloquea si hay alguien esperando.
     **/
-   void llego_contenedor( int num_zona, std::string& escala, int num_contenedor );
+   void llego_contenedor(std::string& escala, int num_contenedor );
 
 
    /*
     * Se lleva el contenedor al area de carga de la zona.
     * Se llama cuando el contenedor se llenó.
     **/
-   void retirar_contenedor( int num_zona, std::string& escala );
-
-   /*
-    * Devuelve el contenedor de esa escala y zona.
-    * Lanza una excepcion si no hay ningun contenedor.
-    **/
-   Contenedor& get_contenedor( int num_zona, std::string& escala );
-   
+   void retirar_contenedor(std::string& escala );
    
    /* API para el controlador de carga */
 
-   void esperar_avion( int num_zona );
-   void llego_avion( int num_zona, int numero_vuelo, int num_avion );
+   void esperar_avion();
+   void llego_avion(int numero_vuelo, int num_avion );
 };
 
 #endif /* API_ZONA_ */

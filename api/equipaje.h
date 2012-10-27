@@ -8,9 +8,12 @@
  **/
 class Equipaje {
 public:
-	Equipaje(int id) : rfid(id) {}
+	Equipaje(int id);
 
-	Rfid getRfid() { return rfid; }
+	Rfid getRfid();
+   int peso();
+   friend bool operator==(Contenedor& a, Contenedor& b);
+
 private:	
    Rfid rfid;
 };
