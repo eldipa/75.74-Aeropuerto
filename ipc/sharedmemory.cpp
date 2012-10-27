@@ -27,14 +27,14 @@
 
 
 #include <sys/shm.h>
-#include <syslog.h>
 #include "oserror.h"
+#include "log.h"
 
 #include "sharedmemory.h"
 #include "commonipc.h"
 
 void SharedMemory::mark_to_be_destroyed() {
-   syslog(LOG_DEBUG, "[Debug] %s shared memory using the path %s with key %x.", "Marking (to be destroyed)", path.c_str(), key);
+   Log::debug("%s shared memory using the path %s with key %x.", "Marking (to be destroyed)", path.c_str(), key);
    if(shmctl(fd, IPC_RMID, 0) != 0) {
       throw OSError("The shared memory "
             MESSAGE_Key_Path_Permissions
@@ -50,7 +50,7 @@ SharedMemory::SharedMemory(const char *absolute_path, size_t size,
    size(size),
    attach_point(0) {
       key = get_key(absolute_path);
-      syslog(LOG_DEBUG, "[Debug] %s shared memory using the path %s with key %x.", (create? "Creating" : "Getting"), absolute_path, key);
+      Log::debug("%s shared memory using the path %s with key %x.", (create? "Creating" : "Getting"), absolute_path, key);
       fd = shmget(key, size, (create ? (IPC_CREAT | IPC_EXCL) : 0) | permissions);
       if(fd == -1) {
          throw OSError("The shared memory %s "
@@ -64,9 +64,9 @@ SharedMemory::SharedMemory(const char *absolute_path, size_t size,
          if(owner) try {
             mark_to_be_destroyed();
          } catch(const std::exception &e) {
-            syslog(LOG_ERR, "[Err] An exception occurred:\n%s\nMay be that will be responsible of other exceptions.", e.what());
+            Log::debug("An exception occurred:\n%s\nMay be that will be responsible of other exceptions.", e.what());
          } catch(...) {
-            syslog(LOG_ERR, "[Err] An unknow exception occurred.\nMay be that will be responsible of other exceptions.");
+            Log::debug("An unknow exception occurred.\nMay be that will be responsible of other exceptions.");
          }
 
          throw OSError("The shared memory "
@@ -91,9 +91,9 @@ SharedMemory::~SharedMemory()
                key, path.c_str(), permissions);
       }
    } catch(const std::exception &e) {
-      syslog(LOG_CRIT, "[Crit] An exception happend during the course of a destructor:\n%s", e.what());
+      Log::crit("An exception happend during the course of a destructor:\n%s", e.what());
    } catch(...) {
-      syslog(LOG_CRIT, "[Crit] An unknow exception happend during the course of a destructor.");
+      Log::crit("An unknow exception happend during the course of a destructor.");
    }
 
 

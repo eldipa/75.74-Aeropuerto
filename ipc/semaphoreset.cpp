@@ -28,8 +28,8 @@
 
 #include <sys/sem.h>
 #include <cstring>
-#include <syslog.h>
 #include "oserror.h"
+#include "log.h"
 
 #include "semaphoreset.h"
 #include "commonipc.h"
@@ -38,7 +38,7 @@ void SemaphoreSet::destroy() {
    union semun data;
    memset(&data, '0', sizeof(union semun));
 
-   syslog(LOG_DEBUG, "[Debug] %s semaphore set using the path %s with key %x.", "Destroying", path.c_str(), key);
+   Log::debug("%s semaphore set using the path %s with key %x.", "Destroying", path.c_str(), key);
    if(semctl(fd, 0, IPC_RMID, data) != 0) {
       throw OSError("The semaphore set (%i semaphores in it) "
             MESSAGE_Key_Path_Permissions
@@ -54,7 +54,7 @@ SemaphoreSet::SemaphoreSet(const char *absolute_path,
    permissions(permissions),
    semaphores(semaphores) {
       key = get_key(absolute_path);
-      syslog(LOG_DEBUG, "[Debug] %s semaphore set using the path %s with key %x.", (false? "Creating" : "Getting"), absolute_path, key);
+      Log::debug("%s semaphore set using the path %s with key %x.", (false? "Creating" : "Getting"), absolute_path, key);
       fd = semget(key, semaphores, permissions);
       if(fd == -1) {
          throw OSError("The semaphore set (%i semaphores in it) does not exist "
@@ -70,7 +70,7 @@ SemaphoreSet::SemaphoreSet(const std::vector<unsigned short> &vals,
    permissions(permissions),
    semaphores((int) vals.size()) {
       key = get_key(absolute_path);
-      syslog(LOG_DEBUG, "[Debug] %s semaphore set using the path %s with key %x.", (true? "Creating" : "Getting"), absolute_path, key);
+      Log::debug("%s semaphore set using the path %s with key %x.", (true? "Creating" : "Getting"), absolute_path, key);
       fd = semget(key, semaphores, IPC_CREAT | IPC_EXCL | permissions);
       if(fd == -1) {
          throw OSError("The semaphore set (%i semaphores in it) cannot be created "
@@ -104,9 +104,9 @@ SemaphoreSet::~SemaphoreSet()
          destroy();
       }
    } catch(const std::exception &e) {
-      syslog(LOG_CRIT, "[Crit] An exception happend during the course of a destructor:\n%s", e.what());
+      Log::crit("An exception happend during the course of a destructor:\n%s", e.what());
    } catch(...) {
-      syslog(LOG_CRIT, "[Crit] An unknow exception happend during the course of a destructor.");
+      Log::crit("An unknow exception happend during the course of a destructor.");
    }
 
 void SemaphoreSet::wait_on(int semnum) {

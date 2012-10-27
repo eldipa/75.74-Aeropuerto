@@ -1,2 +1,2 @@
-INCLUDE_PATHS = -I../os
+INCLUDE_PATHS = -I../os -I../log
 TARGET = libipc.a

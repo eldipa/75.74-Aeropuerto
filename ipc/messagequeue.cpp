@@ -27,14 +27,14 @@
 
 
 #include <sys/msg.h>
-#include <syslog.h>
 #include "oserror.h"
+#include "log.h"
 
 #include "messagequeue.h"
 #include "commonipc.h"
 
 void MessageQueue::destroy() {
-   syslog(LOG_DEBUG, "[Debug] %s message queue using the path %s with key %x.", "Destroying", path.c_str(), key);
+   Log::debug("%s message queue using the path %s with key %x.", "Destroying", path.c_str(), key);
    if(msgctl(fd, IPC_RMID, 0) != 0) {
       throw OSError("The message queue "
             MESSAGE_Key_Path_Permissions
@@ -48,7 +48,7 @@ MessageQueue::MessageQueue(const char *absolute_path,
    path(absolute_path), 
    permissions(permissions) {
       key = get_key(absolute_path);
-      syslog(LOG_DEBUG, "[Debug] %s message queue using the path %s with key %x.", (create? "Creating" : "Getting"), absolute_path, key);
+      Log::debug("%s message queue using the path %s with key %x.", (create? "Creating" : "Getting"), absolute_path, key);
       fd = msgget(key, (create ? (IPC_CREAT | IPC_EXCL) : 0) | permissions);
       if(fd == -1) {
          throw OSError("The message queue %s "
@@ -87,8 +87,8 @@ MessageQueue::~MessageQueue()
          destroy();
       }
    } catch(const std::exception &e) {
-      syslog(LOG_CRIT, "[Crit] An exception happend during the course of a destructor:\n%s", e.what());
+      Log::crit("An exception happend during the course of a destructor:\n%s", e.what());
    } catch(...) {
-      syslog(LOG_CRIT, "[Crit] An unknow exception happend during the course of a destructor.");
+      Log::crit("An unknow exception happend during the course of a destructor.");
    }
 
