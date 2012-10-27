@@ -11,7 +11,7 @@ public:
    ApiCinta(int numero);
    virtual ~ApiCinta();
 
-   Equipaje & sacar_equipaje();
+   Equipaje sacar_equipaje() const;
    void poner_equipaje(Equipaje &);
 
 private:
