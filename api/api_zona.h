@@ -44,7 +44,7 @@ public:
     * Pide un contenedor y se 
     * bloquea hasta que llegue un Contenedor al puesto de equipaje
     **/
-   Contenedor& esperar_contenedor(std::string& escala );
+   Contenedor esperar_contenedor(std::string& escala ) const;
  
    /*
     * Pone Contenedor en el puesto de equipaje y desbloquea si hay alguien esperando.

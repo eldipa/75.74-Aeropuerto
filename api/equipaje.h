@@ -11,8 +11,7 @@
 class Equipaje {
 public:
 
-   Equipaje(int id) : rfid(id), peso(0) {}
-   Equipaje(int id, int peso) : rfid(id), peso(peso) {}
+   Equipaje(int id, int peso = 0) : rfid(id), _peso(peso) {}
    Equipaje(const Equipaje &e) : rfid(e.rfid.rfid) {
    } 
 
@@ -25,12 +24,12 @@ public:
    }
 
    int peso() {
-      return peso;
+      return _peso;
    }
 
 private: 
    Rfid rfid;
-   int peso;
+   int _peso;
 };
 
 #endif /* EQUIPAJE_H_ */

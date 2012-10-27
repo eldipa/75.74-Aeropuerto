@@ -6,21 +6,22 @@
 
 /*
  * Faltan metodos para verificar si esta lleno, capacidad, etc...
+
  **/ 
 class Contenedor {
 public:
-	Contenedor( int num_contenedor, int peso_maximo );
-	bool tiene_el_equipaje( Equipaje& e );
-	void agregar_equipaje( Equipaje& e );
+   Contenedor( int num_contenedor, int peso_maximo );
+   bool tiene_el_equipaje( Equipaje& e );
+   void agregar_equipaje( Equipaje& e );
    bool espacio_disponible( Equipaje& e );
-	virtual ~Contenedor();
+   virtual ~Contenedor();
 
 private:
    int num_contenedor;
    int peso_maximo;
    int peso;
-	std::vector<Equipaje> equipajes;
- 	
+   std::vector<Equipaje> equipajes;
+   
 };
 
 #endif /* EQUIPAJE_H_ */

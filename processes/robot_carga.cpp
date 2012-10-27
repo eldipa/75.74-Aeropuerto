@@ -28,7 +28,7 @@ int main( int argc, char** argv ) {
       bool equipaje_en_contenedor = false;
 
       while( !equipaje_en_contenedor ) {
-         Contenedor& contenedor = zona.esperar_contenedor(escala);
+         Contenedor contenedor = zona.esperar_contenedor(escala);
 
          if( contenedor.espacio_disponible(equipaje) ) {
             contenedor.agregar_equipaje(equipaje);
