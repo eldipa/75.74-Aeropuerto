@@ -38,8 +38,8 @@
 #include <climits>
 
 #include "oserror.h"
+#include "log.h"
 
-#include <syslog.h>
 
 static int filter_dot_entries(const struct dirent *entry) {
    return ((strcmp(entry->d_name, ".") != 0) && (strcmp(entry->d_name, "..") != 0)) ? 1 : 0;
@@ -86,14 +86,14 @@ void be_a_daemon() {
       for(int i = 0; i < n; ++i) {
          if(close(open_filedescriptors[i]) != 0) {
             fallback = true;
-            syslog(LOG_WARNING, "[Warning] The file descriptor %i read from %s cannot be closed.", open_filedescriptors[i], buff);
+            Log::warning("The file descriptor %i read from %s cannot be closed.", open_filedescriptors[i], buff);
             continue;
          }
       }
    }
    // Something was wrong, this fallback mechanism will close all posible file descriptors
    if(fallback) {
-      syslog(LOG_WARNING, "[Warning] Fallback to a less sophisticated implementation.");
+      Log::warning("Fallback to a less sophisticated implementation.");
       //-------------------------------------------------------------
       //From OpenSSL
 #ifdef HAVE_SYSCONF
@@ -110,7 +110,7 @@ void be_a_daemon() {
 #endif 
       }
  
-      syslog(LOG_WARNING, "[Warning] Fallback mechanism. Closing file descriptors from %i to %i", 0, maxfd);
+      Log::warning("Fallback mechanism. Closing file descriptors from %i to %i", 0, maxfd);
       for (int fd = 0; fd < maxfd; ++fd) {
          close(fd); //ignore the result
       }

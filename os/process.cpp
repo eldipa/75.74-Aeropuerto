@@ -32,8 +32,8 @@
 #include <sys/wait.h>
 #include <signal.h>
 #include <errno.h>
-#include <syslog.h>
 #include "oserror.h"
+#include "log.h"
 
 Process::Process(const char* file, char *argv[]) {
     static char none[] = "";
@@ -44,7 +44,7 @@ Process::Process(const char* file, char *argv[]) {
         argv = &p;
     }
 
-    syslog(LOG_DEBUG, "[Debug] Spawning the process %s.", file);
+    Log::debug("Spawning the process %s.", file);
     pid_t pid = fork();
     if(pid == 0) {
         // children process
@@ -54,7 +54,7 @@ Process::Process(const char* file, char *argv[]) {
         throw OSError("The process's children cannot be created (forked).");
     }else {
         // parent process
-        syslog(LOG_DEBUG, "[Debug] Spawned the process %s (PID %i).", file, pid);
+        Log::debug("Spawned the process %s (PID %i).", file, pid);
         this->pid = pid;
     }
 }
