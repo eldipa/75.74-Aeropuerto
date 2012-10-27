@@ -13,3 +13,9 @@
 *.lai
 *.la
 *.a
+
+# Dependencies
+*.deps
+
+# Binaries
+processes/scanner

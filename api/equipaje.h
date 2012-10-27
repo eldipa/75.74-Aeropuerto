@@ -8,6 +8,10 @@
  **/
 class Equipaje {
 public:
+	Equipaje(int id) : rfid(id) {}
+
+	Rfid getRfid() { return rfid; }
+private:	
    Rfid rfid;
 };
 

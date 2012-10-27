@@ -1,2 +1,2 @@
 INCLUDE_PATHS = -I../os
-TARGET = main
+TARGET = libapi.a

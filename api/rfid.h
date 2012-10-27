@@ -5,8 +5,8 @@ class Rfid {
 public:
    Rfid( int rfid ) : rfid(rfid) {
    }
-   virtual ~Rfid();
-private:
+   virtual ~Rfid() {}
+// private:
    int rfid;
 };
 

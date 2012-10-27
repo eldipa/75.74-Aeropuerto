@@ -1,2 +1,0 @@
-semaphoreset.o: semaphoreset.cpp ../os/oserror.h semaphoreset.h \
-  ../os/key.h commonipc.h

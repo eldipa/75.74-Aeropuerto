@@ -4,10 +4,8 @@
 #include "equipaje.h"
 
 class ApiScanner {
-private:
-
 public:
-   ApiScanner();
+   ApiScanner(int numero);
    virtual ~ApiScanner();
 
    /*
@@ -22,6 +20,9 @@ public:
     * El robot de despacho puede tomar el equipaje.
     **/
    void equipaje_limpio( Equipaje& );
+
+private:
+   int numero;
 };
 
 #endif /* APIESCANER_H_ */

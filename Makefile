@@ -32,7 +32,7 @@ export verbose = 0
 # If this flag is '1', each instruction is executed using 'time' and after
 # its execution, the duration of that execution is showed.
 # If it is '0', this is disabled
-export timeit = 1
+export timeit = 0
 
 # This are the modules which will be builded. Each module represent a directory
 # relative to this currect directory.
@@ -53,7 +53,7 @@ export timeit = 1
 #  SUBMODULES = .
 #
 #  Note that the order is important and is honored in the building process.
-SUBMODULES = common os ipc api
+SUBMODULES = common os ipc api processes
 
 #
 # END OF THE CONFIGURATION
