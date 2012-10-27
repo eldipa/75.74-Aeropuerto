@@ -10,7 +10,6 @@
 int main(int argc, char *argv[]) {
 
    if (argc < 4) {
-      printf("Hola");
       syslog(LOG_CRIT, "[Crit] Insuficientes parametros para scanner, se esperaba (id, cinta_in, cinta_out)\n");
       exit(1);
    }
