@@ -6,17 +6,17 @@
 #include <syslog.h>
 
 #define LogMessage_LOG_THIS(logtag, logpriority) \
-      va_list args;                                \
-      va_start (args, format);                     \
-      char msg_error[1024];                        \
-                                                   \
-      const char *tag = logtag;                    \
-      const int offset = strlen(tag);              \
-      memcpy(msg_error, tag, offset);              \
-      strncpy(msg_error + offset, format, 1024);   \
-      msg_error[1023] = 0;                         \
-                                                   \
-      vsyslog(logpriority, msg_error, args);       \
+      va_list args;                                      \
+      va_start (args, format);                           \
+      char msg_error[1024];                              \
+                                                         \
+      const char *tag = logtag;                          \
+      const int offset = strlen(tag);                    \
+      memcpy(msg_error, tag, offset);                    \
+      strncpy(msg_error + offset, format, 1024-offset);  \
+      msg_error[1023] = 0;                               \
+                                                         \
+      vsyslog(logpriority, msg_error, args);             \
       va_end(args)
 
 namespace Log {

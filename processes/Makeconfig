@@ -1,3 +1,3 @@
-INCLUDE_PATHS = -I../api -I../common
-LIBRARIES = ../api/libapi.a
+INCLUDE_PATHS = -I../api -I../common -I../log
+LIBRARIES = ../api/libapi.a ../log/liblog.a
 TARGET = scanner robot_carga
