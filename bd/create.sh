@@ -1,6 +1,7 @@
-if test -e "aero" 
+. const.sh
+if test -e "$DATABASE_NAME" 
 then
    echo "The database already exists. (Remove it manually)."
 else
-   cat "schema" | sqlite3 aero 
+   cat $SCHEMA | sqlite3 $DATABASE_NAME 
 fi
