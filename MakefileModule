@@ -25,7 +25,7 @@
 ###############################################################################
 
 # Tipical flags used by the compiler
-STRICT = -Wall -Wextra -pedantic -pedantic-errors  -std=c++98
+STRICT = -Wall -Wextra -pedantic -pedantic-errors -Werror  -std=c++98
 DEBUG = -ggdb -DDEBUG -fno-inline -rdynamic
 OPTIMIZATION = -O0
 
@@ -35,9 +35,15 @@ ARCHIVER_FLAGS = -ruc
 LINKER_FLAGS =
 DYNAMIC_FLAGS =
 
-# This are the paths to external files used by the compiler and the linker.
+# This are 
+# 	- the path to a directory where are the headers files (.h)
+# 	- the path and name of each library. The order is very important! Put the more 'high-level' first, then the more 'generic-and-common'.
+# 	- the path to a directory where external libraries are.
+# 	- the name (no the path) of that libraries.
 INCLUDE_PATHS = 
-LIBRARY_PATHS = 
+LIBRARIES = 
+EXTERNAL_LIBRARY_PATHS = 
+EXTERNAL_LIBRARIES = 
 
 
 # This (this makefile) is a template, so you can override or extend each variable writting
@@ -70,10 +76,10 @@ LIBRARY_PATHS =
 #
 # The '$@' element represent the target object, '$<' is the first dependency element
 # and '$^' are the dependencies without duplicated of that rule.
-COMPILE = $(TIMEIT) g++ -c $(COMPILER_FLAGS) $(INCLUDE_PATHS) -o $@ $<
-DEPEND = $(TIMEIT) g++ -MM $(COMPILER_FLAGS) $(INCLUDE_PATHS) -MF $@ $(subst .deps,.cpp,$@)
+COMPILE = $(TIMEIT) g++ -c $(COMPILER_FLAGS) $(patsubst %, -I%, $(INCLUDE_PATHS)) -o $@ $<
+DEPEND = $(TIMEIT) g++ -MM $(COMPILER_FLAGS) $(patsubst %, -I%, $(INCLUDE_PATHS)) -MF $@ $(subst .deps,.cpp,$@)
 ARCHIVE = $(TIMEIT) ar $(ARCHIVER_FLAGS) $@ $^ 
-LINK = $(TIMEIT) g++ $(LINKER_FLAGS) $(LIBRARY_PATHS) -o $@ $@.o $(filter-out $(patsubst %, %.o, $(filter-out lib%.a lib%.so,$(TARGET))), $^) $(subst lib%.a, -l%, $(LIBRARIES))
+LINK = $(TIMEIT) g++ $(LINKER_FLAGS) $(patsubst %, -L%, $(EXTERNAL_LIBRARY_PATHS)) -o $@ $@.o $(filter-out $(patsubst %, %.o, $(TARGET)), $^)  $(patsubst %, -l%, $(EXTERNAL_LIBRARIES))
 DYNAMIC = $(TIMEIT) g++ -shared $(DYNAMIC_FLAGS) -o $@ $^ 
 RM = $(TIMEIT) rm -f 
 

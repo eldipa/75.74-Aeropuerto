@@ -1,2 +1,2 @@
-INCLUDE_PATHS = -I../common -I../log
+INCLUDE_PATHS = ../common ../log
 TARGET = libos.a
