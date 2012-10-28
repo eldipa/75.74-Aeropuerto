@@ -1,5 +1,8 @@
 . const.sh
 
+#To import dates, the format must be YYYY-MM-DD and must not be any space 
+#between the date and the separators:
+#  .. | 2012-02-01 |    <- WRONG       ... |2012-02-01|     <- OK
 if test $# -ne 2
 then
    echo "Usage: load.sh table_name file"

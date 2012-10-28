@@ -1,9 +1,7 @@
 BEGIN TRANSACTION;
-create table Fecha(
+create table FechaHora(
 id integer primary key,
-anio integer,
-mes integer,
-dia integer,
+fecha date,
 hora integer,
 minuto integer);
 
@@ -12,12 +10,12 @@ id integer primary key,
 compania text,
 origen text,
 destino text,
-fecha_checkin_id integer, 
+fecha_hora_checkin_id integer, 
 duracion integer,
-fecha_llegada_id integer,
+fecha_hora_llegada_id integer,
 zona integer,
-foreign key(fecha_checkin_id) references Fecha(id),
-foreign key(fecha_llegada_id) references Fecha(id)
+foreign key(fecha_hora_checkin_id) references FechaHora(id),
+foreign key(fecha_hora_llegada_id) references FechaHora(id)
 );
 
 create table Equipaje(
