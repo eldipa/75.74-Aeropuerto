@@ -3,7 +3,7 @@
 #include <unistd.h>
 #include "valueerror.h"
 #include "dberror.h"
-#include "tuple.h"
+#include "tupleiter.h"
 #include "log.h"
 
 

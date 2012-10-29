@@ -2,7 +2,7 @@
 #include <memory>
 #include "database.h"
 #include "stmt.h"
-#include "tuple.h"
+#include "tupleiter.h"
 #include "log.h"
 
 int main(int , char *[]) try {

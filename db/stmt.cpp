@@ -4,7 +4,7 @@
 #include "stmt.h"
 #include "dberror.h"
 #include "valueerror.h"
-#include "tuple.h"
+#include "tupleiter.h"
 #include "log.h"
 
 
