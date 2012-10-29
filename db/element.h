@@ -7,6 +7,9 @@
 class TupleIterator;
 
 namespace Element {
+    //Supported types
+    typedef int integer;
+    typedef double real;
     typedef const unsigned char* text;
     typedef const void* blob;
 
