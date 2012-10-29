@@ -5,7 +5,7 @@
 #include "tuple.h"
 
 int main(int , char *[]) try {
-   Database db("aeropuerto", true);
+   Database db("scripts/aeropuerto", true);
    std::auto_ptr<Statement> s = db.statement("select * from FechaHora;");
    std::auto_ptr<TupleIterator> p_it = s->begin();
    std::auto_ptr<TupleIterator> p_end = s->end();
