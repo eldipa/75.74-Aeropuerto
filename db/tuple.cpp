@@ -6,17 +6,14 @@
 #include "tuple.h"
 #include "log.h"
 
-Tuple::Tuple(sqlite3_stmt &stmt) : stmt(&stmt) {}
 
-Tuple::Tuple(const Tuple& t) : stmt(t.stmt) {}
-
-void Tuple::check(int i) const {
+void TupleIterator::check(int i) const {
    if(i < 0 or i >= size())
       throw ValueError("Out of range [%i,%i). Index used was %i.", 0, size(), i);
 }
 
-int Tuple::size() const {
-   return sqlite3_column_count(stmt);
+int TupleIterator::size() const {
+   return sqlite3_column_count(&stmt);
 }
 
 
@@ -46,9 +43,6 @@ TupleIterator& TupleIterator::operator++() {
    }
 }
 
-const Tuple TupleIterator::operator*() {
-   return Tuple(stmt);
-}
 
 TupleIterator::~TupleIterator() throw() try {
    if(reset)

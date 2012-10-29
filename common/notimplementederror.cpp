@@ -52,7 +52,7 @@ NotImplementedError::NotImplementedError(const char *format, ...) throw() {
    va_end(args);
 }
 
-const char *NotImplementedError_LEN_BUFF_ERROR::what() const throw() {
+const char *NotImplementedError::what() const throw() {
    return msg_error;
 }
 
