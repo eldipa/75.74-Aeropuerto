@@ -21,6 +21,8 @@ public:
     **/
    void equipaje_limpio( Equipaje& );
 
+   bool es_sospechoso( Equipaje& );
+
 private:
    int numero;
 };

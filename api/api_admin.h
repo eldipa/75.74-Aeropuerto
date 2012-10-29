@@ -62,6 +62,17 @@ public:
    
 
    std::string get_escala( Equipaje& );
+
+   /*
+    * devuelve el vuelo al que esta destinado ese equipaje
+    **/
+   int get_numero_vuelo( Equipaje& );
+
+   /*
+    * devuelve el zona que va a usar el vuelo.
+    * no es la zona preasignada sino la que esta en uso.
+    **/
+   int get_numero_zona( int num_vuelo );
    
 };
 

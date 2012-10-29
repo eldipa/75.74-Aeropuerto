@@ -13,6 +13,7 @@ public:
 
    Equipaje sacar_equipaje() const;
    void poner_equipaje(Equipaje &);
+   int get_numero();
 
 private:
 	int numero;

@@ -14,3 +14,7 @@ void ApiCinta::poner_equipaje(Equipaje & equipaje) {
 
 	}
 }
+
+int ApiCinta::get_numero() {
+   return numero;
+}
