@@ -32,7 +32,7 @@ class TupleIterator {
 
       template<typename T> T at(int i) {
          check(i);
-         return E<T>(stmt, i);
+         return Element::_private::E<T>(stmt, i);
       }
 
       ~TupleIterator() throw();
