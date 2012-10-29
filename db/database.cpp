@@ -21,12 +21,9 @@ std::auto_ptr<Statement> Database::statement(const char* sql_stmt) {
    return std::auto_ptr<Statement>(new Statement(*database, sql_stmt));
 }
 
-Database::~Database() throw() try {
-   sqlite3_close(database);
-} catch(const std::exception &e) {
-   Log::crit("An exception happend during the course of a destructor:\n%s", e.what());
-} catch(...) {
-   Log::crit("An unknow exception happend during the course of a destructor.");
+Database::~Database() throw()  {
+   if(sqlite3_close(database) != SQLITE_OK)
+      Log::crit("An exception happend during the course of a destructor:\n%s", DBError(*database, "The database '%s' cannot be closed.", filename.c_str()).what());
 }
 
 

@@ -37,10 +37,8 @@ void Statement::finalize() {
    stmt = 0;
 }
 
-Statement::~Statement() throw() try {
-   finalize();
-} catch(const std::exception &e) {
-   Log::crit("An exception happend during the course of a destructor:\n%s", e.what());
-} catch(...) {
-   Log::crit("An unknow exception happend during the course of a destructor.");
-}
+Statement::~Statement() throw() {
+   if(sqlite3_finalize(stmt) != SQLITE_OK) {
+      Log::crit("An exception happend during the course of a destructor:\n%s", DBError(db, "The SQL statement cannot be finalized.").what());
+   }
+} 

@@ -3,6 +3,7 @@
 #include "database.h"
 #include "stmt.h"
 #include "tuple.h"
+#include "log.h"
 
 int main(int , char *[]) try {
    //Primero, como en todo base de datos, hay que conectarse a esta indicando el nombre del archivo
@@ -21,8 +22,11 @@ int main(int , char *[]) try {
    //
    //Para este caso, la instruccion insert no devuelve ningun listado de resultados por lo que con
    //llamar a begin alcanza con ejecutar y terminar la instruccion
+   //
+   //NOTA: deshabilitar esta linea. La primera vez q se ejecute, no habra ninguna tupla (9, 2012-10-29 ...)
+   //y la insercion ocurrira. Las siguientes veces, al intentar insertar una tupla, habra un error de primery key.
    ins->begin();
-
+    
    //Para el caso de una query, esta puede retornar varios resultados. Para poder tener accesso a
    //ellos basta con usar el iterador retornado por begin
    std::auto_ptr<TupleIterator> p_it = query->begin();
@@ -47,6 +51,8 @@ int main(int , char *[]) try {
    //Destruir explicitamente los iteradores o bien, dejar que auto_ptr<TupleIterator> se vaya de scope
    //y sea auto_ptr que los destruya automaticamente.
    return 0;
-}
-catch(...) {
+} catch(const std::exception &e) {
+   Log::crit("%s", e.what());
+} catch(...) {
+   Log::crit("Critical error. Unknow exception at the end of the 'main' function.");
 }

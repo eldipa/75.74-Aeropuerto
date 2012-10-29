@@ -44,13 +44,9 @@ TupleIterator& TupleIterator::operator++() {
 }
 
 
-TupleIterator::~TupleIterator() throw() try {
+TupleIterator::~TupleIterator() throw() {
    if(reset)
       if(sqlite3_reset(&stmt) != SQLITE_OK)
-         throw DBError(db, "The statement cannot be reset (or initializated).");
-} catch(const std::exception &e) {
-   Log::crit("An exception happend during the course of a destructor:\n%s", e.what());
-} catch(...) {
-   Log::crit("An unknow exception happend during the course of a destructor.");
+         Log::crit("An exception happend during the course of a destructor:\n%s", DBError(db, "The statement cannot be reset (or initializated).").what());
 }
 
