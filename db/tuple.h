@@ -1,12 +1,10 @@
 #ifndef TUPLE_H_
 #define TUPLE_H_
 
-#include <sqlite3.h>
 #include <memory>
 #include "stmt.h"
-#include "notimplementederror.h"
+#include "element.h"
 
-class Tuple;
 class sqlite3;
 class sqlite3_stmt;
 
@@ -32,32 +30,13 @@ class TupleIterator {
       
       int size() const;
 
-      template<class T> T at(int) const {
-         throw NotImplementedError("This template funcion should be called with a template argument T specific. See the class Tuple.");
+      template<typename T> T at(int i) {
+         check(i);
+         return E<T>(stmt, i);
       }
 
       ~TupleIterator() throw();
 };
 
-
-template<> int TupleIterator::at<int>(int i) const {
-   check(i);
-   return sqlite3_column_int(&stmt, i);
-}
-
-template<> double TupleIterator::at<double>(int i) const {
-   check(i);
-   return sqlite3_column_double(&stmt, i);
-}
-
-template<> const unsigned char* TupleIterator::at<const unsigned char*>(int i) const {
-   check(i);
-   return sqlite3_column_text(&stmt, i);
-}
-
-template<> const void* TupleIterator::at<const void*>(int i) const {
-   check(i);
-   return sqlite3_column_blob(&stmt, i);
-}
 
 #endif

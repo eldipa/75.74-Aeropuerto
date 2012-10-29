@@ -11,7 +11,8 @@ Database::Database(const char* filename, bool only_for_read) : filename(filename
             &database, 
             only_for_read ? SQLITE_OPEN_READONLY : SQLITE_OPEN_READWRITE,
             0) != SQLITE_OK) {
-      sqlite3_close(database);
+      
+      sqlite3_close(database); // This function has leaks
       throw DBError(*database, "The database '%s' cannot be open.", filename);
    }
 }
