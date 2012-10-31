@@ -23,17 +23,20 @@ int Statement::index(const char* arg_name) {
 void Statement::set(const char* arg_name, Element::blob val, int size) {
    if(size <= 0) 
       throw ValueError("The size must be greater that zero.");
-   Element::_private::E<Element::blob>(*stmt, index(arg_name)).set(val, size);
+   if(not Element::_private::E<Element::blob>(*stmt, index(arg_name)).set(val, size))
+      throw DBError(db, "The argument '%s' cannot be set.", arg_name);
 }
 
 void Statement::unset(const char* arg_name) {
-   sqlite3_bind_null(stmt, index(arg_name));
+   if(sqlite3_bind_null(stmt, index(arg_name)) != SQLITE_OK)
+      throw DBError(db, "The argument '%s' cannot be unset (set to null).", arg_name);
 }
 
 void Statement::zeros(const char* arg_name, int size) {
    if(size <= 0) 
       throw ValueError("The size must be greater that zero.");
-   sqlite3_bind_zeroblob(stmt, index(arg_name), size);
+   if(sqlite3_bind_zeroblob(stmt, index(arg_name), size) != SQLITE_OK)
+      throw DBError(db, "The argument '%s' cannot be filled with zeros.", arg_name);
 }
 
 std::auto_ptr<TupleIterator> Statement::begin() {

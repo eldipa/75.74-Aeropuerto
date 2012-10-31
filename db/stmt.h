@@ -4,6 +4,7 @@
 #include <memory>
 #include "database.h"
 #include "element.h"
+#include "dberror.h"
 
 class TupleIterator;
 
@@ -26,7 +27,8 @@ class Statement {
       std::auto_ptr<TupleIterator> end();
    
       template<class T> void set(const char* arg_name, T val) {
-         Element::_private::E<T>(*stmt, index(arg_name)).set(val);
+         if(not Element::_private::E<T>(*stmt, index(arg_name)).set(val))
+            throw DBError(db, "The argument '%s' cannot be set.", arg_name);
       }
 
       void set(const char* arg_name, Element::blob val, int size);

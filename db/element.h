@@ -39,8 +39,8 @@ namespace Element {
             operator int(){
                 return sqlite3_column_int(&stmt, i);
             }
-            void set(int val) {
-               sqlite3_bind_int(&stmt, i, val);
+            bool set(int val) {
+               return sqlite3_bind_int(&stmt, i, val) == SQLITE_OK;
             }
         };
 
@@ -51,8 +51,8 @@ namespace Element {
             operator double(){
                 return sqlite3_column_double(&stmt, i);
             }
-            void set(double val) {
-               sqlite3_bind_double(&stmt, i, val);
+            bool set(double val) {
+               return sqlite3_bind_double(&stmt, i, val) == SQLITE_OK;
             }
         };
 
@@ -64,9 +64,9 @@ namespace Element {
             operator text() {
                 return sqlite3_column_text(&stmt, i);
             }
-            void set(text val) {
+            bool set(text val) {
                //Mismatch. SQLite use "const char*" and "const unsigned char*" as 'text'
-               sqlite3_bind_text(&stmt, i, (const char*)val, -1, SQLITE_TRANSIENT);
+               return sqlite3_bind_text(&stmt, i, (const char*)val, -1, SQLITE_TRANSIENT) == SQLITE_OK;
             }
         };
 
@@ -77,8 +77,8 @@ namespace Element {
             operator blob(){
                 return sqlite3_column_blob(&stmt, i);
             }
-            void set(blob val, int size) {
-               sqlite3_bind_blob(&stmt, i, (const char*)val, size, SQLITE_TRANSIENT);
+            bool set(blob val, int size) {
+               return sqlite3_bind_blob(&stmt, i, (const char*)val, size, SQLITE_TRANSIENT) == SQLITE_OK;
             }
         };
     }
