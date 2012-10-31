@@ -69,7 +69,7 @@ class MessageQueue {
         void push(const void *msg, size_t size_txt);
         ssize_t pull(void *msg, size_t max_size_txt, long type = 0);
         
-        ~MessageQueue();
+        ~MessageQueue() throw();
 
 };
 

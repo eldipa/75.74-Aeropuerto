@@ -96,7 +96,7 @@ class SemaphoreSet {
         void wait_on(int semnum);
         void signalize(int semnum);
 
-        ~SemaphoreSet();
+        ~SemaphoreSet() throw();
 
     private:
         union semun {

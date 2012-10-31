@@ -79,21 +79,20 @@ SharedMemory::SharedMemory(const char *absolute_path, size_t size,
    }
 
 
-SharedMemory::~SharedMemory() 
-   try {
-      if(owner) {
-         mark_to_be_destroyed();
-      }
-      if(shmdt(attach_point) != 0) {
-         throw OSError("The shared memory "
-               MESSAGE_Key_Path_Permissions
-               " cannot be deattached",
-               key, path.c_str(), permissions);
-      }
-   } catch(const std::exception &e) {
-      Log::crit("An exception happend during the course of a destructor:\n%s", e.what());
-   } catch(...) {
-      Log::crit("An unknow exception happend during the course of a destructor.");
+SharedMemory::~SharedMemory() throw() {
+   Log::debug("%s shared memory using the path %s with key %x.", "Marking (to be destroyed)", path.c_str(), key);
+   if(shmctl(fd, IPC_RMID, 0) != 0) {
+      Log::crit("An exception happend during the course of a destructor:\n%s", OSError("The shared memory "
+            MESSAGE_Key_Path_Permissions
+            " cannot be marked to be destroyed",
+            key, path.c_str(), permissions).what());
    }
+   if(shmdt(attach_point) != 0) {
+      Log::crit("An exception happend during the course of a destructor:\n%s", OSError("The shared memory "
+            MESSAGE_Key_Path_Permissions
+            " cannot be deattached",
+            key, path.c_str(), permissions).what());
+   }
+}
 
 

@@ -81,14 +81,15 @@ ssize_t MessageQueue::pull(void *msg, size_t max_size_txt, long type) {
 }
 
 
-MessageQueue::~MessageQueue() 
-   try {
-      if(owner) {
-         destroy();
-      }
-   } catch(const std::exception &e) {
-      Log::crit("An exception happend during the course of a destructor:\n%s", e.what());
-   } catch(...) {
-      Log::crit("An unknow exception happend during the course of a destructor.");
-   }
+MessageQueue::~MessageQueue() throw() {
+    if(owner) {
+        Log::debug("%s message queue using the path %s with key %x.", "Destroying", path.c_str(), key);
+        if(msgctl(fd, IPC_RMID, 0) != 0) {
+            Log::crit("An exception happend during the course of a destructor:\n%s", OSError("The message queue "
+                        MESSAGE_Key_Path_Permissions
+                        " cannot be destroyed",
+                        key, path.c_str(), permissions).what());
+        }
+    }
+}
 

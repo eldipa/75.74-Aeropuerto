@@ -92,7 +92,7 @@ class SharedMemory {
            return attach_point;
         }
 
-        virtual ~SharedMemory();
+        virtual ~SharedMemory() throw();
 };
 
 #endif

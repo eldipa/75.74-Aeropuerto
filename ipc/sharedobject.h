@@ -120,7 +120,7 @@ class SharedObject : private SharedMemory {
          return *object;
       }
 
-      virtual ~SharedObject() {
+      virtual ~SharedObject() throw() {
          if(is_owner()) {
             object->~T();
          }
