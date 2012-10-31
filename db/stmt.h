@@ -3,6 +3,7 @@
 
 #include <memory>
 #include "database.h"
+#include "element.h"
 
 class TupleIterator;
 
@@ -19,9 +20,18 @@ class Statement {
       Statement operator=(const Statement&);
 
       friend std::auto_ptr<Statement> Database::statement(const char*);
+      int index(const char* arg_name);
    public:
       std::auto_ptr<TupleIterator> begin();
       std::auto_ptr<TupleIterator> end();
+   
+      template<class T> void set(const char* arg_name, T val) {
+         Element::_private::E<T>(*stmt, index(arg_name)).set(val);
+      }
+
+      void set(const char* arg_name, Element::blob val, int size);
+      void unset(const char* arg_name);
+      void zeros(const char* arg_name, int size);
 
       void finalize();
 

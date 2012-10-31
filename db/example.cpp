@@ -12,8 +12,13 @@ int main(int , char *[]) try {
 
    //Ahora construimos un statement o instruccion SQL. Puede ser una query, un insert, un update, ...
    //pero nunca puede contener un COMMIT.
-   std::auto_ptr<Statement> ins = db.statement("insert into FechaHora values (9,date('2012-10-29'),10,45)");
+   std::auto_ptr<Statement> ins = db.statement("insert into FechaHora (fecha, hora, minuto) values (date('2012-10-29'), :hora, :minutos)");
    std::auto_ptr<Statement> query = db.statement("select * from FechaHora");
+
+   //Notese como la instruccion "ins" tiene componentes variables.
+   //Para setearles valores particulares basta con:
+   ins->set(":hora", 10);
+   ins->set(":minutos", 45);
 
    //La instruccion SQL esta construida pero no es ejecutada.
    //Para "comenzar" a ejecutarla se debe llamar a begin
@@ -22,9 +27,6 @@ int main(int , char *[]) try {
    //
    //Para este caso, la instruccion insert no devuelve ningun listado de resultados por lo que con
    //llamar a begin alcanza con ejecutar y terminar la instruccion
-   //
-   //NOTA: deshabilitar esta linea. La primera vez q se ejecute, no habra ninguna tupla (9, 2012-10-29 ...)
-   //y la insercion ocurrira. Las siguientes veces, al intentar insertar una tupla, habra un error de primery key.
    ins->begin();
     
    //Para el caso de una query, esta puede retornar varios resultados. Para poder tener accesso a
