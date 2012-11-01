@@ -1,2 +1,2 @@
-INCLUDE_PATHS = ../os
+INCLUDE_PATHS = ../os ../ipc ../log
 TARGET = libapi.a

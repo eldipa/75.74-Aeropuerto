@@ -11,11 +11,16 @@
 class Equipaje {
 public:
 
+   Equipaje() : rfid(0), _peso(0) {}
    Equipaje(int id, int peso = 0) : rfid(id), _peso(peso) {}
    Equipaje(const Equipaje &e) : rfid(e.rfid.rfid) {
    } 
 
    Rfid getRfid() { return rfid; }
+
+   operator int() {
+      return rfid.rfid;
+   }
 
    std::string toString() const {
       std::ostringstream ostream;
