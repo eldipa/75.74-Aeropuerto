@@ -16,10 +16,7 @@ int main(int argc, char *argv[]) {
       return (1);
    }
 
-   Cinta<Equipaje, CAPACIDAD_CINTA_CHECKIN>  cinta_checkin_out( PUESTOS_CHECKIN_POR_CINTA,
-                                                                ROBOT_CHECKIN_POR_CINTA,
-                                                                argv[2],
-                                                                argv[3]);
+   CintaCheckin  cinta_checkin_out(argv[2], argv[3]);
    
    Log::info("Iniciando puesto_checkin(%s), %s \n", argv[1], argv[2] );
    

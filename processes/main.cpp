@@ -27,11 +27,9 @@ char *args_puesto_checkin[] = { (char*) "puesto_checkin",
 int main() {
 	pid_t pid = 0;
 
-  Cinta< Equipaje, CAPACIDAD_CINTA_CHECKIN > checkin_to_scanner(PUESTOS_CHECKIN_POR_CINTA,
-                                                                ROBOT_CHECKIN_POR_CINTA,
-                                                                TOSTRING(MAKE_PATH) "/mem.txt",
-                                                                TOSTRING(MAKE_PATH) "/sem.txt",
-                                                                true);
+  CintaCheckin checkin_to_scanner(TOSTRING(MAKE_PATH) "/mem.txt",
+                                  TOSTRING(MAKE_PATH) "/sem.txt",
+                                  true);
 
 
   Log::info("iniciando simulación...");

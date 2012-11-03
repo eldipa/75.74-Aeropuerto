@@ -18,10 +18,7 @@ int main( int argc, char** argv ) {
       exit(1);
    }
 
-   Cinta<Equipaje,CAPACIDAD_CINTA_CHECKIN> cinta_checkin_in( PUESTOS_CHECKIN_POR_CINTA,
-                                                             1,
-                                                             argv[2],
-                                                             argv[3] );
+   CintaCheckin cinta_checkin_in( argv[2], argv[3] );
 
    // cada robot de checkin distribuye entre n scanners
    std::vector<ApiCinta> cintas_a_scanner;

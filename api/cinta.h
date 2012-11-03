@@ -15,7 +15,11 @@
 /*
  * Cinta que puede tener hasta N elementos de tipo T. 
  **/
-template <class T, int N>
+// T: Tipo almacenado
+// N: Máximo de elementos en la cinta
+// MP: Máximo de productores
+// MC: Máximo de consumidores
+template <class T, int N, int MP, int MC>
 class Cinta {
    
 public:
@@ -32,35 +36,30 @@ public:
     * absolute_path_mem y absolute_path_sem son los path utilizados para crear el set de semaforos y la shared memory.
     * Tienen que ser distintos.
     **/
-   Cinta( unsigned int productores, unsigned int consumidores, const char* absolute_path_mem, const char* absolute_path_sem, bool create )
-      : mutex_cinta( waiting_sem, productores+consumidores ),
-        waiting_sem( std::vector<short unsigned int>(productores+consumidores+1, 0), absolute_path_sem ),
-        shm( absolute_path_mem, sizeof(BoundedQueue<T,N>)+(sizeof(bool)*(productores+consumidores)),0664, create ) {
+   Cinta( const char* absolute_path_mem, const char* absolute_path_sem, bool create )
+      : mutex_cinta( waiting_sem, MP+MC ),
+        waiting_sem( std::vector<short unsigned int>(MP+MC+1, 0), absolute_path_sem ),
+        shm( absolute_path_mem, sizeof(BoundedQueue<T,N>)+(sizeof(bool)*(MP+MC)),0664, create ) {
 
+      // Asignar punteros
       cinta = (BoundedQueue<T,N>*)shm.memory_pointer();
-      (*cinta) = BoundedQueue<T,N>();
-      cant_productores = productores;
-      cant_consumidores = consumidores;
+      is_waiting = (bool*)(cinta + 1);
 
-      is_waiting = (bool*)shm.memory_pointer()+sizeof(BoundedQueue<T,N>);
-      for(unsigned int i=0; i<productores+consumidores; i++)
+      // Inicializar (al final)
+      new(cinta) BoundedQueue<T,N>();
+      for(unsigned int i=0; i<MP+MC; i++)
          is_waiting[i] = false;
       mutex_cinta.unlock();
    }
 
-   Cinta( unsigned int productores, unsigned int consumidores, const char* absolute_path_mem, const char* absolute_path_sem )
-      : mutex_cinta( waiting_sem, productores+consumidores ),
-        waiting_sem( absolute_path_sem, productores+consumidores+1 ),
-        shm( absolute_path_mem, sizeof(BoundedQueue<T,N>)+(sizeof(bool)*(productores+consumidores)),0664) {
+   Cinta( const char* absolute_path_mem, const char* absolute_path_sem )
+      : mutex_cinta( waiting_sem, MP + MC ),
+        waiting_sem( absolute_path_sem, MP + MC + 1 ),
+        shm( absolute_path_mem, sizeof(BoundedQueue<T,N>)+(sizeof(bool)*(MP+MC)),0664) {
 
+      // Asignar punteros
       cinta = (BoundedQueue<T,N>*)shm.memory_pointer();
-      cant_productores = productores;
-      cant_consumidores = consumidores;
-
-      is_waiting = (bool*)shm.memory_pointer()+sizeof(BoundedQueue<T,N>);
-      for(unsigned int i=0; i<productores+consumidores; i++)
-         is_waiting[i] = false;
-      mutex_cinta.unlock();
+      is_waiting = (bool*)(cinta + 1);
    }
 
    /*
@@ -100,7 +99,7 @@ public:
    virtual ~Cinta() {
    }
 
-   friend std::ostream& operator<<( std::ostream& stream,  Cinta<T,N>& q ) {
+   friend std::ostream& operator<<( std::ostream& stream,  Cinta<T,N, MP, MC>& q ) {
       q.mutex_cinta.lock();
       stream << (*q.cinta);
       q.mutex_cinta.unlock();
@@ -113,8 +112,6 @@ private:
    bool* is_waiting;
    Mutex mutex_cinta;
    SemaphoreSet waiting_sem;
-   unsigned int cant_productores;
-   unsigned int cant_consumidores;
    BoundedQueue<T,N>* cinta;   
    SharedMemory shm;
 
@@ -133,7 +130,7 @@ private:
    }
 
    void unlock_productores() {
-      for( unsigned int i=0; i<cant_productores; i++ ) {
+      for( unsigned int i=0; i< MP; i++ ) {
          if (get_is_waiting(i, true)) {
            get_is_waiting(i, true) = false;
            get_sem(i,true).unlock();
@@ -142,7 +139,7 @@ private:
    }
 
    void unlock_consumidores() {
-      for( unsigned int i=0; i<cant_consumidores; i++ ) {
+      for( unsigned int i=0; i< MC; i++ ) {
         if (get_is_waiting(i, false)) {
           get_is_waiting(i, false) = false;
           get_sem(i,false).unlock();
@@ -154,14 +151,14 @@ private:
       if( es_productor )
          return Mutex(waiting_sem, id);
       else 
-         return Mutex(waiting_sem, id+cant_productores);
+         return Mutex(waiting_sem, id+MP);
    }
 
    bool& get_is_waiting( unsigned int id, bool es_productor ) {
       if( es_productor )  {
          return is_waiting[id];
       } else {
-         return is_waiting[id+cant_productores];
+         return is_waiting[id+MP];
       }
    }
 
