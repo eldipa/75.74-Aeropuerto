@@ -7,30 +7,38 @@
 #include "process.h"
 #include "equipaje.h"
 #include "constants.h"
+<<<<<<< HEAD
 #include "daemon.h"
+=======
+#include "cintaprincipal.h"
+
+>>>>>>> modificamos los ipcs para que reciban el abs_path y el proj_id.modifico los constructores de las cintas.reciben un solo path y un num_cinta
 
 char *args_robot_checkin[] = { (char*) "robot_checkin",
                                (char*)"0",  // ID
-                               (char*) TOSTRING(MAKE_PATH) "/mem.txt",
-                               (char*) TOSTRING(MAKE_PATH) "/sem.txt",
-                               (char*) TOSTRING(MAKE_PATH) "/sem.txt",
-                               (char*) TOSTRING(MAKE_PATH) "/sem.txt",
+                               (char*) TOSTRING(MAKE_PATH) PATH_CINTA_CHECKIN,
+                               (char*)"0",
+                               (char*) TOSTRING(MAKE_PATH) PATH_CINTA_SCANNER,
+                               (char*)"0",
                                NULL };
 
 char *args_puesto_checkin[] = { (char*) "puesto_checkin",
                                 (char*)"0",  // ID
-                                (char*) TOSTRING(MAKE_PATH) "/mem.txt",
-                                (char*) TOSTRING(MAKE_PATH) "/sem.txt",
+                                (char*) TOSTRING(MAKE_PATH) PATH_CINTA_CHECKIN,
+                                (char*)"0",
                                 NULL };
 /*
  * Crea un puesto de checkin comunicado con un robot_scanner a travez de una cinta.
  **/
 
 int main() {
-  CintaCheckin checkin_to_scanner(TOSTRING(MAKE_PATH) "/mem.txt",
-                                  TOSTRING(MAKE_PATH) "/sem.txt",
+	pid_t pid = 0;
+
+  CintaCheckin checkin_to_scanner(TOSTRING(MAKE_PATH) PATH_CINTA_CHECKIN,
+                                  0 ,
                                   true);
 
+  CintaCentral cinta_principal( true, TOSTRING(MAKE_PATH) PATH_CINTA_CENTRAL, 0);
 
   Log::info("iniciando simulación...");
 

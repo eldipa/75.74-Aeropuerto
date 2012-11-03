@@ -36,15 +36,15 @@ public:
     * absolute_path_mem y absolute_path_sem son los path utilizados para crear el set de semaforos y la shared memory.
     * Tienen que ser distintos.
     **/
-   Cinta( const char* absolute_path_mem, const char* absolute_path_sem, bool create )
+   Cinta( const char* absolute_path, int num_cinta, bool create )
       : mutex_cinta( waiting_sem, MP+MC ),
-        waiting_sem( std::vector<short unsigned int>(MP+MC+1, 0), absolute_path_sem ),
-        shm( absolute_path_mem, sizeof(BoundedQueue<T,N>)+(sizeof(bool)*(MP+MC)),0664, create ) {
+        waiting_sem( std::vector<short unsigned int>(MP+MC+1, 0), absolute_path, num_cinta*cant_ipcs ),
+        shm( absolute_path, (num_cinta*cant_ipcs)+1, sizeof(BoundedQueue<T,N>)+(sizeof(bool)*(MP+MC)),0664, create ) {
 
       // Asignar punteros
       cinta = (BoundedQueue<T,N>*)shm.memory_pointer();
       is_waiting = (bool*)(cinta + 1);
-
+ 
       // Inicializar (al final)
       new(cinta) BoundedQueue<T,N>();
       for(unsigned int i=0; i<MP+MC; i++)
@@ -52,10 +52,10 @@ public:
       mutex_cinta.unlock();
    }
 
-   Cinta( const char* absolute_path_mem, const char* absolute_path_sem )
+   Cinta( const char* absolute_path, int num_cinta )
       : mutex_cinta( waiting_sem, MP + MC ),
-        waiting_sem( absolute_path_sem, MP + MC + 1 ),
-        shm( absolute_path_mem, sizeof(BoundedQueue<T,N>)+(sizeof(bool)*(MP+MC)),0664) {
+        waiting_sem( absolute_path, num_cinta*cant_ipcs, MP + MC + 1 ),
+        shm( absolute_path, (num_cinta*cant_ipcs)+1, sizeof(BoundedQueue<T,N>)+(sizeof(bool)*(MP+MC)),0664) {
 
       // Asignar punteros
       cinta = (BoundedQueue<T,N>*)shm.memory_pointer();
@@ -115,6 +115,7 @@ private:
    BoundedQueue<T,N>* cinta;   
    SharedMemory shm;
 
+   static const int cant_ipcs = 2;
    void wait_no_lleno( unsigned int id_productor ) { 
       get_is_waiting(id_productor, true) = true;
       mutex_cinta.unlock();

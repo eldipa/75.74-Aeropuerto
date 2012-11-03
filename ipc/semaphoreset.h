@@ -78,10 +78,10 @@ class SemaphoreSet {
          *
          * See man semget(2)
          * */
-        SemaphoreSet(const char *absolute_path, int semaphores, int permissions = 0664);
-        
-        SemaphoreSet(const std::vector<unsigned short> &vals,
-              const char *absolute_path, int permissions = 0664);
+   SemaphoreSet(const char *absolute_path, int proj_id, int semaphores, int permissions = 0664);
+   
+   SemaphoreSet(const std::vector<unsigned short> &vals,
+                const char *absolute_path, int proj_id, int permissions = 0664);
 
          
         /*

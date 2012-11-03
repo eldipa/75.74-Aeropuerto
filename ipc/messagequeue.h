@@ -63,7 +63,7 @@ class MessageQueue {
          *
          * See man msgget(2)
          * */
-        MessageQueue(const char *absolute_path, 
+   MessageQueue(const char *absolute_path, char proj_id, 
               int permissions = 0664, bool create = false);
 
         void push(const void *msg, size_t size_txt);

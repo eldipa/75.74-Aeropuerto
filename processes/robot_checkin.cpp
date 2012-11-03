@@ -13,11 +13,11 @@
 int main( int argc, char** argv ) {
    
    if ( argc < 4 ) {
-      Log::crit("Insuficientes parametros para robot de checkin, se esperaba (id, cinta_checkin_in cinta_checkin_in cinta_scanner_out_1...cinta_scanner_out_n)\n");
+      Log::crit("Insuficientes parametros para robot de checkin, se esperaba (id, cinta_checkin_in num_cinta_checkin_in cinta_scanner_out_1...cinta_scanner_out_n)\n");
       exit(1);
    }
 
-   CintaCheckin cinta_checkin_in( argv[2], argv[3] );
+   CintaCheckin cinta_checkin_in( argv[2], atoi(argv[3]) );
 
    // cada robot de checkin distribuye entre n scanners
    std::vector<ApiCinta> cintas_a_scanner;

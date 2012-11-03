@@ -82,9 +82,9 @@ class SharedObject : private SharedMemory {
        *    SharedObject<Buffer> buffer;
        *    (*buffer)[2];           // Access to the third element
        * */
-      SharedObject(const char *absolute_path, int permissions = 0664, 
+       SharedObject(const char *absolute_path, int proj_id, int permissions = 0664, 
             bool create = false, bool only_for_read = false) : 
-         SharedMemory(absolute_path, sizeof(T), permissions, create, only_for_read) {
+            SharedMemory(absolute_path, proj_id, sizeof(T), permissions, create, only_for_read) {
             if(is_owner()) {
                object = new(this->memory_pointer()) T();
             }
@@ -93,10 +93,10 @@ class SharedObject : private SharedMemory {
             }
          }
 
-      SharedObject(const T& val, const char *absolute_path, int permissions = 0664, 
-            bool only_for_read = false) : 
-         SharedMemory(absolute_path, sizeof(T), permissions, true, only_for_read) {
-            object = new(this->memory_pointer()) T(val);
+       SharedObject(const T& val, const char *absolute_path, int proj_id, int permissions = 0664, 
+                    bool only_for_read = false) : 
+          SharedMemory(absolute_path, proj_id, sizeof(T), permissions, true, only_for_read) {
+          object = new(this->memory_pointer()) T(val);
          }
 
       /*

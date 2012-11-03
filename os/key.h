@@ -42,6 +42,6 @@ typedef key_t Key;
  *
  * See man ftok(3)
  * */
-Key get_key(const char *absolute_path);
+Key get_key(const char *absolute_path, char proj_id);
 
 #endif

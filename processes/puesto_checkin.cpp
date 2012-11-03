@@ -11,13 +11,13 @@ int main(int argc, char *argv[]) {
    int next_rfid = 1;
 
    if (argc < 4) {
-      Log::crit("Insuficientes parametros para puesto_checkin, se esperaba (id, cinta_out_path1 cinta_out_path2)\n");
+      Log::crit("Insuficientes parametros para puesto_checkin, se esperaba (id, path_cinta num_cinta)\n");
       return (1);
    }
 
-   CintaCheckin  cinta_checkin_out(argv[2], argv[3]);
+   CintaCheckin  cinta_checkin_out(argv[2], atoi(argv[3]));
    
-   Log::info("Iniciando puesto_checkin(%s), %s \n", argv[1], argv[2] );
+   Log::info("Iniciando puesto_checkin(%s), %s \n", argv[1], atoi(argv[2]) );
    
    for(;;) {
       Equipaje equipaje( next_rfid );

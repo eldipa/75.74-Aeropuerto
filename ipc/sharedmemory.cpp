@@ -43,13 +43,13 @@ void SharedMemory::mark_to_be_destroyed() {
    }
 }
 
-SharedMemory::SharedMemory(const char *absolute_path, size_t size, 
-      int permissions, bool create, bool only_for_read) : owner(create),
+SharedMemory::SharedMemory(const char *absolute_path, int proj_id, size_t size, 
+                           int permissions, bool create, bool only_for_read) : owner(create),
    path(absolute_path), 
    permissions(permissions),
    size(size),
    attach_point(0) {
-      key = get_key(absolute_path);
+   key = get_key(absolute_path, proj_id);
       Log::debug("%s shared memory using the path %s with key %x.", (create? "Creating" : "Getting"), absolute_path, key);
       fd = shmget(key, size, (create ? (IPC_CREAT | IPC_EXCL) : 0) | permissions);
       if(fd == -1) {

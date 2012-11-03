@@ -48,12 +48,12 @@ void SemaphoreSet::destroy() {
    }
 }
 
-SemaphoreSet::SemaphoreSet(const char *absolute_path, 
-      int semaphores, int permissions) : owner(false),
+SemaphoreSet::SemaphoreSet(const char *absolute_path, int proj_id,
+                           int semaphores, int permissions) : owner(false),
    path(absolute_path), 
    permissions(permissions),
    semaphores(semaphores) {
-      key = get_key(absolute_path);
+   key = get_key(absolute_path, proj_id);
       Log::debug("%s semaphore set using the path %s with key %x.", (false? "Creating" : "Getting"), absolute_path, key);
       fd = semget(key, semaphores, permissions);
       if(fd == -1) {
@@ -65,11 +65,11 @@ SemaphoreSet::SemaphoreSet(const char *absolute_path,
    }
 
 SemaphoreSet::SemaphoreSet(const std::vector<unsigned short> &vals,
-      const char *absolute_path, int permissions) : owner(true),
+                           const char *absolute_path, int proj_id, int permissions) : owner(true),
    path(absolute_path), 
    permissions(permissions),
    semaphores((int) vals.size()) {
-      key = get_key(absolute_path);
+   key = get_key(absolute_path, proj_id);
       Log::debug("%s semaphore set using the path %s with key %x.", (true? "Creating" : "Getting"), absolute_path, key);
       fd = semget(key, semaphores, IPC_CREAT | IPC_EXCL | permissions);
       if(fd == -1) {

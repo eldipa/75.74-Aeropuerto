@@ -43,11 +43,11 @@ void MessageQueue::destroy() {
    }
 }
 
-MessageQueue::MessageQueue(const char *absolute_path, 
+MessageQueue::MessageQueue(const char *absolute_path, char proj_id, 
       int permissions, bool create) : owner(create),
    path(absolute_path), 
    permissions(permissions) {
-      key = get_key(absolute_path);
+   key = get_key(absolute_path, proj_id);
       Log::debug("%s message queue using the path %s with key %x.", (create? "Creating" : "Getting"), absolute_path, key);
       fd = msgget(key, (create ? (IPC_CREAT | IPC_EXCL) : 0) | permissions);
       if(fd == -1) {

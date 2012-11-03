@@ -38,7 +38,10 @@ volver al principio
 
 template<class T, int CantRobots>
 class CintaPrincipal {
+   
    private:
+      static const int cant_ipcs = 3;
+
       struct _Cinta {
          T posiciones[CantRobots];
       };
@@ -48,16 +51,16 @@ class CintaPrincipal {
       SemaphoreSet lleno;
 
    public:
-      CintaPrincipal(bool, const char *abs_path_memory, const char *abs_path_sem_vacio, const char* abs_path_sem_lleno) :
-         cinta(abs_path_memory, 0664, true),
-         vacio(std::vector<unsigned short>(CantRobots, 1), abs_path_sem_vacio),
-         lleno(std::vector<unsigned short>(CantRobots, 0), abs_path_sem_lleno) {
+   CintaPrincipal(bool, const char *abs_path, int num_cinta) :
+         cinta(abs_path, num_cinta*cant_ipcs, 0664, true),
+         vacio(std::vector<unsigned short>(CantRobots, 1), abs_path, num_cinta*cant_ipcs+1 ),
+         lleno(std::vector<unsigned short>(CantRobots, 0), abs_path, num_cinta*cant_ipcs+2) {
          }
       
-      CintaPrincipal(const char *abs_path_memory, const char *abs_path_sem_vacio, const char* abs_path_sem_lleno) :
-         cinta(abs_path_memory),
-         vacio(abs_path_sem_vacio, CantRobots),
-         lleno(abs_path_sem_lleno, CantRobots) {
+   CintaPrincipal(const char *abs_path, int num_cinta) :
+      cinta(abs_path, num_cinta*cant_ipcs),
+      vacio(abs_path, num_cinta*cant_ipcs+1, CantRobots),
+      lleno(abs_path, num_cinta*cant_ipcs+2, CantRobots) {
          }
       
       /*

@@ -30,17 +30,11 @@
 #include "oserror.h"
 #include <sys/ipc.h>
 
-Key get_key(const char *absolute_path) {
-    char magic_char = 0;
-    int i = 0;
-    while(absolute_path[i] != 0) {
-       magic_char += (char)((absolute_path[i] * i) % 256);
-       ++i;
-    }
-    Key key = ftok(absolute_path, magic_char);
+Key get_key(const char *absolute_path, char proj_id) {
+    Key key = ftok(absolute_path, proj_id);
     if(key == -1) {
         throw OSError("The key generator 'ftok' is failing using the path '%s' and the magic character '%c'", 
-                        absolute_path, magic_char);
+                      absolute_path, proj_id);
     }
     return key;
 }
