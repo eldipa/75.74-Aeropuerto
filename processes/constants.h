@@ -3,14 +3,15 @@
 
 // Configuración cintas
 #define CAPACIDAD_CINTA_CHECKIN 3
-#define PUESTOS_CHECKIN_POR_CINTA 1
+#define PUESTOS_CHECKIN_POR_CINTA 10 // Maximo
 #define ROBOT_CHECKIN_POR_CINTA 1
+
 
 // Sleeps
 #define SLEEP_PUESTO_CHECKIN 3
 #define SLEEP_ROBOT_CHECKIN 20
 
-#define TIEMPO_SIMULACION 100
+#define TIEMPO_SIMULACION 20
 
 // Other macros
 #define STRINGIFY(x) #x

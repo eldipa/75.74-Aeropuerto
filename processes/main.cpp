@@ -7,9 +7,8 @@
 #include "equipaje.h"
 #include "constants.h"
 
-
 char *args_robot_checkin[] = { (char*) "robot_checkin",
-                               (char*)"0", 
+                               (char*)"0",  // ID
                                (char*) TOSTRING(MAKE_PATH) "/mem.txt",
                                (char*) TOSTRING(MAKE_PATH) "/sem.txt",
                                (char*) TOSTRING(MAKE_PATH) "/sem.txt",
@@ -17,7 +16,7 @@ char *args_robot_checkin[] = { (char*) "robot_checkin",
                                NULL };
 
 char *args_puesto_checkin[] = { (char*) "puesto_checkin",
-                                (char*)"0",
+                                (char*)"0",  // ID
                                 (char*) TOSTRING(MAKE_PATH) "/mem.txt",
                                 (char*) TOSTRING(MAKE_PATH) "/sem.txt",
                                 NULL };
@@ -54,6 +53,6 @@ int main() {
 		}
 	}
    	
-   sleep( TIEMPO_SIMULACION );
-   return 0;
+  sleep( TIEMPO_SIMULACION );
+  return 0;
 }

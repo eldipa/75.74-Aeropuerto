@@ -72,10 +72,10 @@ public:
       while( cinta->is_empty() ) {
          wait_no_vacio( id_consumidor );
       }
-      T return_element = cinta->take();
-      if(cinta->get_size() == N-1) {
+      if(cinta->is_full()) {
          unlock_productores();
       }
+      T return_element = cinta->take();
       mutex_cinta.unlock();
       return return_element;
    }
@@ -90,10 +90,10 @@ public:
       while(cinta->is_full()) {
          wait_no_lleno( id_productor );
       }
-      cinta->offer( elemento );
-      if( cinta->get_size() == 1 ) {
+      if( cinta->is_empty()) {
          unlock_consumidores();
       }
+      cinta->offer( elemento );
       mutex_cinta.unlock();
    }
 
@@ -134,15 +134,19 @@ private:
 
    void unlock_productores() {
       for( unsigned int i=0; i<cant_productores; i++ ) {
-         get_is_waiting(i, true) = false;
-         get_sem(i,true).unlock();
+         if (get_is_waiting(i, true)) {
+           get_is_waiting(i, true) = false;
+           get_sem(i,true).unlock();
+         }
       }
    }
 
    void unlock_consumidores() {
       for( unsigned int i=0; i<cant_consumidores; i++ ) {
-         get_is_waiting(i, false) = false;
-         get_sem(i,false).unlock();
+        if (get_is_waiting(i, false)) {
+          get_is_waiting(i, false) = false;
+          get_sem(i,false).unlock();
+        }
       }      
    }
 
