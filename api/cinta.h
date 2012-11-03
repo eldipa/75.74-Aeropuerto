@@ -122,12 +122,14 @@ private:
       get_is_waiting(id_productor, true) = true;
       mutex_cinta.unlock();
       get_sem(id_productor, true).lock();
+      mutex_cinta.lock();
    }
 
    void wait_no_vacio( unsigned int id_consumidor ) {
       get_is_waiting(id_consumidor, false) = true;
       mutex_cinta.unlock();
       get_sem(id_consumidor, false).lock();
+      mutex_cinta.lock();
    }
 
    void unlock_productores() {
