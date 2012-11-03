@@ -41,7 +41,9 @@ public:
         mutex_reader( waiting_sem, 3 ),
         mutex_writer( waiting_sem, 4 ) {
 
-      Log::debug("Creando cinta (%s:%i)", absolute_path, num_cinta);
+      setup_name(absolute_path, num_cinta);
+
+      Log::debug("Creando %s", name);
 
       // Asignar punteros
       cinta = (BoundedQueue<T,N>*)shm.memory_pointer();
@@ -53,8 +55,8 @@ public:
       reader_waiting = false;
       writer_waiting = false;
 
-      mutex_lleno.unlock();
-      mutex_vacio.unlock();
+      mutex_lleno.lock();
+      mutex_vacio.lock();
    }
 
    Cinta( const char* absolute_path, int num_cinta )
@@ -66,7 +68,9 @@ public:
         mutex_reader( waiting_sem, 3 ),
         mutex_writer( waiting_sem, 4 ) {
 
-      Log::debug("Conectándose a cinta (%s:%i)", absolute_path, num_cinta);
+      setup_name(absolute_path, num_cinta);
+
+      Log::debug("Conectándose a %s", name);
 
       // Asignar punteros
       cinta = (BoundedQueue<T,N>*)shm.memory_pointer();
@@ -132,6 +136,7 @@ public:
 private:
    Cinta(const Cinta&);
 
+   char name[80];
    bool* reader_waiting;
    bool* writer_waiting;
    BoundedQueue<T,N>* cinta;
@@ -145,9 +150,9 @@ private:
    Mutex mutex_reader;
    Mutex mutex_writer;
 
-
    static const int cant_ipcs = 2;
    void wait_no_lleno() {
+      Log::debug("%s llena :(", name);
       *writer_waiting = true;
       mutex_cinta.unlock();
       mutex_lleno.lock();
@@ -156,12 +161,14 @@ private:
 
    void wait_no_vacio() {
       *reader_waiting = true;
+      Log::debug("%s vacía :(", name);
       mutex_cinta.unlock();
       mutex_vacio.lock();
       mutex_cinta.lock();
    }
   void unlock_productores() {
     if (*writer_waiting) {
+      Log::debug("%s dejó de estar llena :)", name);
       mutex_lleno.unlock();
       *writer_waiting = false;
     }
@@ -169,9 +176,18 @@ private:
 
   void unlock_consumidores() {
     if (*reader_waiting) {
+      Log::debug("%s dejó de estar vacía :)", name);
       mutex_vacio.unlock();
       *reader_waiting = false;
     }
+  }
+
+  void setup_name(const char *path, int num_cinta) {
+    const char* last_slash = strrchr(path, '/');
+    if (last_slash)
+      snprintf(name, 80, "Cinta(%s:%i)", last_slash + 1, num_cinta);
+    else
+      snprintf(name, 80, "Cinta(%s:%i)", path, num_cinta);
   }
 };
 

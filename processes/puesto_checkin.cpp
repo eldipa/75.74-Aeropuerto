@@ -15,16 +15,18 @@ int main(int argc, char *argv[]) {
       return (1);
    }
 
-   CintaCheckin cinta_checkin_out(argv[2], atoi(argv[3]));
+   Log::info("Iniciando puesto_checkin(%s), conectado a cinta %i\n", argv[1], atoi(argv[3]) );
 
-   Log::info("Iniciando puesto_checkin(%s), %s \n", argv[1], atoi(argv[2]) );
+   CintaCheckin cinta_checkin_out(argv[2], atoi(argv[3]));
 
    for(;;) {
       Equipaje equipaje( next_rfid );
-      Log::info("Puesto Checkin(%s) llego  equipaje (rfid=%d).Intento ponerlo en la cinta \n", argv[1], next_rfid);
+      Log::info("Puesto Checkin(%s) llego equipaje (rfid=%d)\n", argv[1], next_rfid);
 
+      sleep(rand() % SLEEP_PUESTO_CHECKIN);
+
+      Log::info("Puesto Checkin(%s) enviando (rfid=%d) a robot_checkin\n", argv[1], next_rfid);
       cinta_checkin_out.poner_equipaje( equipaje );
-      Log::info("Puesto Checkin(%s) equipaje (rfid=%d) llendo a robot_checkin \n", argv[1], next_rfid);
 
       next_rfid++;
       sleep(rand() % SLEEP_PUESTO_CHECKIN);
