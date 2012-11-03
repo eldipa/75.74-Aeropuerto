@@ -7,12 +7,7 @@
 #include "process.h"
 #include "equipaje.h"
 #include "constants.h"
-<<<<<<< HEAD
 #include "daemon.h"
-=======
-#include "cintaprincipal.h"
-
->>>>>>> modificamos los ipcs para que reciban el abs_path y el proj_id.modifico los constructores de las cintas.reciben un solo path y un num_cinta
 
 char *args_robot_checkin[] = { (char*) "robot_checkin",
                                (char*)"0",  // ID
@@ -32,7 +27,6 @@ char *args_puesto_checkin[] = { (char*) "puesto_checkin",
  **/
 
 int main() {
-	pid_t pid = 0;
 
   CintaCheckin checkin_to_scanner(TOSTRING(MAKE_PATH) PATH_CINTA_CHECKIN,
                                   0 ,
