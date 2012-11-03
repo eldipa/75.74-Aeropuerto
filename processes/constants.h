@@ -1,6 +1,9 @@
 #ifndef CONSTANTS_H_
 #define CONSTANTS_H_
 
+#include "cinta.h"
+#include "cintaprincipal.h"
+
 // Configuración cintas
 #define CAPACIDAD_CINTA_CHECKIN 3
 
@@ -18,7 +21,7 @@
 
 typedef Cinta< Equipaje, CAPACIDAD_CINTA_CHECKIN, MAX_PUESTOS_CHECKIN, 1 > CintaCheckin;
 typedef Cinta< Equipaje, CAPACIDAD_CINTA_CHECKIN, 1, MAX_PUESTOS_SCANNER > CintaScanner;
-typedef Cinta< Equipaje, CAPACIDAD_CINTA_CHECKIN, MAX_CONECTADOS_A_PPAL, CANTIDAD_DE_CONSUMIDORES_PPAL > CintaPrincipal; // Cambiar por la implementación de Gonzalo
+typedef CintaPrincipal< Equipaje, CANTIDAD_DE_CONSUMIDORES_PPAL > CintaCentral;
 typedef Cinta< Equipaje, CAPACIDAD_CINTA_CHECKIN, 1, 1 > CintaContenedor;
 
 // Other macros

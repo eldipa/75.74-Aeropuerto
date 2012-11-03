@@ -5,7 +5,6 @@
 #include "api_cinta.h"
 #include "log.h"
 #include "equipaje.h"
-#include "cinta.h"
 
 #include <vector>
 #include <string>

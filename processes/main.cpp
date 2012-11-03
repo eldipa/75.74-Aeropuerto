@@ -3,7 +3,6 @@
 #include <stdio.h>
 
 #include "log.h"
-#include "cinta.h"
 #include "equipaje.h"
 #include "constants.h"
 

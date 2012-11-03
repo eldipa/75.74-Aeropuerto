@@ -5,7 +5,6 @@
 
 #include "equipaje.h"
 #include "log.h"
-#include "cinta.h"
 #include "constants.h"
 
 int main(int argc, char *argv[]) {
