@@ -7,6 +7,7 @@
 #include "process.h"
 #include "equipaje.h"
 #include "constants.h"
+#include "daemon.h"
 
 char *args_robot_checkin[] = { (char*) "robot_checkin",
                                (char*)"0",  // ID
@@ -35,6 +36,8 @@ int main() {
 
   Process puesto_checkin("puesto_checkin", args_puesto_checkin);
   Process robot_checkin("robot_checkin", args_robot_checkin);
+  
+  be_a_daemon();
    	
   sleep( TIEMPO_SIMULACION );
 
