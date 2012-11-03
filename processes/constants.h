@@ -9,4 +9,9 @@
 #define SLEEP_ROBOT_CHECKIN 20
 
 #define TIEMPO_SIMULACION 100
+
+#define STRINGIFY(x) #x
+#define TOSTRING(x) STRINGIFY(x)
+#define AT __FILE__ ":" TOSTRING(__LINE__)
+
 #endif

@@ -76,7 +76,7 @@ EXTERNAL_LIBRARIES =
 #
 # The '$@' element represent the target object, '$<' is the first dependency element
 # and '$^' are the dependencies without duplicated of that rule.
-COMPILE = $(TIMEIT) g++ -c $(COMPILER_FLAGS) $(patsubst %, -I%, $(INCLUDE_PATHS)) -o $@ $<
+COMPILE = $(TIMEIT) g++ -c $(COMPILER_FLAGS) $(patsubst %, -I%, $(INCLUDE_PATHS)) -DMAKE_PATH=`pwd` -o $@ $<
 DEPEND = $(TIMEIT) g++ -MM $(COMPILER_FLAGS) $(patsubst %, -I%, $(INCLUDE_PATHS)) -MF $@ $(subst .deps,.cpp,$@)
 ARCHIVE = $(TIMEIT) ar $(ARCHIVER_FLAGS) $@ $^ 
 LINK = $(TIMEIT) g++ $(LINKER_FLAGS) $(patsubst %, -L%, $(EXTERNAL_LIBRARY_PATHS)) -o $@ $@.o $(filter-out $(patsubst %, %.o, $(TARGET)), $^)  $(patsubst %, -l%, $(EXTERNAL_LIBRARIES))
