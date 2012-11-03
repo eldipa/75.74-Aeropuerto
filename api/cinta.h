@@ -13,15 +13,11 @@
 #include "log.h"
 
 /*
- * Cinta que puede tener hasta N elementos de tipo T. 
+ * Cinta que puede tener hasta N elementos de tipo T.
  **/
-// T: Tipo almacenado
-// N: Máximo de elementos en la cinta
-// MP: Máximo de productores
-// MC: Máximo de consumidores
-template <class T, int N, int MP, int MC>
+template <class T, int N>
 class Cinta {
-   
+
 public:
 
    /*
@@ -29,7 +25,7 @@ public:
     * Si la cinta ya existe hay que llamar al segundo constructor.
     *
     * los parametros 'productores' y 'consumidores' son la cantidad de productores y consumidores
-    * que acceden a la cinta.Los productores a travez de poner_equipaje y los consumidores con sacar_equipaje. 
+    * que acceden a la cinta.Los productores a travez de poner_equipaje y los consumidores con sacar_equipaje.
     * Cada productor y consumidor tiene un id para acceder a la cinta: (0..productores-1) y (0..consumidores-1)
     * Es importante que cada proceso use siempre el mismo id.
     *
@@ -37,45 +33,68 @@ public:
     * Tienen que ser distintos.
     **/
    Cinta( const char* absolute_path, int num_cinta, bool create )
-      : mutex_cinta( waiting_sem, MP+MC ),
-        waiting_sem( std::vector<short unsigned int>(MP+MC+1, 0), absolute_path, num_cinta*cant_ipcs ),
-        shm( absolute_path, (num_cinta*cant_ipcs)+1, sizeof(BoundedQueue<T,N>)+(sizeof(bool)*(MP+MC)),0664, create ) {
+      : waiting_sem( std::vector<short unsigned int>(5, 1), absolute_path, num_cinta * cant_ipcs ),
+        shm( absolute_path, (num_cinta*cant_ipcs)+1, sizeof(BoundedQueue<T,N>)+(sizeof(bool)*(2)), 0664, create ),
+        mutex_cinta( waiting_sem, 0),
+        mutex_lleno( waiting_sem, 1 ),
+        mutex_vacio( waiting_sem, 2 ),
+        mutex_reader( waiting_sem, 3 ),
+        mutex_writer( waiting_sem, 4 ) {
+
+      Log::debug("Creando cinta (%s:%i)", absolute_path, num_cinta);
 
       // Asignar punteros
       cinta = (BoundedQueue<T,N>*)shm.memory_pointer();
-      is_waiting = (bool*)(cinta + 1);
- 
+      reader_waiting = (bool*)(cinta + 1);
+      writer_waiting = (bool*)(reader_waiting + 1);
+
       // Inicializar (al final)
       new(cinta) BoundedQueue<T,N>();
-      for(unsigned int i=0; i<MP+MC; i++)
-         is_waiting[i] = false;
-      mutex_cinta.unlock();
+      reader_waiting = false;
+      writer_waiting = false;
+
+      mutex_lleno.unlock();
+      mutex_vacio.unlock();
    }
 
    Cinta( const char* absolute_path, int num_cinta )
-      : mutex_cinta( waiting_sem, MP + MC ),
-        waiting_sem( absolute_path, num_cinta*cant_ipcs, MP + MC + 1 ),
-        shm( absolute_path, (num_cinta*cant_ipcs)+1, sizeof(BoundedQueue<T,N>)+(sizeof(bool)*(MP+MC)),0664) {
+      : waiting_sem( absolute_path, num_cinta * cant_ipcs, 5 ),
+        shm( absolute_path, (num_cinta*cant_ipcs)+1, sizeof(BoundedQueue<T,N>)+(sizeof(bool)*(2)),0664),
+        mutex_cinta( waiting_sem, 0),
+        mutex_lleno( waiting_sem, 1 ),
+        mutex_vacio( waiting_sem, 2 ),
+        mutex_reader( waiting_sem, 3 ),
+        mutex_writer( waiting_sem, 4 ) {
+
+      Log::debug("Conectándose a cinta (%s:%i)", absolute_path, num_cinta);
 
       // Asignar punteros
       cinta = (BoundedQueue<T,N>*)shm.memory_pointer();
-      is_waiting = (bool*)(cinta + 1);
+      reader_waiting = (bool*)(cinta + 1);
+      writer_waiting = (bool*)(reader_waiting + 1);
    }
 
    /*
     * Saca un equipaje de la cinta.
     * Si la cinta esta vacia, se bloquea hasta que haya un equipaje disponible
     **/
-   T sacar_equipaje( unsigned int id_consumidor ) {
+   T sacar_equipaje() {
       mutex_cinta.lock();
+      mutex_reader.lock();
+
       while( cinta->is_empty() ) {
-         wait_no_vacio( id_consumidor );
+         wait_no_vacio();
       }
+
       if(cinta->is_full()) {
          unlock_productores();
       }
+
       T return_element = cinta->take();
+
+      mutex_reader.unlock();
       mutex_cinta.unlock();
+
       return return_element;
    }
 
@@ -84,22 +103,26 @@ public:
     * Pone un equipaje de la cinta.
     * Si la cinta esta llena, se bloquea hasta que haya lugar
     **/
-   void poner_equipaje( T elemento, unsigned int id_productor ) {
+   void poner_equipaje( T elemento ) {
       mutex_cinta.lock();
+      mutex_writer.lock();
+
       while(cinta->is_full()) {
-         wait_no_lleno( id_productor );
+         wait_no_lleno();
       }
       if( cinta->is_empty()) {
          unlock_consumidores();
       }
       cinta->offer( elemento );
+
+      mutex_writer.unlock();
       mutex_cinta.unlock();
    }
 
    virtual ~Cinta() {
    }
 
-   friend std::ostream& operator<<( std::ostream& stream,  Cinta<T,N, MP, MC>& q ) {
+   friend std::ostream& operator<<( std::ostream& stream,  Cinta<T,N>& q ) {
       q.mutex_cinta.lock();
       stream << (*q.cinta);
       q.mutex_cinta.unlock();
@@ -108,61 +131,48 @@ public:
 
 private:
    Cinta(const Cinta&);
- 
-   bool* is_waiting;
-   Mutex mutex_cinta;
+
+   bool* reader_waiting;
+   bool* writer_waiting;
+   BoundedQueue<T,N>* cinta;
+
    SemaphoreSet waiting_sem;
-   BoundedQueue<T,N>* cinta;   
    SharedMemory shm;
 
+   Mutex mutex_cinta;
+   Mutex mutex_lleno;
+   Mutex mutex_vacio;
+   Mutex mutex_reader;
+   Mutex mutex_writer;
+
+
    static const int cant_ipcs = 2;
-   void wait_no_lleno( unsigned int id_productor ) { 
-      get_is_waiting(id_productor, true) = true;
+   void wait_no_lleno() {
+      *writer_waiting = true;
       mutex_cinta.unlock();
-      get_sem(id_productor, true).lock();
+      mutex_lleno.lock();
       mutex_cinta.lock();
    }
 
-   void wait_no_vacio( unsigned int id_consumidor ) {
-      get_is_waiting(id_consumidor, false) = true;
+   void wait_no_vacio() {
+      *reader_waiting = true;
       mutex_cinta.unlock();
-      get_sem(id_consumidor, false).lock();
+      mutex_vacio.lock();
       mutex_cinta.lock();
    }
+  void unlock_productores() {
+    if (*writer_waiting) {
+      mutex_lleno.unlock();
+      *writer_waiting = false;
+    }
+  }
 
-   void unlock_productores() {
-      for( unsigned int i=0; i< MP; i++ ) {
-         if (get_is_waiting(i, true)) {
-           get_is_waiting(i, true) = false;
-           get_sem(i,true).unlock();
-         }
-      }
-   }
-
-   void unlock_consumidores() {
-      for( unsigned int i=0; i< MC; i++ ) {
-        if (get_is_waiting(i, false)) {
-          get_is_waiting(i, false) = false;
-          get_sem(i,false).unlock();
-        }
-      }      
-   }
-
-   Mutex get_sem( unsigned int id, bool es_productor ) {
-      if( es_productor )
-         return Mutex(waiting_sem, id);
-      else 
-         return Mutex(waiting_sem, id+MP);
-   }
-
-   bool& get_is_waiting( unsigned int id, bool es_productor ) {
-      if( es_productor )  {
-         return is_waiting[id];
-      } else {
-         return is_waiting[id+MP];
-      }
-   }
-
+  void unlock_consumidores() {
+    if (*reader_waiting) {
+      mutex_vacio.unlock();
+      *reader_waiting = false;
+    }
+  }
 };
 
 #endif

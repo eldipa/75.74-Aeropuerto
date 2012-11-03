@@ -24,10 +24,10 @@
 #define PATH_CINTA_CENTRAL "/cinta_central.lck"
 #define PATH_CINTA_CONTENEDOR "/cinta_contenedor.lck"
 
-typedef Cinta< Equipaje, CAPACIDAD_CINTA_CHECKIN, MAX_PUESTOS_CHECKIN, 1 > CintaCheckin;
-typedef Cinta< Equipaje, CAPACIDAD_CINTA_CHECKIN, 1, MAX_PUESTOS_SCANNER > CintaScanner;
+typedef Cinta< Equipaje, CAPACIDAD_CINTA_CHECKIN > CintaCheckin;
+typedef Cinta< Equipaje, CAPACIDAD_CINTA_CHECKIN > CintaScanner;
 typedef CintaPrincipal< Equipaje, CANTIDAD_DE_CONSUMIDORES_PPAL > CintaCentral;
-typedef Cinta< Equipaje, CAPACIDAD_CINTA_CHECKIN, 1, 1 > CintaContenedor;
+typedef Cinta< Equipaje, CAPACIDAD_CINTA_CHECKIN > CintaContenedor;
 
 
 // Other macros
