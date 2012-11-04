@@ -24,4 +24,5 @@ processes/robot_carga
 processes/puesto_checkin
 processes/robot_checkin
 processes/robot_despacho
+processes/robot_intercargo
 db/example

@@ -1,7 +1,15 @@
 #include "api_trasbordo.h"
+#include "messagequeue.h"
 
 VueloTrasbordo ApiTrasbordo::proximo_vuelo_trasbordo() {
-	throw std::runtime_error("Unimplemented");
+	MessageQueue work_queue(path_to_trasbordo, (char)id_robot);
+	VueloTrasbordo proximo_trasbordo;
+
+	if (work_queue.pull(&proximo_trasbordo, sizeof(VueloTrasbordo), id_robot) == sizeof(VueloTrasbordo)) {
+		return proximo_trasbordo;
+	} else {
+		throw std::runtime_error("Error al sacar de la cola de vuelos de trasbordo");
+	}
 }
 
 void ApiTrasbordo::poner_en_cinta_principal(const Equipaje& equipaje) {
