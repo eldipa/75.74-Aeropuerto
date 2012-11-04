@@ -8,6 +8,8 @@
 #include <vector>
 #include "sharedmemory.h"
 
+#include <string.h>
+#include <stdio.h>
 #include <iostream>
 #include <unistd.h>
 #include "log.h"
