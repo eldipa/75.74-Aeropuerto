@@ -46,11 +46,17 @@ char *args_torre_de_control[] = {(char*)"torre_de_control",
  * Crea un puesto de checkin comunicado con un robot_scanner a travez de una cinta.
  **/
 
-int main() {
+int main(int argc, char **argv) {
+
+  char *path;
+  if (argc < 2)
+    path = (char*)TOSTRING(MAKE_PATH);
+  else
+    path = argv[1];
 
   Log::info("Creando aeropuerto...");
 
-  ConexionesAeropuerto aeropuerto(TOSTRING(MAKE_PATH));
+  ConexionesAeropuerto aeropuerto(path);
 
   Log::info("iniciando simulación...");
 
