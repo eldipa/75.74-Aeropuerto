@@ -1,34 +1,23 @@
 #ifndef CONSTANTS_H_
 #define CONSTANTS_H_
 
-#include "cinta.h"
-#include "cintaprincipal.h"
-
-// Configuración cintas
-#define CAPACIDAD_CINTA_CHECKIN 3
+#include "cintas.h"
 
 #define MAX_PUESTOS_CHECKIN 10
 #define MAX_PUESTOS_SCANNER 4
 #define MAX_CONECTADOS_A_PPAL 2
-// This define may need to disappear
-#define CANTIDAD_DE_CONSUMIDORES_PPAL 2
 
 // Sleeps
 #define SLEEP_PUESTO_CHECKIN 3
 #define SLEEP_ROBOT_CHECKIN 20
+#define SLEEP_TRASBORDO 5
 
-#define TIEMPO_SIMULACION 20
+#define TIEMPO_SIMULACION 60
 
 #define PATH_CINTA_CHECKIN "/cinta_checkin.lck"
 #define PATH_CINTA_SCANNER "/cinta_scanner.lck"
 #define PATH_CINTA_CENTRAL "/cinta_central.lck"
 #define PATH_CINTA_CONTENEDOR "/cinta_contenedor.lck"
-
-typedef Cinta< Equipaje, CAPACIDAD_CINTA_CHECKIN > CintaCheckin;
-typedef Cinta< Equipaje, CAPACIDAD_CINTA_CHECKIN > CintaScanner;
-typedef CintaPrincipal< Equipaje, CANTIDAD_DE_CONSUMIDORES_PPAL > CintaCentral;
-typedef Cinta< Equipaje, CAPACIDAD_CINTA_CHECKIN > CintaContenedor;
-
 
 // Other macros
 #define STRINGIFY(x) #x

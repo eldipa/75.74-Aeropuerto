@@ -1,3 +1,3 @@
 INCLUDE_PATHS = ../api ../log ../ipc ../os 
-LIBRARIES = ../api/libapi.a  ../ipc/libipc.a ../os/libos.a ../log/liblog.a ../common/libcommon.a -ldl
-TARGET = scanner robot_carga robot_despacho robot_checkin puesto_checkin main 
+LIBRARIES = ../api/libapi.a  ../ipc/libipc.a ../os/libos.a ../log/liblog.a ../common/libcommon.a
+TARGET = scanner robot_carga robot_despacho robot_checkin puesto_checkin main robot_intercargo

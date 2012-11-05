@@ -1,7 +1,6 @@
 #ifndef VUELO_H_
 #define VUELO_H_
 
-#include <vector>
 #include <string>
 #include <time.h>
    
