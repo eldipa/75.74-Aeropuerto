@@ -8,7 +8,7 @@
 #include "constants.h"
 
 int main(int argc, char *argv[]) {
-   int next_rfid = 1;
+   int next_rfid = 10;
 
    if (argc < 4) {
       Log::crit("Insuficientes parametros para puesto_checkin, se esperaba (id, path_cinta num_cinta)\n");

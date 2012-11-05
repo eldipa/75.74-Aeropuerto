@@ -12,25 +12,26 @@
 #include "contenedor.h"
 #include "equipaje.h"
 #include "log.h"
+#include "cintas.h"
 
 int main( int argc, char** argv ) {
    
    if (argc < 3) {
-      Log::crit("Insuficientes parametros para robot de carga, se esperaba (id, cinta_in)\n");
+      Log::crit("Insuficientes parametros para robot de carga, se esperaba (id, path_cinta_contenedor, id_cinta_contenedor)\n");
       exit(1);
    }
 
    ApiZona zona(atoi(argv[1]));
-   ApiCinta cinta_in(atoi(argv[2]));
+   CintaContenedor cinta_contenedor( argv[2], atoi(argv[3]));
    ApiAdmin admin;
 
    Log::info("Iniciando robot carga(%s), %s\n", argv[1], argv[2]);
 
    for(;;) {
       sleep(rand() % 10);
-      Log::info("RobotCarga(%s) Sacando un nuevo equipaje de cinta(%s)\n", argv[1], argv[2]);
+      Log::info("RobotCarga(%s) Intentando tomar un nuevo equipaje de cinta(%s)\n", argv[1], argv[2]);
 
-      Equipaje equipaje = cinta_in.sacar_equipaje();
+      Equipaje equipaje = cinta_contenedor.sacar_equipaje();
       Log::info("RobotCarga(%s) se tomo el equipaje %s\n", argv[1], equipaje.toString().c_str());
 
       std::string escala = admin.get_escala( equipaje );
