@@ -3,6 +3,7 @@
 
 #include "cinta.h"
 #include "cintaprincipal.h"
+#include "equipaje.h"
 
 // Configuración cintas
 #define CAPACIDAD_CINTA_CHECKIN 3

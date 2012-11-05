@@ -20,7 +20,7 @@ int main(int argc, char *argv[]) {
    CintaCheckin cinta_checkin_out(argv[2], atoi(argv[3]));
 
    for(;;) {
-      Equipaje equipaje( next_rfid );
+      Equipaje equipaje( next_rfid , rand() % TOPE_PESO_VALIJA);
       Log::info("Puesto Checkin(%s) llego equipaje (rfid=%d)\n", argv[1], next_rfid);
 
       sleep(rand() % SLEEP_PUESTO_CHECKIN);

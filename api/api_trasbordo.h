@@ -2,13 +2,9 @@
 #define APITRASBORDO_H_
 
 #include "equipaje.h"
-#include "vuelo.h"
 #include "cintas.h"
 
-typedef struct {
-    Vuelo vuelo_origen;
-    Vuelo vuelo_destino;
-} VueloTrasbordo;
+#include "vuelo_trasbordo.h"
 
 class ApiTrasbordo {
 public:

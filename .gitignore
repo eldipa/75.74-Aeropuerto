@@ -18,11 +18,13 @@
 *.deps
 
 # Binaries
+db/example
 processes/main
-processes/scanner
-processes/robot_carga
+processes/notificador_descarga
 processes/puesto_checkin
+processes/robot_carga
 processes/robot_checkin
 processes/robot_despacho
 processes/robot_intercargo
-db/example
+processes/scanner
+processes/torre_de_control

@@ -1,8 +1,9 @@
 #include "api_trasbordo.h"
+#include "api_constants.h"
 #include "messagequeue.h"
 
 VueloTrasbordo ApiTrasbordo::proximo_vuelo_trasbordo() {
-	MessageQueue work_queue(path_to_trasbordo, (char)id_robot);
+	MessageQueue work_queue(path_to_trasbordo, Q_TRASBORDO_LISTO);
 	VueloTrasbordo proximo_trasbordo;
 
 	if (work_queue.pull(&proximo_trasbordo, sizeof(VueloTrasbordo), id_robot) == sizeof(VueloTrasbordo)) {

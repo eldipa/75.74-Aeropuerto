@@ -2,6 +2,7 @@
 #define CONSTANTS_H_
 
 #include "cintas.h"
+#include "api_constants.h"
 
 #define MAX_PUESTOS_CHECKIN 10
 #define MAX_PUESTOS_SCANNER 4
@@ -18,6 +19,10 @@
 #define PATH_CINTA_SCANNER "/cinta_scanner.lck"
 #define PATH_CINTA_CENTRAL "/cinta_central.lck"
 #define PATH_CINTA_CONTENEDOR "/cinta_contenedor.lck"
+#define PATH_TORRE_DE_CONTROL "/torre_de_control.lck"
+
+// Other
+#define TOPE_PESO_VALIJA 20
 
 // Other macros
 #define STRINGIFY(x) #x
