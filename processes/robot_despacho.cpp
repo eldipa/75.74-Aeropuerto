@@ -50,9 +50,10 @@ int main( int argc, char** argv ) {
                 num_vuelo,
                 num_zona );
 
-         cinta_contenedor.poner_equipaje(equipaje);
-         Log::info("Robot de despacho(%s)  pongo equipaje %s en la cinta de contenedor %s \n", 
-                   argv[1], equipaje.toString().c_str(), argv[5]); 
+      cinta_contenedor.poner_equipaje(equipaje);
+      Log::info("Robot de despacho(%s)  pongo equipaje %s en la cinta de contenedor %s \n", 
+                argv[1], equipaje.toString().c_str(), argv[5]); 
+      cinta_central.listo_para_recibir_valija_para(atoi(argv[1]));
       
    } 
  
