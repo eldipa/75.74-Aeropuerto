@@ -11,10 +11,6 @@
 #include "daemon.h"
 #include "conexiones_aeropuerto.h"
 
-char *args_puesto_checkin[] = { (char*) "puesto_checkin", (char*)"0",  // ID
-                                (char*) TOSTRING(MAKE_PATH) PATH_CINTA_CHECKIN, (char*)"0",
-                                NULL };
-
 char *args_robot_checkin[] = { (char*) "robot_checkin", (char*)"0",  // ID
                                (char*) TOSTRING(MAKE_PATH) PATH_CINTA_CHECKIN, (char*)"0",
                                (char*) TOSTRING(MAKE_PATH) PATH_CINTA_SCANNER, (char*)"0",
@@ -59,6 +55,10 @@ int main(int argc, char **argv) {
   ConexionesAeropuerto aeropuerto(path);
 
   Log::info("iniciando simulación...");
+
+  static char *args_puesto_checkin[] = { (char*) "puesto_checkin", (char*)"0",  // ID
+                                         path, (char*)"0",
+                                         NULL };
 
   Process puesto_checkin("puesto_checkin", args_puesto_checkin);
   Process robot_checkin("robot_checkin", args_robot_checkin);

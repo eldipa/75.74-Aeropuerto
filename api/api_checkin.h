@@ -1,61 +1,38 @@
 #ifndef APICHECKIN_H_
 #define APICHECKIN_H_
 
-#include <vector>
-
-#include "pasajero.h"
 #include "equipaje.h"
 
 class ApiCheckIn {
-private:
-   //TODO CONTROL
-   typedef struct {
-      int algo;
-   } CONTROL;
-
 public:
 
-   ApiCheckIn();
-   virtual ~ApiCheckIn();
+  ApiCheckIn(int id_checkin, const char* path_to_locks, int id_cinta_checkin);
+  virtual ~ApiCheckIn();
    
-   // se asocia a la cola del robot que distribuye el equipaje
-   int iniciarAplicacion(int ID_VUELO, CONTROL & con);
-
-
   /*
-   * Asigna un vuelo al puesto de checkin.
-   * No se reciben equipajes hasta que no se abra el checkin.
+  * Asigna un vuelo al puesto de checkin.
+  **/
+  void iniciar_checkin( int numero_vuelo );
+  
+  /*
+   *  Registra un equipaje que hace checkin.
+   *  A partir de aca el avion no sale hasta que llega el equipaje
    **/
-   void asignar_vuelo( int numero_vuelo, int num_puesto_checkin );
+  void registrar_equipaje( Equipaje& );
+  
+  /*
+   * Cierra el checkin iniciado con #iniciar_checkin 
+   * El checkin debe haber sido abi
+   **/
+  void cerrar_checkin();
 
-   /*
-    * El puesto de checkin comienza a recibir pasajeros y equipajes
-    * para el vuelo asignado.
-    */
-   void abrir_checkin( int num_puesto_checkin );
+private:
 
-   /*
-    * Registra el checkin cerrado.Deja de recibir equipajes y pasajeros.
-    */
-   void cerrar_checkin( int num_puesto_checkin );
-
-   /*
-    * Registra que el pasajero hizo el checkin.
-    **/
-   void hacer_checkin( int num_puesto_checkin, Pasajero& );
-
-   /*
-    *  Registra un equipaje que hace checkin.
-    *  A partir de aca el avion no sale hasta que llega el equipaje
-    **/
-   void registrar_equipaje( int num_puesto_checkin, Equipaje&, Pasajero& );
-
-   /*
-    * Pone el equipaje en la cinta de checkin asociada al puesto.
-    **/
-   void enviar_equipaje_a_cinta_de_checkin( int num_puesto_checkin, Equipaje& );
-
-   int cerrarAplicacion(CONTROL & con);
+  int id_checkin;
+  char path_to_torre_de_control_lock[128];
+  char path_to_cinta_checkin_lock[128];
+  int id_cinta_checkin;
+  int vuelo_actual;
 };
 
 #endif /* APICHECKIN_H_ */

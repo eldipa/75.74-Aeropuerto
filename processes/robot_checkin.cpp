@@ -22,12 +22,18 @@ int main( int argc, char** argv ) {
 
    // cada robot de checkin distribuye entre n scanners
    for(;;) {
+      Log::info( "Robot de checkin(%s), va a sacar equipaje.", argv[1]);
+
+      sleep(rand() % SLEEP_ROBOT_CHECKIN);
+
       Equipaje equipaje = cinta_checkin.sacar_equipaje();
-      Log::info( "Robot de checkin(%s), saco equipaje %s y lo coloco en cinta de scanner",
+      Log::info( "Robot de checkin(%s), sacó %s",
                  argv[1], equipaje.toString().c_str());
 
       sleep(rand() % SLEEP_ROBOT_CHECKIN);
 
+      Log::info( "Robot de checkin(%s), pone %s en siguiente cinta",
+                 argv[1], equipaje.toString().c_str());
       cinta_scanner.poner_equipaje( equipaje );
    }
  }

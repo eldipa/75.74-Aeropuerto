@@ -3,7 +3,8 @@
 // IPCS sobre torre_de_control.lck
 #define MTX_CENTRAL 0
 #define Q_CHECKINS_HABILITADOS 1
-#define Q_TRASBORDO_LISTO 2
+#define Q_CHECKINS_CERRADO 2
+#define Q_TRASBORDO_LISTO 3
 
 // MTX central
 #define MUTEX_INFO_VUELOS 0
