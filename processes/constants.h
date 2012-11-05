@@ -15,12 +15,6 @@
 
 #define TIEMPO_SIMULACION 60
 
-#define PATH_CINTA_CHECKIN "/cinta_checkin.lck"
-#define PATH_CINTA_SCANNER "/cinta_scanner.lck"
-#define PATH_CINTA_CENTRAL "/cinta_central.lck"
-#define PATH_CINTA_CONTENEDOR "/cinta_contenedor.lck"
-#define PATH_TORRE_DE_CONTROL "/torre_de_control.lck"
-
 // Other
 #define TOPE_PESO_VALIJA 20
 

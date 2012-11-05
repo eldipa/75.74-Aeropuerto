@@ -30,6 +30,7 @@ int main(int argc, char *argv[]) {
 
       next_rfid++;
       sleep(rand() % SLEEP_PUESTO_CHECKIN);
+
    }
 
 }

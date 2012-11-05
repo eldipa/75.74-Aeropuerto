@@ -9,6 +9,7 @@
 #include "constants.h"
 #include "messagequeue.h"
 #include "daemon.h"
+#include "conexiones_aeropuerto.h"
 
 char *args_puesto_checkin[] = { (char*) "puesto_checkin", (char*)"0",  // ID
                                 (char*) TOSTRING(MAKE_PATH) PATH_CINTA_CHECKIN, (char*)"0",
@@ -47,17 +48,9 @@ char *args_torre_de_control[] = {(char*)"torre_de_control",
 
 int main() {
 
-  Log::info("Creando recursos (cintas)...");
+  Log::info("Creando aeropuerto...");
 
-  CintaCheckin to_checkin_robot(TOSTRING(MAKE_PATH) PATH_CINTA_CHECKIN, 0 , true);
-  CintaScanner to_scanner(TOSTRING(MAKE_PATH) PATH_CINTA_SCANNER, 0 , true);
-  CintaCentral cinta_principal( true, TOSTRING(MAKE_PATH) PATH_CINTA_CENTRAL, 0);
-  CintaContenedor to_robot_carga(TOSTRING(MAKE_PATH) PATH_CINTA_CONTENEDOR, 0, true);
-
-  // IPCS torre de control
-  SemaphoreSet control(std::vector<short unsigned int>(CANT_MUTEX_CENTRAL, 1), TOSTRING(MAKE_PATH) PATH_TORRE_DE_CONTROL, MTX_CENTRAL);
-  MessageQueue checkin(TOSTRING(MAKE_PATH) PATH_TORRE_DE_CONTROL, Q_CHECKINS_HABILITADOS, 0644, true);
-  MessageQueue trasbordo(TOSTRING(MAKE_PATH) PATH_TORRE_DE_CONTROL, Q_TRASBORDO_LISTO, 0644, true);
+  ConexionesAeropuerto aeropuerto(TOSTRING(MAKE_PATH));
 
   Log::info("iniciando simulación...");
 
