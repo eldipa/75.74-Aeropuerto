@@ -43,7 +43,7 @@ void SharedMemory::mark_to_be_destroyed() {
    }
 }
 
-SharedMemory::SharedMemory(const char *absolute_path, int proj_id, size_t size, 
+SharedMemory::SharedMemory(const char *absolute_path, char proj_id, size_t size, 
                            int permissions, bool create, bool only_for_read) : owner(create),
    path(absolute_path), 
    permissions(permissions),

@@ -76,7 +76,7 @@ class SharedMemory {
          *
          * See man shmget(2)
          * */
-         SharedMemory(const char *absolute_path, int proj_id, size_t size, 
+         SharedMemory(const char *absolute_path, char proj_id, size_t size, 
                       int permissions = 0664, bool create = false,
                       bool only_for_read = false);
 

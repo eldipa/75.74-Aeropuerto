@@ -48,7 +48,7 @@ void SemaphoreSet::destroy() {
    }
 }
 
-SemaphoreSet::SemaphoreSet(const char *absolute_path, int proj_id,
+SemaphoreSet::SemaphoreSet(const char *absolute_path, char proj_id,
                            int semaphores, int permissions) : owner(false),
    path(absolute_path), 
    permissions(permissions),
@@ -65,7 +65,7 @@ SemaphoreSet::SemaphoreSet(const char *absolute_path, int proj_id,
    }
 
 SemaphoreSet::SemaphoreSet(const std::vector<unsigned short> &vals,
-                           const char *absolute_path, int proj_id, int permissions) : owner(true),
+                           const char *absolute_path, char proj_id, int permissions) : owner(true),
    path(absolute_path), 
    permissions(permissions),
    semaphores((int) vals.size()) {
