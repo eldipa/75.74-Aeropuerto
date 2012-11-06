@@ -42,7 +42,20 @@ char *args_torre_de_control[] = {(char*)"torre_de_control",
  * Crea un puesto de checkin comunicado con un robot_scanner a travez de una cinta.
  **/
 
+//Dummy signal handler
+void dummy(int) {}
+
 int main(int argc, char **argv) {
+  be_a_daemon();
+
+  //Ignoring the Interrupt Signal
+  //In fact, the signal is catched but its handler is useless.
+  struct sigaction ignore;
+  memset(&ignore, 0, sizeof(struct sigaction));
+  ignore.sa_handler = &dummy;
+
+  sigaction(SIGINT, &ignore, 0);
+
 
   char *path;
   if (argc < 2)
@@ -68,9 +81,9 @@ int main(int argc, char **argv) {
   Process robot_intercargo("robot_intercargo", args_robot_intercargo);
   Process torre_de_control("torre_de_control", args_torre_de_control);
 
-  be_a_daemon();
-
-  sleep( TIEMPO_SIMULACION );
+  Log::info("Done, waiting for a SIGINT signal.");
+  pause();
+  Log::info("Signal recieved. Shutdown...");
 
   Log::info("finalizando robots...");
 

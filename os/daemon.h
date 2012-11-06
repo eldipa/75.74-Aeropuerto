@@ -31,7 +31,7 @@
 
 /*
  * Transform the process in a daemon, doing:
- *  - setting the group id equal to the process id (gid = pid) 
+ *  - Setting the group id equal to the process id (gid = pid) 
  *    and the process will be the leather of the (new) group
  *    This can fail if the process is already a group leather. To avoid this
  *    you can 'fork' the process, terminating the process parent and invoking
@@ -41,6 +41,7 @@
  *  - Change the current working directory to the root "/" (See man chdir(2))
  *  - Change the file mode mask to 0 (See man umask(2))
  *
+ * This function should be called immediately after the init of the main function.
  * */
 void be_a_daemon();
 
