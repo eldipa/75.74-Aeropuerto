@@ -99,16 +99,18 @@ SemaphoreSet::SemaphoreSet(const std::vector<unsigned short> &vals,
    }
 
 SemaphoreSet::~SemaphoreSet() throw() {
-   union semun data;
-   memset(&data, '0', sizeof(union semun));
+   if(owner) {
+      union semun data;
+      memset(&data, '0', sizeof(union semun));
 
-   Log::debug("%s semaphore set using the path %s with key %x.", "Destroying", path.c_str(), key);
-   if(semctl(fd, 0, IPC_RMID, data) != 0) {
-      Log::crit("An exception happend during the course of a destructor:\n%s", OSError("The semaphore set (%i semaphores in it) "
-            MESSAGE_Key_Path_Permissions
-            " cannot be destroyed",
-            semaphores, 
-            key, path.c_str(), permissions).what());
+      Log::debug("%s semaphore set using the path %s with key %x.", "Destroying", path.c_str(), key);
+      if(semctl(fd, 0, IPC_RMID, data) != 0) {
+         Log::crit("An exception happend during the course of a destructor:\n%s", OSError("The semaphore set (%i semaphores in it) "
+                  MESSAGE_Key_Path_Permissions
+                  " cannot be destroyed",
+                  semaphores, 
+                  key, path.c_str(), permissions).what());
+      }
    }
 }
 
