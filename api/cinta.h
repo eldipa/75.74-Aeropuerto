@@ -85,9 +85,9 @@ public:
     * Si la cinta esta vacia, se bloquea hasta que haya un equipaje disponible
     **/
    T sacar_equipaje() {
-      mutex_cinta.lock();
       mutex_reader.lock();
-
+      mutex_cinta.lock();
+   
       while( cinta->is_empty() ) {
          wait_no_vacio();
       }
@@ -98,8 +98,8 @@ public:
 
       T return_element = cinta->take();
 
-      mutex_reader.unlock();
       mutex_cinta.unlock();
+      mutex_reader.unlock();
 
       return return_element;
    }
@@ -110,8 +110,8 @@ public:
     * Si la cinta esta llena, se bloquea hasta que haya lugar
     **/
    void poner_equipaje( T elemento ) {
-      mutex_cinta.lock();
       mutex_writer.lock();
+      mutex_cinta.lock();
 
       while(cinta->is_full()) {
          wait_no_lleno();
@@ -121,8 +121,8 @@ public:
       }
       cinta->offer( elemento );
 
-      mutex_writer.unlock();
       mutex_cinta.unlock();
+      mutex_writer.unlock();
    }
 
    virtual ~Cinta() {
