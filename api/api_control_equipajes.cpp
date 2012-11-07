@@ -7,10 +7,17 @@
 
 #include "api_control_equipajes.h"
 
-ApiControlEquipajes::ApiControlEquipajes(unsigned int numero_productor,
-		unsigned int numero_consumidor, const char* path_to_cinta_central) :
-		cinta_para_extraer(path_to_cinta_central, numero_consumidor, false), cinta_para_colocar(
-				path_to_cinta_central, numero_productor, false) {
+ApiControlEquipajes::ApiControlEquipajes(int numero_productor, int numero_consumidor,
+		const char* path_to_cinta_central) :
+		cinta_ppal(path_to_cinta_central, true) {
+	char msgerror [1024];
+	if (numero_productor < 1 || numero_consumidor < 1) {
+		sprintf(msgerror, "Error ID = %d, ID = %d, invalidos \n", numero_productor,
+				numero_consumidor);
+		// TODO tirar ValueError
+		//throw ErrorEnCintaPrincipal(msgerror);
+		throw "ERROR";
+	}
 }
 
 ApiControlEquipajes::~ApiControlEquipajes() {
@@ -20,20 +27,20 @@ ApiControlEquipajes::~ApiControlEquipajes() {
 Equipaje ApiControlEquipajes::obtener_proximo_equipaje_sospechoso() {
 	Equipaje e;
 
-	cinta_para_extraer.leer_elemento(&e);
-	cinta_para_extraer.extraer_elemento();
+	cinta_ppal.leer_elemento(&e, this->numero_consumidor_cinta_ppal);
+	cinta_ppal.extraer_elemento();
 
 	return e;
 }
 
 void ApiControlEquipajes::volver_a_colocar_equipaje_en_cinta_principal(const Equipaje & e) {
-	cinta_para_colocar.colocar_elemento(&e);
+	cinta_ppal.colocar_elemento(&e, this->numero_productor_cinta_ppal);
 }
 
-void ApiControlEquipajes::avisar_equipaje_sospechoso(Rfid rfid){
+void ApiControlEquipajes::avisar_equipaje_sospechoso(Rfid rfid) {
 	// TODO Avisar torre de control
 	int a = rfid.numero_de_vuelo_destino;
-	if(a==0){
-		// COMPILA Y NO JODAS CON VARIABLES SIN USAR
+	if (a == 0) {
+		// MOLESTA CON VARIABLE SIN USAR
 	}
 }

@@ -24,18 +24,17 @@ private:
 
 	char mostrar[500];
 
-	unsigned int id;
 	bool soy_productor;
 
-	unsigned int * cantidad_maxima_productores;
-	unsigned int * tamanio_vector;
-	unsigned int * cantidad_elementos;
-	unsigned int * posicion_libre;
-	unsigned int * posicion_ocupada;
-	unsigned int * cantidad_de_productores_esperando;
-	unsigned int * cantidad_de_productores_actual;
-	unsigned int * cantidad_de_consumidores;
-	unsigned int * ids_productores_esperando;
+	int * cantidad_maxima_productores;
+	int * tamanio_vector;
+	int * cantidad_elementos;
+	int * posicion_libre;
+	int * posicion_ocupada;
+	int * cantidad_de_productores_esperando;
+	int * cantidad_de_productores_actual;
+	int * cantidad_de_consumidores;
+	int * ids_productores_esperando;
 	T * vector_elementos;
 
 	void liberar_recursos();
@@ -44,13 +43,13 @@ private:
 public:
 	CintaPrincipal(const std::string & file, int cantidad_maxima_de_productores,
 			int cantidad_consumidores, int tamanio_asignado_a_vector);
-	CintaPrincipal(const std::string & file, unsigned int id, bool es_productor);
+	CintaPrincipal(const std::string & file, bool es_productor);
 	virtual ~CintaPrincipal();
 
-	void colocar_elemento(const T * elemento);
+	void colocar_elemento(const T * elemento, int id);
 	void extraer_elemento();
-	void avanzar_cinta();
-	void leer_elemento(T * elemento);
+	void avanzar_cinta(int id);
+	void leer_elemento(T * elemento, int id);
 
 	static void destruir_cinta(const std::string & file_key);
 };
@@ -65,20 +64,13 @@ template<typename T> CintaPrincipal<T>::CintaPrincipal(const std::string & file_
 }
 
 template<typename T> CintaPrincipal<T>::CintaPrincipal(const std::string & file_key,
-		unsigned int id, bool es_productor) {
-	char msgerror[1024];
-
-	if (id < 1) {
-		sprintf(msgerror, "Error ID = %d invalido\n", id);
-		// TODO tirar ValueError
-		//throw ErrorEnCintaPrincipal(msgerror);
-		throw "ERROR";
-	}
+		bool es_productor) {
+	//char msgerror[1024];
 
 	this->memoria_compartida = new SharedMemory(file_key.c_str(), 0, 0, false, false);
 
 	this->cantidad_maxima_productores =
-			static_cast<unsigned int *>(this->memoria_compartida->memory_pointer());
+			static_cast<int *>(this->memoria_compartida->memory_pointer());
 	this->tamanio_vector = this->cantidad_maxima_productores + 1;
 	this->cantidad_elementos = this->tamanio_vector + 1;
 	this->posicion_libre = this->cantidad_elementos + 1;
@@ -103,19 +95,19 @@ template<typename T> CintaPrincipal<T>::CintaPrincipal(const std::string & file_
 			// TODO tirar ValueError
 			//throw ErrorEnCintaPrincipal("CANTIDAD MAXIMA DE PRODUCTORES ALCANZADA");
 			throw "ERROR";
-		} else if (id > *this->cantidad_maxima_productores) {
+			/*} else if (id > *this->cantidad_maxima_productores) {
+			 this->mutex_control->signalize(0);
+			 // TODO tirar ValueError
+			 liberar_recursos();
+			 //throw ErrorEnCintaPrincipal("Error ID invalido");
+			 throw "ERROR";
+			 }*/
+			*this->cantidad_de_productores_actual = *this->cantidad_de_productores_actual + 1;
 			this->mutex_control->signalize(0);
-			// TODO tirar ValueError
-			liberar_recursos();
-			//throw ErrorEnCintaPrincipal("Error ID invalido");
-			throw "ERROR";
 		}
-		*this->cantidad_de_productores_actual = *this->cantidad_de_productores_actual + 1;
-		this->mutex_control->signalize(0);
-	}
-	this->id = id;
-	this->soy_productor = es_productor;
+		this->soy_productor = es_productor;
 
+	}
 }
 
 template<typename T> CintaPrincipal<T>::~CintaPrincipal() {
@@ -153,21 +145,17 @@ void CintaPrincipal<T>::liberar_recursos() {
 }
 
 // NO ESTA GARANTIZADO EL ORDEN DE LLEGADA TODAVIA
-template<typename T> void CintaPrincipal<T>::colocar_elemento(const T * elemento) {
+template<typename T> void CintaPrincipal<T>::colocar_elemento(const T * elemento, int id) {
 
-	unsigned int mi_posicion;
-	if (!this->soy_productor) {
-		// TODO tirar ValueError
-		throw "No fui creado para producir";
-	}
+	int mi_posicion;
 
 	mutex_control->wait_on(0);
 
 	while (*this->posicion_libre == *this->posicion_ocupada && *this->cantidad_elementos > 0) { // Espero una posicion libre
 		(*this->cantidad_de_productores_esperando)++;
-		this->ids_productores_esperando[this->id - 1] = 1;
+		this->ids_productores_esperando[id - 1] = 1;
 		mutex_control->signalize(0);
-		semaforos_productores->wait_on(this->id - 1);
+		semaforos_productores->wait_on(id - 1);
 		mutex_control->wait_on(0);
 	}
 
@@ -186,12 +174,8 @@ template<typename T> void CintaPrincipal<T>::colocar_elemento(const T * elemento
 }
 
 template<typename T> void CintaPrincipal<T>::extraer_elemento() {
-	unsigned int i;
+	int i;
 
-	if (this->soy_productor) {
-		// TODO tirar ValueError
-		throw "No fui creado para consumir";
-	}
 	sprintf(mostrar, "Extraigo Elemento \n");
 	write(fileno(stdout), mostrar, strlen(mostrar));
 
@@ -218,31 +202,21 @@ template<typename T> void CintaPrincipal<T>::extraer_elemento() {
 	semaforos_consumidores->signalize(0);
 }
 
-template<typename T> void CintaPrincipal<T>::avanzar_cinta() {
-	if (this->soy_productor) {
-		// TODO tirar ValueError
-		throw "No fui creado para consumir";
-	}
-	//this->semaforo_vector_consumir->signalize(*this->posicion_ocupada);
+template<typename T> void CintaPrincipal<T>::avanzar_cinta(int id) {
 
-	if (this->id < *this->cantidad_de_consumidores) {
-		sprintf(mostrar, "Señalizo semaforo consumidor %d\n", this->id);
-		write(fileno(stdout), mostrar, strlen(mostrar));
-		this->semaforos_consumidores->signalize(this->id);
+	if (id < *this->cantidad_de_consumidores) {
+		this->semaforos_consumidores->signalize(id);
 	} else {
 		this->semaforos_consumidores->signalize(0);
 	}
 
 }
 
-template<typename T> void CintaPrincipal<T>::leer_elemento(T * elemento) {
-	sprintf(mostrar, "Esperando semaforo consumidor %d\n", this->id - 1);
-	write(fileno(stdout), mostrar, strlen(mostrar));
-	this->semaforos_consumidores->wait_on(this->id - 1);
+template<typename T> void CintaPrincipal<T>::leer_elemento(T * elemento, int id) {
 
-	if (this->id == 1) {
-		sprintf(mostrar, "Esperando productor \n");
-		write(fileno(stdout), mostrar, strlen(mostrar));
+	this->semaforos_consumidores->wait_on(id - 1);
+
+	if (id == 1) {
 		this->semaforo_vector_consumir->wait_on(*this->posicion_ocupada);
 	}
 	memcpy(elemento, &(vector_elementos[*this->posicion_ocupada]), sizeof(T));
@@ -259,38 +233,43 @@ void CintaPrincipal<T>::inicializar_cinta(const std::string & file_key,
 	int tamanio_id_productores;
 	int tamanio_dato;
 	int permisos = 0664;
+	char proj_id;
 
 	int i;
 
-	std::vector<unsigned short int> valores;
+	std::vector<unsigned short> valores;
 
-	tamanio_control = 8 * sizeof(unsigned int);
-	tamanio_id_productores = cantidad_maxima_de_productores * sizeof(unsigned int);
+	tamanio_control = 8 * sizeof(int);
+	tamanio_id_productores = cantidad_maxima_de_productores * sizeof(int);
 	tamanio_dato = sizeof(T);
 	tamanio_shared_memory = tamanio_control + tamanio_id_productores
 			+ tamanio_asignado_a_vector * tamanio_dato;
 
 	valores.push_back(1);
-	mutex_control = new SemaphoreSet(valores, file_key.c_str(), id, permisos);
+	proj_id = 0;
+	mutex_control = new SemaphoreSet(valores, file_key.c_str(), proj_id, permisos);
 
 	valores.clear();
 	for (i = 0; i < tamanio_asignado_a_vector; i++) {
 		valores.push_back(0);
 	}
-	semaforo_vector_consumir = new SemaphoreSet(valores, file_key.c_str(), id, permisos);
+	proj_id = 1;
+	semaforo_vector_consumir = new SemaphoreSet(valores, file_key.c_str(), proj_id, permisos);
 
 	valores.clear();
 	for (i = 0; i < cantidad_maxima_de_productores; i++) {
 		valores.push_back(0);
 	}
-	semaforos_productores = new SemaphoreSet(valores, file_key.c_str(), id, permisos);
+	proj_id = 2;
+	semaforos_productores = new SemaphoreSet(valores, file_key.c_str(), proj_id, permisos);
 
 	valores.clear();
 	valores.push_back(1);
 	for (i = 1; i < cantidad_consumidores; i++) {
 		valores.push_back(0);
 	}
-	semaforos_consumidores = new SemaphoreSet(valores, file_key.c_str(), id, permisos);
+	proj_id = 3;
+	semaforos_consumidores = new SemaphoreSet(valores, file_key.c_str(), proj_id, permisos);
 
 	try {
 		// Trato de crear la memoria compartida
@@ -305,7 +284,7 @@ void CintaPrincipal<T>::inicializar_cinta(const std::string & file_key,
 				false);
 	}
 
-	cantidad_maxima_productores = static_cast<unsigned int *>(memoria_compartida->memory_pointer());
+	cantidad_maxima_productores = static_cast<int *>(memoria_compartida->memory_pointer());
 	tamanio_vector = cantidad_maxima_productores + 1;
 	cantidad_elementos = tamanio_vector + 1;
 	posicion_libre = cantidad_elementos + 1;

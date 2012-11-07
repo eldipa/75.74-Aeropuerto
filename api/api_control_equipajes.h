@@ -8,15 +8,17 @@
 
 class ApiControlEquipajes {
 private:
-	CintaPrincipal<Equipaje> cinta_para_extraer;
-	CintaPrincipal<Equipaje> cinta_para_colocar;
+	CintaPrincipal<Equipaje> cinta_ppal;
+	int numero_productor_cinta_ppal;
+	int numero_consumidor_cinta_ppal;
 
 public:
-	ApiControlEquipajes(unsigned int numero_productor, unsigned int numero_consumidor,
+	ApiControlEquipajes(int numero_productor,  int numero_consumidor,
 			const char* path_to_cinta_central);
 	virtual ~ApiControlEquipajes();
 
 	Equipaje obtener_proximo_equipaje_sospechoso();
+
 	void volver_a_colocar_equipaje_en_cinta_principal(const Equipaje & e);
 
 	void avisar_equipaje_sospechoso(Rfid rfid);

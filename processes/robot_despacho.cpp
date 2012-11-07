@@ -31,9 +31,10 @@ int main(int argc, char** argv) {
 		exit(1);
 	}
 
+	int mis_vuelos = 1;
 	//ApiScanner scanner(0);
 	ApiAdmin admin;
-	std::set<int> vuelos; // SON LOS VUELOS QUE LA API VA A SACAR DE LA CINTA
+	Equipaje equipaje;
 
 	ApiDespachante despachante_cinta_central(atoi(argv[1]), argv[2]);
 
@@ -42,13 +43,14 @@ int main(int argc, char** argv) {
 	Log::info("Iniciando robot despacho(%s), cinta_central:%s cinta_contenedor:%s\n", argv[1],
 			argv[3], argv[5]);
 
-	vuelos.insert(1); // Agrego que saque de la cinta el vuelo numero 1
 	for (;;) {
 		sleep(rand() % 10);
 
 		Log::info("Robot de despacho(%s) Sacando un nuevo equipaje de cinta(%s)\n", argv[1],
 				argv[2]);
-		Equipaje equipaje = despachante_cinta_central.obtener_proximo_equipaje(vuelos);
+		Rfid rfid_equipaje = despachante_cinta_central.leer_proximo_equipaje();
+		if (rfid_equipaje.numero_de_vuelo_destino == mis_vuelos)
+			equipaje = despachante_cinta_central.extraer_equipaje();
 
 		int num_vuelo = admin.get_numero_vuelo(equipaje);
 		int num_zona = admin.get_numero_zona(num_vuelo);

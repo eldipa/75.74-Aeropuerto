@@ -1,35 +1,38 @@
 #include "api_despachante.h"
 
-ApiDespachante::ApiDespachante(unsigned int numero_despachante, const char* path_to_cinta_central) :
-		cinta(path_to_cinta_central, numero_despachante, false) {
+ApiDespachante::ApiDespachante(int numero_despachante, const char* path_to_cinta_central) :
+		cinta(path_to_cinta_central, false) {
+	char msgerror[1024];
 	this->numero_despachante = numero_despachante;
-	terminar = false;
+	if (numero_despachante < 1) {
+		sprintf(msgerror, "Error ID = %d invalido\n", numero_despachante);
+		// TODO tirar ValueError
+		//throw ErrorEnCintaPrincipal(msgerror);
+		throw "ERROR";
+	}
+	this->saco_elemento = true;
 }
 
 ApiDespachante::~ApiDespachante() {
 
 }
 
-Equipaje ApiDespachante::obtener_proximo_equipaje(const std::set<int> & vuelos_a_despachar) {
-	Equipaje e;
-	bool elemento_extraido;
-	elemento_extraido = false;
+Rfid ApiDespachante::leer_proximo_equipaje() {
 
-	if (terminar) {
-		return e;
+	if (!saco_elemento) {
+		this->saco_elemento = true;
+		cinta.avanzar_cinta(this->numero_despachante);
 	}
-	do {
-		cinta.leer_elemento(&e);
-		if (e.getRfid().numero_de_vuelo_destino == 0) {
-			cinta.avanzar_cinta();
-			this->terminar = true;
-			//} else if (rfid.getNumeroDeVuelo() == e.get_rfid().getNumeroDeVuelo()) {
-		} else if (vuelos_a_despachar.count(e.getRfid().numero_de_vuelo_destino) > 0) {
-			cinta.extraer_elemento();
-			elemento_extraido = true;
-		} else {
-			cinta.avanzar_cinta();
-		}
-	} while (!elemento_extraido && !terminar);
-	return e;
+	cinta.leer_elemento(&ultimo_equipaje_leido, this->numero_despachante);
+
+	this->saco_elemento = false; // Tiene que avanzar o extraer el elemento leido
+
+	return ultimo_equipaje_leido.getRfid();
 }
+
+Equipaje ApiDespachante::extraer_equipaje() {
+	cinta.extraer_elemento();
+	this->saco_elemento = true;
+	return this->ultimo_equipaje_leido;
+}
+

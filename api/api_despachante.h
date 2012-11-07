@@ -11,14 +11,16 @@
 class ApiDespachante {
 private:
 	CintaPrincipal<Equipaje> cinta;
-	bool terminar;
-	unsigned int numero_despachante;
+	int numero_despachante;
+	Equipaje ultimo_equipaje_leido;
+	bool saco_elemento;
+
 public:
-	ApiDespachante(unsigned int numero_despachante, const char* path_to_cinta_central);
+	ApiDespachante(int numero_despachante, const char* path_to_cinta_central);
 	virtual ~ApiDespachante();
 
-	Equipaje obtener_proximo_equipaje(const std::set<int> & vuelos_a_despachar);
-
+	Rfid leer_proximo_equipaje();
+	Equipaje extraer_equipaje();
 };
 
 #endif
