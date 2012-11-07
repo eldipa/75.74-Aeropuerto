@@ -8,6 +8,7 @@ public:
    virtual ~Rfid() {}
 // private:
    int rfid;
+   int numero_de_vuelo_destino;
 };
 
 #endif /* RFID_H_ */

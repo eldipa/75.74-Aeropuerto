@@ -47,7 +47,7 @@ class ValueError : public std::exception {
    public:
       explicit ValueError(const char *format, ...) throw();
       virtual const char *what() const throw(); 
-      virtual ~ValueError() throw() {}
+      virtual ~ValueError() throw() ;
 };
 
 #endif

@@ -1,32 +1,24 @@
-#ifndef APIESCANER_H_
-#define APIESCANER_H_
+#ifndef API_SCANNER_H_
+#define API_SCANNER_H_
 
 #include "equipaje.h"
 
+#include "cintaprincipal.h"
+
 class ApiScanner {
-public:
-   ApiScanner(int numero);
-   virtual ~ApiScanner();
-
-   /*
-    * Marca/Registra un equipaje como sospechoso.
-    * El robot de despacho deja pasar el equipaje y lo toma
-    * el RobotSospechosos.
-    **/
-   void equipaje_sospechoso( Equipaje& );
-
-   /*
-    * Marca/Registra un equipaje como limpio.
-    * El robot de despacho puede tomar el equipaje.
-    **/
-   void equipaje_limpio( Equipaje& );
-
-   bool es_sospechoso( Equipaje& );
-
 private:
-   int numero;
+
+	CintaPrincipal<Equipaje> cinta;
+	unsigned int numero_escaner;
+public:
+
+	ApiScanner(unsigned int numero_escaner, const char* path_to_cinta_central);
+	virtual ~ApiScanner();
+
+	void colocar_equipaje_en_cinta_principal(const Equipaje & equipaje);
 };
 
-#endif /* APIESCANER_H_ */
+
+#endif /* APISCANNER_H_ */
 
 

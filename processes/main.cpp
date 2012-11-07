@@ -75,7 +75,7 @@ int main(int argc, char **argv) {
 
   Process puesto_checkin("puesto_checkin", args_puesto_checkin);
   Process robot_checkin("robot_checkin", args_robot_checkin);
-  Process scanner("scanner", args_scanner);
+  Process robot_scanner("robot_scanner", args_scanner);
   Process robot_despacho("robot_despacho", args_robot_despacho);
   Process robot_carga("robot_carga", args_robot_carga);
   Process robot_intercargo("robot_intercargo", args_robot_intercargo);
@@ -89,7 +89,7 @@ int main(int argc, char **argv) {
 
   puesto_checkin.send_signal(SIGTERM);
   robot_checkin.send_signal(SIGTERM);
-  scanner.send_signal(SIGTERM);
+  robot_scanner.send_signal(SIGTERM);
   robot_despacho.send_signal(SIGTERM);
   robot_carga.send_signal(SIGTERM);
   robot_intercargo.send_signal(SIGTERM);

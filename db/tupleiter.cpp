@@ -8,8 +8,10 @@
 
 
 void TupleIterator::check(int i) const {
-   if(i < 0 or i >= size())
-      throw ValueError("Out of range [%i,%i). Index used was %i.", 0, size(), i);
+	//TODO SACAR
+	i=0;
+   //if(i < 0 or i >= size())
+      //throw ValueError("Out of range [%i,%i). Index used was %i.", 0, size(), i);
 }
 
 int TupleIterator::size() const {

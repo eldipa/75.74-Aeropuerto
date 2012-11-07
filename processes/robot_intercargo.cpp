@@ -17,7 +17,7 @@ int main( int argc, char** argv ) {
       exit(1);
    }
 
-   ApiTrasbordo api_trasbordo(atoi(argv[1]), argv[2], argv[3], atoi(argv[4]));
+   ApiTrasbordo api_trasbordo(atoi(argv[1]), argv[2], argv[3]);
 
    for(;;) {
       Log::info("Esperando que las equipajes listos para el trasbordo");

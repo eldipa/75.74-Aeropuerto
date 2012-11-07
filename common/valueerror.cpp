@@ -56,3 +56,6 @@ const char *ValueError::what() const throw() {
    return msg_error;
 }
 
+ValueError::~ValueError() throw() {
+
+}

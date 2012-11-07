@@ -12,6 +12,7 @@
 #include "log.h"
 
 #include <stdexcept>
+#include <cstdio>
 
 void lanzar_notificadores_de_vuelos_de_intercargo(char*, int);
 

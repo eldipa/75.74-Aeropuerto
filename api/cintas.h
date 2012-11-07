@@ -14,7 +14,7 @@
 
 typedef Cinta< Equipaje, CAPACIDAD_CINTA_CHECKIN > CintaCheckin;
 typedef Cinta< Equipaje, CAPACIDAD_CINTA_SCANNER > CintaScanner;
-typedef CintaPrincipal< Equipaje, CANTIDAD_DE_CONSUMIDORES_PPAL > CintaCentral;
+typedef CintaPrincipal< Equipaje > CintaCentral;
 typedef Cinta< Equipaje, CAPACIDAD_CINTA_CONTENEDOR > CintaContenedor;
 
 #endif

@@ -32,9 +32,12 @@ public:
       return _peso;
    }
 
+
+
 private: 
    Rfid rfid;
    int _peso;
+
 };
 
 #endif /* EQUIPAJE_H_ */
