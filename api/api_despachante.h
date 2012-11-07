@@ -21,6 +21,7 @@ public:
 
 	Rfid leer_proximo_equipaje();
 	Equipaje extraer_equipaje();
+	void avanzar_cinta();
 };
 
 #endif

@@ -36,3 +36,9 @@ Equipaje ApiDespachante::extraer_equipaje() {
 	return this->ultimo_equipaje_leido;
 }
 
+void ApiDespachante::avanzar_cinta() {
+	if (!saco_elemento) {
+		cinta.avanzar_cinta(this->numero_despachante);
+		this->saco_elemento = true;
+	}
+}
