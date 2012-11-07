@@ -11,32 +11,44 @@
 class Equipaje {
 public:
 
-   Equipaje() : rfid(0), _peso(0) {}
-   Equipaje(int id, int peso = 0) : rfid(id), _peso(peso) {}
-   Equipaje(const Equipaje &e) : rfid(e.rfid.rfid) {
-   } 
+	Equipaje() :
+			rfid(0), _peso(0) {
+	}
+	Equipaje(int id, int peso = 0) :
+			rfid(id), _peso(peso) {
+	}
+	Equipaje(const Equipaje &e) :
+			rfid(e.rfid.rfid) {
+	}
 
-   Rfid getRfid() { return rfid; }
+	Rfid getRfid() {
+		return rfid;
+	}
 
-   operator int() {
-      return rfid.rfid;
-   }
+	operator int() {
+		return rfid.rfid;
+	}
 
-   std::string toString() const {
-      std::ostringstream ostream;
-      ostream << "Equipaje (" << rfid.rfid << ")";
-      return ostream.str();
-   }
+	std::string toString() const {
+		std::ostringstream ostream;
+		ostream << "Equipaje (" << rfid.rfid << ")";
+		return ostream.str();
+	}
 
-   int peso() {
-      return _peso;
-   }
+	int peso() {
+		return _peso;
+	}
 
+	bool esSospechoso() {
+		return rfid.sospechoso;
+	}
 
-
-private: 
-   Rfid rfid;
-   int _peso;
+	void setSospechoso(bool sospechoso) {
+		rfid.sospechoso = sospechoso;
+	}
+private:
+	Rfid rfid;
+	int _peso;
 
 };
 

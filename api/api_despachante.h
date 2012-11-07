@@ -4,8 +4,6 @@
 #include "equipaje.h"
 
 #include "cintaprincipal.h"
-#include "sharedmemory.h"
-#include "semaphoreset.h"
 #include "rfid.h"
 
 #include <set>
