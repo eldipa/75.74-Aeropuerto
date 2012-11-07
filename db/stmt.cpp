@@ -15,7 +15,7 @@ Statement::Statement(sqlite3 &db, const char *sql_stmt) : db(db), stmt(0) {
 
 int Statement::index(const char* arg_name) {
    int i = sqlite3_bind_parameter_index(stmt, arg_name);
-   if(i <= 0)
+   if(i <= 0) 
       throw ValueError("The key '%s' is invalid (doesn't match with any argument.", arg_name);
    return i;
 }
@@ -33,7 +33,7 @@ void Statement::unset(const char* arg_name) {
 }
 
 void Statement::zeros(const char* arg_name, int size) {
-   if(size <= 0)
+   if(size <= 0) 
       throw ValueError("The size must be greater that zero.");
    if(sqlite3_bind_zeroblob(stmt, index(arg_name), size) != SQLITE_OK)
       throw DBError(db, "The argument '%s' cannot be filled with zeros.", arg_name);

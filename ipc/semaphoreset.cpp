@@ -1,3 +1,4 @@
+
 /*************************************************************************
  *                                                                       *
  *                        This work is licensed under a                  *
@@ -24,6 +25,7 @@
  *                                                                             *
  *******************************************************************************/
 
+
 #include <sys/sem.h>
 #include <cstring>
 #include "oserror.h"
@@ -33,91 +35,104 @@
 #include "commonipc.h"
 
 void SemaphoreSet::destroy() {
-	union semun data;
-	memset(&data, '0', sizeof(union semun));
+   union semun data;
+   memset(&data, '0', sizeof(union semun));
 
-	Log::debug("%s semaphore set using the path %s with key %x.", "Destroying", path.c_str(), key);
-	if (semctl(fd, 0, IPC_RMID, data) != 0) {
-		throw OSError("The semaphore set (%i semaphores in it) "
-		MESSAGE_Key_Path_Permissions
-		" cannot be destroyed", semaphores, key, path.c_str(), permissions);
-	}
+   Log::debug("%s semaphore set using the path %s with key %x.", "Destroying", path.c_str(), key);
+   if(semctl(fd, 0, IPC_RMID, data) != 0) {
+      throw OSError("The semaphore set (%i semaphores in it) "
+            MESSAGE_Key_Path_Permissions
+            " cannot be destroyed",
+            semaphores, 
+            key, path.c_str(), permissions);
+   }
 }
 
-SemaphoreSet::SemaphoreSet(const char *absolute_path, char proj_id, int semaphores, int permissions) :
-		owner(false), path(absolute_path), permissions(permissions), semaphores(semaphores) {
-	key = get_key(absolute_path, proj_id);
-	Log::debug("%s semaphore set using the path %s with key %x.", (false ? "Creating" : "Getting"),
-			absolute_path, key);
-	fd = semget(key, semaphores, permissions);
-	if (fd == -1) {
-		throw OSError("The semaphore set (%i semaphores in it) does not exist "
-		MESSAGE_Key_Path_Permissions, semaphores, key, absolute_path, permissions);
-	}
-}
+SemaphoreSet::SemaphoreSet(const char *absolute_path, char proj_id,
+                           int semaphores, int permissions) : owner(false),
+   path(absolute_path), 
+   permissions(permissions),
+   semaphores(semaphores) {
+   key = get_key(absolute_path, proj_id);
+      Log::debug("%s semaphore set using the path %s with key %x.", (false? "Creating" : "Getting"), absolute_path, key);
+      fd = semget(key, semaphores, permissions);
+      if(fd == -1) {
+         throw OSError("The semaphore set (%i semaphores in it) does not exist "
+               MESSAGE_Key_Path_Permissions,
+               semaphores, 
+               key, absolute_path, permissions);
+      }
+   }
 
-SemaphoreSet::SemaphoreSet(const std::vector<unsigned short> &vals, const char *absolute_path,
-		char proj_id, int permissions) :
-		owner(true), path(absolute_path), permissions(permissions), semaphores((int) vals.size()) {
-	key = get_key(absolute_path, proj_id);
-	Log::debug("%s semaphore set using the path %s with key %x.", (true ? "Creating" : "Getting"),
-			absolute_path, key);
-	fd = semget(key, semaphores, IPC_CREAT | IPC_EXCL | permissions);
-	if (fd == -1) {
-		throw OSError("The semaphore set (%i semaphores in it) cannot be created "
-		MESSAGE_Key_Path_Permissions, semaphores, key, absolute_path, permissions);
-	}
+SemaphoreSet::SemaphoreSet(const std::vector<unsigned short> &vals,
+                           const char *absolute_path, char proj_id, int permissions) : owner(true),
+   path(absolute_path), 
+   permissions(permissions),
+   semaphores((int) vals.size()) {
+   key = get_key(absolute_path, proj_id);
+      Log::debug("%s semaphore set using the path %s with key %x.", (true? "Creating" : "Getting"), absolute_path, key);
+      fd = semget(key, semaphores, IPC_CREAT | IPC_EXCL | permissions);
+      if(fd == -1) {
+         throw OSError("The semaphore set (%i semaphores in it) cannot be created "
+               MESSAGE_Key_Path_Permissions,
+               semaphores, 
+               key, absolute_path, permissions);
+      }
 
-	try {
-		std::vector<unsigned short> c_vals(vals); //copy that can be altered
-		union semun data;
-		data.array = &c_vals[0];
+      try {
+         std::vector<unsigned short> c_vals(vals); //copy that can be altered
+         union semun data;
+         data.array = &c_vals[0];
 
-		if (semctl(fd, 0, SETALL, data) == -1) {
-			throw OSError("The semaphore set (%i semaphores in it) cannot be initialized "
-			MESSAGE_Key_Path_Permissions, semaphores, key, absolute_path, permissions);
-		}
-	} catch (...) {
-		if (owner) {
-			destroy();
-		}
-		throw;
-	}
-}
+         if(semctl(fd, 0, SETALL, data) == -1) {
+            throw OSError("The semaphore set (%i semaphores in it) cannot be initialized "
+                  MESSAGE_Key_Path_Permissions,
+                  semaphores, 
+                  key, absolute_path, permissions);
+         }
+      } catch(...) {
+         if(owner) {
+            destroy();
+         }
+         throw;
+      }
+   }
 
-SemaphoreSet::~SemaphoreSet() throw () {
-	if (owner) {
-		union semun data;
-		memset(&data, '0', sizeof(union semun));
+SemaphoreSet::~SemaphoreSet() throw() {
+   if(owner) {
+      union semun data;
+      memset(&data, '0', sizeof(union semun));
 
-		Log::debug("%s semaphore set using the path %s with key %x.", "Destroying", path.c_str(),
-				key);
-		if (semctl(fd, 0, IPC_RMID, data) != 0) {
-			Log::crit("An exception happend during the course of a destructor:\n%s",
-					OSError("The semaphore set (%i semaphores in it) "
-					MESSAGE_Key_Path_Permissions
-					" cannot be destroyed", semaphores, key, path.c_str(), permissions).what());
-		}
-	}
+      Log::debug("%s semaphore set using the path %s with key %x.", "Destroying", path.c_str(), key);
+      if(semctl(fd, 0, IPC_RMID, data) != 0) {
+         Log::crit("An exception happend during the course of a destructor:\n%s", OSError("The semaphore set (%i semaphores in it) "
+                  MESSAGE_Key_Path_Permissions
+                  " cannot be destroyed",
+                  semaphores, 
+                  key, path.c_str(), permissions).what());
+      }
+   }
 }
 
 void SemaphoreSet::wait_on(int semnum) {
-	op(semnum, false);
+   op(semnum, false);
 }
 
 void SemaphoreSet::signalize(int semnum) {
-	op(semnum, true);
+   op(semnum, true);
 }
 
 void SemaphoreSet::op(int semnum, bool signal_action) {
-	struct sembuf dataop;
-	dataop.sem_num = semnum;
-	dataop.sem_op = signal_action ? 1 : -1;
-	dataop.sem_flg = SEM_UNDO;
-	if (semop(fd, &dataop, 1) != 0) {
-		throw OSError("The semaphore number %i in the set "
-		MESSAGE_Key_Path_Permissions
-		" cannot be %s", semnum, key, path.c_str(), permissions,
-				(signal_action ? "incremented (signal)" : "decremented (wait)"));
-	}
+   struct sembuf dataop;
+   dataop.sem_num = semnum;
+   dataop.sem_op = signal_action? 1 : -1;
+   dataop.sem_flg = SEM_UNDO;
+   if(semop(fd, &dataop, 1) != 0) {
+      throw OSError("The semaphore number %i in the set "
+            MESSAGE_Key_Path_Permissions
+            " cannot be %s",
+            semnum, 
+            key, path.c_str(), permissions,
+            (signal_action ? "incremented (signal)" : "decremented (wait)"));
+   }
 }
