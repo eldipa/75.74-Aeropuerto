@@ -13,7 +13,7 @@
 int main( int argc, char** argv ) {
 
    if ( argc < 6 ) {
-      Log::crit("Insuficientes parametros para robot de checkin, se esperaba (id, path_cinta_checkin num_cinta_checkin_in path_cinta_scaner num_cinta_scanner)\n");
+      Log::crit("Insuf parametros para robot de checkin,se esperaba (id, path_cinta_checkin num_cinta_checkin_in path_cinta_scaner num_cinta_scanner)\n");
       exit(1);
    }
 

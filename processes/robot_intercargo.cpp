@@ -13,11 +13,11 @@ std::vector<Equipaje> equipajes_para(VueloTrasbordo);
 int main( int argc, char** argv ) {
 
    if (argc < 5) {
-      Log::crit("Insuficientes parametros para robot de carga, se esperaba (id, path_torre_control, path_cinta_ppal id)\n");
+      Log::crit("Insuficientes parametros para robot de carga, se esperaba (id, path_torre_control, path_cinta_ppal id_cinta_ppal)\n");
       exit(1);
    }
 
-   ApiTrasbordo api_trasbordo(atoi(argv[1]), argv[2], argv[3]);
+   ApiTrasbordo api_trasbordo(atoi(argv[1]), argv[2], argv[3], atoi(argv[4]));
 
    for(;;) {
       Log::info("Esperando que las equipajes listos para el trasbordo");

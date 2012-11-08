@@ -54,9 +54,10 @@ public:
 
 		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_CINTA_CENTRAL);
 		for (int i = 0; i < cantidad_cintas_centrales; i++) {
-			cintas_central[i] = new CintaCentral(path_lock,
-					CINTA_PRINCIPAL_CANTIDAD_MAXIMA_PRODUCTORES,
-					CINTA_PRINCIPAL_CANTIDAD_DESPACHANTES, CINTA_PRINCIPAL_TAMANIO_CINTA_CENTRAL);
+         cintas_central[i] = new CintaCentral(true,path_lock,i);
+			//cintas_central[i] = new CintaCentral(path_lock,
+			//		CINTA_PRINCIPAL_CANTIDAD_MAXIMA_PRODUCTORES,
+			//		CINTA_PRINCIPAL_CANTIDAD_DESPACHANTES, CINTA_PRINCIPAL_TAMANIO_CINTA_CENTRAL);
 		}
 
 		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_CINTA_CONTENEDOR);
@@ -67,6 +68,7 @@ public:
 	;
 
 	virtual ~ConexionesAeropuerto() {
+      
 		for (int i = 0; i < cantidad_cintas_checkin; i++) {
 			delete cintas_checkin[i];
 		}

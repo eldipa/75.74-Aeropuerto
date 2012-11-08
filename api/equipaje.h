@@ -17,9 +17,6 @@ public:
 	Equipaje(int id, int peso = 0) :
 			rfid(id), _peso(peso) {
 	}
-	Equipaje(const Equipaje &e) :
-			rfid(e.rfid.rfid) {
-	}
 
 	Rfid getRfid() {
 		return rfid;
@@ -39,11 +36,11 @@ public:
 		return _peso;
 	}
 
-	bool esSospechoso() {
+	bool es_sospechoso() {
 		return rfid.sospechoso;
 	}
 
-	void setSospechoso(bool sospechoso) {
+	void set_sospechoso(bool sospechoso) {
 		rfid.sospechoso = sospechoso;
 	}
 private:
