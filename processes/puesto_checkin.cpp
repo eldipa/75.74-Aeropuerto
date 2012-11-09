@@ -21,15 +21,23 @@ int main(int argc, char *argv[]) {
 
    Log::info("Iniciando puesto_checkin(%s), conectado a cinta %i\n", argv[1], atoi(argv[3]) );
 
-   for(int vuelo = 3; vuelo < 5; vuelo ++) {
+   for(int vuelo = 3; vuelo < 15; vuelo ++) {
 
       Log::info("Iniciando checkin del vuelo(%i)\n", vuelo );
       sleep(rand() % SLEEP_PUESTO_CHECKIN);
-      //checkin.iniciar_checkin(vuelo);
+      checkin.iniciar_checkin(vuelo);
 
       for (int i = 0; i < 20; i ++ ) {
 
          Equipaje equipaje( next_rfid , rand() % TOPE_PESO_VALIJA);
+
+         // equipajes pares van a escala "EscalaPares".impares van a "EscalaImpares".
+         // TODO: cargar la escala de la BD/rfid.
+         if( equipaje.getRfid().rfid % 2 == 0 )
+            equipaje.getRfid().set_escala("EscalaPares");
+         else
+            equipaje.getRfid().set_escala("EscalaImpares");
+         
          Log::info("Puesto Checkin(%s) llego equipaje (rfid=%d)\n", argv[1], next_rfid);
 
          sleep(rand() % SLEEP_PUESTO_CHECKIN);
@@ -45,7 +53,7 @@ int main(int argc, char *argv[]) {
 
       Log::info("Terminando checkin del vuelo(%i)\n", vuelo );
       sleep(rand() % SLEEP_PUESTO_CHECKIN);
-      //checkin.cerrar_checkin();
+      checkin.cerrar_checkin();
    }
 
 }

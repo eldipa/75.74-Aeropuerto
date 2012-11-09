@@ -65,10 +65,11 @@ int main(int argc, char** argv) {
 
       if( es_sospechoso(equipaje) ) {
          Log::info("Robot de despacho(%s) Equipaje %s sospechoso, vuelvo a ponerlo en la cinta central\n", argv[1], equipaje.toString().c_str());
-         despachante_cinta_central.listo_para_recibir_valija_para(atoi(argv[1]));
          despachante_cinta_central.mover_valija(atoi(argv[1]), atoi(argv[1])+1);
       } else {
+         Log::info("Robot de despacho(%s) Equipaje %s limpio envio a robot_carga\n", argv[1], equipaje.toString().c_str());
          cinta_contenedor.poner_equipaje(equipaje);
+         despachante_cinta_central.listo_para_recibir_valija_para(atoi(argv[1]));
       }
              
       /*

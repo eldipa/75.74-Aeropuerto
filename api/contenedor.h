@@ -4,8 +4,8 @@
 #include "equipaje.h"
 #include <vector>
 
-#define MAX_PESO_CONTENEDOR 60
-#define MAX_VALIJAS_POR_CONTENEDOR 10
+#define MAX_PESO_CONTENEDOR 30
+#define MAX_VALIJAS_POR_CONTENEDOR 30
 
 class Contenedor {
 public:

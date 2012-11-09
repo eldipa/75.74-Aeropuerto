@@ -4,6 +4,8 @@
 #include "cintas.h"
 #include "api_constants.h"
 
+#define CANT_CONTENEDORES_INICIAL 10
+
 #define MAX_PUESTOS_CHECKIN 10
 #define MAX_PUESTOS_SCANNER 4
 #define MAX_CONECTADOS_A_PPAL 2

@@ -22,6 +22,10 @@ public:
 		return rfid;
 	}
 
+	Rfid& getRfid() {
+		return rfid;
+	}
+
 	operator int() {
 		return rfid.rfid;
 	}

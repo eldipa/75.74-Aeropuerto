@@ -32,6 +32,11 @@ char *args_robot_carga[] = {(char*)"robot_carga", (char*)"0",  // ID
                             (char*) TOSTRING(MAKE_PATH) PATH_ADMIN_CONTENEDORES,
                             NULL };
 
+char *args_controlador_de_carga[] = {(char*)"controlador_de_carga",
+                                     (char*) TOSTRING(MAKE_PATH) PATH_CONTROLADOR_DE_CARGA,(char*)"0", //ID robot_carga
+                                     (char*) "0", //num_vuelo
+                                     NULL };
+
 char *args_robot_sospechosos[] = {(char*)"robot_control_equipaje_sospechoso", (char*)"1",  // ID
                                   (char*) TOSTRING(MAKE_PATH) PATH_CINTA_CENTRAL, (char*)"0",
                                   NULL };
@@ -85,9 +90,10 @@ int main(int argc, char **argv) {
   Process robot_scanner("robot_scanner", args_scanner);
   Process robot_despacho("robot_despacho", args_robot_despacho);
   Process robot_carga("robot_carga", args_robot_carga);
+  Process controlador_de_carga("controlador_de_carga", args_controlador_de_carga);
   Process robot_sospechosos("robot_control_equipaje_sospechoso", args_robot_sospechosos);
-  //Process robot_intercargo("robot_intercargo", args_robot_intercargo);
-  //Process torre_de_control("torre_de_control", args_torre_de_control);
+  Process robot_intercargo("robot_intercargo", args_robot_intercargo);
+  Process torre_de_control("torre_de_control", args_torre_de_control);
 
   Log::info("Done, waiting for a SIGINT signal.");
   pause();
@@ -101,8 +107,8 @@ int main(int argc, char **argv) {
   robot_despacho.send_signal(SIGTERM);
   robot_carga.send_signal(SIGTERM);
   robot_sospechosos.send_signal(SIGTERM);
-  //robot_intercargo.send_signal(SIGTERM);
-  //torre_de_control.send_signal(SIGTERM);
+  robot_intercargo.send_signal(SIGTERM);
+  torre_de_control.send_signal(SIGTERM);
 
   Log::info("finalizando simulación...");
 

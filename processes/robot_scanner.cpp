@@ -26,8 +26,7 @@ int main(int argc, char *argv[]) {
 		Equipaje equipaje = cinta_scanner.sacar_equipaje();
 
 		Log::info("Scanner(%s) Escaneando equipaje %s\n", argv[1], equipaje.toString().c_str());
-		//equipaje.set_sospechoso( (rand() % 100) == 0 );
-      equipaje.set_sospechoso(true);
+		equipaje.set_sospechoso( (rand() % 5) == 0 );
 		sleep(rand() % SLEEP_ROBOT_SCANNER);
 
 		if (equipaje.es_sospechoso()) {

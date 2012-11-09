@@ -2,6 +2,8 @@
 #define CONEXIONES_AEROPUERTO_H_
 
 #include "cintas.h"
+#include "api_carga.h"
+#include "api_admincontenedores.h"
 
 const int cantidad_cintas_checkin = 1;
 const int cantidad_cintas_scanner = 1;
@@ -39,6 +41,10 @@ public:
 		Log::info("Creando ipcs para Torre de control...%s%s",path_to_locks,PATH_TORRE_DE_CONTROL);
 		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_TORRE_DE_CONTROL);
 		torre_de_control = new TorreDeControl(path_lock);
+
+		Log::info("Creando ipcs admin de contenedores...%s%s",path_to_locks,PATH_ADMIN_CONTENEDORES);
+		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_ADMIN_CONTENEDORES);
+		admin_contenedores = new ApiAdminContenedores(path_lock, CANT_CONTENEDORES_INICIAL);
 
 		Log::info("Creando cintas...");
 
@@ -81,7 +87,9 @@ public:
 		for (int i = 0; i < cantidad_cintas_contenedor; i++) {
 			delete cintas_contenedor[i];
 		}
+
 		delete torre_de_control;
+      delete admin_contenedores;
 	}
 
 private:
@@ -90,6 +98,7 @@ private:
 	CintaScanner *cintas_scanner[1];
 	CintaCentral *cintas_central[1];
 	CintaContenedor *cintas_contenedor[2];
+   ApiAdminContenedores *admin_contenedores;
 };
 
 #endif
