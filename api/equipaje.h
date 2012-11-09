@@ -18,7 +18,7 @@ public:
 			rfid(id), _peso(peso) {
 	}
 
-	Rfid getRfid() {
+	Rfid getRfid() const{
 		return rfid;
 	}
 
@@ -32,7 +32,7 @@ public:
 		return ostream.str();
 	}
 
-	int peso() {
+	int peso() const {
 		return _peso;
 	}
 

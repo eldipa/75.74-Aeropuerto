@@ -15,6 +15,8 @@
 #define PATH_CINTA_CENTRAL "/cinta_central.lck"
 #define PATH_CINTA_CONTENEDOR "/cinta_contenedor.lck"
 #define PATH_TORRE_DE_CONTROL "/torre_de_control.lck"
+#define PATH_CONTROLADOR_DE_CARGA "/controlador_de_carga.lck"
+#define PATH_ADMIN_CONTENEDORES "/admin_contenedores.lck"
 
 //CINTA CENTRAL
 #define CINTA_PRINCIPAL_TAMANIO_CINTA_CENTRAL 4

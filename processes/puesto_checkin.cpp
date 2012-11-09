@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
       sleep(rand() % SLEEP_PUESTO_CHECKIN);
       //checkin.iniciar_checkin(vuelo);
 
-      for (int i = 0; i < 5; i ++ ) {
+      for (int i = 0; i < 20; i ++ ) {
 
          Equipaje equipaje( next_rfid , rand() % TOPE_PESO_VALIJA);
          Log::info("Puesto Checkin(%s) llego equipaje (rfid=%d)\n", argv[1], next_rfid);
