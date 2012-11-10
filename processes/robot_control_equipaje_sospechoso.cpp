@@ -17,18 +17,23 @@ int main(int argc, char** argv) {
 
 	ApiControlEquipajes control_equipajes(atoi(argv[1]), argv[2], atoi(argv[3]));
 
-	Log::info("Iniciando robot control de equipaje sospechoso(pos=%s), cinta_central:%s\n", argv[1], argv[3]);
+	Log::info("Iniciando robot control de equipaje sospechoso(pos=%s), cinta_central:%s\n", argv[1],
+			argv[3]);
 
 	for (;;) {
 		sleep(rand() % SLEEP_ROBOT_SOSPECHOSOS);
 
-		Log::info("Robot control equipaje(pos=%s) esperando un equipaje sospechoso de cinta central(%s)\n",argv[1], argv[3]);
+		Log::info(
+				"Robot control equipaje(pos=%s) esperando un equipaje sospechoso de cinta central(%s)\n",
+				argv[1], argv[3]);
 		Equipaje equipaje = control_equipajes.obtener_proximo_equipaje_sospechoso();
-      
-		Log::info("Robot control equipaje(pos=%s) recibo equip %s, limpio y vuelve a cinta central\n",argv[1], equipaje.toString().c_str());
-      // por ahora, limpia el equipaje y lo vuelve a poner al comienzo de la cinta central
-      equipaje.set_sospechoso(false);
-      control_equipajes.volver_a_colocar_equipaje_en_cinta_principal(equipaje);
+
+		Log::info(
+				"Robot control equipaje(pos=%s) recibo equip %s, limpio y vuelve a cinta central\n",
+				argv[1], equipaje.toString().c_str());
+		// por ahora, limpia el equipaje y lo vuelve a poner al comienzo de la cinta central
+		equipaje.set_sospechoso(false);
+		control_equipajes.volver_a_colocar_equipaje_en_cinta_principal(equipaje);
 	}
 
 }

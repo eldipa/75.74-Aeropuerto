@@ -44,7 +44,7 @@ int main(int argc, char** argv) {
 		exit(1);
 	}
 
-	//Equipaje equipaje;
+	Equipaje equipaje;
 	ApiDespachante despachante_cinta_central(atoi(argv[1]), argv[2], atoi(argv[3]));
 	CintaContenedor cinta_contenedor(argv[4], atoi(argv[5]));
 
@@ -56,7 +56,10 @@ int main(int argc, char** argv) {
 
 		Log::info("Robot de despacho(%s) Intentando tomar un nuevo equipaje de cinta central(%s)\n", argv[1], argv[3]);
      
-      Equipaje equipaje = despachante_cinta_central.obtener_valija_para(atoi(argv[1]));
+      //Equipaje equipaje = despachante_cinta_central.obtener_valija_para(atoi(argv[1]));
+		Rfid rfid_equipaje = despachante_cinta_central.leer_proximo_equipaje();
+		if (rfid_equipaje.numero_de_vuelo_destino == atoi(argv[1]))
+			equipaje = despachante_cinta_central.extraer_equipaje();
 
 		int num_vuelo = get_numero_vuelo(equipaje);
 		int num_zona = get_numero_zona(num_vuelo);
@@ -65,13 +68,15 @@ int main(int argc, char** argv) {
 
       if( es_sospechoso(equipaje) ) {
          Log::info("Robot de despacho(%s) Equipaje %s sospechoso, vuelvo a ponerlo en la cinta central\n", argv[1], equipaje.toString().c_str());
-         despachante_cinta_central.mover_valija(atoi(argv[1]), atoi(argv[1])+1);
+         //despachante_cinta_central.mover_valija(atoi(argv[1]), atoi(argv[1])+1);
+         despachante_cinta_central.avanzar_cinta();
       } else {
          Log::info("Robot de despacho(%s) Equipaje %s limpio envio a robot_carga\n", argv[1], equipaje.toString().c_str());
          cinta_contenedor.poner_equipaje(equipaje);
-         despachante_cinta_central.listo_para_recibir_valija_para(atoi(argv[1]));
+         despachante_cinta_central.avanzar_cinta();
+         //despachante_cinta_central.listo_para_recibir_valija_para(atoi(argv[1]));
       }
-             
+
       /*
 		Rfid rfid_equipaje = despachante_cinta_central.leer_proximo_equipaje();
 		if (rfid_equipaje.numero_de_vuelo_destino == mis_vuelos)

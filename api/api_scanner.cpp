@@ -6,11 +6,10 @@ ApiScanner::ApiScanner(int numero_escaner, const char* path_to_cinta_central, in
 }
 
 ApiScanner::~ApiScanner() {
-
 }
 
 void ApiScanner::colocar_equipaje_en_cinta_principal(const Equipaje & equipaje) {
-   this->numero_escaner = numero_escaner;
-   cinta.poner_valija(equipaje, 0);
-	//cinta.colocar_elemento(&equipaje, this->numero_escaner);
+
+   //cinta.poner_valija(equipaje, 0);
+   cinta.colocar_elemento(&equipaje, this->numero_escaner);
 }

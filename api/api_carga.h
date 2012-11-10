@@ -19,7 +19,7 @@ public:
     * recibe un path_carga y el id_robot_carga.Va a existir una ApiCarga por cada robot_carga.
     **/
    ApiCarga(const char* path_carga, int id_robot_carga, bool create):path(path_carga),id_robot_carga(id_robot_carga) {
-      create = create;
+      create = !create;
    }
 
    ApiCarga(const char* path_carga, int id_robot_carga):path(path_carga),id_robot_carga(id_robot_carga) {
@@ -32,7 +32,7 @@ public:
     * Cada contenedor guarda los rfids
     **/
    std::vector<Contenedor> cargar_equipajes(int n) {
-      n = n;
+      n = n -1;
       return std::vector<Contenedor>();
    }
 

@@ -18,7 +18,7 @@ public:
 			rfid(id), _peso(peso) {
 	}
 
-	Rfid getRfid() const{
+	Rfid getRfid() const {
 		return rfid;
 	}
 
@@ -47,10 +47,19 @@ public:
 	void set_sospechoso(bool sospechoso) {
 		rfid.sospechoso = sospechoso;
 	}
+
+	void set_descripcion(const char * desc) {
+		strncpy(this->descripcion, desc, 50);
+	}
+
+	char * get_descripcion() {
+		return this->descripcion;
+	}
+
 private:
 	Rfid rfid;
 	int _peso;
-
+	char descripcion[50];
 };
 
 #endif /* EQUIPAJE_H_ */

@@ -15,8 +15,8 @@ VueloTrasbordo ApiTrasbordo::proximo_vuelo_trasbordo() {
 }
 
 void ApiTrasbordo::poner_en_cinta_principal(const Equipaje& equipaje) {
-	//cinta.colocar_elemento(&equipaje, id_robot);
-	cinta.poner_valija(equipaje, 0);
+	cinta.colocar_elemento(&equipaje, id_robot);
+	//cinta.poner_valija(equipaje, 0);
 }
 
 ApiTrasbordo::ApiTrasbordo(int id_robot, const char* path_to_trasbordo,

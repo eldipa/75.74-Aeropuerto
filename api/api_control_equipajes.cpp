@@ -16,20 +16,20 @@ ApiControlEquipajes::~ApiControlEquipajes() {
 }
 
 Equipaje ApiControlEquipajes::obtener_proximo_equipaje_sospechoso() {
-   Equipaje e = cinta_central.obtener_valija_para(pos_consumidor_cinta_central);
+   /* e = cinta_central.obtener_valija_para(pos_consumidor_cinta_central);
    cinta_central.listo_para_recibir_valija_para(pos_consumidor_cinta_central);
-   return e;
-   /*
+   return e;*/
+
 	Equipaje e;
-	cinta_ppal.leer_elemento(&e, this->numero_consumidor_cinta_ppal);
-	cinta_ppal.extraer_elemento();
+	cinta_central.leer_elemento(&e, this->pos_consumidor_cinta_central);
+	cinta_central.extraer_elemento();
 	return e;
-   */
+
 }
 
 void ApiControlEquipajes::volver_a_colocar_equipaje_en_cinta_principal(const Equipaje & e) {
-   cinta_central.poner_valija(e, 0);
-	//cinta_ppal.colocar_elemento(&e, this->numero_productor_cinta_ppal);
+   //cinta_central.poner_valija(e, 0);
+	cinta_central.colocar_elemento(&e, this->pos_consumidor_cinta_central);
 }
 
 void ApiControlEquipajes::avisar_equipaje_sospechoso(Rfid rfid) {

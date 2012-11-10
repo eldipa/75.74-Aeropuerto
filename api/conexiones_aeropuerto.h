@@ -38,11 +38,13 @@ public:
 	ConexionesAeropuerto(const char *path_to_locks) {
 		char path_lock[256];
 
-		Log::info("Creando ipcs para Torre de control...%s%s",path_to_locks,PATH_TORRE_DE_CONTROL);
+		Log::info("Creando ipcs para Torre de control...%s%s", path_to_locks,
+				PATH_TORRE_DE_CONTROL);
 		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_TORRE_DE_CONTROL);
 		torre_de_control = new TorreDeControl(path_lock);
 
-		Log::info("Creando ipcs admin de contenedores...%s%s",path_to_locks,PATH_ADMIN_CONTENEDORES);
+		Log::info("Creando ipcs admin de contenedores...%s%s", path_to_locks,
+				PATH_ADMIN_CONTENEDORES);
 		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_ADMIN_CONTENEDORES);
 		admin_contenedores = new ApiAdminContenedores(path_lock, CANT_CONTENEDORES_INICIAL);
 
@@ -60,10 +62,10 @@ public:
 
 		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_CINTA_CENTRAL);
 		for (int i = 0; i < cantidad_cintas_centrales; i++) {
-         cintas_central[i] = new CintaCentral(true,path_lock,i);
-			//cintas_central[i] = new CintaCentral(path_lock,
-			//		CINTA_PRINCIPAL_CANTIDAD_MAXIMA_PRODUCTORES,
-			//		CINTA_PRINCIPAL_CANTIDAD_DESPACHANTES, CINTA_PRINCIPAL_TAMANIO_CINTA_CENTRAL);
+			//cintas_central[i] = new CintaCentral(true,path_lock,i);
+			cintas_central[i] = new CintaCentral(path_lock,
+					CINTA_PRINCIPAL_CANTIDAD_MAXIMA_PRODUCTORES,
+					CINTA_PRINCIPAL_CANTIDAD_DESPACHANTES, CINTA_PRINCIPAL_TAMANIO_CINTA_CENTRAL);
 		}
 
 		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_CINTA_CONTENEDOR);
@@ -74,7 +76,7 @@ public:
 	;
 
 	virtual ~ConexionesAeropuerto() {
-      
+
 		for (int i = 0; i < cantidad_cintas_checkin; i++) {
 			delete cintas_checkin[i];
 		}
@@ -89,16 +91,16 @@ public:
 		}
 
 		delete torre_de_control;
-      delete admin_contenedores;
+		delete admin_contenedores;
 	}
 
 private:
-	TorreDeControl *torre_de_control;
-	CintaCheckin *cintas_checkin[1];
-	CintaScanner *cintas_scanner[1];
-	CintaCentral *cintas_central[1];
-	CintaContenedor *cintas_contenedor[2];
-   ApiAdminContenedores *admin_contenedores;
+	TorreDeControl * torre_de_control;
+	CintaCheckin * cintas_checkin[1];
+	CintaScanner * cintas_scanner[1];
+	CintaCentral * cintas_central[1];
+	CintaContenedor * cintas_contenedor[2];
+	ApiAdminContenedores * admin_contenedores;
 };
 
 #endif

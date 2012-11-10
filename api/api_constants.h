@@ -17,8 +17,13 @@
 #define PATH_TORRE_DE_CONTROL "/torre_de_control.lck"
 #define PATH_CONTROLADOR_DE_CARGA "/controlador_de_carga.lck"
 #define PATH_ADMIN_CONTENEDORES "/admin_contenedores.lck"
+#define PATH_COLA_TRACTORES_AVIONES "/cola_tractores_aviones.lck"
+#define PATH_COLA_AVIONES_ROBOTS_ZONA "/cola_aviones_robots_zona.lck"
+#define PATH_COLA_ROBOTS_ZONA_TRACTORES "/cola_robots_zona_tractores.lck"
 
 //CINTA CENTRAL
 #define CINTA_PRINCIPAL_TAMANIO_CINTA_CENTRAL 4
 #define CINTA_PRINCIPAL_CANTIDAD_DESPACHANTES 3
 #define CINTA_PRINCIPAL_CANTIDAD_MAXIMA_PRODUCTORES 10
+
+#define ID_ESCUCHA_TRACTOR 1
