@@ -41,4 +41,10 @@ create table VuelosIntercargo(
   foreign key(vuelo_destino) references Vuelo(id)
 );
 
+create table ZonasUtilizadas(
+  num_zona integer primary key,
+  vuelo integer,
+  foreign key(vuelo) references Vuelo(id)
+);
+
 COMMIT;
