@@ -21,13 +21,13 @@ int main(int argc, char *argv[]) {
 
    Log::info("Iniciando puesto_checkin(%s), conectado a cinta %i\n", argv[1], atoi(argv[3]) );
 
-   for(int vuelo = 3; vuelo < 15; vuelo ++) {
+   for(int vuelo = 1; vuelo < 2; vuelo ++) {
 
       Log::info("Iniciando checkin del vuelo(%i)\n", vuelo );
       sleep(rand() % SLEEP_PUESTO_CHECKIN);
       checkin.iniciar_checkin(vuelo);
 
-      for (int i = 0; i < 20; i ++ ) {
+      for (int i = 10; i <= 35; i ++ ) {
 
          Equipaje equipaje( next_rfid , rand() % TOPE_PESO_VALIJA);
 
