@@ -14,7 +14,7 @@ public:
 	Equipaje() :
 			rfid(0), _peso(0) {
 	}
-	Equipaje(int id, int peso = 0) :
+	Equipaje(Rfid id, int peso = 0) :
 			rfid(id), _peso(peso) {
 	}
 

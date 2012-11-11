@@ -1,97 +1,135 @@
 #include <iostream>
 #include <stdlib.h>
 #include <unistd.h>
+#include <cstdio>
 
-#include "api_zona.h"
-#include "api_admin.h"
 #include "api_despachante.h"
-#include "api_scanner.h"
-#include "log.h"
-
-#include "contenedor.h"
 #include "equipaje.h"
 #include "constants.h"
-
-#include <map>
-#include <string>
 #include "cintas.h"
 
+#include "database.h"
+#include "stmt.h"
+#include "tupleiter.h"
+#include "log.h"
+
+#include <string>
+
 /*
- * Argumentos para el robot de despacho.
- * ./robot_despacho <id_robot> <cinta_in> <cinta_zona1> <zona1> ... <cinta_zonan> <zonan>
- * En donde la cinta i lleva equipajes hacia la zona i.
+ * Devuelve el n° de vuelo del equipaje registrado en la bd.
+ * devuelve (-1) si el equipaje no esta registrado.
+ **/
+int get_numero_vuelo(Rfid);
+
+/*
+ * Devuelve el n° de zona donde utilizado por el vuelo.
+ * Consulta en la BD.
+ * devuelve (-1) si el vuelo no esta en ninguna zona.
  **/
 
-#include <set>
+int get_numero_zona(int num_vuelo);
 
-bool es_sospechoso(Equipaje& e) {
-   return e.getRfid().sospechoso;
-}
-
-int get_numero_vuelo(Equipaje e) {
-   return e.getRfid().numero_de_vuelo_destino;
-}
-
-int get_numero_zona(Equipaje e) {
-   e.getRfid();
-   return 0;
-}
 
 int main(int argc, char** argv) {
 
-	if ((argc < 5) || ((argc - 4) % 2 != 0)) {
-		Log::crit("insuf. param para robot de despacho,se esperaba(id, path_cinta_central id_cinta_central path_cinta_contenedor id_cinta_contenedor...)\n");
+	if (argc < 8) {
+		Log::info("insuf. param para robot de despacho,se esperaba(id, path_cinta_central id_cinta_central path_cinta_contenedor id_cinta_contenedor zona_desde zona_hasta...)\n");
 		exit(1);
 	}
 
-	Equipaje equipaje;
 	ApiDespachante despachante_cinta_central(atoi(argv[1]), argv[2], atoi(argv[3]));
-	CintaContenedor cinta_contenedor(argv[4], atoi(argv[5]));
+   int zona_desde = atoi(argv[6]);
+   int zona_hasta = atoi(argv[7]);
 
-	Log::info("Iniciando robot despacho(%s), cinta_central:%s cinta_contenedor:%s\n", argv[1],
-			argv[3], argv[5]);
-
+	Log::info("Iniciando robot despacho(%s), cinta_central:%s cinta_contenedor:%s\n", 
+             argv[1], argv[3], argv[5]);
+   
 	for (;;) {
 		sleep(rand() % SLEEP_ROBOT_DESPACHO);
 
 		Log::info("Robot de despacho(%s) Intentando tomar un nuevo equipaje de cinta central(%s)\n", argv[1], argv[3]);
      
-      //Equipaje equipaje = despachante_cinta_central.obtener_valija_para(atoi(argv[1]));
 		Rfid rfid_equipaje = despachante_cinta_central.leer_proximo_equipaje();
-		if (rfid_equipaje.numero_de_vuelo_destino == atoi(argv[1]))
-			equipaje = despachante_cinta_central.extraer_equipaje();
 
-		int num_vuelo = get_numero_vuelo(equipaje);
+		int num_vuelo = get_numero_vuelo(rfid_equipaje);
 		int num_zona = get_numero_zona(num_vuelo);
-		Log::info("Robot despacho(%s), toma el equipaje %s con destino al vuelo %d (zona %d)",
-				argv[1], equipaje.toString().c_str(), num_vuelo, num_zona);
 
-      if( es_sospechoso(equipaje) ) {
-         Log::info("Robot de despacho(%s) Equipaje %s sospechoso, vuelvo a ponerlo en la cinta central\n", argv[1], equipaje.toString().c_str());
-         //despachante_cinta_central.mover_valija(atoi(argv[1]), atoi(argv[1])+1);
-         despachante_cinta_central.avanzar_cinta();
+      if((num_zona==-1)||(num_vuelo==-1)) {
+         Log::info("Robot de despacho(%s) Equipaje %d no esta registrado o su vuelo no tiene zona asignada\n", argv[1], rfid_equipaje.rfid);
       } else {
-         Log::info("Robot de despacho(%s) Equipaje %s limpio envio a robot_carga\n", argv[1], equipaje.toString().c_str());
-         cinta_contenedor.poner_equipaje(equipaje);
-         despachante_cinta_central.avanzar_cinta();
-         //despachante_cinta_central.listo_para_recibir_valija_para(atoi(argv[1]));
+
+         Log::info("Robot despacho(%s), toma el equipaje %d con destino al vuelo %d (zona %d)",
+                   argv[1], rfid_equipaje.rfid, num_vuelo, num_zona);
+         Equipaje equipaje = despachante_cinta_central.extraer_equipaje();
+
+
+         if( equipaje.es_sospechoso() ) {
+
+            Log::info("Robot de despacho(%s) Equipaje %s sospechoso, vuelvo a ponerlo en la cinta central\n", argv[1], equipaje.toString().c_str());
+            despachante_cinta_central.avanzar_cinta();
+
+         } else if((num_zona<zona_desde) || (num_zona>zona_hasta)){
+
+            Log::info("Robot de despacho(%s) Equipaje %s no pertenece a mis zonas, vuelve a cinta central\n", argv[1], equipaje.toString().c_str());
+            despachante_cinta_central.avanzar_cinta();
+
+         } else {
+
+            Log::info("Robot de despacho(%s) Equipaje %s limpio envio a robot_carga zona %d\n", argv[1], equipaje.toString().c_str(), num_zona);
+            CintaContenedor cinta_contenedor(argv[4], num_zona);
+            cinta_contenedor.poner_equipaje(equipaje);
+            despachante_cinta_central.avanzar_cinta();
+
+         }
       }
+   }
 
-      /*
-		Rfid rfid_equipaje = despachante_cinta_central.leer_proximo_equipaje();
-		if (rfid_equipaje.numero_de_vuelo_destino == mis_vuelos)
-			equipaje = despachante_cinta_central.extraer_equipaje();
+}
 
-		int num_vuelo = admin.get_numero_vuelo(equipaje);
-		int num_zona = admin.get_numero_zona(num_vuelo);
-		Log::info("Robot despacho(%s), toma el equipaje %s con destino al vuelo %d (zona %d)",
-				argv[1], equipaje.toString().c_str(), num_vuelo, num_zona);
 
-		cinta_contenedor.poner_equipaje(equipaje);
-		Log::info("Robot de despacho(%s)  pongo equipaje %s en la cinta de contenedor %s \n",
-				argv[1], equipaje.toString().c_str(), argv[5]);
-      */
+int get_numero_vuelo(Rfid rfid) {
+  Database db("aeropuerto", true);
+  int num_vuelo = -1;
 
-	}
+  std::auto_ptr<Statement> query = db.statement("select vuelo from Equipaje where rfid = :rfid");
+  query->set(":rfid", rfid.rfid);
+   
+  std::auto_ptr<TupleIterator> p_it = query->begin();
+  std::auto_ptr<TupleIterator> p_end = query->end();
 
+  //Estas dos lineas no son mas que unos alias
+  TupleIterator &it = *p_it;
+  TupleIterator &end = *p_end;
+
+  if(it != end) {
+     num_vuelo = it.at<int>(0);
+  } else {
+     Log::info("Equipaje %d, no registrado en la BD", rfid.rfid);
+  }
+
+  return num_vuelo;
+}
+
+int get_numero_zona(int num_vuelo) {
+  Database db("aeropuerto", true);
+  int num_zona = -1;
+
+  std::auto_ptr<Statement> query = db.statement("select num_zona from ZonasUtilizadas where vuelo = :vuelo");
+  query->set(":vuelo", num_vuelo);
+   
+  std::auto_ptr<TupleIterator> p_it = query->begin();
+  std::auto_ptr<TupleIterator> p_end = query->end();
+
+  //Estas dos lineas no son mas que unos alias
+  TupleIterator &it = *p_it;
+  TupleIterator &end = *p_end;
+
+
+  if(it != end) {
+     num_zona = it.at<int>(0);
+  } else {
+     Log::info("Vuelo %d, no tiene asignado ninguna zona en la BD", num_vuelo);
+  }
+
+  return num_zona;
 }

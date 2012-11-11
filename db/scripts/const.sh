@@ -1,4 +1,4 @@
-SEP="\t"
+SEP=":"
 DATABASE_NAME="aeropuerto"
 
 SCHEMA="schema"
