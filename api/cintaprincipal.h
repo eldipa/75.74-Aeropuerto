@@ -4,6 +4,7 @@
 #include "semaphoreset.h"
 #include "sharedmemory.h"
 #include "oserror.h"
+#include "log.h"
 
 #include <cstring>
 #include <cstdio>
@@ -138,32 +139,36 @@ template<typename T> void CintaPrincipal<T>::colocar_elemento(const T * elemento
 	//int mi_posicion;
 
 	while (!coloque) {
-
+		Log::debug("Tomo Semaforo %d", id - 1);
 		semaforos_productores->wait_on(id - 1); // espera por si esta lleno
 
+		Log::debug("Tomo Mutex Cinta Central");
 		mutex_control->wait_on(0);
-
 		mi_cantidad_elementos = *this->cantidad_elementos;
 		if (*this->cantidad_elementos < *this->tamanio_vector) { // puedo colocar
 			memcpy(&(vector_elementos[*this->posicion_libre]), elemento, sizeof(T));
 			*posicion_libre = (*posicion_libre + 1) % *this->tamanio_vector;
 			(*this->cantidad_elementos)++;
+			Log::debug("Coloque en cinta");
 			coloque = true;
 		}
 
-		if (mi_cantidad_elementos == *this->tamanio_vector - 1) { // lo llené
+		if (coloque && *this->cantidad_elementos == *this->tamanio_vector) { // lo llené
 			(*this->cantidad_de_productores_esperando)++;
 			this->ids_productores_esperando[id - 1] = 1;
+			Log::debug("Espero Consumidor");
 		} else {
+			Log::debug("Señalizo Semaforo Productor %d", id - 1);
 			semaforos_productores->signalize(id - 1);
 		}
 
 		if (mi_cantidad_elementos == 0) { // estaba vacio
 			if (*this->consumidor_esperando) {
+				Log::debug("Señalizo Semaforo Consumidor %d", 0);
 				this->semaforos_consumidores->signalize(0);
 			}
 		}
-
+		Log::debug("Señalizo Mutex Cinta Central: %d", coloque);
 		mutex_control->signalize(0);
 	}
 }
@@ -205,16 +210,20 @@ template<typename T> void CintaPrincipal<T>::leer_elemento(T * elemento, int id)
 	bool leyo = false;
 
 	while (!leyo) {
+		Log::debug("Tomo Semaforo %d", id - 1);
 		this->semaforos_consumidores->wait_on(id - 1);
-
+		Log::debug("Tomo Mutex Cinta Central");
 		mutex_control->wait_on(0);
 
 		if (*this->cantidad_elementos > 0) {
 			leyo = true;
 			memcpy(elemento, &(vector_elementos[*this->posicion_ocupada]), sizeof(T));
+			Log::debug("Señalizo Semaforo %d", id - 1);
 			this->semaforos_consumidores->signalize(id - 1);
+		} else {
+			*this->consumidor_esperando = 1;
 		}
-
+		Log::debug("Señalizo Mutex Cinta Central");
 		mutex_control->signalize(0);
 
 	}
@@ -246,7 +255,7 @@ void CintaPrincipal<T>::inicializar_cinta(const std::string & file_key,
 
 	valores.clear();
 	for (i = 0; i < cantidad_maxima_de_productores; i++) {
-		valores.push_back(0);
+		valores.push_back(1);
 	}
 	semaforos_productores = new SemaphoreSet(valores, file_key.c_str(), 2, permisos);
 

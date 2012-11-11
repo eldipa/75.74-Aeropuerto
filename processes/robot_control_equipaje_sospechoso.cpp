@@ -11,11 +11,11 @@ int main(int argc, char** argv) {
 
 	if (argc < 4) {
 		Log::crit(
-				"Insuf parametros para robot de sospechosos,se esperaba (pos_cinta_central, path_cinta_central, id_cinta_central\n");
+				"Insuf parametros para robot de sospechosos,se esperaba (pos_consumidor_cinta_central,pos_productor_cinta_central, path_cinta_central, id_cinta_central\n");
 		exit(1);
 	}
 
-	ApiControlEquipajes control_equipajes(atoi(argv[1]), argv[2], atoi(argv[3]));
+	ApiControlEquipajes control_equipajes(atoi(argv[1]),atoi(argv[2]), argv[3], atoi(argv[4]));
 
 	Log::info("Iniciando robot control de equipaje sospechoso(pos=%s), cinta_central:%s\n", argv[1],
 			argv[3]);
@@ -33,7 +33,7 @@ int main(int argc, char** argv) {
 				argv[1], equipaje.toString().c_str());
 		// por ahora, limpia el equipaje y lo vuelve a poner al comienzo de la cinta central
 		equipaje.set_sospechoso(false);
-		control_equipajes.volver_a_colocar_equipaje_en_cinta_principal(equipaje);
+		//control_equipajes.volver_a_colocar_equipaje_en_cinta_principal(equipaje);
 	}
 
 }

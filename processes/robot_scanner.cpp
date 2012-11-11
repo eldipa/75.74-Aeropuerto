@@ -16,21 +16,22 @@ int main(int argc, char *argv[]) {
 	}
 
 	CintaScanner cinta_scanner(argv[2], atoi(argv[3]));
-	ApiScanner api_escaner_cinta_central( atoi(argv[1]), argv[4], atoi(argv[5]));
-
+	ApiScanner api_escaner_cinta_central(atoi(argv[1]), argv[4], atoi(argv[5]));
 
 	Log::info("Iniciando scanner(%s), %s, %s\n", argv[1], argv[3], argv[5]);
 
 	for (;;) {
-		Log::info("Scanner(%s) Intentando tomar un nuevo equipaje de cinta de scanner(%s)\n", argv[1], argv[3]);
+		Log::info("Scanner(%s) Intentando tomar un nuevo equipaje de cinta de scanner(%s)\n",
+				argv[1], argv[3]);
 		Equipaje equipaje = cinta_scanner.sacar_equipaje();
 
 		Log::info("Scanner(%s) Escaneando equipaje %s\n", argv[1], equipaje.toString().c_str());
-		equipaje.set_sospechoso( (rand() % 5) == 0 );
+		equipaje.set_sospechoso((rand() % 5) == 0);
 		sleep(rand() % SLEEP_ROBOT_SCANNER);
 
 		if (equipaje.es_sospechoso()) {
-			Log::info("Scanner(%s) se encontro sospechoso el equipaje %s\n", argv[1], equipaje.toString().c_str());
+			Log::info("Scanner(%s) se encontro sospechoso el equipaje %s\n", argv[1],
+					equipaje.toString().c_str());
 		} else {
 			Log::info("Scanner(%s) equipaje limpio: %s\n", argv[1], equipaje.toString().c_str());
 		}

@@ -1,5 +1,5 @@
 #include "api_despachante.h"
-
+#include "log.h"
 ApiDespachante::ApiDespachante(int numero_despachante, const char* path_to_cinta_central,
 		int id_cinta_central) :
 		cinta(path_to_cinta_central, id_cinta_central) {
@@ -26,8 +26,10 @@ Rfid ApiDespachante::leer_proximo_equipaje() {
 
 	if (!saco_elemento) {
 		this->saco_elemento = true;
+		//Log::debug("Avanzando cinta");
 		cinta.avanzar_cinta(this->numero_despachante);
 	}
+	//Log::debug("Leyendo de cinta");
 	cinta.leer_elemento(&ultimo_equipaje_leido, this->numero_despachante);
 
 	this->saco_elemento = false; // Tiene que avanzar o extraer el elemento leido
