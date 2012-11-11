@@ -18,7 +18,7 @@ public:
 	}
 
 	void set_escala(const std::string& escala) {
-		Log::info("seteando escala %s", escala.c_str());
+		//Log::info("seteando escala %s", escala.c_str());
 		strncpy(escala_destino, escala.c_str(), MAX_SIZE_ESCALA);
 	}
 

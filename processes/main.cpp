@@ -24,13 +24,20 @@ char *args_scanner[] = { (char*) "robot_scanner", (char*)"0",  // ID
 char *args_robot_despacho[] = {(char*) "robot_despacho", (char*)"0",  // ID
                                (char*) TOSTRING(MAKE_PATH) PATH_CINTA_CENTRAL, (char*)"0",
                                (char*) TOSTRING(MAKE_PATH) PATH_CINTA_CONTENEDOR, (char*)"0",
+                               (char*)"0", (char*)"1",
                                NULL };
 
-char *args_robot_carga[] = {(char*)"robot_carga", (char*)"0",  // ID
-                            (char*) TOSTRING(MAKE_PATH) PATH_CINTA_CONTENEDOR, (char*)"0",
-                            (char*) TOSTRING(MAKE_PATH) PATH_CONTROLADOR_DE_CARGA,
-                            (char*) TOSTRING(MAKE_PATH) PATH_ADMIN_CONTENEDORES,
-                            NULL };
+char *args_robot_carga0[] = {(char*)"robot_carga", (char*)"0",  // ID
+                             (char*) TOSTRING(MAKE_PATH) PATH_CINTA_CONTENEDOR, (char*)"0",
+                             (char*) TOSTRING(MAKE_PATH) PATH_CONTROLADOR_DE_CARGA,
+                             (char*) TOSTRING(MAKE_PATH) PATH_ADMIN_CONTENEDORES,
+                             NULL };
+
+char *args_robot_carga1[] = {(char*)"robot_carga", (char*)"1",  // ID
+                             (char*) TOSTRING(MAKE_PATH) PATH_CINTA_CONTENEDOR, (char*)"1",
+                             (char*) TOSTRING(MAKE_PATH) PATH_CONTROLADOR_DE_CARGA,
+                             (char*) TOSTRING(MAKE_PATH) PATH_ADMIN_CONTENEDORES,
+                             NULL };
 
 char *args_controlador_de_carga[] = {(char*)"controlador_de_carga",
                                      (char*) TOSTRING(MAKE_PATH) PATH_CONTROLADOR_DE_CARGA,(char*)"0", //ID robot_carga
@@ -89,7 +96,8 @@ int main(int argc, char **argv) {
   Process robot_checkin("robot_checkin", args_robot_checkin);
   Process robot_scanner("robot_scanner", args_scanner);
   Process robot_despacho("robot_despacho", args_robot_despacho);
-  Process robot_carga("robot_carga", args_robot_carga);
+  Process robot_carga0("robot_carga", args_robot_carga0);
+  Process robot_carga1("robot_carga", args_robot_carga1);
   Process controlador_de_carga("controlador_de_carga", args_controlador_de_carga);
   Process robot_sospechosos("robot_control_equipaje_sospechoso", args_robot_sospechosos);
   Process robot_intercargo("robot_intercargo", args_robot_intercargo);
@@ -105,7 +113,8 @@ int main(int argc, char **argv) {
   robot_checkin.send_signal(SIGTERM);
   robot_scanner.send_signal(SIGTERM);
   robot_despacho.send_signal(SIGTERM);
-  robot_carga.send_signal(SIGTERM);
+  robot_carga0.send_signal(SIGTERM);
+  robot_carga1.send_signal(SIGTERM);
   robot_sospechosos.send_signal(SIGTERM);
   robot_intercargo.send_signal(SIGTERM);
   torre_de_control.send_signal(SIGTERM);
