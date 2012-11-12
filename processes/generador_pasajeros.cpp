@@ -20,7 +20,7 @@ int main(int argc, char** argv) {
    Log::info("GeneradorPasajeros generando pasajeros para vuelo %d, puesto_checkin %d", atoi(argv[1]), atoi(argv[2]));
 
    // hago un checkin por cada equipaje.En realidad hay que juntar todos los equiopajes del mismo pasajero
-	std::auto_ptr<Statement> query = db.statement("select rfid from Equipaje where vuelo = :vuelo");
+	std::auto_ptr<Statement> query = db.statement("select rfid,id_pasajero from Equipaje where vuelo = :vuelo");
 	query->set(":vuelo", atoi(argv[2]));
 
 	std::auto_ptr<TupleIterator> p_it = query->begin();
@@ -35,8 +35,9 @@ int main(int argc, char** argv) {
       Equipaje e( it.at<int>(0), rand()%TOPE_PESO_VALIJA );
       e.set_sospechoso( (rand()%5)==0 );
       equipajes.push_back(e);
-      checkin.llego_pasajero_para_checkin(999, equipajes);
+      checkin.llego_pasajero_para_checkin(it.at<int>(1), equipajes);
       Log::info("GeneradorPasajeros generando pasajero-checkin con equipaje %d", e.getRfid().rfid);
+      sleep(SLEEP_LLEGADA_CHECKIN);
    }
 
    Log::info("GeneradorPasajeros ya llegaron todos los pasajeros del vuelo %d", atoi(argv[1]));

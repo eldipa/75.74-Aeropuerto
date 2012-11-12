@@ -91,7 +91,7 @@ int main(int argc, char **argv) {
 
 	Log::info("iniciando simulación...");
 
-	static char *args_puesto_checkin[] = { (char*) "puesto_checkin", (char*) "0", // ID
+	static char *args_puesto_checkin[] = { (char*) "puesto_checkin", (char*) "1", // ID
 			path, (char*) "0", NULL };
 
    static char *args_generador_pasajeros[] = { (char*) "generador_pasajeros", 

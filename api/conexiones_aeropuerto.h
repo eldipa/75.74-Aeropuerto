@@ -57,7 +57,7 @@ public:
 				PATH_PUESTO_CHECKIN);
 		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_PUESTO_CHECKIN);
 		for (int i = 0; i < cantidad_puestos_checkin; i++) {
-			puesto_checkin[i] = new PuestoCheckin(path_lock, i);
+			puesto_checkin[i] = new PuestoCheckin(path_lock, i+1);
 		}
       
 		Log::info("Creando ipcs para Torre de control...%s%s", path_to_locks,

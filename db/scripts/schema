@@ -21,7 +21,9 @@ foreign key(fecha_hora_llegada_id) references FechaHora(id)
 create table Equipaje(
 rfid integer primary key,
 vuelo integer,
+id_pasajero integer,
 foreign key(vuelo) references Vuelo(id)
+foreign key(id_pasajero) references Pasajero(id)
 );
 
 create table Pasajero(

@@ -10,7 +10,7 @@
 #define MAX_EQUIPAJES_POR_PERSONA 5
 
 typedef struct t_msg_pasajero {
-   int mtype;// id_checkin
+   long mtype;// id_checkin
    int id_pasajero;
    int cant_equipajes;
    Equipaje equipajes[MAX_EQUIPAJES_POR_PERSONA];

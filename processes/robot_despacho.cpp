@@ -11,6 +11,7 @@
 #include "database.h"
 #include "stmt.h"
 #include "tupleiter.h"
+
 #include "log.h"
 
 #include <string>

@@ -62,10 +62,10 @@ void ApiCheckIn::cerrar_checkin() {
    if (vuelo_actual == -1) {
       throw std::runtime_error("No había ningún checkin abierto");
    }
-   MessageQueue checkin(path_to_torre_de_control_lock, Q_CHECKINS_CERRADO);
+   //MessageQueue checkin(path_to_torre_de_control_lock, Q_CHECKINS_CERRADO);
 
    Log::info("Notificando checkin cerrado para vuelo %i", vuelo_actual);
-   checkin.push(&vuelo_actual, sizeof(vuelo_actual));
+   //checkin.push(&vuelo_actual, sizeof(vuelo_actual)); TODO:
     
    vuelo_actual = -1;
 
@@ -96,7 +96,9 @@ int ApiCheckIn::get_vuelo_actual() {
 
 void ApiCheckIn::recibir_pasajero_para_checkin(int& id_pasajero, std::vector<Equipaje>& equipajes) {
    tMensajePasajeroCheckin msg;
-   queue_pasajeros->pull(&msg, sizeof(msg), id_checkin);
+   msg.mtype = (long)id_checkin;
+
+   queue_pasajeros->pull(&msg, sizeof(tMensajePasajeroCheckin), (long)id_checkin);
 
    id_pasajero = msg.id_pasajero;
    for(int i = 0; i<msg.cant_equipajes; i++) {
@@ -107,7 +109,7 @@ void ApiCheckIn::recibir_pasajero_para_checkin(int& id_pasajero, std::vector<Equ
 
 void ApiCheckIn::llego_pasajero_para_checkin(int id_pasajero, const std::vector<Equipaje>& equipajes) {
    tMensajePasajeroCheckin msg;
-   msg.mtype = id_checkin;
+   msg.mtype = (long)id_checkin;
    msg.id_pasajero = id_pasajero;
    msg.cant_equipajes = 0;
 

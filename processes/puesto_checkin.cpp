@@ -9,10 +9,15 @@
 #include "api_checkin.h"
 #include "log.h"
 
-int get_vuelo(int id_pasajero) {
-   id_pasajero = id_pasajero;
-   return 0;
-}
+#include "database.h"
+#include "stmt.h"
+#include "tupleiter.h"
+
+/*
+ * Devuelve el num_vuelo del pasajero.
+ * Lo toma de la BD.
+ */
+int get_vuelo(int id_pasajero);
 
 int main(int argc, char *argv[]) {
 
@@ -26,7 +31,9 @@ int main(int argc, char *argv[]) {
 
    Log::info("Iniciando puesto_checkin(%s), conectado a cinta %i\n", argv[1], atoi(argv[3]) );
 
+   checkin.iniciar_checkin(1);
    for(;;) {
+
       std::vector<Equipaje> equipajes;
 
       Log::info("PuestoCheckin(%d) Esperando nuevo pasajero...\n", atoi(argv[1]));
@@ -47,7 +54,7 @@ int main(int argc, char *argv[]) {
                Log::info("PuestoCheckin(%d) enviando equipaje %d a cinta de checkin\n", atoi(argv[1]), it->getRfid().rfid);             
                checkin.registrar_equipaje(*it);
             }
-
+            
          } else {
             Log::info("PuestoCheckin(%d) el pasajero %d vino al puesto equivocado: vuelo_pasajero%d vuelo_checkin:%d\n", 
                       atoi(argv[1]), id_pasajero, vuelo_pasajero, checkin.get_vuelo_actual());            
@@ -55,7 +62,30 @@ int main(int argc, char *argv[]) {
       } catch (PuestoCheckinSinVueloAsignado) {
          Log::info("PuestoCheckin(%d) No hay checkin habilitado en este momento\n", atoi(argv[1]) );
       }
-
       checkin.fin_checkin_pasajero();
    }
+}
+
+int get_vuelo(int id_pasajero) {
+	Database db("aeropuerto", true);
+	int num_vuelo = -1;
+
+	std::auto_ptr<Statement> query = db.statement("select vuelo from Pasajero where id = :id_pasajero");
+	query->set(":id_pasajero", id_pasajero);
+
+	std::auto_ptr<TupleIterator> p_it = query->begin();
+	std::auto_ptr<TupleIterator> p_end = query->end();
+
+	//Estas dos lineas no son mas que unos alias
+	TupleIterator &it = *p_it;
+	TupleIterator &end = *p_end;
+
+	if (it != end) {
+		num_vuelo = it.at<int>(0);
+	} else {
+		Log::crit("PuestoCheckin, llego un pasajero que no esta en la BD!!!");
+	}
+
+	return num_vuelo;
+
 }
