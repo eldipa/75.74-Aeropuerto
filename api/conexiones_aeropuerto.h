@@ -10,6 +10,8 @@ const int cantidad_cintas_scanner = 1;
 const int cantidad_cintas_centrales = 1;
 const int cantidad_cintas_contenedor = 2;
 const int cantidad_robots_carga = 2;
+const int cantidad_puestos_checkin = 1;
+>>>>>>> e45b4fb3ae5fc4144c816e89a4e450d29afc2ce8
 
 class TorreDeControl {
 public:
@@ -31,6 +33,20 @@ private:
 	MessageQueue trasbordo;
 };
 
+class PuestoCheckin {   
+public:
+   PuestoCheckin(char* path_puesto_checkin, int id_puesto_checkin) :
+      sem_checkin_realizado(std::vector<unsigned short>(1,1), path_puesto_checkin, id_puesto_checkin*cant_ipcs ),
+      queue_pasajeros(path_puesto_checkin, id_puesto_checkin*cant_ipcs+1, 0664, true) {
+   }
+   virtual ~PuestoCheckin() {
+   }
+private:
+   static const int cant_ipcs = 2;
+   SemaphoreSet sem_checkin_realizado;
+   MessageQueue queue_pasajeros;
+};
+
 /*
  * Clase para crear fácilmente todo lo que se necesite en el aeropuerto
  */
@@ -39,6 +55,13 @@ public:
 	ConexionesAeropuerto(const char *path_to_locks) {
 		char path_lock[256];
 
+		Log::info("Creando ipcs para Puesto de checkin...%s%s", path_to_locks,
+				PATH_PUESTO_CHECKIN);
+		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_PUESTO_CHECKIN);
+		for (int i = 0; i < cantidad_puestos_checkin; i++) {
+			puesto_checkin[i] = new PuestoCheckin(path_lock, i+1);
+		}
+      
 		Log::info("Creando ipcs para Torre de control...%s%s", path_to_locks,
 				PATH_TORRE_DE_CONTROL);
 		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_TORRE_DE_CONTROL);
@@ -98,6 +121,9 @@ public:
 
 	virtual ~ConexionesAeropuerto() {
 
+		for (int i = 0; i < cantidad_puestos_checkin; i++) {
+			delete puesto_checkin[i];
+		}
 		for (int i = 0; i < cantidad_cintas_checkin; i++) {
 			delete cintas_checkin[i];
 		}
@@ -125,6 +151,7 @@ public:
 	}
 
 private:
+   PuestoCheckin * puesto_checkin[1];
 	TorreDeControl * torre_de_control;
 	CintaCheckin * cintas_checkin[1];
 	CintaScanner * cintas_scanner[1];

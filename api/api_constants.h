@@ -22,6 +22,7 @@
 #define PATH_COLA_ROBOTS_ZONA_TRACTORES "/cola_robots_zona_tractores.lck"
 #define PATH_MUTEX_ROBOT_CARGA_DESPACHANTE "/mutex_robot_carga_despachante.lck"
 #define PATH_MEM_ROBOT_CARGA_DESPACHANTE "/memoria_robot_carga_despachante.lck"
+#define PATH_PUESTO_CHECKIN "/puesto_checkin.lck"
 
 //CINTA CENTRAL
 #define CINTA_PRINCIPAL_TAMANIO_CINTA_CENTRAL 4

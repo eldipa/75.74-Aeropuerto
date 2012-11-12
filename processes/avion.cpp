@@ -13,7 +13,7 @@
 #include "api_avion.h"
 
 int main(int argc, char** argv) {
-	bool vuelo_cargado;
+	//bool vuelo_cargado;
 	std::vector<Contenedor> contenedores;
 
 	if (argc < 2) {
@@ -23,7 +23,7 @@ int main(int argc, char** argv) {
 	}
 
 	ApiAvion vuelo(atoi(argv[1]), argv[2]);
-	vuelo_cargado = false;
+	//vuelo_cargado = false;
 	// Acá tendría que ir la lógica de la torre de control
 	// Por ahora harcodeo una notificación de llegada de vuelo
 	//while (!vuelo_cargado) {
