@@ -38,11 +38,15 @@ public:
 			const char * path_memoria_despachante) :
 			id_robot_carga(id_robot_carga), cola_tractores(path_cola_tractores, 0), cinta_contenedor(
 					path_cinta_contenedor, num_cinta), mutex(path_semaforo_despachante,
-					id_robot_carga, 1, 0664), memoria(path_memoria_despachante, id_robot_carga,
-					2 * sizeof(int)) {
+					id_robot_carga, 1, 0664), memoria(path_memoria_despachante, id_robot_carga, 0) {
+
 		this->cerro_el_checkin = static_cast<int *>(memoria.memory_pointer());
 		this->cant_equipaje_restante = this->cerro_el_checkin + 1;
 		this->cant_equipaje_total = this->cant_equipaje_restante + 1;
+
+	}
+
+	~ApiCarga() {
 	}
 
 	/*

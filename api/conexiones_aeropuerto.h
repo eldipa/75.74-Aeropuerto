@@ -9,6 +9,7 @@ const int cantidad_cintas_checkin = 1;
 const int cantidad_cintas_scanner = 1;
 const int cantidad_cintas_centrales = 1;
 const int cantidad_cintas_contenedor = 2;
+const int cantidad_robots_carga = 2;
 
 class TorreDeControl {
 public:
@@ -79,6 +80,19 @@ public:
 
 		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_COLA_TRACTORES_AVIONES);
 		cola_tractores_avion = new MessageQueue(path_lock, 0, 0664, true);
+
+		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_MUTEX_ROBOT_CARGA_DESPACHANTE);
+		std::vector<unsigned short> valores;
+		valores.push_back(1);
+		for (int i = 0; i < cantidad_robots_carga; i++) {
+			mutexs_carga[i] = new SemaphoreSet(valores, path_lock, i, 0664);
+		}
+
+		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_MEM_ROBOT_CARGA_DESPACHANTE);
+		for (int i = 0; i < cantidad_robots_carga; i++) {
+			memories_carga[i] = new SharedMemory(path_lock, i, 3 * sizeof(int), 0664, true, false);
+		}
+
 	}
 	;
 
@@ -95,6 +109,12 @@ public:
 		}
 		for (int i = 0; i < cantidad_cintas_contenedor; i++) {
 			delete cintas_contenedor[i];
+		}
+		for (int i = 0; i < cantidad_robots_carga; i++) {
+			delete mutexs_carga[i];
+		}
+		for (int i = 0; i < cantidad_robots_carga; i++) {
+			delete memories_carga[i];
 		}
 
 		delete torre_de_control;
@@ -113,6 +133,8 @@ private:
 	ApiAdminContenedores * admin_contenedores;
 	MessageQueue * cola_robot_zona_tractores;
 	MessageQueue * cola_tractores_avion;
+	SemaphoreSet * mutexs_carga[2];
+	SharedMemory * memories_carga[2];
 };
 
 #endif
