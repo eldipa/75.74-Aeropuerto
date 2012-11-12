@@ -57,6 +57,9 @@ char *args_robot_intercargo[] = { (char*) "robot_intercargo",
 char *args_torre_de_control[] = { (char*) "torre_de_control",
 		(char*) TOSTRING(MAKE_PATH) PATH_TORRE_DE_CONTROL, NULL };
 
+
+
+
 /*
  * Crea un puesto de checkin comunicado con un robot_scanner a travez de una cinta.
  **/
@@ -91,6 +94,12 @@ int main(int argc, char **argv) {
 	static char *args_puesto_checkin[] = { (char*) "puesto_checkin", (char*) "0", // ID
 			path, (char*) "0", NULL };
 
+   static char *args_generador_pasajeros[] = { (char*) "generador_pasajeros", 
+                                               (char*)"1", 
+                                               (char*)"1",
+                                               (char*) path, (char*)"0", 
+                                               NULL };
+
 	Process puesto_checkin("puesto_checkin", args_puesto_checkin);
 	Process robot_checkin("robot_checkin", args_robot_checkin);
 	Process robot_scanner("robot_scanner", args_scanner);
@@ -101,6 +110,9 @@ int main(int argc, char **argv) {
 	Process robot_sospechosos("robot_control_equipaje_sospechoso", args_robot_sospechosos);
 	Process robot_intercargo("robot_intercargo", args_robot_intercargo);
 	Process torre_de_control("torre_de_control", args_torre_de_control);
+
+   sleep(3);
+   Process generator("generador_pasajeros",args_generador_pasajeros);
 
 	Log::info("Done, waiting for a SIGINT signal.");
 	pause();

@@ -34,12 +34,15 @@ private:
 class PuestoCheckin {   
 public:
    PuestoCheckin(char* path_puesto_checkin, int id_puesto_checkin) :
-      sem_checkin_realizado(std::vector<unsigned short>(1,1), path_puesto_checkin, id_puesto_checkin ){
+      sem_checkin_realizado(std::vector<unsigned short>(1,1), path_puesto_checkin, id_puesto_checkin*cant_ipcs ),
+      queue_pasajeros(path_puesto_checkin, id_puesto_checkin*cant_ipcs+1, 0664, true) {
    }
    virtual ~PuestoCheckin() {
    }
 private:
+   static const int cant_ipcs = 2;
    SemaphoreSet sem_checkin_realizado;
+   MessageQueue queue_pasajeros;
 };
 
 /*

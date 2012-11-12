@@ -21,8 +21,9 @@ ApiCheckIn::ApiCheckIn(int id_checkin, const char* path_to_locks, int id_cinta_c
     snprintf(path_to_cinta_checkin_lock, 128, "%s%s", path_to_locks, PATH_CINTA_CHECKIN);
     snprintf(path_to_puesto_checkin_lock, 128, "%s%s", path_to_locks, PATH_PUESTO_CHECKIN);
 
-    sem_set = std::auto_ptr<SemaphoreSet>(new SemaphoreSet(path_to_puesto_checkin_lock, id_checkin,1));
+    sem_set = std::auto_ptr<SemaphoreSet>(new SemaphoreSet(path_to_puesto_checkin_lock, id_checkin*cant_ipcs,1));
     mutex_checkin = std::auto_ptr<Mutex>(new Mutex(*sem_set,0));
+    queue_pasajeros = std::auto_ptr<MessageQueue>(new MessageQueue(path_to_puesto_checkin_lock, id_checkin*cant_ipcs+1));
 }
 
 ApiCheckIn::~ApiCheckIn() { }
@@ -94,19 +95,30 @@ int ApiCheckIn::get_vuelo_actual() {
 }
 
 void ApiCheckIn::recibir_pasajero_para_checkin(int& id_pasajero, std::vector<Equipaje>& equipajes) {
-   static int next_rfid = 10;
-   sleep(rand() % 3);
-         
-   Equipaje equipaje( next_rfid , rand() % 30);
+   tMensajePasajeroCheckin msg;
+   queue_pasajeros->pull(&msg, sizeof(msg), id_checkin);
 
-   // equipajes pares van a escala "EscalaPares".impares van a "EscalaImpares".
-   // TODO: cargar la escala de la BD/rfid.
-   if( equipaje.getRfid().rfid % 2 == 0 )
-      equipaje.getRfid().set_escala("EscalaPares");
-   else
-      equipaje.getRfid().set_escala("EscalaImpares");
-   id_pasajero = next_rfid;
-   next_rfid++;
+   id_pasajero = msg.id_pasajero;
+   for(int i = 0; i<msg.cant_equipajes; i++) {
+      equipajes.push_back(msg.equipajes[i]);
+   }
+}
 
-   equipajes.push_back(equipaje);
+
+void ApiCheckIn::llego_pasajero_para_checkin(int id_pasajero, const std::vector<Equipaje>& equipajes) {
+   tMensajePasajeroCheckin msg;
+   msg.mtype = id_checkin;
+   msg.id_pasajero = id_pasajero;
+   msg.cant_equipajes = 0;
+
+   if(equipajes.size() > MAX_EQUIPAJES_POR_PERSONA)
+      throw std::runtime_error("llego_pasajero_para_checkin:intentando checkin con mas vliajs que MAX_EQUIPAJES_POR_PERSONA");
+
+   std::vector<Equipaje>::const_iterator it = equipajes.begin();
+   for(; it != equipajes.end() ; it++) {
+      msg.equipajes[msg.cant_equipajes] = (*it);
+      msg.cant_equipajes++;
+   }
+
+   queue_pasajeros->push(&msg, sizeof(tMensajePasajeroCheckin));
 }
