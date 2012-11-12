@@ -25,11 +25,9 @@ public:
 
 	}
 
-	BloqueContenedores obtener_contenedores_a_cargar() {
-		BloqueContenedores contenedores;
+	void obtener_contenedores_a_cargar(BloqueContenedores &contenedores) {
 		cola_robot_zona.pull((void *) &contenedores, sizeof(BloqueContenedores) - sizeof(long),
 				ID_ESCUCHA_TRACTOR);
-		return contenedores;
 	}
 
 	void cargar_contenedor_en_avion(const Contenedor & contenedor, int vuelo,

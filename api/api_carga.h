@@ -6,7 +6,7 @@
 #include "messagequeue.h"
 #include "api_constants.h"
 #include "log.h"
-
+#include "semaphoreset.h"
 #include <vector>
 
 class ApiCarga {
@@ -15,6 +15,7 @@ private:
 	int id_robot_carga;
 	std::vector<Contenedor> contenedores;
 	MessageQueue cola_tractores;
+	SemaphoreSet
 
 public:
 
@@ -44,13 +45,10 @@ public:
 		return std::vector<Contenedor>();
 	}
 
-	/*
-	 * Lo llama el robot_carga.
-	 * Bloquea hasta que el controlador de carga llame a cargar_equipajes.
-	 * Devuelve la cantidad de equipajes que el robot_carga debe cargar.
-	 **/
-	int get_equipajes_por_cargar() {
-		return 10;
+	/* API para el controlador de carga */
+
+	void esperar_avion() {
+
 	}
 
 	/*
@@ -58,14 +56,8 @@ public:
 	 * Guarda los contenedores en una sharedmemory
 	 **/
 	void agregar_contenedor_cargado(Contenedor& c) {
-		//c.get_rfids();
 		contenedores.push_back(c);
 	}
-
-	/* API para el controlador de carga */
-
-	void esperar_avion();
-	void llego_avion(int numero_vuelo, int num_avion);
 
 	/* Api que llama el robot de zona para entregarle los contenedores
 	 * a los tractores

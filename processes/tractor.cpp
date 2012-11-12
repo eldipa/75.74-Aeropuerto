@@ -25,7 +25,7 @@ int main(int argc, char** argv) {
 	BloqueContenedores bloque;
 	while (true) {
 		Log::info("Tractor(%s) esperando contenedores", argv[1]);
-		bloque = tractor.obtener_contenedores_a_cargar();
+		tractor.obtener_contenedores_a_cargar(bloque);
 		Log::info("Tractor(%s) Contenedor Recibido", argv[1]);
 		sleep(rand() % 10); // Lo que tardo en llegar al avion
 		for (i = 0; i < bloque.contenedores_actual; i++) {

@@ -21,7 +21,7 @@ int main(int argc, char** argv) {
 	MessageQueue checkin(argv[1], Q_CHECKINS_HABILITADOS);
 	MessageQueue trasbordo(argv[1], Q_TRASBORDO_LISTO);
 
-	VueloTrasbordo mensaje = { 1, atoi(argv[2]), atoi(argv[3]) };
+	VueloTrasbordo mensaje = { atoi(argv[2]), atoi(argv[3]) };
 
 	Log::info("Esperando que se habilite el vuelo %s", mensaje.vuelo_destino);
 	// No me interesa el mensaje en si, sólo que se haya enviado
