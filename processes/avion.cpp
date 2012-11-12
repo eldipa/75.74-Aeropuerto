@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
+#include "log.h"
 
 #include "api_avion.h"
 
@@ -16,12 +17,12 @@ int main(int argc, char** argv) {
 	std::vector<Contenedor> contenedores;
 
 	if (argc < 2) {
-		Log::crit("Insuficientes parametros para avion, se esperaba (numero_de_vuelo)\n");
+		Log::crit(
+				"Insuficientes parametros para avion, se esperaba (numero_de_vuelo, path_cola_aviones)\n");
 		exit(1);
 	}
 
-	Log::info("Iniciando la torre de control");
-	ApiAvion vuelo(atoi(argv[1]));
+	ApiAvion vuelo(atoi(argv[1]), argv[2]);
 	vuelo_cargado = false;
 	// Acá tendría que ir la lógica de la torre de control
 	// Por ahora harcodeo una notificación de llegada de vuelo

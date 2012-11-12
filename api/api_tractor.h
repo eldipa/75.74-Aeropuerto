@@ -5,8 +5,7 @@
 #include "api_constants.h"
 #include "contenedor.h"
 #include <vector>
-
-
+#include "log.h"
 
 class ApiTractor {
 private:
@@ -16,9 +15,9 @@ private:
 	MessageQueue cola_robot_zona;
 
 public:
-	ApiTractor(int id_tractor) :
-			id(id_tractor), cola_avion(PATH_COLA_TRACTORES_AVIONES, 0), cola_robot_zona(
-					PATH_COLA_ROBOTS_ZONA_TRACTORES, 0) {
+	ApiTractor(int id_tractor, char * path_lock_cola_tractores, char * path_lock_cola_aviones) :
+			id(id_tractor), cola_avion(path_lock_cola_aviones, 0), cola_robot_zona(
+					path_lock_cola_tractores, 0) {
 
 	}
 
@@ -28,7 +27,8 @@ public:
 
 	BloqueContenedores obtener_contenedores_a_cargar() {
 		BloqueContenedores contenedores;
-		cola_robot_zona.pull(&contenedores, sizeof(BloqueContenedores), ID_ESCUCHA_TRACTOR);
+		cola_robot_zona.pull((void *) &contenedores, sizeof(BloqueContenedores) - sizeof(long),
+				ID_ESCUCHA_TRACTOR);
 		return contenedores;
 	}
 
@@ -38,7 +38,7 @@ public:
 		contenedor_para_avion.mtype = vuelo;
 		contenedor_para_avion.cantidad_total_contenedores = cantidad_total_contenedores;
 		contenedor_para_avion.contenedor = contenedor;
-		cola_avion.push(&contenedor_para_avion, sizeof(ContenedorParaAvion));
+		cola_avion.push(&contenedor_para_avion, sizeof(ContenedorParaAvion) - sizeof(long));
 	}
 };
 

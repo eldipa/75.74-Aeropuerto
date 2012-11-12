@@ -72,6 +72,13 @@ public:
 		for (int i = 0; i < cantidad_cintas_contenedor; i++) {
 			cintas_contenedor[i] = new CintaContenedor(path_lock, i, true);
 		}
+
+		Log::info("Creando colas...");
+		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_COLA_ROBOTS_ZONA_TRACTORES);
+		cola_robot_zona_tractores = new MessageQueue(path_lock, 0, 0664, true);
+
+		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_COLA_TRACTORES_AVIONES);
+		cola_tractores_avion = new MessageQueue(path_lock, 0, 0664, true);
 	}
 	;
 
@@ -92,6 +99,9 @@ public:
 
 		delete torre_de_control;
 		delete admin_contenedores;
+
+		delete cola_robot_zona_tractores;
+		delete cola_tractores_avion;
 	}
 
 private:
@@ -101,6 +111,8 @@ private:
 	CintaCentral * cintas_central[1];
 	CintaContenedor * cintas_contenedor[2];
 	ApiAdminContenedores * admin_contenedores;
+	MessageQueue * cola_robot_zona_tractores;
+	MessageQueue * cola_tractores_avion;
 };
 
 #endif

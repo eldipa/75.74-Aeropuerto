@@ -65,11 +65,6 @@ public:
 	void esperar_avion();
 	void llego_avion(int numero_vuelo, int num_avion);
 
-	/* Api que llama el robot de zona para entregarle los contenedores
-	 * a los tractores
-	 * */
-	void enviar_contenedores_a_avion(const std::vector<Contenedor> contenedores,
-			int numero_de_vuelo);
 };
 
 #endif /* API_ZONA_ */

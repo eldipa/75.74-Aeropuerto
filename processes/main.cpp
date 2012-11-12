@@ -31,18 +31,21 @@ char *args_robot_carga0[] = { (char*) "robot_carga",
 		(char*) "0", // ID
 		(char*) TOSTRING(MAKE_PATH) PATH_CINTA_CONTENEDOR, (char*) "0",
 		(char*) TOSTRING(MAKE_PATH) PATH_CONTROLADOR_DE_CARGA,
-		(char*) TOSTRING(MAKE_PATH) PATH_ADMIN_CONTENEDORES, NULL };
+		(char*) TOSTRING(MAKE_PATH) PATH_ADMIN_CONTENEDORES, (char*) TOSTRING(MAKE_PATH)
+		PATH_COLA_ROBOTS_ZONA_TRACTORES, NULL };
 
 char *args_robot_carga1[] = { (char*) "robot_carga",
 		(char*) "1", // ID
-		(char*) TOSTRING(MAKE_PATH) PATH_CINTA_CONTENEDOR, (char*) "1",
-		(char*) TOSTRING(MAKE_PATH) PATH_CONTROLADOR_DE_CARGA,
-		(char*) TOSTRING(MAKE_PATH) PATH_ADMIN_CONTENEDORES, NULL };
+		(char*) TOSTRING(MAKE_PATH)PATH_CINTA_CONTENEDOR, (char*) "1",
+		(char*) TOSTRING(MAKE_PATH)PATH_CONTROLADOR_DE_CARGA,
+		(char*) TOSTRING(MAKE_PATH)PATH_ADMIN_CONTENEDORES, (char*) TOSTRING(MAKE_PATH)
+		PATH_COLA_ROBOTS_ZONA_TRACTORES, NULL };
 
 char *args_controlador_de_carga[] = { (char*) "controlador_de_carga",
 		(char*) TOSTRING(MAKE_PATH) PATH_CONTROLADOR_DE_CARGA, (char*) "0", //ID robot_carga
 		(char*) "0", //num_vuelo
-		NULL };
+		(char*) TOSTRING(MAKE_PATH)
+		PATH_COLA_ROBOTS_ZONA_TRACTORES, NULL };
 
 char *args_robot_sospechosos[] = { (char*) "robot_control_equipaje_sospechoso", (char*) "2",
 		(char*) "2", // ID
@@ -56,6 +59,20 @@ char *args_robot_intercargo[] = { (char*) "robot_intercargo",
 
 char *args_torre_de_control[] = { (char*) "torre_de_control",
 		(char*) TOSTRING(MAKE_PATH) PATH_TORRE_DE_CONTROL, NULL };
+
+char *args_tractor1[] = { (char*) "tractor", (char*) "1",
+		(char*) TOSTRING(MAKE_PATH)PATH_COLA_ROBOTS_ZONA_TRACTORES,
+		(char*) TOSTRING(MAKE_PATH) PATH_COLA_TRACTORES_AVIONES, NULL };
+
+char *args_tractor2[] = { (char*) "tractor", (char*) "2",
+		(char*) TOSTRING(MAKE_PATH)PATH_COLA_ROBOTS_ZONA_TRACTORES,
+		(char*) TOSTRING(MAKE_PATH) PATH_COLA_TRACTORES_AVIONES, NULL };
+
+char *args_avion1[] = { (char*) "avion", (char*) "1",
+		(char*) TOSTRING(MAKE_PATH) PATH_COLA_TRACTORES_AVIONES, NULL };
+
+char *args_avion2[] = { (char*) "avion", (char*) "2",
+		(char*) TOSTRING(MAKE_PATH) PATH_COLA_TRACTORES_AVIONES, NULL };
 
 /*
  * Crea un puesto de checkin comunicado con un robot_scanner a travez de una cinta.
@@ -97,10 +114,14 @@ int main(int argc, char **argv) {
 	Process robot_despacho("robot_despacho", args_robot_despacho);
 	Process robot_carga0("robot_carga", args_robot_carga0);
 	Process robot_carga1("robot_carga", args_robot_carga1);
-	Process controlador_de_carga("controlador_de_carga", args_controlador_de_carga);
+	//Process controlador_de_carga("controlador_de_carga", args_controlador_de_carga);
 	Process robot_sospechosos("robot_control_equipaje_sospechoso", args_robot_sospechosos);
 	Process robot_intercargo("robot_intercargo", args_robot_intercargo);
 	Process torre_de_control("torre_de_control", args_torre_de_control);
+	Process tractor1("tractor", args_tractor1);
+	Process tractor2("tractor", args_tractor2);
+	Process avion1("avion", args_avion1);
+	Process avion2("avion", args_avion2);
 
 	Log::info("Done, waiting for a SIGINT signal.");
 	pause();
@@ -117,6 +138,10 @@ int main(int argc, char **argv) {
 	robot_sospechosos.send_signal(SIGTERM);
 	robot_intercargo.send_signal(SIGTERM);
 	torre_de_control.send_signal(SIGTERM);
+	tractor1.send_signal(SIGTERM);
+	tractor2.send_signal(SIGTERM);
+	avion1.send_signal(SIGTERM);
+	avion2.send_signal(SIGTERM);
 
 	Log::info("finalizando simulación...");
 
