@@ -6,8 +6,8 @@
 #include "contenedor.h"
 #include "log.h"
 
-int main(int argc, char** argv) {
-
+//int main(int argc, char** argv) {
+/*
 	if (argc < 4) {
 		Log::crit(
 				"Insuficientes parametros contr_de_carga, se esperaba (path_controlador_carga, id_robot_carga num_vuelo, path_cola_tractores)\n");
@@ -27,5 +27,5 @@ int main(int argc, char** argv) {
 		Log::info("Llego el equipaje completo del vuelo %s", argv[4]);
 	} else {
 		Log::info("La zona ya esta tomada por otro u");
-	}
-}
+	}*/
+//}

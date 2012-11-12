@@ -7,15 +7,24 @@
 #include "api_constants.h"
 #include "log.h"
 #include "semaphoreset.h"
+#include "sharedmemory.h"
+#include "mutex.h"
+#include "cintas.h"
 #include <vector>
 
 class ApiCarga {
 private:
-	std::string path;
+	//std::string path;
 	int id_robot_carga;
 	std::vector<Contenedor> contenedores;
 	MessageQueue cola_tractores;
-	SemaphoreSet
+	CintaContenedor cinta_contenedor;
+	SemaphoreSet mutex;
+	SharedMemory memoria;
+
+	int * cerro_el_checkin;
+	int * cant_equipaje_total;
+	int * cant_equipaje_restante;
 
 public:
 
@@ -24,14 +33,16 @@ public:
 	 * El primer constructor crea los ipcs.Se llama solo una vez por cada controlador_de_carga.
 	 * recibe un path_carga y el id_robot_carga.Va a existir una ApiCarga por cada robot_carga.
 	 **/
-	ApiCarga(const char* path_carga, const char * path_cola_tractores, int id_robot_carga,
-			bool create) :
-			path(path_carga), id_robot_carga(id_robot_carga), cola_tractores(path_cola_tractores, 0) {
-		create = !create;
-	}
-
-	ApiCarga(const char* path_carga, const char * path_cola_tractores, int id_robot_carga) :
-			path(path_carga), id_robot_carga(id_robot_carga), cola_tractores(path_cola_tractores, 0) {
+	ApiCarga(int id_robot_carga, const char * path_cinta_contenedor, int num_cinta,
+			const char * path_cola_tractores, const char * path_semaforo_despachante,
+			const char * path_memoria_despachante) :
+			id_robot_carga(id_robot_carga), cola_tractores(path_cola_tractores, 0), cinta_contenedor(
+					path_cinta_contenedor, num_cinta), mutex(path_semaforo_despachante,
+					id_robot_carga, 1, 0664), memoria(path_memoria_despachante, id_robot_carga,
+					2 * sizeof(int)) {
+		this->cerro_el_checkin = static_cast<int *>(memoria.memory_pointer());
+		this->cant_equipaje_restante = this->cerro_el_checkin + 1;
+		this->cant_equipaje_total = this->cant_equipaje_restante + 1;
 	}
 
 	/*
@@ -47,8 +58,42 @@ public:
 
 	/* API para el controlador de carga */
 
-	void esperar_avion() {
+	void esperar_avion_en_zona() {
 
+	}
+
+	bool checkin_cerrado() {
+		bool cerrado;
+		mutex.wait_on(0);
+
+		cerrado = (*this->cerro_el_checkin == 1);
+
+		mutex.signalize(0);
+		return cerrado;
+	}
+
+	Equipaje sacar_equipaje() {
+		return cinta_contenedor.sacar_equipaje();
+	}
+
+	int obtener_cantidad_equipaje_restante() {
+		int cantidad;
+		mutex.wait_on(0);
+
+		cantidad = *this->cant_equipaje_restante;
+
+		mutex.signalize(0);
+		return cantidad;
+	}
+
+	int obtener_cantidad_equipaje_total() {
+		int cantidad;
+		mutex.wait_on(0);
+
+		cantidad = *this->cant_equipaje_total;
+
+		mutex.signalize(0);
+		return cantidad;
 	}
 
 	/*
@@ -84,8 +129,8 @@ public:
 				bloque.contenedores[j] = contenedores[i * MAX_CONTENEDORES_POR_TRACTOR + j];
 				bloque.contenedores_actual++;
 			}
-			Log::info("Enviando Bloque %d/%d a tractores tamaño %d", i + 1, cant_bloques,
-					sizeof(BloqueContenedores));
+			Log::info("Enviando Bloque %d/%d a tractores tamaño %d #vuelo= %d", i + 1, cant_bloques,
+					sizeof(BloqueContenedores), numero_de_vuelo);
 			cola_tractores.push((const void *) &bloque, sizeof(BloqueContenedores) - sizeof(long));
 		}
 	}

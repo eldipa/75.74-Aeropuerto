@@ -87,7 +87,7 @@ public:
    T sacar_equipaje() {
       mutex_reader.lock();
       mutex_cinta.lock();
-   
+
       while( cinta->is_empty() ) {
          wait_no_vacio();
       }

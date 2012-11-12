@@ -38,6 +38,8 @@ int main(int argc, char *argv[]) {
          else
             equipaje.getRfid().set_escala("EscalaImpares");
          
+         equipaje.getRfid().numero_de_vuelo_destino = vuelo;
+
          Log::info("Puesto Checkin(%s) llego equipaje (rfid=%d)\n", argv[1], next_rfid);
 
          sleep(rand() % SLEEP_PUESTO_CHECKIN);

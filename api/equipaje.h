@@ -49,7 +49,7 @@ public:
 	}
 
 	void set_descripcion(const char * desc) {
-		strncpy(this->descripcion, desc, 50);
+		strncpy(this->descripcion, desc, 30);
 	}
 
 	char * get_descripcion() {
@@ -59,7 +59,7 @@ public:
 private:
 	Rfid rfid;
 	int _peso;
-	char descripcion[50];
+	char descripcion[30];
 };
 
 #endif /* EQUIPAJE_H_ */

@@ -28,6 +28,8 @@ public:
 	void obtener_contenedores_a_cargar(BloqueContenedores &contenedores) {
 		cola_robot_zona.pull((void *) &contenedores, sizeof(BloqueContenedores) - sizeof(long),
 				ID_ESCUCHA_TRACTOR);
+		Log::debug("Bloque Recibido: numero_vuelo=%d cantidad_total_contenedores=%d",
+				contenedores.vuelo_destino, contenedores.cantidad_total_contenedores);
 	}
 
 	void cargar_contenedor_en_avion(const Contenedor & contenedor, int vuelo,
