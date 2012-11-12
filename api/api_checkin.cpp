@@ -6,12 +6,23 @@
 #include "stmt.h"
 #include "tupleiter.h"
 #include "messagequeue.h"
+#include <vector>
+#include <unistd.h>
+#include <stdlib.h>
+
+#include "equipaje.h"
+#include "api_constants.h"
+
 
 ApiCheckIn::ApiCheckIn(int id_checkin, const char* path_to_locks, int id_cinta_checkin) : 
-id_checkin(id_checkin), id_cinta_checkin(id_cinta_checkin), vuelo_actual(0)
+   id_checkin(id_checkin), id_cinta_checkin(id_cinta_checkin), vuelo_actual(-1)
 {
     snprintf(path_to_torre_de_control_lock, 128, "%s%s", path_to_locks, PATH_TORRE_DE_CONTROL);
     snprintf(path_to_cinta_checkin_lock, 128, "%s%s", path_to_locks, PATH_CINTA_CHECKIN);
+    snprintf(path_to_puesto_checkin_lock, 128, "%s%s", path_to_locks, PATH_PUESTO_CHECKIN);
+
+    sem_set = std::auto_ptr<SemaphoreSet>(new SemaphoreSet(path_to_puesto_checkin_lock, id_checkin,1));
+    mutex_checkin = std::auto_ptr<Mutex>(new Mutex(*sem_set,0));
 }
 
 ApiCheckIn::~ApiCheckIn() { }
@@ -26,33 +37,76 @@ int cantidad_vuelos_trasbordo_a( int numero_vuelo ) {
 }
 
 void ApiCheckIn::iniciar_checkin( int numero_vuelo ) {
-    MessageQueue checkin(path_to_torre_de_control_lock, Q_CHECKINS_HABILITADOS);
+   mutex_checkin->lock();
+   if( vuelo_actual == -1 ) {
+      MessageQueue checkin(path_to_torre_de_control_lock, Q_CHECKINS_HABILITADOS);
+   
+      Log::info("Notificando checkin abierto para vuelo %i", numero_vuelo);
+      // Envio un mensaje por cada vuelo de trasbordo
+      for (int i = 0; i < cantidad_vuelos_trasbordo_a(numero_vuelo); i ++ )
+         checkin.push(&numero_vuelo, sizeof(numero_vuelo));
 
-    Log::info("Notificando checkin abierto para vuelo %i", numero_vuelo);
-    // Envio un mensaje por cada vuelo de trasbordo
-    for (int i = 0; i < cantidad_vuelos_trasbordo_a(numero_vuelo); i ++ )
-        checkin.push(&numero_vuelo, sizeof(numero_vuelo));
+      // Actualizo la info sobre el vuelo actual
+      vuelo_actual = numero_vuelo;
+   } else {
+      Log::crit("El checkin ya esta abierto en el puesto %d para el vuelo %d", id_checkin, vuelo_actual);
+   }
+   mutex_checkin->unlock();
+}
 
-    // Actualizo la info sobre el vuelo actual
-    vuelo_actual = numero_vuelo;
+
+void ApiCheckIn::cerrar_checkin() {
+   mutex_checkin->lock();
+
+   if (vuelo_actual == -1) {
+      throw std::runtime_error("No había ningún checkin abierto");
+   }
+   MessageQueue checkin(path_to_torre_de_control_lock, Q_CHECKINS_CERRADO);
+
+   Log::info("Notificando checkin cerrado para vuelo %i", vuelo_actual);
+   checkin.push(&vuelo_actual, sizeof(vuelo_actual));
+    
+   vuelo_actual = -1;
+
+   mutex_checkin->unlock();
+}
+
+void ApiCheckIn::comienza_checkin_pasajero() {
+   mutex_checkin->lock();
+}
+
+void ApiCheckIn::fin_checkin_pasajero() {
+   mutex_checkin->unlock();
 }
 
 void ApiCheckIn::registrar_equipaje( Equipaje& equipaje ) {
+   if(vuelo_actual == -1)
+      throw std::runtime_error("Registrando equipaje en puesto_checkin sin vuelo asignado");
 
-    CintaCheckin cinta_checkin_out(path_to_cinta_checkin_lock, id_cinta_checkin);
-    cinta_checkin_out.poner_equipaje( equipaje );
-
+   CintaCheckin cinta_checkin_out(path_to_cinta_checkin_lock, id_cinta_checkin);
+   cinta_checkin_out.poner_equipaje( equipaje );
 }
 
-void ApiCheckIn::cerrar_checkin() {
-    if (!vuelo_actual)
-        throw std::runtime_error("No había ningún checkin abierto");
-
-    MessageQueue checkin(path_to_torre_de_control_lock, Q_CHECKINS_CERRADO);
-
-    Log::info("Notificando checkin cerrado para vuelo %i", vuelo_actual);
-    checkin.push(&vuelo_actual, sizeof(vuelo_actual));
-
-    vuelo_actual = 0;
+int ApiCheckIn::get_vuelo_actual() {
+   if(vuelo_actual == -1)
+      throw PuestoCheckinSinVueloAsignado(id_checkin);
+   return this->vuelo_actual;
 }
 
+void ApiCheckIn::recibir_pasajero_para_checkin(int& id_pasajero, std::vector<Equipaje>& equipajes) {
+   static int next_rfid = 10;
+   sleep(rand() % 3);
+         
+   Equipaje equipaje( next_rfid , rand() % 30);
+
+   // equipajes pares van a escala "EscalaPares".impares van a "EscalaImpares".
+   // TODO: cargar la escala de la BD/rfid.
+   if( equipaje.getRfid().rfid % 2 == 0 )
+      equipaje.getRfid().set_escala("EscalaPares");
+   else
+      equipaje.getRfid().set_escala("EscalaImpares");
+   id_pasajero = next_rfid;
+   next_rfid++;
+
+   equipajes.push_back(equipaje);
+}

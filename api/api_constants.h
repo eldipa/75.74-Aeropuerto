@@ -20,6 +20,7 @@
 #define PATH_COLA_TRACTORES_AVIONES "/cola_tractores_aviones.lck"
 #define PATH_COLA_AVIONES_ROBOTS_ZONA "/cola_aviones_robots_zona.lck"
 #define PATH_COLA_ROBOTS_ZONA_TRACTORES "/cola_robots_zona_tractores.lck"
+#define PATH_PUESTO_CHECKIN "/puesto_checkin.lck"
 
 //CINTA CENTRAL
 #define CINTA_PRINCIPAL_TAMANIO_CINTA_CENTRAL 4

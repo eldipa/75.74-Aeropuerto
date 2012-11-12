@@ -9,8 +9,12 @@
 #include "api_checkin.h"
 #include "log.h"
 
+int get_vuelo(int id_pasajero) {
+   id_pasajero = id_pasajero;
+   return 0;
+}
+
 int main(int argc, char *argv[]) {
-   int next_rfid = 10;
 
    if (argc < 4) {
       Log::crit("Insuficientes parametros para puesto_checkin, se esperaba (id, path_cinta num_cinta)\n");
@@ -18,42 +22,40 @@ int main(int argc, char *argv[]) {
    }
 
    ApiCheckIn checkin(atoi(argv[1]), argv[2], atoi(argv[3]));
+   int vuelo_pasajero, id_pasajero;
 
    Log::info("Iniciando puesto_checkin(%s), conectado a cinta %i\n", argv[1], atoi(argv[3]) );
 
-   for(int vuelo = 1; vuelo < 2; vuelo ++) {
+   for(;;) {
+      std::vector<Equipaje> equipajes;
 
-      Log::info("Iniciando checkin del vuelo(%i)\n", vuelo );
-      sleep(rand() % SLEEP_PUESTO_CHECKIN);
-      checkin.iniciar_checkin(vuelo);
+      Log::info("PuestoCheckin(%d) Esperando nuevo pasajero...\n", atoi(argv[1]));
+      checkin.recibir_pasajero_para_checkin(id_pasajero, equipajes);
+      vuelo_pasajero = get_vuelo(id_pasajero);
 
-      for (int i = 10; i <= 35; i ++ ) {
+      Log::info("PuestoCheckin(%d) Llego el pasajero %d con %d valijas para hacer checkin\n", atoi(argv[1]), id_pasajero, equipajes.size());      
+      checkin.comienza_checkin_pasajero();
 
-         Equipaje equipaje( next_rfid , rand() % TOPE_PESO_VALIJA);
-
-         // equipajes pares van a escala "EscalaPares".impares van a "EscalaImpares".
-         // TODO: cargar la escala de la BD/rfid.
-         if( equipaje.getRfid().rfid % 2 == 0 )
-            equipaje.getRfid().set_escala("EscalaPares");
-         else
-            equipaje.getRfid().set_escala("EscalaImpares");
+      try {
          
-         Log::info("Puesto Checkin(%s) llego equipaje (rfid=%d)\n", argv[1], next_rfid);
+         if(checkin.get_vuelo_actual() == vuelo_pasajero) {
+            Log::info("PuestoCheckin(%d) comienza checkin del pasajero %d\n", atoi(argv[1]), id_pasajero);             
 
-         sleep(rand() % SLEEP_PUESTO_CHECKIN);
+            //envio los equipajes a la cinta de checkin.
+            std::vector<Equipaje>::iterator it;
+            for( it=equipajes.begin();it!=equipajes.end();it++ ) {
+               Log::info("PuestoCheckin(%d) enviando equipaje %d a cinta de checkin\n", atoi(argv[1]), it->getRfid().rfid);             
+               checkin.registrar_equipaje(*it);
+            }
 
-         checkin.registrar_equipaje(equipaje);
-
-         Log::info("Puesto Checkin(%s) enviando (rfid=%d) a robot_checkin\n", argv[1], next_rfid);
-
-         next_rfid++;
-         sleep(rand() % SLEEP_PUESTO_CHECKIN);
-
+         } else {
+            Log::info("PuestoCheckin(%d) el pasajero %d vino al puesto equivocado: vuelo_pasajero%d vuelo_checkin:%d\n", 
+                      atoi(argv[1]), id_pasajero, vuelo_pasajero, checkin.get_vuelo_actual());            
+         }
+      } catch (PuestoCheckinSinVueloAsignado) {
+         Log::info("PuestoCheckin(%d) No hay checkin habilitado en este momento\n", atoi(argv[1]) );
       }
 
-      Log::info("Terminando checkin del vuelo(%i)\n", vuelo );
-      sleep(rand() % SLEEP_PUESTO_CHECKIN);
-      checkin.cerrar_checkin();
+      checkin.fin_checkin_pasajero();
    }
-
 }
