@@ -31,7 +31,6 @@ int main(int argc, char *argv[]) {
 
    Log::info("Iniciando puesto_checkin(%s), conectado a cinta %i\n", argv[1], atoi(argv[3]) );
 
-   checkin.iniciar_checkin(1);
    for(;;) {
 
       std::vector<Equipaje> equipajes;

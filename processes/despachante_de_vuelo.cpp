@@ -2,10 +2,11 @@
 
 #include "log.h"
 #include "api_checkin.h"
-#include "api_despacho_vuelo.h"
+//#include "api_despacho_de_vuelo.h"
 
+#include "process.h"
+#include "constants.h"
 
-int get_zona_asignada(int num_vuelo);
 int tomar_zona(int num_zona);
 int get_duracion_checkin(int num_vuelo);
 
@@ -17,32 +18,43 @@ private:
    int num_vuelo;
 };
 
+
+void run_generador_pasajeros(const char* path_to_locks) {
+
+   static char *args_generador_pasajeros[] = { (char*) "generador_pasajeros", 
+                                               (char*)"1", //num_vuelo
+                                               (char*)"1", //
+                                               (char*) path_to_locks, (char*)"0", 
+                                               NULL };
+   Process generator("generador_pasajeros",args_generador_pasajeros);
+}
+
 int main(int argc, char** argv) {
-   if (argc < 5) {
-      Log::crit("Insuficientes parametros para despachante de vuelo (num_vuelo path_vuelos path_cinta_checkin, id_checkin)\n");
+   if (argc < 3) {
+      Log::crit("Insuficientes parametros para despachante de vuelo (num_vuelo path_to_locks)\n");
       return (1);
    }
 
    int num_vuelo = atoi(argv[1]);
-   int zona_asignada, zona_utilizada,  duracion_checkin;
-   ApiDespachoVuelo api_vuelo(argv[2], num_vuelo);
+   int  zona_utilizada,  duracion_checkin;
+   //ApiDespachoVuelo api_vuelo(argv[2], num_vuelo);
 
    try {
-      
+      sleep(SLEEP_DESPACHO_VUELO);
       Log::info("DespachanteVuelos(%d) Iniciando despachante de vuelos...", num_vuelo);
 
       //activo robot_despacho
-      zona_asignada = get_zona_asignada(num_vuelo);
-      zona_utilizada = tomar_zona(zona_asignada);
+      zona_utilizada = tomar_zona(num_vuelo);
       Log::info("DespachanteVuelos(%d) robot de despacho empieza a recibir equipajes para zona %d", num_vuelo, zona_utilizada);
       
       //activo robot_carga
       Log::info("DespachanteVuelos(%d) activo robot_carga (TODO!!!) de zona%d", num_vuelo, zona_utilizada);
 
       //abro checkin
-      ApiCheckIn api_checkin(0, argv[2], 0);
+      ApiCheckIn api_checkin(1, argv[2], 0);
       api_checkin.iniciar_checkin(num_vuelo);
       Log::info("DespachanteVuelos(%d) incicio checkin puesto %d", num_vuelo, 0);
+      run_generador_pasajeros(argv[2]);
 
       //espero cierre checkin
       duracion_checkin = get_duracion_checkin(num_vuelo);
@@ -55,6 +67,7 @@ int main(int argc, char** argv) {
       //espero llegada avion
       Log::info("DespachanteVuelos(%d) esperando intercargo, carga de equipajes y llegada del avion...");
       
+      /*
       bool fin_intercargo, fin_carga, llego_avion;
       fin_intercargo = fin_carga = llego_avion = false;
 
@@ -76,8 +89,8 @@ int main(int argc, char** argv) {
             break;
          };
       }
-      
-      Log::info("DespachanteVuelos(%d) listo para salir, libero zonas y sale el avion (TODO!!!", num_vuelo);
+      */
+      //Log::info("DespachanteVuelos(%d) listo para salir, libero zonas y sale el avion (TODO!!!", num_vuelo);
       // liberar zona (acceso a la BD)
       // aca le tenemos que avisar al robot_despacho/robot_carga que todos los equipajes estan en camino.x
 
@@ -87,20 +100,14 @@ int main(int argc, char** argv) {
    }
 }
 
-int get_zona_asignada(int num_vuelo) {
-   if(num_vuelo >=0)
-      return 0;
-   else
-      return 1;
-}
 
-int tomar_zona(int num_zona) {
-   return num_zona;
+int tomar_zona(int num_vuelo) {
+   return num_vuelo;
 }
 
 int get_duracion_checkin(int num_vuelo) {
    if( num_vuelo>=0 )
-      return 120;
+      return SLEEP_DURACION_CHECKIN;
    else
-      return 125;
+      return SLEEP_DURACION_CHECKIN;
 }

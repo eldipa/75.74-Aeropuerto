@@ -6,6 +6,7 @@
 #include "mutex.h"
 #include "messagequeue.h"
 #include <memory>
+#include "sharedobject.h"
 
 #define MAX_EQUIPAJES_POR_PERSONA 5
 
@@ -71,18 +72,18 @@ public:
 
    void llego_pasajero_para_checkin(int id_pasajero, const std::vector<Equipaje>& equipajes);
 private:
-   static const int cant_ipcs = 2; 
+   static const int cant_ipcs = 3; 
 
    int id_checkin;
    char path_to_torre_de_control_lock[128];
    char path_to_cinta_checkin_lock[128];
    char path_to_puesto_checkin_lock[128];
    int id_cinta_checkin;
-   int vuelo_actual;
 
    std::auto_ptr<SemaphoreSet> sem_set;
    std::auto_ptr<Mutex> mutex_checkin;
    std::auto_ptr<MessageQueue> queue_pasajeros;
+   std::auto_ptr< SharedObject<int> > vuelo_actual;
 };
 
 #endif /* APICHECKIN_H_ */

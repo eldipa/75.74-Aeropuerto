@@ -38,7 +38,7 @@ int main(int argc, char** argv) {
       equipajes.push_back(e);
       checkin.llego_pasajero_para_checkin(it.at<int>(1), equipajes);
       Log::info("GeneradorPasajeros generando pasajero-checkin con equipaje %d", e.getRfid().rfid);
-      sleep(SLEEP_LLEGADA_CHECKIN);
+      sleep(SLEEP_LLEGADA_PASAJEROS_A_CHECKIN);
    }
 
    Log::info("GeneradorPasajeros ya llegaron todos los pasajeros del vuelo %d", atoi(argv[1]));

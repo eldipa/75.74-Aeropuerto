@@ -9,6 +9,8 @@
 #include <cstdio>
 #include <fcntl.h>
 
+#include "sharedobject.h"
+
 const int cantidad_cintas_checkin = 1;
 const int cantidad_cintas_scanner = 1;
 const int cantidad_cintas_centrales = 1;
@@ -38,17 +40,18 @@ private:
 
 class PuestoCheckin {
 public:
-	PuestoCheckin(char* path_puesto_checkin, int id_puesto_checkin) :
-			sem_checkin_realizado(std::vector<unsigned short>(1, 1), path_puesto_checkin,
-					id_puesto_checkin * cant_ipcs), queue_pasajeros(path_puesto_checkin,
-					id_puesto_checkin * cant_ipcs + 1, 0664, true) {
-	}
-	virtual ~PuestoCheckin() {
-	}
+   PuestoCheckin(char* path_puesto_checkin, int id_puesto_checkin) :
+      sem_checkin_realizado(std::vector<unsigned short>(1,1), path_puesto_checkin, id_puesto_checkin*cant_ipcs ),
+      queue_pasajeros(path_puesto_checkin, id_puesto_checkin*cant_ipcs+1, 0664, true),
+      vuelo_actual(-1, path_puesto_checkin, id_puesto_checkin*cant_ipcs+2) {
+   }
+   virtual ~PuestoCheckin() {
+   }
 private:
-	static const int cant_ipcs = 2;
-	SemaphoreSet sem_checkin_realizado;
-	MessageQueue queue_pasajeros;
+   static const int cant_ipcs = 3;
+   SemaphoreSet sem_checkin_realizado;
+   MessageQueue queue_pasajeros;
+   SharedObject<int> vuelo_actual;
 };
 
 /*
