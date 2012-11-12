@@ -11,7 +11,6 @@ const int cantidad_cintas_centrales = 1;
 const int cantidad_cintas_contenedor = 2;
 const int cantidad_robots_carga = 2;
 const int cantidad_puestos_checkin = 1;
->>>>>>> e45b4fb3ae5fc4144c816e89a4e450d29afc2ce8
 
 class TorreDeControl {
 public:
