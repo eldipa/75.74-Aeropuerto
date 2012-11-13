@@ -24,7 +24,7 @@ private:
 
 	int * cerro_el_checkin;
 	int * cant_equipaje_total;
-	int * cant_equipaje_restante;
+	//int * cant_equipaje_restante;
 
 public:
 
@@ -41,8 +41,8 @@ public:
 					id_robot_carga, 1, 0664), memoria(path_memoria_despachante, id_robot_carga, 0) {
 
 		this->cerro_el_checkin = static_cast<int *>(memoria.memory_pointer());
-		this->cant_equipaje_restante = this->cerro_el_checkin + 1;
-		this->cant_equipaje_total = this->cant_equipaje_restante + 1;
+		this->cant_equipaje_total = this->cerro_el_checkin + 1;
+		//this->cant_equipaje_restante = this->cant_equipaje_total + 1;
 
 	}
 
@@ -80,7 +80,7 @@ public:
 		return cinta_contenedor.sacar_equipaje();
 	}
 
-	int obtener_cantidad_equipaje_restante() {
+	/*int obtener_cantidad_equipaje_restante() {
 		int cantidad;
 		mutex.wait_on(0);
 
@@ -88,7 +88,7 @@ public:
 
 		mutex.signalize(0);
 		return cantidad;
-	}
+	}*/
 
 	int obtener_cantidad_equipaje_total() {
 		int cantidad;

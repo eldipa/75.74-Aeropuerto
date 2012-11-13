@@ -13,7 +13,7 @@
 
 char *args_robot_checkin[] = { (char*) "robot_checkin",
 		(char*) "0", // ID
-		(char*) TOSTRING(MAKE_PATH) PATH_CINTA_CHECKIN, (char*) "0",
+		(char*) TOSTRING(PATH_KEYS) PATH_CINTA_CHECKIN, (char*) "0",
 		(char*) TOSTRING(MAKE_PATH) PATH_CINTA_SCANNER, (char*) "0", NULL };
 
 char *args_scanner[] = { (char*) "robot_scanner",

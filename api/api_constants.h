@@ -10,6 +10,8 @@
 #define MUTEX_INFO_VUELOS 0
 #define CANT_MUTEX_CENTRAL 1
 
+#define PATH_KEYS "/tmp/carpeta_keys_ftok"
+
 #define PATH_CINTA_CHECKIN "/cinta_checkin.lck"
 #define PATH_CINTA_SCANNER "/cinta_scanner.lck"
 #define PATH_CINTA_CENTRAL "/cinta_central.lck"
@@ -23,6 +25,7 @@
 #define PATH_MUTEX_ROBOT_CARGA_DESPACHANTE "/mutex_robot_carga_despachante.lck"
 #define PATH_MEM_ROBOT_CARGA_DESPACHANTE "/memoria_robot_carga_despachante.lck"
 #define PATH_PUESTO_CHECKIN "/puesto_checkin.lck"
+#define PATH_COLA_CONTROL_CARGA_CHECKIN "/cola_control_carga.lck"
 
 //CINTA CENTRAL
 #define CINTA_PRINCIPAL_TAMANIO_CINTA_CENTRAL 4
