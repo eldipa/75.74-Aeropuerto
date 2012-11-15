@@ -35,7 +35,7 @@ int main(int argc, char** argv) {
 
 	std::map<std::string, Contenedor> contenedores_por_escala;
 
-	ApiCarga api_carga(id_robot, path, id_robot, path_cola);
+	ApiCarga api_carga(1, path, id_robot, path_cola);
 
 	strcpy(path, PATH_KEYS);
 	strcat(path, PATH_ADMIN_CONTENEDORES);
@@ -45,7 +45,7 @@ int main(int argc, char** argv) {
 	int equipajes_por_cargar, equipajes_cargados;
 	equipajes_por_cargar = equipajes_cargados = 0;
 
-	Log::info("Iniciando robot carga(%s)\n", id_robot);
+	Log::info("Iniciando robot carga(%d)\n", id_robot);
 
 	for (;;) {
 		checkin_cerro = false;
