@@ -19,8 +19,6 @@ private:
 	std::vector<Contenedor> contenedores;
 	MessageQueue cola_tractores;
 	CintaContenedor cinta_contenedor;
-	SemaphoreSet mutex;
-	SharedMemory memoria;
 
 	int * cerro_el_checkin;
 	int * cant_equipaje_total;
@@ -34,15 +32,9 @@ public:
 	 * recibe un path_carga y el id_robot_carga.Va a existir una ApiCarga por cada robot_carga.
 	 **/
 	ApiCarga(int id_robot_carga, const char * path_cinta_contenedor, int num_cinta,
-			const char * path_cola_tractores, const char * path_semaforo_despachante,
-			const char * path_memoria_despachante) :
+			const char * path_cola_tractores) :
 			id_robot_carga(id_robot_carga), cola_tractores(path_cola_tractores, 0), cinta_contenedor(
-					path_cinta_contenedor, num_cinta), mutex(path_semaforo_despachante,
-					id_robot_carga, 1, 0664), memoria(path_memoria_despachante, id_robot_carga, 0) {
-
-		this->cerro_el_checkin = static_cast<int *>(memoria.memory_pointer());
-		this->cant_equipaje_total = this->cerro_el_checkin + 1;
-		//this->cant_equipaje_restante = this->cant_equipaje_total + 1;
+					path_cinta_contenedor, num_cinta) {
 
 	}
 
@@ -67,37 +59,15 @@ public:
 	}
 
 	bool checkin_cerrado() {
-		bool cerrado;
-		mutex.wait_on(0);
-
-		cerrado = (*this->cerro_el_checkin == 1);
-
-		mutex.signalize(0);
-		return cerrado;
+		return cinta_contenedor.checkin_ya_cerro();
 	}
 
 	Equipaje sacar_equipaje() {
-		return cinta_contenedor.sacar_equipaje();
+		return cinta_contenedor.sacar_equipaje(id_robot_carga);
 	}
 
-	/*int obtener_cantidad_equipaje_restante() {
-		int cantidad;
-		mutex.wait_on(0);
-
-		cantidad = *this->cant_equipaje_restante;
-
-		mutex.signalize(0);
-		return cantidad;
-	}*/
-
 	int obtener_cantidad_equipaje_total() {
-		int cantidad;
-		mutex.wait_on(0);
-
-		cantidad = *this->cant_equipaje_total;
-
-		mutex.signalize(0);
-		return cantidad;
+		return cinta_contenedor.cantidad_valijas_totales();
 	}
 
 	/*

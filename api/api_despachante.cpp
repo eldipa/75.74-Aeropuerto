@@ -1,8 +1,7 @@
 #include "api_despachante.h"
 #include "log.h"
-ApiDespachante::ApiDespachante(int numero_despachante, const char* path_to_cinta_central,
-		int id_cinta_central) :
-		cinta(path_to_cinta_central, id_cinta_central) {
+ApiDespachante::ApiDespachante(int numero_despachante, const char* path_to_cinta_central) :
+		cinta(path_to_cinta_central) {
 	/*
 	 char msgerror[1024];
 	 this->numero_despachante = numero_despachante;

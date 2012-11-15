@@ -16,22 +16,36 @@ int main(int argc, char** argv) {
 	int numero_de_vuelo;
 	Equipaje equipaje;
 	bool checkin_cerro;
+	char path[300];
+	char path_cola[300];
+	int id_robot;
 
-	if (argc < 9) {
+	if (argc < 2) {
 		Log::crit(
-				"Insuficientes parametros para robot de carga, se esperaba (id, path_cinta_contenedor, id_cinta_contenedor, path_controlador_carga, path_admin_contenedores, path_cola_tractores, path_mutex_despachante_carga, path_shared_memory_despachante_carga)\n");
+				"Insuficientes parametros para robot de carga, se esperaba (id_robot)\n");
 		exit(1);
 	}
 
+	id_robot = atoi(argv[1]);
+
+	strcpy(path, PATH_KEYS);
+	strcat(path, PATH_CINTA_CONTENEDOR);
+	strcpy(path_cola, PATH_KEYS);
+	strcat(path_cola, PATH_COLA_ROBOTS_ZONA_TRACTORES);
+
 	std::map<std::string, Contenedor> contenedores_por_escala;
-	//CintaContenedor cinta_contenedor(argv[2], atoi(argv[3]));
-	ApiCarga api_carga(atoi(argv[1]), argv[2], atoi(argv[3]), argv[6], argv[7], argv[8]);
-	ApiAdminContenedores api_admin_contenedores(argv[5]);
+
+	ApiCarga api_carga(id_robot, path, id_robot, path_cola);
+
+	strcpy(path, PATH_KEYS);
+	strcat(path, PATH_ADMIN_CONTENEDORES);
+
+	ApiAdminContenedores api_admin_contenedores(path);
 
 	int equipajes_por_cargar, equipajes_cargados;
 	equipajes_por_cargar = equipajes_cargados = 0;
 
-	Log::info("Iniciando robot carga(%s), %s\n", argv[1], argv[2]);
+	Log::info("Iniciando robot carga(%s)\n", id_robot);
 
 	for (;;) {
 		checkin_cerro = false;

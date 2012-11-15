@@ -1,8 +1,8 @@
 #include "api_scanner.h"
 #include <stdlib.h>
 
-ApiScanner::ApiScanner(int numero_escaner, const char* path_to_cinta_central, int id_cinta_central) :
-   numero_escaner(numero_escaner), cinta(path_to_cinta_central, id_cinta_central) {
+ApiScanner::ApiScanner(int numero_escaner, const char* path_to_cinta_central) :
+   numero_escaner(numero_escaner), cinta(path_to_cinta_central) {
 }
 
 ApiScanner::~ApiScanner() {

@@ -9,6 +9,8 @@
 #include <cstdio>
 #include <fcntl.h>
 
+#include "sharedobject.h"
+
 const int cantidad_cintas_checkin = 1;
 const int cantidad_cintas_scanner = 1;
 const int cantidad_cintas_centrales = 1;
@@ -41,14 +43,16 @@ public:
 	PuestoCheckin(char* path_puesto_checkin, int id_puesto_checkin) :
 			sem_checkin_realizado(std::vector<unsigned short>(1, 1), path_puesto_checkin,
 					id_puesto_checkin * cant_ipcs), queue_pasajeros(path_puesto_checkin,
-					id_puesto_checkin * cant_ipcs + 1, 0664, true) {
+					id_puesto_checkin * cant_ipcs + 1, 0664, true), vuelo_actual(-1,
+					path_puesto_checkin, id_puesto_checkin * cant_ipcs + 2) {
 	}
 	virtual ~PuestoCheckin() {
 	}
 private:
-	static const int cant_ipcs = 2;
+	static const int cant_ipcs = 3;
 	SemaphoreSet sem_checkin_realizado;
 	MessageQueue queue_pasajeros;
+	SharedObject<int> vuelo_actual;
 };
 
 /*
@@ -59,7 +63,7 @@ public:
 	ConexionesAeropuerto(const char *path_to_locks) {
 		char path_lock[256];
 
-		crear_archivos_lck();
+		crear_archivos_lck(path_to_locks);
 
 		Log::info("Creando ipcs para Puesto de checkin...%s%s", path_to_locks, PATH_PUESTO_CHECKIN);
 		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_PUESTO_CHECKIN);
@@ -81,25 +85,31 @@ public:
 
 		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_CINTA_CHECKIN);
 		for (int i = 0; i < cantidad_cintas_checkin; i++) {
-			cintas_checkin[i] = new CintaCheckin(path_lock, i, true);
+			cintas_checkin[i] = new CintaCheckin(path_lock, i + 1, CAPACIDAD_CINTA_CHECKIN,
+					CANTIDAD_MAX_PRODUCTORES_CINTA_CHECKIN,
+					CANTIDAD_MAX_CONSUMIDORES_CINTA_CHECKIN);
 		}
 
 		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_CINTA_SCANNER);
 		for (int i = 0; i < cantidad_cintas_scanner; i++) {
-			cintas_scanner[i] = new CintaScanner(path_lock, i, true);
+			cintas_scanner[i] = new CintaScanner(path_lock, i + 1, CAPACIDAD_CINTA_SCANNER,
+					CANTIDAD_MAX_PRODUCTORES_CINTA_SCANNER,
+					CANTIDAD_MAX_CONSUMIDORES_CINTA_SCANNER);
 		}
 
 		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_CINTA_CENTRAL);
 		for (int i = 0; i < cantidad_cintas_centrales; i++) {
 			//cintas_central[i] = new CintaCentral(true,path_lock,i);
-			cintas_central[i] = new CintaCentral(path_lock,
-					CINTA_PRINCIPAL_CANTIDAD_MAXIMA_PRODUCTORES,
-					CINTA_PRINCIPAL_CANTIDAD_DESPACHANTES, CINTA_PRINCIPAL_TAMANIO_CINTA_CENTRAL);
+			cintas_central[i] = new CintaCentral(path_lock, CAPACIDAD_CINTA_CENTRAL,
+					CANTIDAD_MAX_PRODUCTORES_CINTA_CENTRAL,
+					CANTIDAD_MAX_CONSUMIDORES_CINTA_CENTRAL);
 		}
 
 		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_CINTA_CONTENEDOR);
 		for (int i = 0; i < cantidad_cintas_contenedor; i++) {
-			cintas_contenedor[i] = new CintaContenedor(path_lock, i, true);
+			cintas_contenedor[i] = new CintaContenedor(path_lock, i + 1, CAPACIDAD_CINTA_CONTENEDOR,
+					CANTIDAD_MAX_PRODUCTORES_CINTA_CONTENEDOR,
+					CANTIDAD_MAX_CONSUMIDORES_CINTA_CONTENEDOR);
 		}
 
 		Log::info("Creando colas...");
@@ -108,18 +118,6 @@ public:
 
 		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_COLA_TRACTORES_AVIONES);
 		cola_tractores_avion = new MessageQueue(path_lock, 0, 0664, true);
-
-		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_MUTEX_ROBOT_CARGA_DESPACHANTE);
-		std::vector<unsigned short> valores;
-		valores.push_back(1);
-		for (int i = 0; i < cantidad_robots_carga; i++) {
-			mutexs_carga[i] = new SemaphoreSet(valores, path_lock, i, 0664);
-		}
-
-		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_MEM_ROBOT_CARGA_DESPACHANTE);
-		for (int i = 0; i < cantidad_robots_carga; i++) {
-			memories_carga[i] = new SharedMemory(path_lock, i, 3 * sizeof(int), 0664, true, false);
-		}
 
 	}
 	;
@@ -141,12 +139,6 @@ public:
 		for (int i = 0; i < cantidad_cintas_contenedor; i++) {
 			delete cintas_contenedor[i];
 		}
-		for (int i = 0; i < cantidad_robots_carga; i++) {
-			delete mutexs_carga[i];
-		}
-		for (int i = 0; i < cantidad_robots_carga; i++) {
-			delete memories_carga[i];
-		}
 
 		delete torre_de_control;
 		delete admin_contenedores;
@@ -165,19 +157,17 @@ private:
 	ApiAdminContenedores * admin_contenedores;
 	MessageQueue * cola_robot_zona_tractores;
 	MessageQueue * cola_tractores_avion;
-	SemaphoreSet * mutexs_carga[2];
-	SharedMemory * memories_carga[2];
 
-	void crear_archivos_lck() {
+	void crear_archivos_lck(const char *path_to_locks) {
 
 		struct stat buf;
 		int result;
 
-		result = stat(PATH_KEYS, &buf);
+		result = stat(path_to_locks, &buf);
 
 		if (result != 0) {
 			/* Directory does not exist. EEXIST for race condition */
-			if (mkdir(PATH_KEYS, 0770) != 0 && errno != EEXIST) {
+			if (mkdir(path_to_locks, 0770) != 0 && errno != EEXIST) {
 				//THROW OSERROR
 			}
 		} else if (!S_ISDIR(buf.st_mode)) {
@@ -185,28 +175,26 @@ private:
 			//THROW OSERROR
 		}
 
-		crear_archivo_lck(PATH_CINTA_CHECKIN);
-		crear_archivo_lck(PATH_CINTA_SCANNER);
-		crear_archivo_lck(PATH_CINTA_CENTRAL);
-		crear_archivo_lck(PATH_CINTA_CONTENEDOR);
-		crear_archivo_lck(PATH_TORRE_DE_CONTROL);
-		crear_archivo_lck(PATH_CONTROLADOR_DE_CARGA);
-		crear_archivo_lck(PATH_ADMIN_CONTENEDORES);
-		crear_archivo_lck(PATH_COLA_TRACTORES_AVIONES);
-		crear_archivo_lck(PATH_COLA_AVIONES_ROBOTS_ZONA);
-		crear_archivo_lck(PATH_COLA_ROBOTS_ZONA_TRACTORES);
-		crear_archivo_lck(PATH_MUTEX_ROBOT_CARGA_DESPACHANTE);
-		crear_archivo_lck(PATH_MEM_ROBOT_CARGA_DESPACHANTE);
-		crear_archivo_lck(PATH_PUESTO_CHECKIN);
-		crear_archivo_lck(PATH_COLA_CONTROL_CARGA_CHECKIN);
+		crear_archivo_lck(path_to_locks, PATH_CINTA_CHECKIN);
+		crear_archivo_lck(path_to_locks, PATH_CINTA_SCANNER);
+		crear_archivo_lck(path_to_locks, PATH_CINTA_CENTRAL);
+		crear_archivo_lck(path_to_locks, PATH_CINTA_CONTENEDOR);
+		crear_archivo_lck(path_to_locks, PATH_TORRE_DE_CONTROL);
+		crear_archivo_lck(path_to_locks, PATH_CONTROLADOR_DE_CARGA);
+		crear_archivo_lck(path_to_locks, PATH_ADMIN_CONTENEDORES);
+		crear_archivo_lck(path_to_locks, PATH_COLA_TRACTORES_AVIONES);
+		crear_archivo_lck(path_to_locks, PATH_COLA_AVIONES_ROBOTS_ZONA);
+		crear_archivo_lck(path_to_locks, PATH_COLA_ROBOTS_ZONA_TRACTORES);
+		crear_archivo_lck(path_to_locks, PATH_PUESTO_CHECKIN);
+		crear_archivo_lck(path_to_locks, PATH_COLA_CONTROL_CARGA_CHECKIN);
 	}
 
-	void crear_archivo_lck(const char * nombre_archivo) {
+	void crear_archivo_lck(const char *path_to_locks, const char * nombre_archivo) {
 		char path[300];
 		int file;
 		struct stat buf;
 
-		strcpy(path, PATH_KEYS);
+		strcpy(path, path_to_locks);
 		strcat(path, nombre_archivo);
 
 		if (stat(path, &buf) != 0) {

@@ -16,7 +16,7 @@ private:
 	Equipaje ultimo_equipaje_leido;
 	bool saco_elemento;
 public:
-	ApiDespachante(int numero_despachante, const char* path_to_cinta_central, int id_cinta_central);
+	ApiDespachante(int numero_despachante, const char* path_to_cinta_central);
 	virtual ~ApiDespachante();
 
 	Rfid leer_proximo_equipaje();

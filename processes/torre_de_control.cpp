@@ -2,17 +2,23 @@
 
 #include "log.h"
 
+#include "api_constants.h"
 #include <stdlib.h>
+#include <cstring>
 
-int main( int argc, char** argv ) {
+int main( /*int argc, char** argv */) {
+	char path_torre_control[300];
 
-   if (argc < 2) {
-      Log::crit("Insuficientes parametros para torre de control, se esperaba (path_torre_control)\n");
+   /*if (argc < 2) {
+      Log::crit("Insuficientes parametros para torre de control, se esperaba ()\n");
       exit(1);
-   }
+   }*/
+
+	strcpy(path_torre_control, PATH_KEYS);
+	strcat(path_torre_control, PATH_TORRE_DE_CONTROL);
 
    Log::info("Iniciando la torre de control");
-   ApiTorreDeControl torre_de_control(argv[1]);
+   ApiTorreDeControl torre_de_control(path_torre_control);
 
    // Acá tendría que ir la lógica de la torre de control
    // Por ahora harcodeo una notificación de llegada de vuelo

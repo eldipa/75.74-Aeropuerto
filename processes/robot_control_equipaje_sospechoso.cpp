@@ -8,14 +8,19 @@
 #include "api_control_equipajes.h"
 
 int main(int argc, char** argv) {
-
-	if (argc < 4) {
+	char path[300];
+	int id_productor;
+	int id_consumidor;
+	if (argc < 2) {
 		Log::crit(
-				"Insuf parametros para robot de sospechosos,se esperaba (pos_consumidor_cinta_central,pos_productor_cinta_central, path_cinta_central, id_cinta_central\n");
+				"Insuf parametros para robot de sospechosos,se esperaba (pos_consumidor_cinta_central,pos_productor_cinta_central)\n");
 		exit(1);
 	}
-
-	ApiControlEquipajes control_equipajes(atoi(argv[1]),atoi(argv[2]), argv[3], atoi(argv[4]));
+	strcpy(path, PATH_KEYS);
+	strcat(path, PATH_CINTA_CENTRAL);
+	id_consumidor = atoi(argv[1]);
+	id_productor = atoi(argv[2]);
+	ApiControlEquipajes control_equipajes(id_consumidor, id_productor, path);
 
 	Log::info("Iniciando robot control de equipaje sospechoso(pos=%s), cinta_central:%s\n", argv[1],
 			argv[3]);

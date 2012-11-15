@@ -13,7 +13,7 @@ private:
 	CintaCentral cinta_central;
 
 public:
-	ApiControlEquipajes(int pos_consumidor_cinta_central, int pos_productor_cinta_central, const char* path_to_cinta_central, int id_cinta_central);
+	ApiControlEquipajes(int pos_consumidor_cinta_central, int pos_productor_cinta_central, const char* path_to_cinta_central);
 	virtual ~ApiControlEquipajes();
 
 	Equipaje obtener_proximo_equipaje_sospechoso();

@@ -8,32 +8,44 @@
 
 #include <vector>
 #include <string>
+#include <cstring>
 #include "constants.h"
 
-int main( int argc, char** argv ) {
+int main(int argc, char** argv) {
+	int id_robot;
+	char path[300];
+	int num_cinta_checkin;
+	if (argc < 3) {
+		Log::crit(
+				"Insuf parametros para robot de checkin,se esperaba (id, num_cinta_checkin_in num_cinta_scanner)\n");
+		exit(1);
+	}
 
-   if ( argc < 6 ) {
-      Log::crit("Insuf parametros para robot de checkin,se esperaba (id, path_cinta_checkin num_cinta_checkin_in path_cinta_scaner num_cinta_scanner)\n");
-      exit(1);
-   }
+	id_robot = atoi(argv[1]); // de 1 a N
+	num_cinta_checkin=atoi(argv[2]);
 
-   CintaCheckin cinta_checkin( argv[2], atoi(argv[3]) );
-   CintaScanner cinta_scanner( argv[4], atoi(argv[5]) );
+	strcpy(path, PATH_KEYS);
+	strcat(path, PATH_CINTA_CHECKIN);
+	CintaCheckin cinta_checkin(path, num_cinta_checkin);
 
-   // cada robot de checkin distribuye entre n scanners
-   for(;;) {
-      Log::info( "Robot de checkin(%s), va a sacar equipaje.", argv[1]);
+	strcpy(path, PATH_KEYS);
+	strcat(path, PATH_CINTA_SCANNER);
+	CintaScanner cinta_scanner(path, atoi(argv[3])); // num_cinta_scanner???????? esta mal
 
-      sleep(rand() % SLEEP_ROBOT_CHECKIN);
 
-      Equipaje equipaje = cinta_checkin.sacar_equipaje();
-      Log::info( "Robot de checkin(%s), sacó %s",
-                 argv[1], equipaje.toString().c_str());
+	// cada robot de checkin distribuye entre n scanners
+	for (;;) {
+		Log::info("Robot de checkin(%s), va a sacar equipaje.", argv[1]);
 
-      sleep(rand() % SLEEP_ROBOT_CHECKIN);
+		sleep(rand() % SLEEP_ROBOT_CHECKIN);
 
-      Log::info( "Robot de checkin(%s), pone %s en siguiente cinta",
-                 argv[1], equipaje.toString().c_str());
-      cinta_scanner.poner_equipaje( equipaje );
-   }
- }
+		Equipaje equipaje = cinta_checkin.sacar_equipaje(id_robot);
+		Log::info("Robot de checkin(%s), sacó %s", argv[1], equipaje.toString().c_str());
+
+		sleep(rand() % SLEEP_ROBOT_CHECKIN);
+
+		Log::info("Robot de checkin(%s), pone %s en siguiente cinta", argv[1],
+				equipaje.toString().c_str());
+		cinta_scanner.poner_equipaje(equipaje, id_robot);
+	}
+}

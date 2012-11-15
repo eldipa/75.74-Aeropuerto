@@ -14,13 +14,20 @@
 
 int main(int argc, char** argv) {
 	int i;
+	char path_cola_tractores[300];
+	char path_cola_aviones[300];
+	int id_tractor;
 	if (argc < 2) {
-		Log::crit(
-				"Insuficientes parametros para tractor, se esperaba (id_tractor,path_cola_tractores, path_cola_aviones)\n");
+		Log::crit("Insuficientes parametros para tractor, se esperaba (id_tractor)\n");
 		exit(1);
 	}
+	id_tractor = atoi(argv[1]);
+	strcpy(path_cola_tractores, PATH_KEYS);
+	strcat(path_cola_tractores, PATH_COLA_ROBOTS_ZONA_TRACTORES);
+	strcpy(path_cola_aviones, PATH_KEYS);
+	strcat(path_cola_aviones, PATH_COLA_TRACTORES_AVIONES);
 
-	ApiTractor tractor(atoi(argv[1]), argv[2], argv[3]);
+	ApiTractor tractor(id_tractor, path_cola_tractores, path_cola_aviones);
 	std::vector<Contenedor> contenedores;
 	BloqueContenedores bloque;
 	while (true) {

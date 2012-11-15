@@ -31,19 +31,29 @@ int get_numero_vuelo(Rfid);
 int get_numero_zona(int num_vuelo);
 
 int main(int argc, char** argv) {
+	int id_robot;
+	char path_cinta_central[300];
+	char path_cinta_contenedor[300];
 
-	if (argc < 8) {
+	if (argc < 5) {
 		Log::info(
-				"insuf. param para robot de despacho,se esperaba(id, path_cinta_central id_cinta_central path_cinta_contenedor id_cinta_contenedor zona_desde zona_hasta...)\n");
+				"insuf. param para robot de despacho,se esperaba(id, id_cinta_contenedor, zona_desde, zona_hasta...)\n");
 		exit(1);
 	}
 
-	ApiDespachante despachante_cinta_central(atoi(argv[1]), argv[2], atoi(argv[3]));
-	int zona_desde = atoi(argv[6]);
-	int zona_hasta = atoi(argv[7]);
+	id_robot = atoi(argv[1]);
+	strcpy(path_cinta_central, PATH_KEYS);
+	strcat(path_cinta_central, PATH_CINTA_CENTRAL);
+
+	ApiDespachante despachante_cinta_central(id_robot, path_cinta_central);
+	int zona_desde = atoi(argv[3]);
+	int zona_hasta = atoi(argv[4]);
+
+	strcpy(path_cinta_contenedor, PATH_KEYS);
+	strcat(path_cinta_contenedor, PATH_CINTA_CONTENEDOR);
 
 	Log::info("Iniciando robot despacho(%s), cinta_central:%s cinta_contenedor:%s\n", argv[1],
-			argv[3], argv[5]);
+			path_cinta_central, path_cinta_contenedor);
 
 	for (;;) {
 		sleep(rand() % SLEEP_ROBOT_DESPACHO);
@@ -84,8 +94,8 @@ int main(int argc, char** argv) {
 
 				Log::info("Robot de despacho(%s) Equipaje %s limpio envio a robot_carga zona %d\n",
 						argv[1], equipaje.toString().c_str(), num_zona);
-				CintaContenedor cinta_contenedor(argv[4], num_zona);
-				cinta_contenedor.poner_equipaje(equipaje);
+				CintaContenedor cinta_contenedor(path_cinta_contenedor, num_zona);
+				cinta_contenedor.poner_equipaje(equipaje, id_robot);
 				despachante_cinta_central.avanzar_cinta();
 
 			}

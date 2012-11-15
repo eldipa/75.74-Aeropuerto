@@ -4,6 +4,7 @@
 #include "messagequeue.h"
 
 #include <stdlib.h>
+#include <cstring>
 
 /*
  * Este proceso es un worker que se lanza cuando llega un vuelo de intercargo
@@ -11,15 +12,19 @@
  * para que se pasen esos equipajes a la cinta principal
  */
 int main(int argc, char** argv) {
+	char path[300];
 
 	if (argc < 4) {
 		Log::crit(
-				"Insuficientes parametros para torre de control, se esperaba (path, vuelo_origen, vuelo_destino)\n");
+				"Insuficientes parametros para torre de control, se esperaba (vuelo_origen, vuelo_destino)\n");
 		exit(1);
 	}
 
-	MessageQueue checkin(argv[1], Q_CHECKINS_HABILITADOS);
-	MessageQueue trasbordo(argv[1], Q_TRASBORDO_LISTO);
+	strcpy(path, PATH_KEYS);
+	strcat(path, PATH_CINTA_CHECKIN);
+
+	MessageQueue checkin(path, Q_CHECKINS_HABILITADOS);
+	MessageQueue trasbordo(path, Q_TRASBORDO_LISTO);
 
 	VueloTrasbordo mensaje = { atoi(argv[2]), atoi(argv[3]) };
 

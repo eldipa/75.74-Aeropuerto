@@ -8,9 +8,9 @@
 #include "api_control_equipajes.h"
 
 ApiControlEquipajes::ApiControlEquipajes(int pos_consumidor_cinta_central,
-		int pos_productor_cinta_central, const char* path_to_cinta_central, int id_cinta_central) :
+		int pos_productor_cinta_central, const char* path_to_cinta_central) :
 		pos_consumidor_cinta_central(pos_consumidor_cinta_central), pos_productor_cinta_central(
-				pos_productor_cinta_central), cinta_central(path_to_cinta_central, id_cinta_central) {
+				pos_productor_cinta_central), cinta_central(path_to_cinta_central) {
 }
 
 ApiControlEquipajes::~ApiControlEquipajes() {

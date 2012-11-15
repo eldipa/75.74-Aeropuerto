@@ -11,7 +11,7 @@ private:
 	CintaCentral cinta;
 public:
 
-	ApiScanner(int numero_escaner, const char* path_to_cinta_central, int id_cinta_central);
+	ApiScanner(int numero_escaner, const char* path_to_cinta_central);
 	virtual ~ApiScanner();
 
 	void colocar_equipaje_en_cinta_principal(const Equipaje & equipaje);

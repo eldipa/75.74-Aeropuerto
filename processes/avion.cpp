@@ -15,14 +15,18 @@
 int main(int argc, char** argv) {
 	//bool vuelo_cargado;
 	std::vector<Contenedor> contenedores;
+	char path[300];
 
 	if (argc < 2) {
 		Log::crit(
-				"Insuficientes parametros para avion, se esperaba (numero_de_vuelo, path_cola_aviones)\n");
+				"Insuficientes parametros para avion, se esperaba (numero_de_vuelo(por ahora))\n");
 		exit(1);
 	}
 
-	ApiAvion vuelo(atoi(argv[1]), argv[2]);
+	strcpy(path, PATH_KEYS);
+	strcat(path, PATH_COLA_TRACTORES_AVIONES);
+
+	ApiAvion vuelo(atoi(argv[1]), path);
 	//vuelo_cargado = false;
 	// Acá tendría que ir la lógica de la torre de control
 	// Por ahora harcodeo una notificación de llegada de vuelo
