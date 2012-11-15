@@ -17,6 +17,13 @@ typedef struct t_msg_pasajero {
    Equipaje equipajes[MAX_EQUIPAJES_POR_PERSONA];
 } tMensajePasajeroCheckin;
 
+
+typedef struct t_msg_checkin {
+   long mtype;// id_puesto_checkin
+   bool iniciar_checkin; //false --> cerrar_checkin
+   int num_vuelo;
+} tMeansajeCheckin;
+
 class PuestoCheckinSinVueloAsignado {
 private:
    int id_checkin;
@@ -42,12 +49,15 @@ public:
     **/
    void cerrar_checkin();
    
+   /*
+    * Bloquea hasta que llegue un mensaje de iniciar_checkin
+    */
+   void esperar_inicio_checkin();
 
    /*
-    * llamar antes de hacer el checkin de un pasajero.
-    * (antes de llamar a registrar_equipaje)
-    **/
-   void comienza_checkin_pasajero();
+    * Bloquea hasta que llegue un mensaje de controlador_de_checkin
+    */
+   void recibir_mensaje_controlador_checkin(tMeansajeCheckin&);
    
    /*
     *  Registra un equipaje que hace checkin.
@@ -61,6 +71,12 @@ public:
     * PuestoCheckinSinVueloAsignado
     **/
    int get_vuelo_actual();
+
+   /*
+    * Indica que hay un checkin de pasajero en curso.
+    * hasta que se llame a fin_checkin_pasajero
+    **/
+   void comienza_checkin_pasajero();
 
    /*
     * Llamar despues de registrar los equipajes de un pasajero
@@ -78,6 +94,7 @@ private:
    char path_to_torre_de_control_lock[128];
    char path_to_cinta_checkin_lock[128];
    char path_to_puesto_checkin_lock[128];
+   char path_to_control_checkin_lock[128];
    int id_cinta_checkin;
 
    std::auto_ptr<SemaphoreSet> sem_set;

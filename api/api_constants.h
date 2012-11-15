@@ -24,6 +24,7 @@
 #define PATH_COLA_ROBOTS_ZONA_TRACTORES "/cola_robots_zona_tractores.lck"
 #define PATH_PUESTO_CHECKIN "/puesto_checkin.lck"
 #define PATH_COLA_CONTROL_CARGA_CHECKIN "/cola_control_carga.lck"
+#define PATH_COLA_CONTROL_CHECKIN "/cola_control_checkin.lck"
 
 //CINTA CENTRAL
 

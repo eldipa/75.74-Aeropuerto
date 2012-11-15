@@ -21,6 +21,7 @@ ApiCheckIn::ApiCheckIn(int id_checkin, const char* path_to_locks, int id_cinta_c
     snprintf(path_to_torre_de_control_lock, 128, "%s%s", path_to_locks, PATH_TORRE_DE_CONTROL);
     snprintf(path_to_cinta_checkin_lock, 128, "%s%s", path_to_locks, PATH_CINTA_CHECKIN);
     snprintf(path_to_puesto_checkin_lock, 128, "%s%s", path_to_locks, PATH_PUESTO_CHECKIN);
+    snprintf(path_to_control_checkin_lock, 128, "%s%s", path_to_locks, PATH_COLA_CONTROL_CHECKIN);
 
     sem_set = std::auto_ptr<SemaphoreSet>(new SemaphoreSet(path_to_puesto_checkin_lock, id_checkin*cant_ipcs,1));
     mutex_checkin = std::auto_ptr<Mutex>(new Mutex(*sem_set,0));
@@ -137,3 +138,10 @@ void ApiCheckIn::llego_pasajero_para_checkin(int id_pasajero,
 
 	queue_pasajeros->push(&msg, sizeof(tMensajePasajeroCheckin));
 }
+
+void ApiCheckIn::recibir_mensaje_controlador_checkin(tMeansajeCheckin& msg_checkin) {
+   Log::debug("recibir_mensaje_controlador_checkin path=%s", path_to_control_checkin_lock);
+   MessageQueue queue_checkin(path_to_control_checkin_lock, 0);
+   queue_checkin.pull(&msg_checkin, sizeof(tMeansajeCheckin));
+}
+

@@ -55,6 +55,15 @@ private:
 	SharedObject<int> vuelo_actual;
 };
 
+class ControladorPuestoCheckin {
+public:
+   ControladorPuestoCheckin(char* path_control_checkin) :
+      queue_checkin(path_control_checkin, 0, 0664, true) {
+   }
+private:
+   MessageQueue queue_checkin;
+};
+
 /*
  * Clase para crear fácilmente todo lo que se necesite en el aeropuerto
  */
@@ -65,6 +74,10 @@ public:
 
 		crear_archivos_lck(path_to_locks);
 
+		Log::info("Creando ipcs para Controlador de puestos de checkin...%s%s", path_to_locks, PATH_COLA_CONTROL_CHECKIN);
+		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_COLA_CONTROL_CHECKIN);
+      controlador_puesto_checkin = new ControladorPuestoCheckin(path_lock);
+      
 		Log::info("Creando ipcs para Puesto de checkin...%s%s", path_to_locks, PATH_PUESTO_CHECKIN);
 		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_PUESTO_CHECKIN);
 		for (int i = 0; i < cantidad_puestos_checkin; i++) {
@@ -142,12 +155,14 @@ public:
 
 		delete torre_de_control;
 		delete admin_contenedores;
+      delete controlador_puesto_checkin;
 
 		delete cola_robot_zona_tractores;
 		delete cola_tractores_avion;
 	}
 
 private:
+   ControladorPuestoCheckin * controlador_puesto_checkin;
 	PuestoCheckin * puesto_checkin[1];
 	TorreDeControl * torre_de_control;
 	CintaCheckin * cintas_checkin[1];
@@ -187,6 +202,7 @@ private:
 		crear_archivo_lck(path_to_locks, PATH_COLA_ROBOTS_ZONA_TRACTORES);
 		crear_archivo_lck(path_to_locks, PATH_PUESTO_CHECKIN);
 		crear_archivo_lck(path_to_locks, PATH_COLA_CONTROL_CARGA_CHECKIN);
+		crear_archivo_lck(path_to_locks, PATH_COLA_CONTROL_CHECKIN);
 	}
 
 	void crear_archivo_lck(const char *path_to_locks, const char * nombre_archivo) {

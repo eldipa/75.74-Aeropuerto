@@ -11,6 +11,12 @@
 #include "daemon.h"
 #include "conexiones_aeropuerto.h"
 
+char *args_puesto_checkin[] = { (char*) "puesto_checkin", 
+                                (char*) "1", (char*) "1", NULL };
+
+char *args_controlador_vuelo1[] = { (char*) "controlador_de_vuelo", 
+                                    (char*)"1", NULL };
+
 char *args_robot_checkin[] = { (char*) "robot_checkin", (char*) "1", // ID
 		(char*) "1", (char*) "1", NULL };
 
@@ -20,11 +26,9 @@ char *args_scanner[] = { (char*) "robot_scanner", (char*) "1", // ID
 char *args_robot_despacho[] = { (char*) "robot_despacho", (char*) "1", // ID
 		(char*) "1", (char*) "1", (char*) "1", NULL };
 
-char *args_robot_carga0[] = { (char*) "robot_carga", (char*) "1", // ID
-		NULL };
+char *args_robot_carga0[] = { (char*) "robot_carga", (char*) "1", NULL };
 
-char *args_robot_carga1[] = { (char*) "robot_carga", (char*) "2", // ID
-		NULL };
+char *args_robot_carga1[] = { (char*) "robot_carga", (char*) "2", NULL };
 
 char *args_robot_sospechosos[] = { (char*) "robot_control_equipaje_sospechoso", (char*) "2",
 		(char*) "2", // ID
@@ -43,11 +47,6 @@ char *args_avion1[] = { (char*) "avion", (char*) "1", NULL };
 
 char *args_avion2[] = { (char*) "avion", (char*) "2", NULL };
 
-static char *args_puesto_checkin[] = { (char*) "puesto_checkin", (char*) "1", // ID
-		(char*) "1", NULL };
-
-static char *args_despacho_vuelo1[] = { (char*) "despachante_de_vuelo", (char*) "1", // ID
-		NULL };
 /*
  * Crea un puesto de checkin comunicado con un robot_scanner a travez de una cinta.
  **/
@@ -69,18 +68,11 @@ int main(/*int argc, char **argv*/) {
 
 	sigaction(SIGINT, &ignore, 0);
 
-	/*char *path;
-	if (argc < 2)
-		path = (char*) TOSTRING(MAKE_PATH);
-	else
-		path = argv[1];*/
-
 	Log::info("Creando aeropuerto...");
 
 	ConexionesAeropuerto aeropuerto(PATH_KEYS);
 
 	Log::info("iniciando simulación...");
-
 
 	Process puesto_checkin("puesto_checkin", args_puesto_checkin);
 	Process robot_checkin("robot_checkin", args_robot_checkin);
@@ -95,9 +87,7 @@ int main(/*int argc, char **argv*/) {
 	Process tractor2("tractor", args_tractor2);
 	Process avion1("avion", args_avion1);
 	Process avion2("avion", args_avion2);
-
-	Process despacho_vuelo1("despachante_de_vuelo", args_despacho_vuelo1);
-
+   Process controlador_vuelo1("controlador_de_vuelo", args_controlador_vuelo1);
 
 	Log::info("Done, waiting for a SIGINT signal.");
 	pause();
@@ -118,8 +108,7 @@ int main(/*int argc, char **argv*/) {
 	tractor2.send_signal(SIGTERM);
 	avion1.send_signal(SIGTERM);
 	avion2.send_signal(SIGTERM);
-	despacho_vuelo1.send_signal(SIGTERM);
-
+   controlador_vuelo1.send_signal(SIGTERM);
 
 	Log::info("finalizando simulación...");
 

@@ -13,6 +13,8 @@
 #include "stmt.h"
 #include "tupleiter.h"
 
+#include "process.h"
+
 /*
  * Devuelve el num_vuelo del pasajero.
  * Lo toma de la BD.
@@ -20,57 +22,54 @@
 int get_vuelo(int id_pasajero);
 
 int main(int argc, char *argv[]) {
+   if (argc < 3) {
+      Log::crit("Insuficientes parametros para puesto_checkin, se esperaba (id, num_cinta)\n");
+      return (1);
+   }
 
+   ApiCheckIn checkin(atoi(argv[1]), PATH_KEYS, atoi(argv[2]));
+   int vuelo_pasajero, id_pasajero;
 
-	if (argc < 2) {
-		Log::crit(
-				"Insuficientes parametros para puesto_checkin, se esperaba (id, id_cinta_checkin)\n");
-		return (1);
-	}
+   Log::info("Iniciando puesto_checkin(%s), conectado a cinta %i\n", argv[1], atoi(argv[2]) );
 
-	ApiCheckIn checkin(atoi(argv[1]), PATH_KEYS, atoi(argv[2]));
-	int vuelo_pasajero, id_pasajero;
+   Log::info("Puesto_checkin(%s), lanzando controlador_puesto_checkin\n", argv[1]  );
 
-	Log::info("Iniciando puesto_checkin(%s), conectado a cinta %i\n", argv[1], atoi(argv[2]));
+   char *args_controlador[] = { (char*) "controlador_puesto_checkin", (char*) argv[1], (char*) argv[2], NULL };
 
-	for (;;) {
+	Process puesto_checkin("controlador_puesto_checkin", args_controlador);
 
-		std::vector<Equipaje> equipajes;
+   for(;;) {
 
-		Log::info("PuestoCheckin(%d) Esperando nuevo pasajero...\n", atoi(argv[1]));
-		checkin.recibir_pasajero_para_checkin(id_pasajero, equipajes);
-		vuelo_pasajero = get_vuelo(id_pasajero);
+      std::vector<Equipaje> equipajes;
 
-		Log::info("PuestoCheckin(%d) Llego el pasajero %d con %d valijas para hacer checkin\n",
-				atoi(argv[1]), id_pasajero, equipajes.size());
-		checkin.comienza_checkin_pasajero();
+      Log::info("PuestoCheckin(%d) Esperando nuevo pasajero...\n", atoi(argv[1]));
+      checkin.recibir_pasajero_para_checkin(id_pasajero, equipajes);
+      vuelo_pasajero = get_vuelo(id_pasajero);
 
-		try {
+      Log::info("PuestoCheckin(%d) Llego el pasajero %d con %d valijas para hacer checkin\n", atoi(argv[1]), id_pasajero, equipajes.size());      
+      checkin.comienza_checkin_pasajero();
 
-			if (checkin.get_vuelo_actual() == vuelo_pasajero) {
-				Log::info("PuestoCheckin(%d) comienza checkin del pasajero %d\n", atoi(argv[1]),
-						id_pasajero);
+      try {
+         
+         if(checkin.get_vuelo_actual() == vuelo_pasajero) {
+            Log::info("PuestoCheckin(%d) comienza checkin del pasajero %d\n", atoi(argv[1]), id_pasajero);             
 
-				//envio los equipajes a la cinta de checkin.
-				std::vector<Equipaje>::iterator it;
-				for (it = equipajes.begin(); it != equipajes.end(); it++) {
-					Log::info("PuestoCheckin(%d) enviando equipaje %d a cinta de checkin\n",
-							atoi(argv[1]), it->getRfid().rfid);
-					checkin.registrar_equipaje(*it);
-				}
-
-			} else {
-				Log::info(
-						"PuestoCheckin(%d) el pasajero %d vino al puesto equivocado: vuelo_pasajero%d vuelo_checkin:%d\n",
-						atoi(argv[1]), id_pasajero, vuelo_pasajero, checkin.get_vuelo_actual());
-			}
-		} catch (PuestoCheckinSinVueloAsignado &) {
-			Log::info("PuestoCheckin(%d) No hay checkin habilitado en este momento\n",
-					atoi(argv[1]));
-		}
-		checkin.fin_checkin_pasajero();
-	}
-
+            //envio los equipajes a la cinta de checkin.
+            std::vector<Equipaje>::iterator it;
+            for( it=equipajes.begin();it!=equipajes.end();it++ ) {
+               Log::info("PuestoCheckin(%d) enviando equipaje %d a cinta de checkin\n", atoi(argv[1]), it->getRfid().rfid);             
+               checkin.registrar_equipaje(*it);
+            }
+            
+         } else {
+            Log::info("PuestoCheckin(%d) el pasajero %d vino al puesto equivocado: vuelo_pasajero%d vuelo_checkin:%d\n", 
+                      atoi(argv[1]), id_pasajero, vuelo_pasajero, checkin.get_vuelo_actual());            
+         }
+      } catch (PuestoCheckinSinVueloAsignado) {
+         Log::info("PuestoCheckin(%d) No hay checkin habilitado en este momento\n", atoi(argv[1]) );
+      }
+      checkin.fin_checkin_pasajero();
+   }
 }
 
 int get_vuelo(int id_pasajero) {
