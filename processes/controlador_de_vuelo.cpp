@@ -46,9 +46,6 @@ int main(int argc, char** argv) {
       zona_utilizada = tomar_zona(num_vuelo);
       Log::info("ControladorDeVuelos(%d) robot de despacho empieza a recibir equipajes para zona %d", num_vuelo, zona_utilizada);
       
-      //activo robot_carga
-      Log::info("ControladorDeVuelos(%d) activo robot_carga (TODO!!!) de zona%d", num_vuelo, zona_utilizada);
-
       //abro checkin
       api_vuelo.iniciar_checkin(num_puesto_checkin);
       Log::info("ControladorDeVuelos(%d) incicio checkin puesto %d", num_vuelo, 1);
@@ -59,11 +56,6 @@ int main(int argc, char** argv) {
       sleep(duracion_checkin);
       api_vuelo.cerrar_checkin(num_puesto_checkin);
       Log::info("ControladorDeVuelos(%d) cierro checkin %d", num_vuelo);
-
-      //espero llegada vuelos intercargo
-      //espero fin de carga de equipajes
-      //espero llegada avion
-      Log::info("ControladorDeVuelos(%d) esperando intercargo, carga de equipajes y llegada del avion...");
 
    } catch (VueloNoRegistradoException) {
       Log::crit("El vuelo %d no se encuentra registrado en la BD\n", num_vuelo);
