@@ -56,7 +56,7 @@ static char *args_despacho_vuelo1[] = { (char*) "despachante_de_vuelo", (char*) 
 void dummy(int) {
 }
 
-int main(int argc, char **argv) {
+int main(/*int argc, char **argv*/) {
 
 	//be_a_daemon();
 
@@ -69,11 +69,11 @@ int main(int argc, char **argv) {
 
 	sigaction(SIGINT, &ignore, 0);
 
-	char *path;
+	/*char *path;
 	if (argc < 2)
 		path = (char*) TOSTRING(MAKE_PATH);
 	else
-		path = argv[1];
+		path = argv[1];*/
 
 	Log::info("Creando aeropuerto...");
 

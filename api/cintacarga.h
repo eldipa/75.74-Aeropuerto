@@ -169,7 +169,7 @@ template<typename T>
 void CintaCarga<T>::despertar_consumidores() { // se llama con el mutex tomado
 	int i;
 	if (*cantidad_consumidores_esperando > 0) {
-		for (i = 0; i < *this->cantidad_productores; i++) {
+		for (i = 0; i < *this->cantidad_consumidores; i++) {
 			if (this->ids_consumidores_esperando[i] == 1) {
 				semaforo_consumidores->signalize(i);
 				this->ids_consumidores_esperando[i] = 0;

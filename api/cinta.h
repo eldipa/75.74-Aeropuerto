@@ -28,6 +28,9 @@ private:
 
 	const static int cant_ipc = 4;
 
+	void despertar_consumidores();
+	void despertar_productores();
+
 public:
 	Cinta(const char * absolute_path, int numero_cinta, int size, int cant_productores,
 			int cant_consumidores);
@@ -79,7 +82,7 @@ template<typename T> Cinta<T>::Cinta(const char * absolute_path, int numero_cint
 			cant_ipc * (numero_cinta - 1) + 3, 0664);
 
 	tamanio_de_vector = static_cast<int *>(memoria_compartida->memory_pointer());
-	tamanio_vector = const_cast<const int *> (tamanio_de_vector);
+	tamanio_vector = const_cast<const int *>(tamanio_de_vector);
 	posicion_libre = tamanio_de_vector + 1;
 	posicion_ocupada = posicion_libre + 1;
 	cantidad_elementos = posicion_ocupada + 1;
@@ -152,9 +155,36 @@ template<typename T> Cinta<T>::~Cinta() {
 }
 
 template<typename T>
+void Cinta<T>::despertar_consumidores() { // se llama con el mutex tomado
+	int i;
+	if (*cantidad_consumidores_esperando > 0) {
+		for (i = 0; i < *this->cantidad_consumidores; i++) {
+			if (this->ids_consumidores_esperando[i] == 1) {
+				semaforo_consumidores->signalize(i);
+				this->ids_consumidores_esperando[i] = 0;
+			}
+		}
+		*this->cantidad_consumidores_esperando = 0;
+	}
+}
+
+template<typename T>
+void Cinta<T>::despertar_productores() { // se llama con el mutex tomado
+	int i;
+	if (*cantidad_productores_esperando > 0) {
+		for (i = 0; i < *this->cantidad_productores; i++) {
+			if (this->ids_productores_esperando[i] == 1) {
+				semaforo_productores->signalize(i);
+				this->ids_productores_esperando[i] = 0;
+			}
+		}
+		*this->cantidad_productores_esperando = 0;
+	}
+}
+
+template<typename T>
 void Cinta<T>::poner_equipaje(const T & elemento, int id_productor) {
 	bool coloque = false;
-	int i;
 
 	while (!coloque) {
 
@@ -169,15 +199,7 @@ void Cinta<T>::poner_equipaje(const T & elemento, int id_productor) {
 			coloque = true;
 
 			if (*this->cantidad_elementos == 1) { // estaba vacio
-				if (*cantidad_consumidores_esperando > 0) {
-					for (i = 0; i < *this->cantidad_productores; i++) {
-						if (this->ids_consumidores_esperando[i] == 1) {
-							semaforo_consumidores->signalize(i);
-							this->ids_consumidores_esperando[i] = 0;
-						}
-					}
-					*this->cantidad_consumidores_esperando = 0;
-				}
+				despertar_consumidores();
 			}
 		}
 
@@ -194,7 +216,6 @@ void Cinta<T>::poner_equipaje(const T & elemento, int id_productor) {
 
 template<typename T>
 T Cinta<T>::sacar_equipaje(int id_consumidor) {
-	int i;
 	T elemento;
 	bool extrajo = false;
 
@@ -211,15 +232,7 @@ T Cinta<T>::sacar_equipaje(int id_consumidor) {
 			(*this->cantidad_elementos)--;
 
 			if (*cantidad_elementos == *tamanio_vector - 1) { // estaba lleno
-				if (*cantidad_productores_esperando > 0) {
-					for (i = 0; i < *this->cantidad_productores; i++) {
-						if (this->ids_productores_esperando[i] == 1) {
-							semaforo_productores->signalize(i);
-							this->ids_productores_esperando[i] = 0;
-						}
-					}
-					*this->cantidad_productores_esperando = 0;
-				}
+				despertar_productores();
 			}
 		}
 
