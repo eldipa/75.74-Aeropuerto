@@ -133,6 +133,10 @@ public:
 		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_COLA_TRACTORES_AVIONES);
 		cola_tractores_avion = new MessageQueue(path_lock, 0, 0664, true);
 
+		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_COLA_CONTROL_CARGA_CHECKIN);
+      for (int i = 0; i < cantidad_robots_carga; i++) {
+         cola_control_carga_checkin[i] = new MessageQueue(path_lock, i+1, 0664, true);
+      }
 	}
 	;
 
@@ -152,6 +156,9 @@ public:
 		}
 		for (int i = 0; i < cantidad_cintas_contenedor; i++) {
 			delete cintas_contenedor[i];
+		}
+		for (int i = 0; i < cantidad_robots_carga; i++) {
+			delete cola_control_carga_checkin[i];
 		}
 
 		delete torre_de_control;
@@ -173,6 +180,7 @@ private:
 	ApiAdminContenedores * admin_contenedores;
 	MessageQueue * cola_robot_zona_tractores;
 	MessageQueue * cola_tractores_avion;
+   MessageQueue * cola_control_carga_checkin[2];
 
 	void crear_archivos_lck(const char *path_to_locks) {
 

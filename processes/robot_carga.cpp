@@ -5,12 +5,13 @@
 #include <map>
 #include <string>
 
+#include "api_admincontenedores.h"
 #include "api_carga.h"
 #include "contenedor.h"
 #include "equipaje.h"
 #include "log.h"
 #include "cintas.h"
-#include "api_admincontenedores.h"
+#include "process.h"
 
 int main(int argc, char** argv) {
 	int numero_de_vuelo;
@@ -46,6 +47,10 @@ int main(int argc, char** argv) {
    equipajes_cargados = 0;
 
 	Log::info("Iniciando robot carga(%d)\n", id_robot);
+
+	Log::info("RobotCarga(%d), lanzando proceso control_carga_contenedores\n", id_robot);
+   char *args_control_carga[] = { (char*) "control_carga_contenedores", (char*) argv[1], NULL };
+	Process control_carga_contenedores("control_carga_contenedores", args_control_carga);
 
 	for (;;) {
 		checkin_cerro = false;
