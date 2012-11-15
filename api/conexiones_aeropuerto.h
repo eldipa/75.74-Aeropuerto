@@ -41,18 +41,19 @@ private:
 class PuestoCheckin {
 public:
 	PuestoCheckin(char* path_puesto_checkin, int id_puesto_checkin) :
-			sem_checkin_realizado(std::vector<unsigned short>(1, 1), path_puesto_checkin,
-					id_puesto_checkin * cant_ipcs), queue_pasajeros(path_puesto_checkin,
-					id_puesto_checkin * cant_ipcs + 1, 0664, true), vuelo_actual(-1,
-					path_puesto_checkin, id_puesto_checkin * cant_ipcs + 2) {
+			sem_checkin_realizado(std::vector<unsigned short>(1, 1), path_puesto_checkin, id_puesto_checkin * cant_ipcs), 
+         queue_pasajeros(path_puesto_checkin, id_puesto_checkin * cant_ipcs + 1, 0664, true), 
+         vuelo_actual(-1,path_puesto_checkin, id_puesto_checkin * cant_ipcs + 2),
+         cant_equipajes(0,path_puesto_checkin, id_puesto_checkin * cant_ipcs + 3) {
 	}
 	virtual ~PuestoCheckin() {
 	}
 private:
-	static const int cant_ipcs = 3;
+	static const int cant_ipcs = 4;
 	SemaphoreSet sem_checkin_realizado;
 	MessageQueue queue_pasajeros;
 	SharedObject<int> vuelo_actual;
+	SharedObject<int> cant_equipajes;
 };
 
 class ControladorPuestoCheckin {

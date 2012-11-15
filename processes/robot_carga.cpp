@@ -43,7 +43,7 @@ int main(int argc, char** argv) {
 	ApiAdminContenedores api_admin_contenedores(path);
 
 	int equipajes_por_cargar, equipajes_cargados;
-	equipajes_por_cargar = equipajes_cargados = 0;
+   equipajes_cargados = 0;
 
 	Log::info("Iniciando robot carga(%d)\n", id_robot);
 
@@ -53,9 +53,6 @@ int main(int argc, char** argv) {
 
 		Log::info("RobotCarga(%s) Bloqueo esperando orden del controlador de carga\n", argv[1]);
 		//equipajes_por_cargar = api_carga.get_equipajes_por_cargar();
-		equipajes_por_cargar = 10;
-		Log::info("RobotCarga(%s) Llego orden de carga, cargar %d equipajes\n", argv[1],
-				equipajes_por_cargar);
 
 		while (!checkin_cerro) {
 			sleep(rand() % 10);

@@ -47,7 +47,7 @@ public:
     * Cierra el checkin iniciado con #iniciar_checkin 
     * El checkin debe haber sido abi
     **/
-   void cerrar_checkin();
+   int cerrar_checkin();
    
    /*
     * Bloquea hasta que llegue un mensaje de iniciar_checkin
@@ -88,7 +88,7 @@ public:
 
    void llego_pasajero_para_checkin(int id_pasajero, const std::vector<Equipaje>& equipajes);
 private:
-   static const int cant_ipcs = 3; 
+   static const int cant_ipcs = 4; 
 
    int id_checkin;
    char path_to_torre_de_control_lock[128];
@@ -101,6 +101,7 @@ private:
    std::auto_ptr<Mutex> mutex_checkin;
    std::auto_ptr<MessageQueue> queue_pasajeros;
    std::auto_ptr< SharedObject<int> > vuelo_actual;
+   std::auto_ptr< SharedObject<int> > cant_equipajes;
 };
 
 #endif /* APICHECKIN_H_ */

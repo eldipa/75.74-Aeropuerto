@@ -109,6 +109,10 @@ public:
 		}
 	}
 
+   void llegaron_todos_los_equipajes(int cant_equipajes) {
+      cinta_contenedor.avisar_cierre_de_checkin(cant_equipajes);
+   }
+
 private:
 
 };

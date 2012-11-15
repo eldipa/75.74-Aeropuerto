@@ -4,6 +4,7 @@
 #include <vector>
 #include "sharedmemory.h"
 #include "semaphoreset.h"
+#include "log.h"
 #include <cstring>
 
 template<typename T>
@@ -293,6 +294,7 @@ void CintaCarga<T>::avisar_cierre_de_checkin(int cantidad_de_valijas) {
 	despertar_consumidores();
 
 	mutex->signalize(0);
+   Log::debug("Cerro el checkin, tengo que esperar %d valijas", cantidad_de_valijas);
 
 }
 

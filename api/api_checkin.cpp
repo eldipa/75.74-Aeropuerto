@@ -27,6 +27,7 @@ ApiCheckIn::ApiCheckIn(int id_checkin, const char* path_to_locks, int id_cinta_c
     mutex_checkin = std::auto_ptr<Mutex>(new Mutex(*sem_set,0));
     queue_pasajeros = std::auto_ptr<MessageQueue>(new MessageQueue(path_to_puesto_checkin_lock, id_checkin*cant_ipcs+1));
     vuelo_actual = std::auto_ptr< SharedObject<int> >(new SharedObject<int>(path_to_puesto_checkin_lock, id_checkin*cant_ipcs+2, 0664));
+    cant_equipajes = std::auto_ptr< SharedObject<int> >(new SharedObject<int>(path_to_puesto_checkin_lock, id_checkin*cant_ipcs+3, 0664));
 
 }
 
@@ -56,32 +57,28 @@ void ApiCheckIn::iniciar_checkin( int numero_vuelo ) {
 
       // Actualizo la info sobre el vuelo actual
       **vuelo_actual = numero_vuelo;
+      **cant_equipajes = 0;
    } else {
       Log::crit("El checkin ya esta abierto en el puesto %d para el vuelo %d", id_checkin, **vuelo_actual);
    }
    mutex_checkin->unlock();
 }
 
-void ApiCheckIn::cerrar_checkin() {
+int ApiCheckIn::cerrar_checkin() {
+   int equipajes_cargados = 0;
 	mutex_checkin->lock();
 
 	if (**vuelo_actual == -1) {
 		throw std::runtime_error("No había ningún checkin abierto");
 	}
-	//MessageQueue checkin(path_to_torre_de_control_lock, Q_CHECKINS_CERRADO);
-
-
-   if (**vuelo_actual == -1) {
-      throw std::runtime_error("No había ningún checkin abierto");
-   }
-   //MessageQueue checkin(path_to_torre_de_control_lock, Q_CHECKINS_CERRADO);
 
    Log::info("Notificando checkin cerrado para vuelo %i", **vuelo_actual);
    //checkin.push(&vuelo_actual, sizeof(vuelo_actual)); TODO:
     
    **vuelo_actual = -1;
-
+   equipajes_cargados = **cant_equipajes;
 	mutex_checkin->unlock();
+   return equipajes_cargados;
 }
 
 void ApiCheckIn::comienza_checkin_pasajero() {
@@ -96,6 +93,7 @@ void ApiCheckIn::registrar_equipaje(Equipaje& equipaje) {
 	if (**vuelo_actual == -1)
 		throw std::runtime_error("Registrando equipaje en puesto_checkin sin vuelo asignado");
 
+   (**cant_equipajes)++;
 	CintaCheckin cinta_checkin_out(path_to_cinta_checkin_lock, id_cinta_checkin);
 	cinta_checkin_out.poner_equipaje(equipaje, id_checkin);
 }
