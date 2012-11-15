@@ -3,3 +3,4 @@ LIBRARIES = ../api/libapi.a  ../ipc/libipc.a ../db/libdb.a ../os/libos.a ../log/
 EXTERNAL_LIBRARIES = dl sqlite3
 LINKER_FLAGS += -rdynamic
 TARGET = robot_scanner robot_control_equipaje_sospechoso robot_carga robot_despacho robot_checkin puesto_checkin main robot_intercargo torre_de_control notificador_descarga tractor avion generador_pasajeros despachante_de_vuelo control_carga_contenedores
+

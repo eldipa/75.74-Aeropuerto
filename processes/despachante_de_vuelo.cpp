@@ -109,4 +109,5 @@ int get_duracion_checkin(int num_vuelo) {
 		return SLEEP_DURACION_CHECKIN;
 	else
 		return SLEEP_DURACION_CHECKIN;
+
 }

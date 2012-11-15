@@ -21,6 +21,7 @@ int get_vuelo(int id_pasajero);
 
 int main(int argc, char *argv[]) {
 
+
 	if (argc < 2) {
 		Log::crit(
 				"Insuficientes parametros para puesto_checkin, se esperaba (id, id_cinta_checkin)\n");
@@ -69,6 +70,7 @@ int main(int argc, char *argv[]) {
 		}
 		checkin.fin_checkin_pasajero();
 	}
+
 }
 
 int get_vuelo(int id_pasajero) {

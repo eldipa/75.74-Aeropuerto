@@ -57,10 +57,12 @@ void dummy(int) {
 }
 
 int main(int argc, char **argv) {
+
 	//be_a_daemon();
 
 	//Ignoring the Interrupt Signal
 	//In fact, the signal is catched but its handler is useless.
+
 	struct sigaction ignore;
 	memset(&ignore, 0, sizeof(struct sigaction));
 	ignore.sa_handler = &dummy;
@@ -79,6 +81,7 @@ int main(int argc, char **argv) {
 
 	Log::info("iniciando simulación...");
 
+
 	Process puesto_checkin("puesto_checkin", args_puesto_checkin);
 	Process robot_checkin("robot_checkin", args_robot_checkin);
 	Process robot_scanner("robot_scanner", args_scanner);
@@ -92,7 +95,9 @@ int main(int argc, char **argv) {
 	Process tractor2("tractor", args_tractor2);
 	Process avion1("avion", args_avion1);
 	Process avion2("avion", args_avion2);
+
 	Process despacho_vuelo1("despachante_de_vuelo", args_despacho_vuelo1);
+
 
 	Log::info("Done, waiting for a SIGINT signal.");
 	pause();
@@ -114,6 +119,7 @@ int main(int argc, char **argv) {
 	avion1.send_signal(SIGTERM);
 	avion2.send_signal(SIGTERM);
 	despacho_vuelo1.send_signal(SIGTERM);
+
 
 	Log::info("finalizando simulación...");
 

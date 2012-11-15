@@ -41,6 +41,7 @@ int main(int argc, char** argv) {
 	TupleIterator &it = *p_it;
 	TupleIterator &end = *p_end;
 
+
 	for (; it != end; ++it) {
 		std::vector<Equipaje> equipajes;
 		Equipaje e(it.at<int>(0), rand() % TOPE_PESO_VALIJA);
@@ -55,4 +56,5 @@ int main(int argc, char** argv) {
 
 	Log::info("GeneradorPasajeros ya llegaron todos los pasajeros del vuelo %d", atoi(argv[1]));
 	return 0;
+
 }
