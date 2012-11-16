@@ -26,7 +26,7 @@ public:
 		return rfid;
 	}
 
-	operator int() {
+	operator int() const {
 		return rfid.rfid;
 	}
 
