@@ -10,22 +10,18 @@
 
 
 int main(int argc, char** argv) {
-	int num_vuelo;
-	int id_checkin;
-	int id_cinta_checkin;
-	if (argc < 4) {
+	if (argc < 3) {
 		Log::crit(
-				"Insuficientes parametros para generador_pasajeros, se esperaba (num_vuelo, id_checkin, id_cinta_checkin)\n");
+				"Insuficientes parametros para generador_pasajeros, se esperaba (num_vuelo, id_checkin)\n");
 		return (1);
 	}
 
-	num_vuelo = atoi(argv[1]);
-	id_checkin = atoi(argv[2]);
-	id_cinta_checkin = atoi(argv[3]);
+	int num_vuelo = atoi(argv[1]);
+	int id_checkin = atoi(argv[2]);
 
 	Database db("aeropuerto", true);
 
-	ApiCheckIn checkin(id_checkin, PATH_KEYS, id_cinta_checkin);
+	ApiCheckIn checkin(id_checkin, PATH_KEYS);
 
 	Log::info("GeneradorPasajeros generando pasajeros para vuelo %d, puesto_checkin %d", num_vuelo,
 			id_checkin);

@@ -4,6 +4,7 @@
 #include "cintas.h"
 #include "api_carga.h"
 #include "api_admincontenedores.h"
+#include "api_checkin.h"
 #include <sys/stat.h>
 #include <cerrno>
 #include <cstdio>
@@ -40,20 +41,20 @@ private:
 
 class PuestoCheckin {
 public:
-	PuestoCheckin(char* path_puesto_checkin, int id_puesto_checkin) :
+	PuestoCheckin(char* path_puesto_checkin, int id_puesto_checkin, int id_cinta_checkin) :
 			sem_checkin_realizado(std::vector<unsigned short>(1, 1), path_puesto_checkin, id_puesto_checkin * cant_ipcs), 
          queue_pasajeros(path_puesto_checkin, id_puesto_checkin * cant_ipcs + 1, 0664, true), 
-         vuelo_actual(-1,path_puesto_checkin, id_puesto_checkin * cant_ipcs + 2),
-         cant_equipajes(0,path_puesto_checkin, id_puesto_checkin * cant_ipcs + 3) {
+         vuelo_actual(tVueloEnCheckin(id_cinta_checkin),path_puesto_checkin, id_puesto_checkin * cant_ipcs + 2) {
+
+      Log::info("creando puesto checkin id_cinta=%d", id_cinta_checkin);
 	}
 	virtual ~PuestoCheckin() {
 	}
 private:
-	static const int cant_ipcs = 4;
+	static const int cant_ipcs = 3;
 	SemaphoreSet sem_checkin_realizado;
 	MessageQueue queue_pasajeros;
-	SharedObject<int> vuelo_actual;
-	SharedObject<int> cant_equipajes;
+	SharedObject<tVueloEnCheckin> vuelo_actual;
 };
 
 class ControladorPuestoCheckin {
@@ -82,7 +83,7 @@ public:
 		Log::info("Creando ipcs para Puesto de checkin...%s%s", path_to_locks, PATH_PUESTO_CHECKIN);
 		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_PUESTO_CHECKIN);
 		for (int i = 0; i < cantidad_puestos_checkin; i++) {
-			puesto_checkin[i] = new PuestoCheckin(path_lock, i + 1);
+			puesto_checkin[i] = new PuestoCheckin(path_lock, i + 1, 1);
 		}
 
 		Log::info("Creando ipcs para Torre de control...%s%s", path_to_locks,

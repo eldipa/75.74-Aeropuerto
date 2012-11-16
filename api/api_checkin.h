@@ -7,6 +7,7 @@
 #include "messagequeue.h"
 #include <memory>
 #include "sharedobject.h"
+#include "cintas.h"
 
 #define MAX_EQUIPAJES_POR_PERSONA 5
 
@@ -24,6 +25,16 @@ typedef struct t_msg_checkin {
    int num_vuelo;
 } tMeansajeCheckin;
 
+typedef struct vuelo_en_checkin {
+   int num_vuelo;
+   int cant_equipajes;
+   int id_cinta_checkin;
+   vuelo_en_checkin():num_vuelo(-1), cant_equipajes(0), id_cinta_checkin(-1) {
+   }
+   vuelo_en_checkin(int id_cinta_checkin):num_vuelo(-1), cant_equipajes(0), id_cinta_checkin(id_cinta_checkin) {
+   }
+} tVueloEnCheckin;
+
 class PuestoCheckinSinVueloAsignado {
 private:
    int id_checkin;
@@ -35,7 +46,7 @@ public:
 class ApiCheckIn {
 public:
 
-   ApiCheckIn(int id_checkin, const char* path_to_locks, int id_cinta_checkin);
+   ApiCheckIn(int id_checkin, const char* path_to_locks);
    virtual ~ApiCheckIn();
    
    /*
@@ -87,21 +98,20 @@ public:
    void recibir_pasajero_para_checkin(int& id_pasajero, std::vector<Equipaje>& equipajes);
 
    void llego_pasajero_para_checkin(int id_pasajero, const std::vector<Equipaje>& equipajes);
+
+   int get_cinta_checkin();
+
 private:
-   static const int cant_ipcs = 4; 
+   static const int cant_ipcs = 3; 
 
+   std::string path_to_locks;
    int id_checkin;
-   char path_to_torre_de_control_lock[128];
-   char path_to_cinta_checkin_lock[128];
-   char path_to_puesto_checkin_lock[128];
-   char path_to_control_checkin_lock[128];
-   int id_cinta_checkin;
+   SharedObject<tVueloEnCheckin> vuelo_actual;
+   CintaCheckin cinta_checkin_out;
+   SemaphoreSet sem_set;
+   Mutex mutex_checkin;
+   MessageQueue queue_pasajeros;
 
-   std::auto_ptr<SemaphoreSet> sem_set;
-   std::auto_ptr<Mutex> mutex_checkin;
-   std::auto_ptr<MessageQueue> queue_pasajeros;
-   std::auto_ptr< SharedObject<int> > vuelo_actual;
-   std::auto_ptr< SharedObject<int> > cant_equipajes;
 };
 
 #endif /* APICHECKIN_H_ */

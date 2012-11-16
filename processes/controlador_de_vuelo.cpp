@@ -22,7 +22,7 @@ private:
 void run_generador_pasajeros() {
 
 	static char *args_generador_pasajeros[] = { (char*) "generador_pasajeros", (char*) "1", //num_vuelo
-			(char*) "1", (char*) "1", NULL };
+			(char*) "1", NULL };
 	Process generator("generador_pasajeros", args_generador_pasajeros);
 }
 

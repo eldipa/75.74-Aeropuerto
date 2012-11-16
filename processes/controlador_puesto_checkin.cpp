@@ -8,14 +8,14 @@
 int main(int argc, char *argv[]) {
 	char path[300];
 
-   if (argc < 3) {
-      Log::crit("Insuficientes parametros para controlador puesto_checkin, se esperaba (id_checkin, num_cinta)\n");
+   if (argc < 2) {
+      Log::crit("Insuficientes parametros para controlador puesto_checkin, se esperaba (id_checkin)\n");
       return (1);
    }
 
    Log::info("ControladorPuestoCheckin(%d) iniciando controlador puesto de checkin\n", atoi(argv[1]));
 
-   ApiCheckIn api_checkin(atoi(argv[1]), PATH_KEYS, atoi(argv[2]));
+   ApiCheckIn api_checkin(atoi(argv[1]), PATH_KEYS);
 
    for(;;) {
       tMeansajeCheckin msg;
