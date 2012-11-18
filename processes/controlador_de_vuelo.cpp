@@ -3,9 +3,10 @@
 #include "log.h"
 #include "api_checkin.h"
 #include "api_controlador_de_vuelo.h"
-
+#include "api_torre_de_control.h"
 #include "process.h"
 #include "constants.h"
+#include <sstream>
 
 int tomar_zona(int num_zona);
 int get_duracion_checkin(int num_vuelo);
@@ -19,10 +20,20 @@ private:
 	int num_vuelo;
 };
 
-void run_generador_pasajeros() {
+void run_generador_pasajeros(int num_vuelo, int num_puesto_checkin) {
+   char buffer_vuelo[6];
+   char buffer_puesto[6];
 
-	static char *args_generador_pasajeros[] = { (char*) "generador_pasajeros", (char*) "1", //num_vuelo
-			(char*) "1", NULL };
+   std::stringstream vuelo;
+   vuelo << num_vuelo;
+   strcpy(buffer_vuelo, vuelo.str().c_str());
+
+   std::stringstream puesto;
+   puesto << num_puesto_checkin;
+   strcpy(buffer_puesto, puesto.str().c_str());
+
+   char *args_generador_pasajeros[] = { (char*) "generador_pasajeros", (char*) buffer_vuelo, //num_vuelo
+                                        (char*) buffer_puesto, NULL };
 	Process generator("generador_pasajeros", args_generador_pasajeros);
 }
 
@@ -33,29 +44,34 @@ int main(int argc, char** argv) {
    }
 
    int num_vuelo = atoi(argv[1]);
-   int  zona_utilizada,  duracion_checkin, num_puesto_checkin;
    ApiControladorDeVuelo api_vuelo(PATH_KEYS, num_vuelo);
-   
-   num_puesto_checkin = 1;
+   ApiTorreDeControl api_torre( std::string(PATH_KEYS).append(PATH_TORRE_DE_CONTROL).c_str());
+
+   Log::info("ControladorDeVuelos(%d) pido puesto de checkin y zona a torre de control para vuelo %d", num_vuelo);
+
+   int num_puesto_checkin = api_torre.pedir_puesto_checkin(num_vuelo);
+   int zona_utilizada = api_torre.pedir_zona(num_vuelo);
+   Log::info("ControladorDeVuelos(%d) respuesta torre de control: num_zona=%d num_puesto_checkin=%d", num_vuelo, zona_utilizada, num_puesto_checkin);
+
+   int duracion_checkin = SLEEP_DURACION_CHECKIN;
 
    try {
       sleep(SLEEP_DESPACHO_VUELO);
-      Log::info("ControladorDeVuelos(%d) Iniciando despachante de vuelos...", num_vuelo);
 
       //activo robot_despacho
-      zona_utilizada = tomar_zona(num_vuelo);
       Log::info("ControladorDeVuelos(%d) robot de despacho empieza a recibir equipajes para zona %d", num_vuelo, zona_utilizada);
       
       //abro checkin
       api_vuelo.iniciar_checkin(num_puesto_checkin);
-      Log::info("ControladorDeVuelos(%d) incicio checkin puesto %d", num_vuelo, 1);
-      run_generador_pasajeros();
+      Log::info("ControladorDeVuelos(%d) incicio checkin puesto %d", num_vuelo, num_puesto_checkin);
+      run_generador_pasajeros(num_vuelo, num_puesto_checkin);
 
       //espero cierre checkin
-      duracion_checkin = get_duracion_checkin(num_vuelo);
       sleep(duracion_checkin);
       api_vuelo.cerrar_checkin(num_puesto_checkin);
       Log::info("ControladorDeVuelos(%d) cierro checkin %d", num_vuelo);
+
+      Log::info("ControladorDeVuelos(%d) termino...", num_vuelo);
 
    } catch (VueloNoRegistradoException) {
       Log::crit("El vuelo %d no se encuentra registrado en la BD\n", num_vuelo);
@@ -67,10 +83,3 @@ int tomar_zona(int num_vuelo) {
 	return num_vuelo;
 }
 
-int get_duracion_checkin(int num_vuelo) {
-	if (num_vuelo >= 0)
-		return SLEEP_DURACION_CHECKIN;
-	else
-		return SLEEP_DURACION_CHECKIN;
-
-}

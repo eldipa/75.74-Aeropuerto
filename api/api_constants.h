@@ -5,6 +5,9 @@
 #define Q_CHECKINS_HABILITADOS 1
 #define Q_CHECKINS_CERRADO 2
 #define Q_TRASBORDO_LISTO 3
+#define Q_CONTENEDORES 4
+#define Q_PUESTOS_CHECKIN 5
+#define Q_ZONAS 6
 
 // MTX central
 #define MUTEX_INFO_VUELOS 0

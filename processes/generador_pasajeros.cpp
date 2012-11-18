@@ -21,13 +21,13 @@ int main(int argc, char** argv) {
 		Log::crit("Insuficientes parametros para generador_pasajeros, se esperaba (num_vuelo, num_puesto_checkin)\n");
 		return (1);
 	}
+	Log::info("GeneradorPasajeros generando pasajeros para vuelo %d, puesto_checkin %d", atoi(argv[1]),atoi(argv[2]));
 
 	int num_vuelo = atoi(argv[1]);
 	int num_puesto_checkin = atoi(argv[2]);
 	ApiCheckIn checkin(num_puesto_checkin, PATH_KEYS);
    std::vector<int> id_pasajeros;
 
-	Log::info("GeneradorPasajeros generando pasajeros para vuelo %d, puesto_checkin %d", num_vuelo,num_puesto_checkin);
    get_pasajeros(num_vuelo, id_pasajeros);
 
    std::vector<int>::iterator it;

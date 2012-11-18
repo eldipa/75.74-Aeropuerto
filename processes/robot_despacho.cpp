@@ -31,38 +31,30 @@ int get_numero_vuelo(Rfid);
 int get_numero_zona(int num_vuelo);
 
 int main(int argc, char** argv) {
-	int id_robot;
 	char path_cinta_central[300];
 	char path_cinta_contenedor[300];
 
-	if (argc < 5) {
-		Log::info(
-				"insuf. param para robot de despacho,se esperaba(id, id_cinta_contenedor, zona_desde, zona_hasta...)\n");
+	if (argc < 4) {
+		Log::info("insuf. param para robot de despacho,se esperaba(id, zona_desde, zona_hasta...)\n");
 		exit(1);
 	}
 
-	id_robot = atoi(argv[1]);
-	strcpy(path_cinta_central, PATH_KEYS);
-	strcat(path_cinta_central, PATH_CINTA_CENTRAL);
+	int id_robot = atoi(argv[1]);
+	int zona_desde = atoi(argv[2]);
+	int zona_hasta = atoi(argv[3]);
+	strcpy(path_cinta_central, std::string(PATH_KEYS).append(PATH_CINTA_CENTRAL).c_str());
+	strcpy(path_cinta_contenedor, std::string(PATH_KEYS).append(PATH_CINTA_CONTENEDOR).c_str());
 
 	ApiDespachante despachante_cinta_central(id_robot, path_cinta_central);
-	int zona_desde = atoi(argv[3]);
-	int zona_hasta = atoi(argv[4]);
 
-	strcpy(path_cinta_contenedor, PATH_KEYS);
-	strcat(path_cinta_contenedor, PATH_CINTA_CONTENEDOR);
-
-	Log::info("Iniciando robot despacho(%s), cinta_central:%s cinta_contenedor:%s\n", argv[1],
-			path_cinta_central, path_cinta_contenedor);
+	Log::info("Iniciando robot despacho(%s), cinta_central:%s cinta_contenedor:%s\n", argv[1], path_cinta_central, path_cinta_contenedor);
 
 	for (;;) {
 		sleep(rand() % SLEEP_ROBOT_DESPACHO);
 
-		Log::info("Robot de despacho(%s) Intentando tomar un nuevo equipaje de cinta central(%s)\n",
-				argv[1], argv[3]);
+		Log::info("Robot de despacho(%s) Intentando tomar un nuevo equipaje de cinta central(%s)\n", argv[1], argv[3]);
 
 		Rfid rfid_equipaje = despachante_cinta_central.leer_proximo_equipaje();
-
 		int num_vuelo = get_numero_vuelo(rfid_equipaje);
 		int num_zona = get_numero_zona(num_vuelo);
 

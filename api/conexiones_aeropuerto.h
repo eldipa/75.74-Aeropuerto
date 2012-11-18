@@ -3,6 +3,8 @@
 
 #include "cintas.h"
 #include "api_carga.h"
+#include "api_torre_de_control.h"
+
 #include "api_admincontenedores.h"
 #include "api_checkin.h"
 #include <sys/stat.h>
@@ -21,11 +23,29 @@ const int cantidad_puestos_checkin = 1;
 
 class TorreDeControl {
 public:
-	TorreDeControl(char *path_lock_torre_de_control) :
-			control(std::vector<short unsigned int>(CANT_MUTEX_CENTRAL, 1),
-					path_lock_torre_de_control, MTX_CENTRAL), checkin(path_lock_torre_de_control,
-					Q_CHECKINS_HABILITADOS, 0644, true), trasbordo(path_lock_torre_de_control,
-					Q_TRASBORDO_LISTO, 0644, true) {
+	TorreDeControl(const char *path_lock_torre_de_control, int cant_contenedores, 
+                  int zona_desde, int zona_hasta, 
+                  int puesto_checkin_desde, int puesto_checkin_hasta ) :
+			control(std::vector<short unsigned int>(CANT_MUTEX_CENTRAL, 1),path_lock_torre_de_control, MTX_CENTRAL), 
+         checkin(path_lock_torre_de_control, Q_CHECKINS_HABILITADOS, 0644, true), 
+         trasbordo(path_lock_torre_de_control,Q_TRASBORDO_LISTO, 0644, true),
+         queue_zonas(path_lock_torre_de_control, Q_ZONAS, 0664, true),
+         queue_puestos_checkin(path_lock_torre_de_control, Q_PUESTOS_CHECKIN, 0664, true),
+         queue_contenedores(path_lock_torre_de_control, Q_CONTENEDORES, 0664, true) {
+
+      ApiTorreDeControl api_torre(path_lock_torre_de_control);
+      for(int i=0; i<cant_contenedores;i++) {
+         api_torre.liberar_contenedor();
+      }
+
+      for(int i=zona_desde; i<=zona_hasta; i++) {
+         api_torre.liberar_zona(i);
+      }
+
+      for(int i=puesto_checkin_desde; i<=puesto_checkin_hasta; i++) {
+         api_torre.liberar_puesto_checkin(i);
+      }
+
 	}
 	;
 
@@ -37,6 +57,10 @@ private:
 	SemaphoreSet control;
 	MessageQueue checkin;
 	MessageQueue trasbordo;
+   MessageQueue queue_zonas;
+   MessageQueue queue_puestos_checkin;
+   MessageQueue queue_contenedores;
+
 };
 
 class PuestoCheckin {
@@ -89,7 +113,7 @@ public:
 		Log::info("Creando ipcs para Torre de control...%s%s", path_to_locks,
 				PATH_TORRE_DE_CONTROL);
 		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_TORRE_DE_CONTROL);
-		torre_de_control = new TorreDeControl(path_lock);
+		torre_de_control = new TorreDeControl(path_lock, 10, 1, cantidad_robots_carga, 1, cantidad_puestos_checkin);
 
 		Log::info("Creando ipcs admin de contenedores...%s%s", path_to_locks,
 				PATH_ADMIN_CONTENEDORES);
