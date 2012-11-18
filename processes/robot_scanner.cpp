@@ -19,6 +19,12 @@ int main(int argc, char *argv[]) {
 	}
 
 	id_robot = atoi(argv[1]); // de 1 a N
+
+	if (id_robot < 1) {
+		Log::crit("ID de robot_scanner incorrecto %d\n", id_robot);
+		exit(1);
+	}
+
 	id_cinta_scanner = atoi(argv[2]);
 
 	strcpy(path_cinta_scanner, PATH_KEYS);
@@ -26,7 +32,7 @@ int main(int argc, char *argv[]) {
 	strcpy(path_cinta_central, PATH_KEYS);
 	strcat(path_cinta_central, PATH_CINTA_CENTRAL);
 
-	CintaScanner cinta_scanner(path_cinta_scanner, id_cinta_scanner);
+	CintaScanner<Equipaje> cinta_scanner(path_cinta_scanner, id_cinta_scanner, id_robot);
 	ApiScanner api_escaner_cinta_central(id_robot, path_cinta_central);
 
 	Log::info("Iniciando scanner(%s), %s\n", argv[1], argv[2]);
@@ -34,7 +40,7 @@ int main(int argc, char *argv[]) {
 	for (;;) {
 		Log::info("Scanner(%s) Intentando tomar un nuevo equipaje de cinta de scanner(%s)\n",
 				argv[1], argv[3]);
-		Equipaje equipaje = cinta_scanner.sacar_equipaje(id_robot);
+		Equipaje equipaje = cinta_scanner.sacar_equipaje();
 
 		Log::info("Scanner(%s) Escaneando equipaje %s\n", argv[1], equipaje.toString().c_str());
 		equipaje.set_sospechoso((rand() % 5) == 0);

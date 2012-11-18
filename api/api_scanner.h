@@ -15,6 +15,8 @@ public:
 	virtual ~ApiScanner();
 
 	void colocar_equipaje_en_cinta_principal(const Equipaje & equipaje);
+
+	Equipaje extraer_equipaje();
 };
 
 

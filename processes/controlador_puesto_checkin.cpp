@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
       } else {         
          Log::info("ControladorPuestoCheckin(%d) llego mensaje puesto_checkin %d cerrar_checkin \n", atoi(argv[1]), msg.mtype);
          int equipajes = api_checkin.cerrar_checkin();
-         Log::info("ControladorPuestoCheckin(%d) cierro checkin, avisoa  robot_carga que total_equipajes=%d \n", atoi(argv[1]), equipajes);
+         Log::info("ControladorPuestoCheckin(%d) cierro checkin, aviso a robot_carga que total_equipajes=%d \n", atoi(argv[1]), equipajes);
 
          MENSAJE_CHECKIN_CERRADO mensaje;
          mensaje.checkin_cerrado = 1;

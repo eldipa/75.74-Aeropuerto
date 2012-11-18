@@ -23,28 +23,28 @@ const int cantidad_puestos_checkin = 1;
 
 class TorreDeControl {
 public:
-	TorreDeControl(const char *path_lock_torre_de_control, int cant_contenedores, 
-                  int zona_desde, int zona_hasta, 
-                  int puesto_checkin_desde, int puesto_checkin_hasta ) :
-			control(std::vector<short unsigned int>(CANT_MUTEX_CENTRAL, 1),path_lock_torre_de_control, MTX_CENTRAL), 
-         checkin(path_lock_torre_de_control, Q_CHECKINS_HABILITADOS, 0644, true), 
-         trasbordo(path_lock_torre_de_control,Q_TRASBORDO_LISTO, 0644, true),
-         queue_zonas(path_lock_torre_de_control, Q_ZONAS, 0664, true),
-         queue_puestos_checkin(path_lock_torre_de_control, Q_PUESTOS_CHECKIN, 0664, true),
-         queue_contenedores(path_lock_torre_de_control, Q_CONTENEDORES, 0664, true) {
+	TorreDeControl(const char *path_lock_torre_de_control, int cant_contenedores, int zona_desde,
+			int zona_hasta, int puesto_checkin_desde, int puesto_checkin_hasta) :
+			control(std::vector<short unsigned int>(CANT_MUTEX_CENTRAL, 1),
+					path_lock_torre_de_control, MTX_CENTRAL), checkin(path_lock_torre_de_control,
+					Q_CHECKINS_HABILITADOS, 0644, true), trasbordo(path_lock_torre_de_control,
+					Q_TRASBORDO_LISTO, 0644, true), queue_zonas(path_lock_torre_de_control, Q_ZONAS,
+					0664, true), queue_puestos_checkin(path_lock_torre_de_control,
+					Q_PUESTOS_CHECKIN, 0664, true), queue_contenedores(path_lock_torre_de_control,
+					Q_CONTENEDORES, 0664, true) {
 
-      ApiTorreDeControl api_torre(path_lock_torre_de_control);
-      for(int i=0; i<cant_contenedores;i++) {
-         api_torre.liberar_contenedor();
-      }
+		ApiTorreDeControl api_torre(path_lock_torre_de_control);
+		for (int i = 0; i < cant_contenedores; i++) {
+			api_torre.liberar_contenedor();
+		}
 
-      for(int i=zona_desde; i<=zona_hasta; i++) {
-         api_torre.liberar_zona(i);
-      }
+		for (int i = zona_desde; i <= zona_hasta; i++) {
+			api_torre.liberar_zona(i);
+		}
 
-      for(int i=puesto_checkin_desde; i<=puesto_checkin_hasta; i++) {
-         api_torre.liberar_puesto_checkin(i);
-      }
+		for (int i = puesto_checkin_desde; i <= puesto_checkin_hasta; i++) {
+			api_torre.liberar_puesto_checkin(i);
+		}
 
 	}
 	;
@@ -57,20 +57,22 @@ private:
 	SemaphoreSet control;
 	MessageQueue checkin;
 	MessageQueue trasbordo;
-   MessageQueue queue_zonas;
-   MessageQueue queue_puestos_checkin;
-   MessageQueue queue_contenedores;
+	MessageQueue queue_zonas;
+	MessageQueue queue_puestos_checkin;
+	MessageQueue queue_contenedores;
 
 };
 
 class PuestoCheckin {
 public:
 	PuestoCheckin(char* path_puesto_checkin, int id_puesto_checkin, int id_cinta_checkin) :
-			sem_checkin_realizado(std::vector<unsigned short>(1, 1), path_puesto_checkin, id_puesto_checkin * cant_ipcs), 
-         queue_pasajeros(path_puesto_checkin, id_puesto_checkin * cant_ipcs + 1, 0664, true), 
-         vuelo_actual(tVueloEnCheckin(id_cinta_checkin),path_puesto_checkin, id_puesto_checkin * cant_ipcs + 2) {
+			sem_checkin_realizado(std::vector<unsigned short>(1, 1), path_puesto_checkin,
+					id_puesto_checkin * cant_ipcs), queue_pasajeros(path_puesto_checkin,
+					id_puesto_checkin * cant_ipcs + 1, 0664, true), vuelo_actual(
+					tVueloEnCheckin(id_cinta_checkin), path_puesto_checkin,
+					id_puesto_checkin * cant_ipcs + 2) {
 
-      Log::info("creando puesto checkin id_cinta=%d", id_cinta_checkin);
+		Log::info("creando puesto checkin id_cinta=%d", id_cinta_checkin);
 	}
 	virtual ~PuestoCheckin() {
 	}
@@ -83,11 +85,11 @@ private:
 
 class ControladorPuestoCheckin {
 public:
-   ControladorPuestoCheckin(char* path_control_checkin) :
-      queue_checkin(path_control_checkin, 0, 0664, true) {
-   }
+	ControladorPuestoCheckin(char* path_control_checkin) :
+			queue_checkin(path_control_checkin, 0, 0664, true) {
+	}
 private:
-   MessageQueue queue_checkin;
+	MessageQueue queue_checkin;
 };
 
 /*
@@ -100,10 +102,11 @@ public:
 
 		crear_archivos_lck(path_to_locks);
 
-		Log::info("Creando ipcs para Controlador de puestos de checkin...%s%s", path_to_locks, PATH_COLA_CONTROL_CHECKIN);
+		Log::info("Creando ipcs para Controlador de puestos de checkin...%s%s", path_to_locks,
+				PATH_COLA_CONTROL_CHECKIN);
 		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_COLA_CONTROL_CHECKIN);
-      controlador_puesto_checkin = new ControladorPuestoCheckin(path_lock);
-      
+		controlador_puesto_checkin = new ControladorPuestoCheckin(path_lock);
+
 		Log::info("Creando ipcs para Puesto de checkin...%s%s", path_to_locks, PATH_PUESTO_CHECKIN);
 		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_PUESTO_CHECKIN);
 		for (int i = 0; i < cantidad_puestos_checkin; i++) {
@@ -113,7 +116,8 @@ public:
 		Log::info("Creando ipcs para Torre de control...%s%s", path_to_locks,
 				PATH_TORRE_DE_CONTROL);
 		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_TORRE_DE_CONTROL);
-		torre_de_control = new TorreDeControl(path_lock, 10, 1, cantidad_robots_carga, 1, cantidad_puestos_checkin);
+		torre_de_control = new TorreDeControl(path_lock, 10, 1, cantidad_robots_carga, 1,
+				cantidad_puestos_checkin);
 
 		Log::info("Creando ipcs admin de contenedores...%s%s", path_to_locks,
 				PATH_ADMIN_CONTENEDORES);
@@ -130,11 +134,9 @@ public:
 		}
 
 		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_CINTA_SCANNER);
-		for (int i = 0; i < cantidad_cintas_scanner; i++) {
-			cintas_scanner[i] = new CintaScanner(path_lock, i + 1, CAPACIDAD_CINTA_SCANNER,
-					CANTIDAD_MAX_PRODUCTORES_CINTA_SCANNER,
-					CANTIDAD_MAX_CONSUMIDORES_CINTA_SCANNER);
-		}
+		//for (int i = 0; i < cantidad_cintas_scanner; i++) {
+		cintas_scanner = new CintaScanner<Equipaje>(path_lock, 1, CAPACIDAD_CINTA_SCANNER, true);
+		//}
 
 		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_CINTA_CENTRAL);
 		for (int i = 0; i < cantidad_cintas_centrales; i++) {
@@ -159,9 +161,9 @@ public:
 		cola_tractores_avion = new MessageQueue(path_lock, 0, 0664, true);
 
 		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_COLA_CONTROL_CARGA_CHECKIN);
-      for (int i = 0; i < cantidad_robots_carga; i++) {
-         cola_control_carga_checkin[i] = new MessageQueue(path_lock, i+1, 0664, true);
-      }
+		for (int i = 0; i < cantidad_robots_carga; i++) {
+			cola_control_carga_checkin[i] = new MessageQueue(path_lock, i + 1, 0664, true);
+		}
 	}
 	;
 
@@ -173,9 +175,9 @@ public:
 		for (int i = 0; i < cantidad_cintas_checkin; i++) {
 			delete cintas_checkin[i];
 		}
-		for (int i = 0; i < cantidad_cintas_scanner; i++) {
-			delete cintas_scanner[i];
-		}
+		//for (int i = 0; i < cantidad_cintas_scanner; i++) {
+			delete cintas_scanner;
+		//}
 		for (int i = 0; i < cantidad_cintas_centrales; i++) {
 			delete cintas_central[i];
 		}
@@ -188,24 +190,24 @@ public:
 
 		delete torre_de_control;
 		delete admin_contenedores;
-      delete controlador_puesto_checkin;
+		delete controlador_puesto_checkin;
 
 		delete cola_robot_zona_tractores;
 		delete cola_tractores_avion;
 	}
 
 private:
-   ControladorPuestoCheckin * controlador_puesto_checkin;
+	ControladorPuestoCheckin * controlador_puesto_checkin;
 	PuestoCheckin * puesto_checkin[1];
 	TorreDeControl * torre_de_control;
 	CintaCheckin * cintas_checkin[1];
-	CintaScanner * cintas_scanner[1];
+	CintaScanner<Equipaje> * cintas_scanner;
 	CintaCentral * cintas_central[1];
 	CintaContenedor * cintas_contenedor[2];
 	ApiAdminContenedores * admin_contenedores;
 	MessageQueue * cola_robot_zona_tractores;
 	MessageQueue * cola_tractores_avion;
-   MessageQueue * cola_control_carga_checkin[2];
+	MessageQueue * cola_control_carga_checkin[2];
 
 	void crear_archivos_lck(const char *path_to_locks) {
 

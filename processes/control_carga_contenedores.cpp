@@ -43,6 +43,8 @@ int main(int argc, char** argv) {
 	cola_mensajes_con_despachante_de_vuelo.pull(&mensaje,
 			sizeof(MENSAJE_CHECKIN_CERRADO) - sizeof(long), 0);
 
+	Log::info("Aviso al robot de carga el cierre del checkin\n");
+
 	cinta_contenedor_carga.avisar_cierre_de_checkin(mensaje.cantidad_equipaje_total);
 
 	Log::info("Nada mas que hacer");

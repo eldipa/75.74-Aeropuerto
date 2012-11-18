@@ -6,6 +6,7 @@
 #include "cintaprincipalv0.h"
 #include "cintacarga.h"
 #include "equipaje.h"
+#include "cintascanner.h"
 
 // Configuración cintas
 #define CAPACIDAD_CINTA_CHECKIN 3
@@ -30,7 +31,7 @@
 
 typedef CintaPrincipal<Equipaje> CintaCentral;
 typedef Cinta<Equipaje> CintaCheckin;
-typedef Cinta<Equipaje> CintaScanner;
+//typedef Cinta<Equipaje> CintaScanner;
 typedef CintaCarga<Equipaje> CintaContenedor;
 
 #endif

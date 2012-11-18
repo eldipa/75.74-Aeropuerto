@@ -63,7 +63,7 @@ int main(int argc, char *argv[]) {
             Log::info("PuestoCheckin(%d) el pasajero %d vino al puesto equivocado: vuelo_pasajero%d vuelo_checkin:%d\n", 
                       atoi(argv[1]), id_pasajero, vuelo_pasajero, checkin.get_vuelo_actual());            
          }
-      } catch (PuestoCheckinSinVueloAsignado) {
+      } catch (PuestoCheckinSinVueloAsignado &) {
          Log::info("PuestoCheckin(%d) No hay checkin habilitado en este momento\n", atoi(argv[1]) );
       }
       checkin.fin_checkin_pasajero();

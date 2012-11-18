@@ -38,7 +38,7 @@ int main(int argc, char** argv) {
 				argv[1], equipaje.toString().c_str());
 		// por ahora, limpia el equipaje y lo vuelve a poner al comienzo de la cinta central
 		equipaje.set_sospechoso(false);
-		//control_equipajes.volver_a_colocar_equipaje_en_cinta_principal(equipaje);
+		control_equipajes.volver_a_colocar_equipaje_en_cinta_principal(equipaje);
 	}
 
 }

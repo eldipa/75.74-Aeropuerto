@@ -13,21 +13,58 @@
 #include "cintas.h"
 #include "process.h"
 
+void agregar_equipaje(Equipaje & equipaje,
+		std::map<std::string, Contenedor> & contenedores_por_escala, ApiCarga &api_carga,
+		ApiAdminContenedores api_admin_contenedores, int id_robot, int & numero_de_vuelo) {
+
+	Log::info("RobotCarga(%d) se tomo el equipaje %s con escala destino '%s' peso=%d\n", id_robot,
+			equipaje.toString().c_str(), equipaje.getRfid().get_escala().c_str(), equipaje.peso());
+	numero_de_vuelo = equipaje.getRfid().numero_de_vuelo_destino;
+	if (equipaje.peso() <= MAX_PESO_CONTENEDOR) {
+		std::string escala = equipaje.getRfid().get_escala();
+
+		if (contenedores_por_escala.find(escala) == contenedores_por_escala.end()) {
+			Log::crit("RobotCarga(%d) no tengo contenedor, pido contenedor para escala '%s'\n",
+					id_robot, escala.c_str());
+			api_admin_contenedores.pedir_contenedor();
+			contenedores_por_escala.insert(
+					std::pair<std::string, Contenedor>(escala, Contenedor()));
+		}
+
+		if (!contenedores_por_escala[escala].hay_lugar(equipaje)) {
+			Log::crit("RobotCarga(%d) contenedor lleno, pido contenedor para escala '%s'\n",
+					id_robot, escala.c_str());
+			api_carga.agregar_contenedor_cargado(contenedores_por_escala[escala]);
+			api_admin_contenedores.pedir_contenedor();
+			contenedores_por_escala[escala] = Contenedor();
+		}
+		contenedores_por_escala[escala].agregar_equipaje(equipaje);
+
+	} else {
+		Log::crit("RobotCarga(%d) El equipaje %s es mas grande que el propio contenedor!!!\n",
+				id_robot, equipaje.toString().c_str());
+	}
+}
+
 int main(int argc, char** argv) {
-	int numero_de_vuelo;
 	Equipaje equipaje;
 	bool checkin_cerro;
 	char path[300];
 	char path_cola[300];
 	int id_robot;
+	int numero_de_vuelo;
 
 	if (argc < 2) {
-		Log::crit(
-				"Insuficientes parametros para robot de carga, se esperaba (id_robot)\n");
+		Log::crit("Insuficientes parametros para robot de carga, se esperaba (id_robot)\n");
 		exit(1);
 	}
 
 	id_robot = atoi(argv[1]);
+
+	if (id_robot < 1) {
+		Log::crit("ID de robot_carga incorrecto %d\n", id_robot);
+		exit(1);
+	}
 
 	strcpy(path, PATH_KEYS);
 	strcat(path, PATH_CINTA_CONTENEDOR);
@@ -44,12 +81,12 @@ int main(int argc, char** argv) {
 	ApiAdminContenedores api_admin_contenedores(path);
 
 	int equipajes_por_cargar, equipajes_cargados;
-   equipajes_cargados = 0;
+	equipajes_cargados = 0;
 
 	Log::info("Iniciando robot carga(%d)\n", id_robot);
 
 	Log::info("RobotCarga(%d), lanzando proceso control_carga_contenedores\n", id_robot);
-   char *args_control_carga[] = { (char*) "control_carga_contenedores", (char*) argv[1], NULL };
+	char *args_control_carga[] = { (char*) "control_carga_contenedores", (char*) argv[1], NULL };
 	Process control_carga_contenedores("control_carga_contenedores", args_control_carga);
 
 	for (;;) {
@@ -68,90 +105,32 @@ int main(int argc, char** argv) {
 				checkin_cerro = true;
 				break;
 			}
-			Log::info("RobotCarga(%s) se tomo el equipaje %s con escala destino '%s' peso=%d\n",
-					argv[1], equipaje.toString().c_str(), equipaje.getRfid().get_escala().c_str(),
-					equipaje.peso());
-			numero_de_vuelo = equipaje.getRfid().numero_de_vuelo_destino;
-			if (equipaje.peso() <= MAX_PESO_CONTENEDOR) {
-				std::string escala = equipaje.getRfid().get_escala();
+			agregar_equipaje(equipaje, contenedores_por_escala, api_carga, api_admin_contenedores,
+					id_robot, numero_de_vuelo);
+			equipajes_cargados++;
+			Log::info(
+					"RobotCarga(%d) pongo equipaje %s en contenedor de escala '%s'.ya carge %d/%d equipajes\n",
+					id_robot, equipaje.toString().c_str(), equipaje.getRfid().get_escala().c_str(),
+					equipajes_cargados);
 
-				if (contenedores_por_escala.find(escala) == contenedores_por_escala.end()) {
-					Log::crit(
-							"RobotCarga(%s) no tengo contenedor, pido contenedor para escala '%s'\n",
-							argv[1], escala.c_str());
-					api_admin_contenedores.pedir_contenedor();
-					contenedores_por_escala.insert(
-							std::pair<std::string, Contenedor>(escala, Contenedor()));
-				}
-
-				if (!contenedores_por_escala[escala].hay_lugar(equipaje)) {
-					Log::crit("RobotCarga(%s) contenedor lleno, pido contenedor para escala '%s'\n",
-							argv[1], escala.c_str());
-					api_carga.agregar_contenedor_cargado(contenedores_por_escala[escala]);
-					api_admin_contenedores.pedir_contenedor();
-					contenedores_por_escala[escala] = Contenedor();
-				}
-				contenedores_por_escala[escala].agregar_equipaje(equipaje);
-				equipajes_cargados++;
-
-				Log::crit(
-						"RobotCarga(%s) pongo equipaje %s en contenedor de escala '%s'.ya carge %d/%d equipajes\n",
-						argv[1], equipaje.toString().c_str(), escala.c_str(), equipajes_cargados,
-						equipajes_por_cargar);
-
-			} else {
-				Log::crit(
-						"RobotCarga(%s) El equipaje %s es mas grande que el propio contenedor!!!\n",
-						argv[1], equipaje.toString().c_str());
-				equipajes_cargados++;
-			}
 		}
 
 		equipajes_por_cargar = api_carga.obtener_cantidad_equipaje_total();
+
+		Log::info("RobotCarga(%d) notificado checkin cerrado. Equipaje total %d cargados %d\n",
+				id_robot, equipajes_por_cargar, equipajes_cargados);
 
 		while (equipajes_cargados < equipajes_por_cargar) {
 
 			equipaje = api_carga.sacar_equipaje();
 
-			Log::info("RobotCarga(%s) se tomo el equipaje %s con escala destino '%s' peso=%d\n",
-					argv[1], equipaje.toString().c_str(), equipaje.getRfid().get_escala().c_str(),
-					equipaje.peso());
-
-			numero_de_vuelo = equipaje.getRfid().numero_de_vuelo_destino;
-
-			if (equipaje.peso() <= MAX_PESO_CONTENEDOR) {
-				std::string escala = equipaje.getRfid().get_escala();
-
-				if (contenedores_por_escala.find(escala) == contenedores_por_escala.end()) {
-					Log::crit(
-							"RobotCarga(%s) no tengo contenedor, pido contenedor para escala '%s'\n",
-							argv[1], escala.c_str());
-					api_admin_contenedores.pedir_contenedor();
-					contenedores_por_escala.insert(
-							std::pair<std::string, Contenedor>(escala, Contenedor()));
-				}
-
-				if (!contenedores_por_escala[escala].hay_lugar(equipaje)) {
-					Log::crit("RobotCarga(%s) contenedor lleno, pido contenedor para escala '%s'\n",
-							argv[1], escala.c_str());
-					api_carga.agregar_contenedor_cargado(contenedores_por_escala[escala]);
-					api_admin_contenedores.pedir_contenedor();
-					contenedores_por_escala[escala] = Contenedor();
-				}
-				contenedores_por_escala[escala].agregar_equipaje(equipaje);
-				equipajes_cargados++;
-
-				Log::crit(
-						"RobotCarga(%s) pongo equipaje %s en contenedor de escala '%s'.ya carge %d/%d equipajes\n",
-						argv[1], equipaje.toString().c_str(), escala.c_str(), equipajes_cargados,
-						equipajes_por_cargar);
-
-			} else {
-				Log::crit(
-						"RobotCarga(%s) El equipaje %s es mas grande que el propio contenedor!!!\n",
-						argv[1], equipaje.toString().c_str());
-				equipajes_cargados++;
-			}
+			agregar_equipaje(equipaje, contenedores_por_escala, api_carga, api_admin_contenedores,
+					id_robot, numero_de_vuelo);
+			equipajes_cargados++;
+			Log::info(
+					"RobotCarga(%d) pongo equipaje %s en contenedor de escala '%s'.ya carge %d/%d equipajes\n",
+					id_robot, equipaje.toString().c_str(), equipaje.getRfid().get_escala().c_str(),
+					equipajes_cargados);
 		}
 
 		api_carga.esperar_avion_en_zona();

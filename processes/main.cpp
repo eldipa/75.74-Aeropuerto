@@ -31,7 +31,7 @@ char *args_robot_carga0[] = { (char*) "robot_carga", (char*) "1", NULL };
 char *args_robot_carga1[] = { (char*) "robot_carga", (char*) "2", NULL };
 
 char *args_robot_sospechosos[] = { (char*) "robot_control_equipaje_sospechoso", (char*) "2",
-		(char*) "2", // ID
+		(char*) "5", // ID
 		NULL };
 
 char *args_robot_intercargo[] = { (char*) "robot_intercargo", (char*) "1", // ID

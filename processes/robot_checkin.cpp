@@ -30,7 +30,7 @@ int main(int argc, char** argv) {
 
 	strcpy(path, PATH_KEYS);
 	strcat(path, PATH_CINTA_SCANNER);
-	CintaScanner cinta_scanner(path, atoi(argv[3])); // num_cinta_scanner???????? esta mal
+	CintaScanner<Equipaje> cinta_scanner(path, atoi(argv[3]));
 
 
 	// cada robot de checkin distribuye entre n scanners
@@ -46,6 +46,6 @@ int main(int argc, char** argv) {
 
 		Log::info("Robot de checkin(%s), pone %s en siguiente cinta", argv[1],
 				equipaje.toString().c_str());
-		cinta_scanner.poner_equipaje(equipaje, id_robot);
+		cinta_scanner.poner_equipaje(equipaje);
 	}
 }
