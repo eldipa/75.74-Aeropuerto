@@ -106,6 +106,7 @@ int ApiTorreDeControl::pedir_zona(int num_vuelo) {
 
 void ApiTorreDeControl::liberar_zona(int num_zona) {
    tMsgZona msg;
+   msg.mtype = 1;
    msg.num_zona = num_zona;
    queue_zonas.push(&msg, sizeof(tMsgZona)-sizeof(long));
 }

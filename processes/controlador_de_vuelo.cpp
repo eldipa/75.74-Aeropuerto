@@ -54,7 +54,7 @@ int main(int argc, char** argv) {
    ApiControladorDeVuelo api_vuelo(PATH_KEYS, num_vuelo);
    ApiTorreDeControl api_torre( std::string(PATH_KEYS).append(PATH_TORRE_DE_CONTROL).c_str());
 
-   Log::info("ControladorDeVuelos(%d) pido puesto de checkin y zona a torre de control para vuelo %d", num_vuelo);
+   Log::info("ControladorDeVuelos(%d) pido puesto de checkin y zona a torre de control para vuelo %d", num_vuelo, num_vuelo);
 
    int num_puesto_checkin = api_torre.pedir_puesto_checkin(num_vuelo);
    int zona_utilizada = api_torre.pedir_zona(num_vuelo);
