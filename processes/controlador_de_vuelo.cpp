@@ -6,10 +6,16 @@
 #include "api_torre_de_control.h"
 #include "process.h"
 #include "constants.h"
+
+#include "database.h"
+#include "stmt.h"
+#include "tupleiter.h"
+
 #include <sstream>
 
 int tomar_zona(int num_zona);
 int get_duracion_checkin(int num_vuelo);
+void registrar_zona_en_uso(int num_vuelo, int num_zona);
 
 class VueloNoRegistradoException {
 public:
@@ -19,6 +25,7 @@ public:
 private:
 	int num_vuelo;
 };
+
 
 void run_generador_pasajeros(int num_vuelo, int num_puesto_checkin) {
    char buffer_vuelo[6];
@@ -59,6 +66,7 @@ int main(int argc, char** argv) {
       sleep(SLEEP_DESPACHO_VUELO);
 
       //activo robot_despacho
+      registrar_zona_en_uso(num_vuelo, zona_utilizada);
       Log::info("ControladorDeVuelos(%d) robot de despacho empieza a recibir equipajes para zona %d", num_vuelo, zona_utilizada);
       
       //abro checkin
@@ -83,3 +91,12 @@ int tomar_zona(int num_vuelo) {
 	return num_vuelo;
 }
 
+void registrar_zona_en_uso(int num_vuelo, int num_zona) {
+   Database db("aeropuerto", false);
+	yasper::ptr<Statement> query = db.statement("insert into ZonasUtilizadas values (:zona, :vuelo)");
+	query->set(":zona", num_zona);
+	query->set(":vuelo", num_vuelo);
+
+   
+	yasper::ptr<TupleIterator> p_it = query->begin();
+}

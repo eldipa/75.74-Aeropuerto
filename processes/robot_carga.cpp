@@ -13,6 +13,12 @@
 #include "cintas.h"
 #include "process.h"
 
+#include "database.h"
+#include "stmt.h"
+#include "tupleiter.h"
+
+void deshabilitar_robot_despacho(int num_zona);
+
 void agregar_equipaje(Equipaje & equipaje,
 		std::map<std::string, Contenedor> & contenedores_por_escala, ApiCarga &api_carga,
 		ApiAdminContenedores api_admin_contenedores, int id_robot, int & numero_de_vuelo) {
@@ -121,6 +127,8 @@ int main(int argc, char** argv) {
 				id_robot, equipajes_por_cargar, equipajes_cargados);
 
 		while (equipajes_cargados < equipajes_por_cargar) {
+			Log::info("RobotCarga(%s) Intentando tomar un nuevo equipaje de cinta(%s)\n", argv[1],
+					argv[2]);
 
 			equipaje = api_carga.sacar_equipaje();
 
@@ -132,6 +140,10 @@ int main(int argc, char** argv) {
 					id_robot, equipaje.toString().c_str(), equipaje.getRfid().get_escala().c_str(),
 					equipajes_cargados);
 		}
+
+      //el robot de despacho ya no atiende al vuelo
+      Log::info("RobotCarga(%d) Deshabilito el vuelo de la zona (%d) en el robot_despacho", id_robot, id_robot);
+      deshabilitar_robot_despacho(id_robot);
 
 		api_carga.esperar_avion_en_zona();
 
@@ -147,4 +159,13 @@ int main(int argc, char** argv) {
 		Log::info("RobotCarga(%s) fin de carga de equipajes del vuelo\n", argv[1]);
 	}
 
+}
+
+void deshabilitar_robot_despacho(int num_zona) {
+	Database db("aeropuerto", false);
+
+	yasper::ptr<Statement> query = db.statement("delete from ZonasUtilizadas where num_zona = :zona");
+	query->set(":zona", num_zona);
+
+	yasper::ptr<TupleIterator> p_it = query->begin();
 }

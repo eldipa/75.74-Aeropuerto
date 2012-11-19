@@ -47,7 +47,7 @@ int main(int argc, char** argv) {
 
 void get_pasajeros(int num_vuelo, std::vector<int>& id_pasajeros) {
 	Database db("aeropuerto", true);
-        yasper::ptr<Statement> query = db.statement("select id from Pasajero where vuelo = :vuelo");
+   yasper::ptr<Statement> query = db.statement("select id from Pasajero where vuelo = :vuelo");
 	query->set(":vuelo", num_vuelo);
 
 	yasper::ptr<TupleIterator> p_it = query->begin();

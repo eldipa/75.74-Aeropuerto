@@ -11,6 +11,12 @@
 #include "daemon.h"
 #include "conexiones_aeropuerto.h"
 
+
+#include "database.h"
+#include "stmt.h"
+#include "tupleiter.h"
+
+
 char *args_puesto_checkin[] = { (char*) "puesto_checkin", 
                                 (char*) "1", (char*) "1", NULL };
 
@@ -55,6 +61,8 @@ char *args_avion2[] = { (char*) "avion", (char*) "2", NULL };
 void dummy(int) {
 }
 
+void liberar_zonas();
+
 int main(/*int argc, char **argv*/) {
 
 	//be_a_daemon();
@@ -73,6 +81,8 @@ int main(/*int argc, char **argv*/) {
 	ConexionesAeropuerto aeropuerto(PATH_KEYS);
 
 	Log::info("iniciando simulación...");
+
+   liberar_zonas();
 
 	Process puesto_checkin("puesto_checkin", args_puesto_checkin);
 	Process robot_checkin("robot_checkin", args_robot_checkin);
@@ -114,3 +124,15 @@ int main(/*int argc, char **argv*/) {
 
 	return 0;
 }
+
+/*
+ * Borra todas las zonas habilitadas en la BD.
+ * Esto hay que cambiarlo por una shared memory con el robot_despacho.
+ **/
+void liberar_zonas() {
+	Database db("aeropuerto", false);
+
+	yasper::ptr<Statement> query = db.statement("delete from ZonasUtilizadas");
+	yasper::ptr<TupleIterator> p_it = query->begin();
+}
+                    
