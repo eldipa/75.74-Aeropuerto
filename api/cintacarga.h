@@ -259,6 +259,7 @@ T CintaCarga<T>::sacar_equipaje(int id_consumidor) {
 		} else if (!ya_me_desperto_el_cierre_de_checkin && *checkin_cerrado == 1) {
 			ya_me_desperto_el_cierre_de_checkin = true;
 			extrajo = true;
+			this->semaforo_consumidores->signalize(id_consumidor - 1);
 		}
 
 		mutex->signalize(0);

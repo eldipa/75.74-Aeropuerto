@@ -94,7 +94,7 @@ int main(int argc, char** argv) {
 
 			} else {
 
-				Log::info("Robot de despacho(%s) Equipaje %s limpio envio a robot_carga zona %d\n",
+				Log::info("Robot de despacho(%s) %s limpio envio a robot_carga zona %d\n",
 						argv[1], equipaje.toString().c_str(), num_zona);
 				CintaContenedor cinta_contenedor(path_cinta_contenedor, num_zona);
 				cinta_contenedor.poner_equipaje(equipaje, id_robot);
