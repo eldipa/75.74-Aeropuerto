@@ -50,9 +50,9 @@ void ApiCheckIn::iniciar_checkin( int numero_vuelo ) {
    
       Log::info("Notificando checkin abierto para vuelo %i", numero_vuelo);
       // Envio un mensaje por cada vuelo de trasbordo
-      for (int i = 0; i < cantidad_vuelos_trasbordo_a(numero_vuelo); i ++ )
-         checkin.push(&numero_vuelo, sizeof(numero_vuelo));
-
+      for (int i = 0; i < cantidad_vuelos_trasbordo_a(numero_vuelo); i ++ ) {
+         checkin.push(&numero_vuelo, sizeof(numero_vuelo)-sizeof(long));
+      }
       // Actualizo la info sobre el vuelo actual
       vuelo_actual->num_vuelo = numero_vuelo;
       vuelo_actual->cant_equipajes = 0;
@@ -106,7 +106,7 @@ void ApiCheckIn::recibir_pasajero_para_checkin(int& id_pasajero, std::vector<Equ
 	tMensajePasajeroCheckin msg;
 	msg.mtype = (long) id_checkin;
 
-	queue_pasajeros.pull(&msg, sizeof(tMensajePasajeroCheckin), (long) id_checkin);
+	queue_pasajeros.pull(&msg, sizeof(tMensajePasajeroCheckin)-sizeof(long), (long) id_checkin);
 
 	id_pasajero = msg.id_pasajero;
 	for (int i = 0; i < msg.cant_equipajes; i++) {
@@ -130,13 +130,13 @@ void ApiCheckIn::llego_pasajero_para_checkin(int id_pasajero, const std::vector<
 		msg.cant_equipajes++;
 	}
 
-	queue_pasajeros.push(&msg, sizeof(tMensajePasajeroCheckin));
+	queue_pasajeros.push(&msg, sizeof(tMensajePasajeroCheckin)-sizeof(long));
 }
 
 void ApiCheckIn::recibir_mensaje_controlador_checkin(tMeansajeCheckin& msg_checkin) {
    Log::debug("recibir_mensaje_controlador_checkin");
    MessageQueue queue_checkin(std::string(path_to_locks).append(PATH_COLA_CONTROL_CHECKIN).c_str(), 0);
-   queue_checkin.pull(&msg_checkin, sizeof(tMeansajeCheckin));
+   queue_checkin.pull(&msg_checkin, sizeof(tMeansajeCheckin)-sizeof(long), id_checkin);
 }
 
 int ApiCheckIn::get_cinta_checkin() {

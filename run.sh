@@ -2,5 +2,6 @@
 
 cd processes
 
-./main . $@
+./main
+#./main . $@
 

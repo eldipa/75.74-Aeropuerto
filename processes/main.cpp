@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <signal.h>
+#include <sstream>
 
 #include "log.h"
 
@@ -19,9 +20,6 @@
 
 char *args_puesto_checkin[] = { (char*) "puesto_checkin", 
                                 (char*) "1", (char*) "1", NULL };
-
-char *args_controlador_vuelo1[] = { (char*) "controlador_de_vuelo", 
-                                    (char*)"1", NULL };
 
 char *args_robot_checkin[] = { (char*) "robot_checkin", (char*) "1", // ID
 		(char*) "1", (char*) "1", NULL };
@@ -54,8 +52,11 @@ char *args_avion1[] = { (char*) "avion", (char*) "1", NULL };
 char *args_avion2[] = { (char*) "avion", (char*) "2", NULL };
 
 /*
- * Crea un puesto de checkin comunicado con un robot_scanner a travez de una cinta.
+ * Lanza todos los vuelos registrados.
+ * A medida que se liberen las zonas, los vuelos van saliendo.
  **/
+void lanzar_vuelos();
+void lanzar_vuelo(int num_vuelo);
 
 //Dummy signal handler
 void dummy(int) {
@@ -63,7 +64,7 @@ void dummy(int) {
 
 void liberar_zonas();
 
-int main(/*int argc, char **argv*/) {
+int main(int argc, char** argv) {
 
 	//be_a_daemon();
 
@@ -97,7 +98,12 @@ int main(/*int argc, char **argv*/) {
 	Process tractor2("tractor", args_tractor2);
 	Process avion1("avion", args_avion1);
 	Process avion2("avion", args_avion2);
-   Process controlador_vuelo1("controlador_de_vuelo", args_controlador_vuelo1);
+
+   // sin argumentos lanzo todos los vuelos posibles.
+   if(argc == 1) {
+      Log::info("Lanzo todos los vuelos registrados %s", argv[0]);
+      lanzar_vuelos();
+   } 
 
 	Log::info("Done, waiting for a SIGINT signal.");
 	pause();
@@ -118,7 +124,6 @@ int main(/*int argc, char **argv*/) {
 	tractor2.send_signal(SIGTERM);
 	avion1.send_signal(SIGTERM);
 	avion2.send_signal(SIGTERM);
-   controlador_vuelo1.send_signal(SIGTERM);
 
 	Log::info("finalizando simulación...");
 
@@ -136,3 +141,26 @@ void liberar_zonas() {
 	yasper::ptr<TupleIterator> p_it = query->begin();
 }
                     
+
+void lanzar_vuelos() {
+	Database db("aeropuerto", true);
+	yasper::ptr<Statement> query = db.statement("select id from Vuelo");
+
+	yasper::ptr<TupleIterator> p_it = query->begin();
+	yasper::ptr<TupleIterator> p_end = query->end();
+
+	for (; (*p_it) != (*p_end); ++(*p_it)) {
+      lanzar_vuelo(p_it->at<int>(0));
+	}
+}
+
+void lanzar_vuelo(int num_vuelo) {
+   Log::info("Lanzando vuelo %d", num_vuelo);
+   char buffer_num_vuelo[20];
+   std::stringstream sstr;sstr<<num_vuelo;
+   strcpy(buffer_num_vuelo, sstr.str().c_str());
+
+   char *args_controlador_vuelo[] = { (char*) "controlador_de_vuelo", (char*)buffer_num_vuelo, NULL };
+
+   Process controlador_vuelo1("controlador_de_vuelo", args_controlador_vuelo);
+}

@@ -29,7 +29,7 @@ void ApiControladorDeVuelo::enviar_mensaje_to_checkin(int num_puesto_checkin, bo
    snprintf(path_to_control_checkin_lock, 128, "%s%s", path_to_locks.c_str(), PATH_COLA_CONTROL_CHECKIN);
     
    MessageQueue queue_checkin(path_to_control_checkin_lock, 0);
-   queue_checkin.push(&msg_checkin, sizeof(tMeansajeCheckin));
+   queue_checkin.push(&msg_checkin, sizeof(tMeansajeCheckin)-sizeof(long));
 }
 
 ApiControladorDeVuelo::~ApiControladorDeVuelo() {
