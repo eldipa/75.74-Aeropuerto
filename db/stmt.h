@@ -1,10 +1,11 @@
 #ifndef STATEMENT_H_
 #define STATEMENT_H_
 
-#include <memory>
 #include "database.h"
 #include "element.h"
 #include "dberror.h"
+
+#include "yasper.h"
 
 class TupleIterator;
 
@@ -20,7 +21,7 @@ class Statement {
       Statement(const Statement&);
       Statement operator=(const Statement&);
 
-      friend std::auto_ptr<Statement> Database::statement(const char*);
+      friend yasper::ptr<Statement> Database::statement(const char*);
       int index(const char* arg_name);
 
    public:
@@ -38,8 +39,8 @@ class Statement {
        * Also beware that when you call to begin(), any other iterator will be invalid.
        * If you need to do more advanced operations, you should probably copy the results in a container like std::list or std::vector.
        * */
-      std::auto_ptr<TupleIterator> begin();
-      std::auto_ptr<TupleIterator> end();
+      yasper::ptr<TupleIterator> begin();
+      yasper::ptr<TupleIterator> end();
    
       /*
        * The engine allows SQL statements to contain parameters which are "bound" to values prior to being evaluated. 

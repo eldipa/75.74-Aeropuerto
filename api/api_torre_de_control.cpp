@@ -14,6 +14,7 @@
 #include <stdexcept>
 #include <cstdio>
 #include <string.h>
+#include "yasper.h"
 
 void lanzar_notificadores_de_vuelos_de_intercargo(const char*, int);
 
@@ -42,11 +43,11 @@ void lanzar_notificadores_de_vuelos_de_intercargo(const char* path_torre_control
  
   Database db("aeropuerto", true);
 
-  std::auto_ptr<Statement> query = db.statement("select vuelo_destino from VuelosIntercargo where vuelo_origen = :vuelo");
+  yasper::ptr<Statement> query = db.statement("select vuelo_destino from VuelosIntercargo where vuelo_origen = :vuelo");
   query->set(":vuelo", numero_vuelo);
 
-  std::auto_ptr<TupleIterator> p_it = query->begin();
-  std::auto_ptr<TupleIterator> p_end = query->end();
+  yasper::ptr<TupleIterator> p_it = query->begin();
+  yasper::ptr<TupleIterator> p_end = query->end();
 
   //Estas dos lineas no son mas que unos alias
   TupleIterator &it = *p_it;

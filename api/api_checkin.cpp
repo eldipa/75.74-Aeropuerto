@@ -15,6 +15,8 @@
 #include "api_constants.h"
 #include <stdexcept>
 
+#include "yasper.h"
+
 
 ApiCheckIn::ApiCheckIn(int id_checkin, const char* path_to_locks) : 
    path_to_locks(path_to_locks),
@@ -33,7 +35,7 @@ ApiCheckIn::~ApiCheckIn() {
 int cantidad_vuelos_trasbordo_a(int numero_vuelo) {
 	Database db("aeropuerto", true);
 
-	std::auto_ptr<Statement> query = db.statement(
+        yasper::ptr<Statement> query = db.statement(
 			"select count(vuelo_destino) from VuelosIntercargo where vuelo_origen = :vuelo");
 	query->set(":vuelo", numero_vuelo);
 

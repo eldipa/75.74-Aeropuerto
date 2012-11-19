@@ -1,2 +1,2 @@
-INCLUDE_PATHS = ../os ../ipc ../log ../db ../common
+INCLUDE_PATHS = ../os ../ipc ../log ../db ../common ../external
 TARGET = libapi.a

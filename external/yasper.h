@@ -1,6 +1,8 @@
 /*
  * yasper - A non-intrusive reference counted pointer. 
  *	    Version: 1.04
+ *  
+ *  Modified version by Di Paola Martin Pablo (19-nov-2012)
  *			  
  *  Many ideas borrowed from Yonat Sharon and 
  *  Andrei Alexandrescu.
@@ -81,22 +83,28 @@ public:
 	ptr(X* raw, Counter* c = 0) : rawPtr(0), counter(0)
 	{
 		if (raw)
-		{
+		try {
 			rawPtr = raw; 
 			if (c) acquire(c);
 			else counter = new Counter;
-		}
+		}catch(...) {
+                   delete raw;
+                   throw;
+                }
 	}
 	
 	template <typename Y>
  	explicit ptr(Y* raw, Counter* c = 0) : rawPtr(0), counter(0)
 	{
 		if (raw)
-		{
+		try {
 			rawPtr = static_cast<X*>( raw );
 			if (c) acquire(c);
 			else counter = new Counter; 
-		}
+		}catch(...) {
+                   delete raw;
+                   throw;
+                }
 	}
 	
 	
@@ -152,60 +160,6 @@ ptr& operator=(const ptr< Y >& otherPtr)
 	return *this;
 }
 
-/*
-	Assignment to raw pointers is really dangerous business.
-	If the raw pointer is also being used elsewhere,
-	we might prematurely delete it, causing much pain.
-	Use sparingly/with caution.
-*/
-
-ptr& operator=(X* raw)
-{
-
-	if (raw)
-	{
-		release(); 
-		counter = new Counter; 
-		rawPtr = raw; 
-	}
-	return *this;
-}
-
-template <typename Y>
-ptr& operator=(Y* raw)
-{
-	if (raw)
-	{
-		release();
-		counter = new Counter; 
-		rawPtr = static_cast<X*>(raw);
-	}
-	return *this;
-}
-
-/* 
-	assignment to long to allow ptr< X > = NULL, 
-	also allows raw pointer assignment by conversion. 
-	Raw pointer assignment is really dangerous!
-	If the raw pointer is being used elsewhere, 
-	it will get deleted prematurely. 
-*/ 
-	ptr& operator=(long num)
-	{
-		if (num == 0)  //pointer set to null
-		{
-			release(); 
-		}
-
-		else //assign raw pointer by conversion
-		{
-			release();
-			counter = new Counter; 
-			rawPtr = reinterpret_cast<X*>(num);
-		}	
-
-		return *this; 
-	} 
 
 /*
 	Member Access

@@ -1,9 +1,9 @@
 #include <iostream>
-#include <memory>
 #include "database.h"
 #include "stmt.h"
 #include "tupleiter.h"
 #include "log.h"
+#include "yasper.h"
 
 int main(int , char *[]) try {
    //Primero, como en todo base de datos, hay que conectarse a esta indicando el nombre del archivo
@@ -12,8 +12,8 @@ int main(int , char *[]) try {
 
    //Ahora construimos un statement o instruccion SQL. Puede ser una query, un insert, un update, ...
    //pero nunca puede contener un COMMIT.
-   std::auto_ptr<Statement> ins = db.statement("insert into FechaHora (fecha, hora, minuto) values (date('2012-10-29'), :hora, :minutos)");
-   std::auto_ptr<Statement> query = db.statement("select * from FechaHora");
+   yasper::ptr<Statement> ins = db.statement("insert into FechaHora (fecha, hora, minuto) values (date('2012-10-29'), :hora, :minutos)");
+   yasper::ptr<Statement> query = db.statement("select * from FechaHora");
 
    //Notese como la instruccion "ins" tiene componentes variables.
    //Para setearles valores particulares basta con:
@@ -31,8 +31,8 @@ int main(int , char *[]) try {
     
    //Para el caso de una query, esta puede retornar varios resultados. Para poder tener accesso a
    //ellos basta con usar el iterador retornado por begin
-   std::auto_ptr<TupleIterator> p_it = query->begin();
-   std::auto_ptr<TupleIterator> p_end = query->end();
+   yasper::ptr<TupleIterator> p_it = query->begin();
+   yasper::ptr<TupleIterator> p_end = query->end();
    
    //Estas dos lineas no son mas que unos alias
    TupleIterator &it = *p_it;

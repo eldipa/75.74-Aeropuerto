@@ -1,4 +1,4 @@
-INCLUDE_PATHS = ../api ../log ./../db ../ipc ../os ../common
+INCLUDE_PATHS = ../api ../log ./../db ../ipc ../os ../common ../external
 LIBRARIES = ../api/libapi.a  ../ipc/libipc.a ../db/libdb.a ../os/libos.a ../log/liblog.a  ../db/libdb.a ../common/libcommon.a
 EXTERNAL_LIBRARIES = dl sqlite3
 LINKER_FLAGS += -rdynamic

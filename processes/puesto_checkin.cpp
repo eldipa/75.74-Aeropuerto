@@ -14,6 +14,7 @@
 #include "tupleiter.h"
 
 #include "process.h"
+#include "yasper.h"
 
 /*
  * Devuelve el num_vuelo del pasajero.
@@ -74,12 +75,12 @@ int get_vuelo(int id_pasajero) {
 	Database db("aeropuerto", true);
 	int num_vuelo = -1;
 
-	std::auto_ptr<Statement> query = db.statement(
+	yasper::ptr<Statement> query = db.statement(
 			"select vuelo from Pasajero where id = :id_pasajero");
 	query->set(":id_pasajero", id_pasajero);
 
-	std::auto_ptr<TupleIterator> p_it = query->begin();
-	std::auto_ptr<TupleIterator> p_end = query->end();
+	yasper::ptr<TupleIterator> p_it = query->begin();
+	yasper::ptr<TupleIterator> p_end = query->end();
 
 	//Estas dos lineas no son mas que unos alias
 	TupleIterator &it = *p_it;

@@ -2,7 +2,7 @@
 #define DATABASE_H_
 
 #include <string>
-#include <memory>
+#include "yasper.h"
 
 class Statement;
 class sqlite3;
@@ -57,7 +57,7 @@ class Database {
        * This method will return an automatic pointer to Statement. This is required because the resources allocated 
        * by Statement must be released.
        * */
-      std::auto_ptr<Statement> statement(const char* sql_stmt);
+      yasper::ptr<Statement> statement(const char* sql_stmt);
 
       ~Database() throw();
 };

@@ -1,9 +1,9 @@
 #ifndef TUPLE_H_
 #define TUPLE_H_
 
-#include <memory>
 #include "stmt.h"
 #include "element.h"
+#include "yasper.h"
 
 class sqlite3;
 class sqlite3_stmt;
@@ -21,8 +21,8 @@ class TupleIterator {
       
       void check(int i) const;
 
-      friend std::auto_ptr<TupleIterator> Statement::begin();
-      friend std::auto_ptr<TupleIterator> Statement::end();
+      friend yasper::ptr<TupleIterator> Statement::begin();
+      friend yasper::ptr<TupleIterator> Statement::end();
    public:
 
       bool operator!=(const TupleIterator& t);

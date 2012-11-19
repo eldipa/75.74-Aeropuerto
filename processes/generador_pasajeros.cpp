@@ -12,6 +12,8 @@
 #include <vector>
 #include <sstream>
 
+#include "yasper.h"
+
 void get_pasajeros(int num_vuelo, std::vector<int>& id_pasajeros);
 std::vector<Equipaje>& get_equipajes(int num_vuelo, int num_pasajero, std::vector<Equipaje>& rfids);
 std::string print_equipaje(const std::vector<Equipaje>& equipajes);
@@ -45,11 +47,11 @@ int main(int argc, char** argv) {
 
 void get_pasajeros(int num_vuelo, std::vector<int>& id_pasajeros) {
 	Database db("aeropuerto", true);
-	std::auto_ptr<Statement> query = db.statement("select id from Pasajero where vuelo = :vuelo");
+        yasper::ptr<Statement> query = db.statement("select id from Pasajero where vuelo = :vuelo");
 	query->set(":vuelo", num_vuelo);
 
-	std::auto_ptr<TupleIterator> p_it = query->begin();
-	std::auto_ptr<TupleIterator> p_end = query->end();
+	yasper::ptr<TupleIterator> p_it = query->begin();
+	yasper::ptr<TupleIterator> p_end = query->end();
 
 	for (; (*p_it) != (*p_end); ++(*p_it)) {
 		id_pasajeros.push_back( p_it->at<int>(0));
@@ -59,12 +61,12 @@ void get_pasajeros(int num_vuelo, std::vector<int>& id_pasajeros) {
 
 std::vector<Equipaje>& get_equipajes(int num_vuelo, int num_pasajero, std::vector<Equipaje>& equipajes) {
 	Database db("aeropuerto", true);
-	std::auto_ptr<Statement> query = db.statement("select rfid from Equipaje where vuelo = :vuelo and id_pasajero = :pasajero");
+	yasper::ptr<Statement> query = db.statement("select rfid from Equipaje where vuelo = :vuelo and id_pasajero = :pasajero");
 	query->set(":vuelo", num_vuelo);
 	query->set(":pasajero", num_pasajero);
 
-	std::auto_ptr<TupleIterator> p_it = query->begin();
-	std::auto_ptr<TupleIterator> p_end = query->end();
+	yasper::ptr<TupleIterator> p_it = query->begin();
+	yasper::ptr<TupleIterator> p_end = query->end();
 
 	for (; (*p_it) != (*p_end); ++(*p_it)) {
 		equipajes.push_back( Equipaje(p_it->at<int>(0)) );

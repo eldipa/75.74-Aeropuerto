@@ -15,6 +15,7 @@
 #include "log.h"
 
 #include <string>
+#include "yasper.h"
 
 /*
  * Devuelve el n° de vuelo del equipaje registrado en la bd.
@@ -109,11 +110,11 @@ int get_numero_vuelo(Rfid rfid) {
 	Database db("aeropuerto", true);
 	int num_vuelo = -1;
 
-	std::auto_ptr<Statement> query = db.statement("select vuelo from Equipaje where rfid = :rfid");
+	yasper::ptr<Statement> query = db.statement("select vuelo from Equipaje where rfid = :rfid");
 	query->set(":rfid", rfid.rfid);
 
-	std::auto_ptr<TupleIterator> p_it = query->begin();
-	std::auto_ptr<TupleIterator> p_end = query->end();
+	yasper::ptr<TupleIterator> p_it = query->begin();
+	yasper::ptr<TupleIterator> p_end = query->end();
 
 	//Estas dos lineas no son mas que unos alias
 	TupleIterator &it = *p_it;
@@ -132,12 +133,12 @@ int get_numero_zona(int num_vuelo) {
 	Database db("aeropuerto", true);
 	int num_zona = -1;
 
-	std::auto_ptr<Statement> query = db.statement(
+	yasper::ptr<Statement> query = db.statement(
 			"select num_zona from ZonasUtilizadas where vuelo = :vuelo");
 	query->set(":vuelo", num_vuelo);
 
-	std::auto_ptr<TupleIterator> p_it = query->begin();
-	std::auto_ptr<TupleIterator> p_end = query->end();
+	yasper::ptr<TupleIterator> p_it = query->begin();
+	yasper::ptr<TupleIterator> p_end = query->end();
 
 	//Estas dos lineas no son mas que unos alias
 	TupleIterator &it = *p_it;

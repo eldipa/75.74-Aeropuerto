@@ -1,11 +1,11 @@
 
 #include <sqlite3.h>
-#include <memory>
 #include "stmt.h"
 #include "dberror.h"
 #include "valueerror.h"
 #include "tupleiter.h"
 #include "log.h"
+#include "yasper.h"
 
 
 Statement::Statement(sqlite3 &db, const char *sql_stmt) : db(db), stmt(0) {
@@ -39,21 +39,21 @@ void Statement::zeros(const char* arg_name, int size) {
       throw DBError(db, "The argument '%s' cannot be filled with zeros.", arg_name);
 }
 
-std::auto_ptr<TupleIterator> Statement::begin() {
+yasper::ptr<TupleIterator> Statement::begin() {
    if(not stmt)
       throw ValueError("The statement is null.");
 
    if(sqlite3_reset(stmt) != SQLITE_OK)
       throw DBError(db, "The statement cannot be reset (or initializated).");
 
-   return std::auto_ptr<TupleIterator>(new TupleIterator(db, *stmt));
+   return yasper::ptr<TupleIterator>(new TupleIterator(db, *stmt));
 }
 
-std::auto_ptr<TupleIterator> Statement::end() {
+yasper::ptr<TupleIterator> Statement::end() {
    if(not stmt)
       throw ValueError("The statement is null.");
 
-   return std::auto_ptr<TupleIterator>(new TupleIterator(db, *stmt, true));
+   return yasper::ptr<TupleIterator>(new TupleIterator(db, *stmt, true));
 }
 
 void Statement::finalize() {

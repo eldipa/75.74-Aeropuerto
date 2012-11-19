@@ -1,10 +1,10 @@
 
 #include <sqlite3.h>
-#include <memory>
 #include <string>
 #include "dberror.h"
 #include "log.h"
 #include "stmt.h"
+#include "yasper.h"
 
 Database::Database(const char* filename, bool only_for_read) : filename(filename), database(0) {
    if(sqlite3_open_v2(filename, 
@@ -17,8 +17,8 @@ Database::Database(const char* filename, bool only_for_read) : filename(filename
    }
 }
 
-std::auto_ptr<Statement> Database::statement(const char* sql_stmt) {
-   return std::auto_ptr<Statement>(new Statement(*database, sql_stmt));
+yasper::ptr<Statement> Database::statement(const char* sql_stmt) {
+   return yasper::ptr<Statement>(new Statement(*database, sql_stmt));
 }
 
 Database::~Database() throw()  {
