@@ -126,7 +126,7 @@ void SemaphoreSet::op(int semnum, bool signal_action) {
    struct sembuf dataop;
    dataop.sem_num = semnum;
    dataop.sem_op = signal_action? 1 : -1;
-   dataop.sem_flg = SEM_UNDO;
+   dataop.sem_flg = 0;
    if(semop(fd, &dataop, 1) != 0) {
       throw OSError("The semaphore number %i in the set "
             MESSAGE_Key_Path_Permissions
