@@ -46,7 +46,7 @@ void run_generador_pasajeros(int num_vuelo, int num_puesto_checkin) {
 	Process generator("generador_pasajeros", args_generador_pasajeros);
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char** argv) try {
    if (argc < 2) {
       Log::crit("Insuficientes parametros para controlador de vuelo (num_vuelo)\n");
       return (1);
@@ -87,6 +87,10 @@ int main(int argc, char** argv) {
       Log::crit("El vuelo %d no se encuentra registrado en la BD\n", num_vuelo);
       return 1;
    }
+} catch(const std::exception &e) {
+   Log::crit("%s", e.what());
+} catch(...) {
+   Log::crit("Critical error. Unknow exception at the end of the 'main' function.");
 }
 
 int tomar_zona(int num_vuelo) {

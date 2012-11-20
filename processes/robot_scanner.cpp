@@ -8,7 +8,7 @@
 #include "cintas.h"
 #include "constants.h"
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[]) try {
 	int id_robot;
 	int id_cinta_scanner;
 	char path_cinta_scanner[300];
@@ -59,5 +59,9 @@ int main(int argc, char *argv[]) {
 		api_escaner_cinta_central.colocar_equipaje_en_cinta_principal(equipaje);
 	}
 
+} catch(const std::exception &e) {
+   Log::crit("%s", e.what());
+} catch(...) {
+   Log::crit("Critical error. Unknow exception at the end of the 'main' function.");
 }
 

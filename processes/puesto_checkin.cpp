@@ -22,7 +22,7 @@
  */
 int get_vuelo(int id_pasajero);
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[]) try {
    if (argc < 2) {
       Log::crit("Insuficientes parametros para puesto_checkin, se esperaba (id_puesto_checkin)\n");
       return (1);
@@ -69,6 +69,10 @@ int main(int argc, char *argv[]) {
       }
       checkin.fin_checkin_pasajero();
    }
+} catch(const std::exception &e) {
+   Log::crit("%s", e.what());
+} catch(...) {
+   Log::crit("Critical error. Unknow exception at the end of the 'main' function.");
 }
 
 int get_vuelo(int id_pasajero) {

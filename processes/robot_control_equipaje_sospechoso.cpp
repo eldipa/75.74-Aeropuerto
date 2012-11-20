@@ -7,7 +7,7 @@
 #include "equipaje.h"
 #include "api_control_equipajes.h"
 
-int main(int argc, char** argv) {
+int main(int argc, char** argv) try {
 	char path[300];
 	int id_productor;
 	int id_consumidor;
@@ -41,4 +41,8 @@ int main(int argc, char** argv) {
 		control_equipajes.volver_a_colocar_equipaje_en_cinta_principal(equipaje);
 	}
 
+} catch(const std::exception &e) {
+   Log::crit("%s", e.what());
+} catch(...) {
+   Log::crit("Critical error. Unknow exception at the end of the 'main' function.");
 }

@@ -25,7 +25,8 @@ public:
 
 int get_numero_zona(ApiDespachante& api_despacho, int num_vuelo);
 
-int main(int argc, char** argv) {
+int main(int argc, char** argv) try {
+	char path_cinta_central[300];
 	char path_cinta_contenedor[300];
 
 	if (argc < 4) {
@@ -90,6 +91,11 @@ int main(int argc, char** argv) {
          despachante_cinta_central.avanzar_cinta();
       }
    }
+
+} catch(const std::exception &e) {
+   Log::crit("%s", e.what());
+} catch(...) {
+   Log::crit("Critical error. Unknow exception at the end of the 'main' function.");
 }
 
 int get_numero_zona(ApiDespachante& api_despacho, int num_vuelo) {

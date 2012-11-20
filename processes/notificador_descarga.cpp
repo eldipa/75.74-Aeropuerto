@@ -11,7 +11,7 @@
  * el mismo espera que se habilite un checkin de destino y recién ahí envía la notificación
  * para que se pasen esos equipajes a la cinta principal
  */
-int main(int argc, char** argv) {
+int main(int argc, char** argv) try {
 	char path[300];
 
 	if (argc < 4) {
@@ -38,4 +38,8 @@ int main(int argc, char** argv) {
 	trasbordo.push(&mensaje, sizeof(mensaje));
 
 	return 0;
+} catch(const std::exception &e) {
+   Log::crit("%s", e.what());
+} catch(...) {
+   Log::crit("Critical error. Unknow exception at the end of the 'main' function.");
 }

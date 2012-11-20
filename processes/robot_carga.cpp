@@ -52,7 +52,7 @@ void agregar_equipaje(Equipaje & equipaje,
 	}
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char** argv) try {
 	Equipaje equipaje;
 	bool checkin_cerro;
 	char path[300];
@@ -161,5 +161,9 @@ int main(int argc, char** argv) {
 		Log::info("RobotCarga(%s) fin de carga de equipajes del vuelo\n", argv[1]);
 	}
 
+} catch(const std::exception &e) {
+   Log::crit("%s", e.what());
+} catch(...) {
+   Log::crit("Critical error. Unknow exception at the end of the 'main' function.");
 }
 

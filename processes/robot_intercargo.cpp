@@ -10,7 +10,7 @@
 
 std::vector<Equipaje> equipajes_para(VueloTrasbordo);
 
-int main(int argc, char** argv) {
+int main(int argc, char** argv) try {
 	char path_torre_control[300];
 	char path_cinta_central[300];
 	if (argc < 2) {
@@ -58,6 +58,10 @@ int main(int argc, char** argv) {
 	}
 // avisar_contenedor_disponible ????
 
+} catch(const std::exception &e) {
+   Log::crit("%s", e.what());
+} catch(...) {
+   Log::crit("Critical error. Unknow exception at the end of the 'main' function.");
 }
 
 std::vector<Equipaje> equipajes_para(VueloTrasbordo trasbordo) {

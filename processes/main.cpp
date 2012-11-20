@@ -70,7 +70,7 @@ void dummy(int) {
 
 void liberar_zonas();
 
-int main(int argc, char** argv) {
+int main(int argc, char** argv) try {
 
 	//be_a_daemon();
 
@@ -139,6 +139,10 @@ int main(int argc, char** argv) {
 	Log::info("finalizando simulación...");
 
 	return 0;
+} catch(const std::exception &e) {
+   Log::crit("%s", e.what());
+} catch(...) {
+   Log::crit("Critical error. Unknow exception at the end of the 'main' function.");
 }
 
 /*

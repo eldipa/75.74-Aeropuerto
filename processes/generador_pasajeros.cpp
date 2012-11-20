@@ -18,7 +18,7 @@ void get_pasajeros(int num_vuelo, std::vector<int>& id_pasajeros);
 std::vector<Equipaje>& get_equipajes(int num_vuelo, int num_pasajero, std::vector<Equipaje>& rfids);
 std::string print_equipaje(const std::vector<Equipaje>& equipajes);
 
-int main(int argc, char** argv) {
+int main(int argc, char** argv) try {
 	if (argc < 3) {
 		Log::crit("Insuficientes parametros para generador_pasajeros, se esperaba (num_vuelo, num_puesto_checkin)\n");
 		return (1);
@@ -44,6 +44,10 @@ int main(int argc, char** argv) {
 	Log::info("GeneradorPasajeros(vuelo=%d) ya llegaron todos los pasajeros del vuelo %d", num_vuelo, num_vuelo);
 	return 0;
 
+} catch(const std::exception &e) {
+   Log::crit("%s", e.what());
+} catch(...) {
+   Log::crit("Critical error. Unknow exception at the end of the 'main' function.");
 }
 
 void get_pasajeros(int num_vuelo, std::vector<int>& id_pasajeros) {

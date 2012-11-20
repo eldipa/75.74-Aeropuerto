@@ -10,7 +10,7 @@
 #include <cstring>
 #include "constants.h"
 
-int main(int argc, char** argv) {
+int main(int argc, char** argv) try {
 	int id_robot;
 	char path[300];
 	int num_cinta_checkin;
@@ -47,4 +47,8 @@ int main(int argc, char** argv) {
 				equipaje.toString().c_str());
 		cinta_scanner.poner_equipaje(equipaje);
 	}
+} catch(const std::exception &e) {
+   Log::crit("%s", e.what());
+} catch(...) {
+   Log::crit("Critical error. Unknow exception at the end of the 'main' function.");
 }

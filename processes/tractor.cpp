@@ -12,7 +12,7 @@
 #include "api_tractor.h"
 #include "log.h"
 
-int main(int argc, char** argv) {
+int main(int argc, char** argv) try {
 	int i;
 	char path_cola_tractores[300];
 	char path_cola_aviones[300];
@@ -45,4 +45,8 @@ int main(int argc, char** argv) {
 
 	Log::info("Nada mas que hacer");
 	return 0;
+} catch(const std::exception &e) {
+   Log::crit("%s", e.what());
+} catch(...) {
+   Log::crit("Critical error. Unknow exception at the end of the 'main' function.");
 }
