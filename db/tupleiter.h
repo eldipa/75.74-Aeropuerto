@@ -13,7 +13,7 @@ class TupleIterator {
       sqlite3 &db;
       sqlite3_stmt &stmt;
       bool done;
-      bool reset;
+      bool must_be_reset;
 
       TupleIterator(sqlite3 &db, sqlite3_stmt &stmt, bool done=false);
       TupleIterator(const TupleIterator&);

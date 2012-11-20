@@ -17,7 +17,7 @@ int TupleIterator::size() const {
 }
 
 
-TupleIterator::TupleIterator(sqlite3 &db, sqlite3_stmt &stmt, bool done) : db(db), stmt(stmt), done(done), reset(not done) {
+TupleIterator::TupleIterator(sqlite3 &db, sqlite3_stmt &stmt, bool done) : db(db), stmt(stmt), done(done), must_be_reset(not done) {
    if(not done) {
       ++(*this);  //Set the iterator to point the first element (if any)
    }
@@ -45,7 +45,7 @@ TupleIterator& TupleIterator::operator++() {
 
 
 TupleIterator::~TupleIterator() throw() {
-   if(reset)
+   if(must_be_reset)
       if(sqlite3_reset(&stmt) != SQLITE_OK)
          Log::crit("An exception happend during the course of a destructor:\n%s", DBError(db, "The statement cannot be reset (or initializated).").what());
 }
