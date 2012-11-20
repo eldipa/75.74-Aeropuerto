@@ -5,13 +5,14 @@
 #include "api_carga.h"
 #include "api_torre_de_control.h"
 #include "api_despachante.h"
-#include "api_admincontenedores.h"
 #include "api_checkin.h"
 #include <sys/stat.h>
 #include <cerrno>
 #include <cstdio>
 #include <fcntl.h>
 
+#include "yasper.h"
+#include <vector>
 #include "sharedobject.h"
 
 const int cantidad_cintas_checkin = 1;
@@ -102,6 +103,7 @@ private:
    SemaphoreSet sem_set;
    SharedObject<ZonasAsignadas> asignaciones;   
 };
+
 /*
  * Clase para crear fácilmente todo lo que se necesite en el aeropuerto
  */
@@ -113,21 +115,21 @@ public:
 		crear_archivos_lck(path_to_locks);
 
 		Log::info("Creando ipcs para Controlador de puestos de checkin...%s%s", path_to_locks,
-				PATH_COLA_CONTROL_CHECKIN);
+                PATH_COLA_CONTROL_CHECKIN);
 		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_COLA_CONTROL_CHECKIN);
 		controlador_puesto_checkin = new ControladorPuestoCheckin(path_lock);
 
 		Log::info("Creando ipcs para Puesto de checkin...%s%s", path_to_locks, PATH_PUESTO_CHECKIN);
 		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_PUESTO_CHECKIN);
 		for (int i = 0; i < cantidad_puestos_checkin; i++) {
-			puesto_checkin[i] = new PuestoCheckin(path_lock, i + 1, 1);
+			puesto_checkin.push_back( new PuestoCheckin(path_lock, i + 1, 1) );
 		}
 
 		Log::info("Creando ipcs para Robots de despacho...%s%s", path_to_locks,
 				PATH_ROBOT_DESPACHO);
       snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_ROBOT_DESPACHO);
       for(int i=0; i<cantidad_robots_carga; i++ ) {
-         robots_despacho[i] = new RobotsDespacho(i+1, path_lock);
+         robots_despacho.push_back( new RobotsDespacho(i+1, path_lock) );
       }
 
 		Log::info("Creando ipcs para Torre de control...%s%s", path_to_locks,
@@ -136,38 +138,39 @@ public:
 		torre_de_control = new TorreDeControl(path_lock, 10, 1, cantidad_robots_carga, 1,
 				cantidad_puestos_checkin);
 
-		Log::info("Creando ipcs admin de contenedores...%s%s", path_to_locks,
-				PATH_ADMIN_CONTENEDORES);
-		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_ADMIN_CONTENEDORES);
-		admin_contenedores = new ApiAdminContenedores(path_lock, CANT_CONTENEDORES_INICIAL);
-
 		Log::info("Creando cintas...");
 
 		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_CINTA_CHECKIN);
 		for (int i = 0; i < cantidad_cintas_checkin; i++) {
-			cintas_checkin[i] = new CintaCheckin(path_lock, i + 1, CAPACIDAD_CINTA_CHECKIN,
-					CANTIDAD_MAX_PRODUCTORES_CINTA_CHECKIN,
-					CANTIDAD_MAX_CONSUMIDORES_CINTA_CHECKIN);
+			cintas_checkin.push_back( new CintaCheckin(path_lock, i + 1, CAPACIDAD_CINTA_CHECKIN,
+                                                    CANTIDAD_MAX_PRODUCTORES_CINTA_CHECKIN,
+                                                    CANTIDAD_MAX_CONSUMIDORES_CINTA_CHECKIN) );
 		}
 
 		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_CINTA_SCANNER);
-		//for (int i = 0; i < cantidad_cintas_scanner; i++) {
 		cintas_scanner = new CintaScanner<Equipaje>(path_lock, 1, CAPACIDAD_CINTA_SCANNER, true);
-		//}
+
 
 		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_CINTA_CENTRAL);
 		for (int i = 0; i < cantidad_cintas_centrales; i++) {
-			//cintas_central[i] = new CintaCentral(true,path_lock,i);
-			cintas_central[i] = new CintaCentral(path_lock, CAPACIDAD_CINTA_CENTRAL,
-					CANTIDAD_MAX_PRODUCTORES_CINTA_CENTRAL,
-					CANTIDAD_MAX_CONSUMIDORES_CINTA_CENTRAL);
+
+			cintas_central.push_back( new CintaCentral(path_lock, CAPACIDAD_CINTA_CENTRAL,
+                                                    CANTIDAD_MAX_PRODUCTORES_CINTA_CENTRAL,
+                                                    CANTIDAD_MAX_CONSUMIDORES_CINTA_CENTRAL) );
 		}
 
 		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_CINTA_CONTENEDOR);
 		for (int i = 0; i < cantidad_cintas_contenedor; i++) {
-			cintas_contenedor[i] = new CintaContenedor(path_lock, i + 1, CAPACIDAD_CINTA_CONTENEDOR,
-					CANTIDAD_MAX_PRODUCTORES_CINTA_CONTENEDOR,
-					CANTIDAD_MAX_CONSUMIDORES_CINTA_CONTENEDOR);
+			cintas_contenedor.push_back( new CintaContenedor(path_lock, i + 1, 
+                                                          CAPACIDAD_CINTA_CONTENEDOR,
+                                                          CANTIDAD_MAX_PRODUCTORES_CINTA_CONTENEDOR,
+                                                          CANTIDAD_MAX_CONSUMIDORES_CINTA_CONTENEDOR) );
+		}
+
+
+		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_COLA_CONTROL_CARGA_CHECKIN);
+		for (int i = 0; i < cantidad_robots_carga; i++) {
+			cola_control_carga_checkin.push_back( new MessageQueue(path_lock, i + 1, 0664, true) );
 		}
 
 		Log::info("Creando colas...");
@@ -177,64 +180,24 @@ public:
 		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_COLA_TRACTORES_AVIONES);
 		cola_tractores_avion = new MessageQueue(path_lock, 0, 0664, true);
 
-		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_COLA_CONTROL_CARGA_CHECKIN);
-		for (int i = 0; i < cantidad_robots_carga; i++) {
-			cola_control_carga_checkin[i] = new MessageQueue(path_lock, i + 1, 0664, true);
-		}
 	}
 	;
 
-	virtual ~ConexionesAeropuerto() {
-      
-      for (int i = 0; i < cantidad_robots_carga; i++) {
-			delete robots_despacho[i];
-      }
-      
-		for (int i = 0; i < cantidad_puestos_checkin; i++) {
-			delete puesto_checkin[i];
-		}
-
-		for (int i = 0; i < cantidad_cintas_checkin; i++) {
-			delete cintas_checkin[i];
-		}
-
-		//for (int i = 0; i < cantidad_cintas_scanner; i++) {
-			delete cintas_scanner;
-		//}
-      
-		for (int i = 0; i < cantidad_cintas_centrales; i++) {
-			delete cintas_central[i];
-		}
-		for (int i = 0; i < cantidad_cintas_contenedor; i++) {
-			delete cintas_contenedor[i];
-		}
-      
-		for (int i = 0; i < cantidad_robots_carga; i++) {
-			delete cola_control_carga_checkin[i];
-		}
-      
-		delete torre_de_control;
-		delete admin_contenedores;
-		delete controlador_puesto_checkin;
-
-		delete cola_robot_zona_tractores;
-		delete cola_tractores_avion;
-      
+	virtual ~ConexionesAeropuerto() {      
 	}
 
 private:
-   RobotsDespacho * robots_despacho[2];
-	ControladorPuestoCheckin * controlador_puesto_checkin;
-	PuestoCheckin * puesto_checkin[3];
-	TorreDeControl * torre_de_control;
-	CintaCheckin * cintas_checkin[1];
-	CintaScanner<Equipaje> * cintas_scanner;
-	CintaCentral * cintas_central[1];
-	CintaContenedor * cintas_contenedor[2];
-	ApiAdminContenedores * admin_contenedores;
-	MessageQueue * cola_robot_zona_tractores;
-	MessageQueue * cola_tractores_avion;
-	MessageQueue * cola_control_carga_checkin[2];
+   std::vector< yasper::ptr<RobotsDespacho> > robots_despacho;
+   yasper::ptr<ControladorPuestoCheckin> controlador_puesto_checkin;
+   std::vector< yasper::ptr<PuestoCheckin> > puesto_checkin;
+   yasper::ptr<TorreDeControl> torre_de_control;
+   std::vector< yasper::ptr<CintaCheckin> > cintas_checkin;
+   yasper::ptr< CintaScanner<Equipaje> >cintas_scanner;
+   std::vector< yasper::ptr<CintaCentral> > cintas_central;
+   std::vector< yasper::ptr<CintaContenedor> >cintas_contenedor;
+   yasper::ptr<MessageQueue> cola_robot_zona_tractores;
+   yasper::ptr<MessageQueue> cola_tractores_avion;
+   std::vector< yasper::ptr<MessageQueue> > cola_control_carga_checkin;
 
 	void crear_archivos_lck(const char *path_to_locks) {
 

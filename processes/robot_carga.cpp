@@ -5,7 +5,6 @@
 #include <map>
 #include <string>
 
-#include "api_admincontenedores.h"
 #include "api_despachante.h"
 
 #include "api_carga.h"
@@ -20,8 +19,8 @@
 #include "tupleiter.h"
 
 void agregar_equipaje(Equipaje & equipaje,
-		std::map<std::string, Contenedor> & contenedores_por_escala, ApiCarga &api_carga,
-		ApiAdminContenedores api_admin_contenedores, int id_robot, int & numero_de_vuelo) {
+                      std::map<std::string, Contenedor> & contenedores_por_escala, ApiCarga &api_carga,
+                      int id_robot, int & numero_de_vuelo) {
 
 	Log::info("RobotCarga(%d) se tomo el equipaje %s con escala destino '%s' peso=%d\n", id_robot,
 			equipaje.toString().c_str(), equipaje.getRfid().get_escala().c_str(), equipaje.peso());
@@ -32,7 +31,6 @@ void agregar_equipaje(Equipaje & equipaje,
 		if (contenedores_por_escala.find(escala) == contenedores_por_escala.end()) {
 			Log::crit("RobotCarga(%d) no tengo contenedor, pido contenedor para escala '%s'\n",
 					id_robot, escala.c_str());
-			api_admin_contenedores.pedir_contenedor();
 			contenedores_por_escala.insert(
 					std::pair<std::string, Contenedor>(escala, Contenedor()));
 		}
@@ -41,7 +39,6 @@ void agregar_equipaje(Equipaje & equipaje,
 			Log::crit("RobotCarga(%d) contenedor lleno, pido contenedor para escala '%s'\n",
 					id_robot, escala.c_str());
 			api_carga.agregar_contenedor_cargado(contenedores_por_escala[escala]);
-			api_admin_contenedores.pedir_contenedor();
 			contenedores_por_escala[escala] = Contenedor();
 		}
 		contenedores_por_escala[escala].agregar_equipaje(equipaje);
@@ -81,10 +78,6 @@ int main(int argc, char** argv) try {
 
 	ApiCarga api_carga(1, path, id_robot, path_cola);
 
-	strcpy(path, PATH_KEYS);
-	strcat(path, PATH_ADMIN_CONTENEDORES);
-
-	ApiAdminContenedores api_admin_contenedores(path);
    ApiDespachante api_despachante(id_robot, PATH_KEYS);
 
 	int equipajes_por_cargar, equipajes_cargados;
@@ -113,7 +106,7 @@ int main(int argc, char** argv) try {
 				break;
 			}
          numero_de_vuelo = equipaje.getRfid().numero_de_vuelo_destino;//por ahora el n° de vuelo lo saca del equipaje
-			agregar_equipaje(equipaje, contenedores_por_escala, api_carga, api_admin_contenedores,
+			agregar_equipaje(equipaje, contenedores_por_escala, api_carga,
 					id_robot, numero_de_vuelo);
 			equipajes_cargados++;
 			Log::info(
@@ -134,7 +127,7 @@ int main(int argc, char** argv) try {
 
 			equipaje = api_carga.sacar_equipaje();
 
-			agregar_equipaje(equipaje, contenedores_por_escala, api_carga, api_admin_contenedores,
+			agregar_equipaje(equipaje, contenedores_por_escala, api_carga,
 					id_robot, numero_de_vuelo);
 			equipajes_cargados++;
 			Log::info(
