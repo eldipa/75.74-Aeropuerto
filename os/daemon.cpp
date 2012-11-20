@@ -36,6 +36,7 @@
 #include <vector>
 #include <cstdlib>
 #include <climits>
+#include <signal.h>
 
 #include "oserror.h"
 #include "log.h"
@@ -127,4 +128,26 @@ void be_a_daemon() {
    // Assign a new mask used by open, mkdir ... (See man umask(2))
    // All the permission are not altered 
    umask(0); // This allways success
+}
+
+//Dummy signal handler
+static void dummy(int) {}
+
+
+void ignore_signals() {
+   //Ignoring the Interrupt Signal and the Term Signal
+   //In fact, the signal is catched but its handler is useless.
+   struct sigaction ignore;
+   memset(&ignore, 0, sizeof(struct sigaction));
+   ignore.sa_handler = &dummy;
+
+   if(sigaction(SIGINT, &ignore, 0) == -1)
+      throw OSError("The process cannot ignore (set a handler) for the SIGINT signal.");
+   if(sigaction(SIGTERM, &ignore, 0) == -1)
+      throw OSError("The process cannot ignore (set a handler) for the SIGTERM signal.");
+}
+
+void wait_signal() {
+   if(pause() != 0)
+      throw OSError("Something was wrong while the process was waiting for a signal.");
 }

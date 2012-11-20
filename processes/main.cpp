@@ -17,6 +17,7 @@
 #include "stmt.h"
 #include "tupleiter.h"
 
+#include <list>
 
 char *args_puesto_checkin1[] = { (char*) "puesto_checkin", 
                                 (char*) "1", NULL };
@@ -64,77 +65,57 @@ char *args_avion2[] = { (char*) "avion", (char*) "2", NULL };
 void lanzar_vuelos();
 void lanzar_vuelo(int num_vuelo);
 
-//Dummy signal handler
-void dummy(int) {
-}
-
 void liberar_zonas();
 
 int main(int argc, char** argv) try {
 
 	//be_a_daemon();
 
-	//Ignoring the Interrupt Signal
-	//In fact, the signal is catched but its handler is useless.
-
-	struct sigaction ignore;
-	memset(&ignore, 0, sizeof(struct sigaction));
-	ignore.sa_handler = &dummy;
-
-	sigaction(SIGINT, &ignore, 0);
-
+        ignore_signals();
 	Log::info("Creando aeropuerto...");
+        std::list<Process> processes;
+         
+        {
+                 ConexionesAeropuerto aeropuerto(PATH_KEYS);
 
-	ConexionesAeropuerto aeropuerto(PATH_KEYS);
+                 Log::info("iniciando simulación...");
 
-	Log::info("iniciando simulación...");
+                 liberar_zonas();
 
-   liberar_zonas();
+                 processes.push_back(Process("puesto_checkin", args_puesto_checkin));
+                 processes.push_back(Process("robot_checkin", args_robot_checkin));
+                 processes.push_back(Process("robot_scanner", args_scanner));
+                 processes.push_back(Process("robot_despacho", args_robot_despacho));
+                 processes.push_back(Process("robot_carga", args_robot_carga0));
+                 processes.push_back(Process("robot_carga", args_robot_carga1));
+                 processes.push_back(Process("robot_control_equipaje_sospechoso", args_robot_sospechosos));
+                 processes.push_back(Process("robot_intercargo", args_robot_intercargo));
+                 processes.push_back(Process("torre_de_control", args_torre_de_control));
+                 processes.push_back(Process("tractor", args_tractor1));
+                 processes.push_back(Process("tractor", args_tractor2));
+                 processes.push_back(Process("avion", args_avion1));
+                 processes.push_back(Process("avion", args_avion2));
 
-	Process puesto_checkin1("puesto_checkin", args_puesto_checkin1);
-	Process puesto_checkin2("puesto_checkin", args_puesto_checkin2);
-	Process puesto_checkin3("puesto_checkin", args_puesto_checkin3);
+                 // sin argumentos lanzo todos los vuelos posibles.
+                 if(argc == 1) {
+                       Log::info("Lanzo todos los vuelos registrados %s", argv[0]);
+                       lanzar_vuelos();
+                 } 
 
-	Process robot_checkin("robot_checkin", args_robot_checkin);
-	Process robot_scanner("robot_scanner", args_scanner);
-	Process robot_despacho("robot_despacho", args_robot_despacho);
-	Process robot_carga0("robot_carga", args_robot_carga0);
-	Process robot_carga1("robot_carga", args_robot_carga1);
-	Process robot_sospechosos("robot_control_equipaje_sospechoso", args_robot_sospechosos);
-	Process robot_intercargo("robot_intercargo", args_robot_intercargo);
-	Process torre_de_control("torre_de_control", args_torre_de_control);
-	Process tractor1("tractor", args_tractor1);
-	Process tractor2("tractor", args_tractor2);
-	Process avion1("avion", args_avion1);
-	Process avion2("avion", args_avion2);
+                 Log::info("Done, waiting for a SIGINT or a SIGTERM signal.");
+                 wait_signal();
+                 Log::info("Signal recieved. Shutdown...");
+        }
 
-   // sin argumentos lanzo todos los vuelos posibles.
-   if(argc == 1) {
-      Log::info("Lanzo todos los vuelos registrados %s", argv[0]);
-      lanzar_vuelos();
-   } 
+        sleep(10);
+	Log::info("Finalizando procesos. Enviando SIGTERM...");
+        for(std::list<Process>::iterator it = processes.begin(); it != processes.end(); ++it)
+           it->send_signal(SIGTERM);
 
-	Log::info("Done, waiting for a SIGINT signal.");
-	pause();
-	Log::info("Signal recieved. Shutdown...");
-
-	Log::info("finalizando robots...");
-
-	puesto_checkin1.send_signal(SIGTERM);
-	puesto_checkin2.send_signal(SIGTERM);
-	puesto_checkin3.send_signal(SIGTERM);
-	robot_checkin.send_signal(SIGTERM);
-	robot_scanner.send_signal(SIGTERM);
-	robot_despacho.send_signal(SIGTERM);
-	robot_carga0.send_signal(SIGTERM);
-	robot_carga1.send_signal(SIGTERM);
-	robot_sospechosos.send_signal(SIGTERM);
-	robot_intercargo.send_signal(SIGTERM);
-	torre_de_control.send_signal(SIGTERM);
-	tractor1.send_signal(SIGTERM);
-	tractor2.send_signal(SIGTERM);
-	avion1.send_signal(SIGTERM);
-	avion2.send_signal(SIGTERM);
+        sleep(2);
+	Log::info("Finalizando procesos. Enviando SIGKILL...");
+        for(std::list<Process>::iterator it = processes.begin(); it != processes.end(); ++it)
+           it->send_signal(SIGKILL);
 
 	Log::info("finalizando simulación...");
 

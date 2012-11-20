@@ -45,4 +45,19 @@
  * */
 void be_a_daemon();
 
+/*
+ * Set a dummy handler to catch and ignore the SIGINT and SIGTERM signals.
+ *
+ * See signal(2)
+ * */
+void ignore_signals();
+
+/*
+ * Wait for any signal that was handled. You can use this in conjunction with
+ * 'ignore_signals' to wait for a SIGINT or SIGTERM.
+ *
+ * See pause(2)
+ * */
+void wait_signal();
+
 #endif
