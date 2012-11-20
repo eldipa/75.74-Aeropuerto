@@ -26,7 +26,6 @@ public:
 int get_numero_zona(ApiDespachante& api_despacho, int num_vuelo);
 
 int main(int argc, char** argv) try {
-	char path_cinta_central[300];
 	char path_cinta_contenedor[300];
 
 	if (argc < 4) {

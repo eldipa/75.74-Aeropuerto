@@ -83,7 +83,9 @@ int main(int argc, char** argv) try {
 
                  liberar_zonas();
 
-                 processes.push_back(Process("puesto_checkin", args_puesto_checkin));
+                 processes.push_back(Process("puesto_checkin", args_puesto_checkin1));
+                 processes.push_back(Process("puesto_checkin", args_puesto_checkin2));
+                 processes.push_back(Process("puesto_checkin", args_puesto_checkin3));
                  processes.push_back(Process("robot_checkin", args_robot_checkin));
                  processes.push_back(Process("robot_scanner", args_scanner));
                  processes.push_back(Process("robot_despacho", args_robot_despacho));
