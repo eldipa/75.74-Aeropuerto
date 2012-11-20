@@ -148,6 +148,5 @@ void ignore_signals() {
 }
 
 void wait_signal() {
-   if(pause() != 0)
-      throw OSError("Something was wrong while the process was waiting for a signal.");
+   pause();
 }

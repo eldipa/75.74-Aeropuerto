@@ -72,6 +72,7 @@ int main(int argc, char** argv) try {
 	//be_a_daemon();
 
         ignore_signals();
+        Log::notice("Iniciando...");
 	Log::info("Creando aeropuerto...");
         std::list<Process> processes;
          
@@ -102,18 +103,18 @@ int main(int argc, char** argv) try {
                        lanzar_vuelos();
                  } 
 
-                 Log::info("Done, waiting for a SIGINT or a SIGTERM signal.");
+                 Log::notice("Done, waiting for a SIGINT or a SIGTERM signal.");
                  wait_signal();
-                 Log::info("Signal recieved. Shutdown...");
+                 Log::notice("Signal recieved. Shutdown...");
         }
 
-        sleep(10);
-	Log::info("Finalizando procesos. Enviando SIGTERM...");
+        sleep(15);
+	Log::notice("Finalizando procesos. Enviando SIGTERM...");
         for(std::list<Process>::iterator it = processes.begin(); it != processes.end(); ++it)
            it->send_signal(SIGTERM);
 
         sleep(2);
-	Log::info("Finalizando procesos. Enviando SIGKILL...");
+	Log::notice("Finalizando procesos. Enviando SIGKILL...");
         for(std::list<Process>::iterator it = processes.begin(); it != processes.end(); ++it)
            it->send_signal(SIGKILL);
 

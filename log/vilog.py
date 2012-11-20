@@ -24,6 +24,6 @@ if __name__ == '__main__':
             continue
 
         color = color_by_process[process_name]
-        high = bold if any(map(lambda tag: msg.startswith(tag), ["[Emerg]", "[Alert]", "[Crit]", "[Err]", "[Warning]"])) else ""
+        high = bold if any(map(lambda tag: msg.startswith(tag), ["[Emerg]", "[Alert]", "[Crit]", "[Err]", "[Warning]", "[Notice]"])) else ""
 
         print time, color, process, high, msg, end
