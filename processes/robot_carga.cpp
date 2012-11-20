@@ -112,6 +112,7 @@ int main(int argc, char** argv) {
 				checkin_cerro = true;
 				break;
 			}
+         numero_de_vuelo = equipaje.getRfid().numero_de_vuelo_destino;//por ahora el n° de vuelo lo saca del equipaje
 			agregar_equipaje(equipaje, contenedores_por_escala, api_carga, api_admin_contenedores,
 					id_robot, numero_de_vuelo);
 			equipajes_cargados++;

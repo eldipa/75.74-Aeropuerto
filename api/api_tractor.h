@@ -35,6 +35,7 @@ public:
 	void cargar_contenedor_en_avion(const Contenedor & contenedor, int vuelo,
 			int cantidad_total_contenedores) {
 		ContenedorParaAvion contenedor_para_avion;
+      Log::debug("cargar_contenedor_en_avion: numero_vuelo=%d", vuelo);
 		contenedor_para_avion.mtype = vuelo;
 		contenedor_para_avion.cantidad_total_contenedores = cantidad_total_contenedores;
 		contenedor_para_avion.contenedor = contenedor;
