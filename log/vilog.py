@@ -11,6 +11,10 @@ if __name__ == '__main__':
     expecteds = sys.argv[1:]
     color_by_process = dict(zip(expecteds, colors))
 
+    for process, color in color_by_process.iteritems():
+        print " -", color, process, end
+
+    print
     for line in sys.stdin:
         _, _, time, _, process = line.split()[:5]
         process = process[:-1]
@@ -20,10 +24,15 @@ if __name__ == '__main__':
             process_name = process
         msg = " ".join(line.split()[5:])
 
-        if process_name not in expecteds:
-            continue
+        best = ""
+        for prefix in expecteds:
+            if process_name.startswith(prefix) and len(best) < len(prefix):
+                best = prefix
+        
+        if not best:
+           continue
 
-        color = color_by_process[process_name]
+        color = color_by_process[best]
         high = bold if any(map(lambda tag: msg.startswith(tag), ["[Emerg]", "[Alert]", "[Crit]", "[Err]", "[Warning]", "[Notice]"])) else ""
 
         print time, color, process, high, msg, end
