@@ -1,17 +1,12 @@
 #include "api_despachante.h"
 #include "log.h"
-ApiDespachante::ApiDespachante(int numero_despachante, const char* path_to_cinta_central) :
-		cinta(path_to_cinta_central) {
-	/*
-	 char msgerror[1024];
-	 this->numero_despachante = numero_despachante;
-	 if (numero_despachante < 1) {
-	 sprintf(msgerror, "Error ID = %d invalido\n", numero_despachante);
-	 // TODO tirar ValueError
-	 //throw ErrorEnCintaPrincipal(msgerror);
-	 throw "ERROR";
-	 }
-	 */
+
+ApiDespachante::ApiDespachante(int numero_despachante, const char* path_to_locks) :
+   sem_set(std::string(path_to_locks).append(PATH_ROBOT_DESPACHO).c_str(), numero_despachante*cant_ipcs, 1),
+   mutex_asignaciones(sem_set, 0),
+   asignaciones(std::string(path_to_locks).append(PATH_ROBOT_DESPACHO).c_str(), numero_despachante*cant_ipcs+1),
+   cinta(std::string(path_to_locks).append(PATH_CINTA_CENTRAL).c_str()) {
+
 	this->numero_despachante = numero_despachante;
 	this->saco_elemento = true;
 
@@ -54,20 +49,23 @@ void ApiDespachante::avanzar_cinta() {
 
 }
 
-/*
- const Equipaje& ApiDespachante::obtener_valija_para(int robot_id) {
- return cinta.obtener_valija_para(robot_id);
- }
+void ApiDespachante::asignar_vuelo(int zona, int vuelo) {
+   Log::info("ApiDespachante(%d) asignando zona %d a vuelo %d", numero_despachante, zona, vuelo);
+   mutex_asignaciones.lock();
+   asignaciones->asignar_vuelo(zona, vuelo);
+   mutex_asignaciones.unlock();
+}
 
- void ApiDespachante::mover_valija(int desde_robot_id, int hasta_robot_id) {
- cinta.mover_valija(desde_robot_id, hasta_robot_id);
- }
+void ApiDespachante::desasignar_vuelo(int num_vuelo) {
+   Log::info("ApiDespachante(%d) desasignando vuelo %d", numero_despachante, num_vuelo);
+   mutex_asignaciones.lock();
+   asignaciones->desasignar_vuelo(num_vuelo);
+   mutex_asignaciones.unlock();
+}
 
- void ApiDespachante::listo_para_recibir_valija_para(int robot_id) {
- cinta.listo_para_recibir_valija_para(robot_id);
- }
-
- void ApiDespachante::poner_valija(const Equipaje& e, int robot_id) {
- cinta.poner_valija(e, robot_id);
- }
- */
+int ApiDespachante::get_zona(int num_vuelo) {
+   mutex_asignaciones.lock();
+   int zona = asignaciones->get_zona(num_vuelo);
+   mutex_asignaciones.unlock();
+   return zona;
+}

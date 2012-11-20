@@ -28,8 +28,12 @@
 #define PATH_PUESTO_CHECKIN "/puesto_checkin.lck"
 #define PATH_COLA_CONTROL_CARGA_CHECKIN "/cola_control_carga.lck"
 #define PATH_COLA_CONTROL_CHECKIN "/cola_control_checkin.lck"
+#define PATH_ROBOT_DESPACHO "/robot_despacho.lck"
 
 //CINTA CENTRAL
 
 
 #define ID_ESCUCHA_TRACTOR 1
+
+#define MAX_ZONAS 10
+#define ZONAS_POR_ROBOT_DESPACHO 2

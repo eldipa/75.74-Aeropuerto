@@ -23,7 +23,6 @@ int main(int argc, char** argv) {
 		Log::crit("Insuficientes parametros para generador_pasajeros, se esperaba (num_vuelo, num_puesto_checkin)\n");
 		return (1);
 	}
-	Log::info("GeneradorPasajeros generando pasajeros para vuelo %d, puesto_checkin %d", atoi(argv[1]),atoi(argv[2]));
 
 	int num_vuelo = atoi(argv[1]);
 	int num_puesto_checkin = atoi(argv[2]);
@@ -32,15 +31,17 @@ int main(int argc, char** argv) {
 
    get_pasajeros(num_vuelo, id_pasajeros);
 
+	Log::info("GeneradorPasajeros(vuelo=%d) total_pasajeros: %d", num_vuelo, id_pasajeros.size());
+
    std::vector<int>::iterator it;
    for( it=id_pasajeros.begin(); it != id_pasajeros.end(); it++) {
       std::vector<Equipaje> equipajes;
 		checkin.llego_pasajero_para_checkin((*it), get_equipajes(num_vuelo, (*it), equipajes));
-		Log::info("GeneradorPasajeros generando pasajero-checkin con equipaje: %s", print_equipaje(equipajes).c_str());
+		Log::info("GeneradorPasajeros(vuelo=%d) generando pasajero-checkin con equipaje: %s", num_vuelo, print_equipaje(equipajes).c_str());
 		sleep(SLEEP_LLEGADA_PASAJEROS_A_CHECKIN);
    }
 
-	Log::info("GeneradorPasajeros ya llegaron todos los pasajeros del vuelo %d", atoi(argv[1]));
+	Log::info("GeneradorPasajeros(vuelo=%d) ya llegaron todos los pasajeros del vuelo %d", num_vuelo, num_vuelo);
 	return 0;
 
 }
@@ -69,7 +70,7 @@ std::vector<Equipaje>& get_equipajes(int num_vuelo, int num_pasajero, std::vecto
 	yasper::ptr<TupleIterator> p_end = query->end();
 
 	for (; (*p_it) != (*p_end); ++(*p_it)) {
-		equipajes.push_back( Equipaje(p_it->at<int>(0)) );
+		equipajes.push_back( Equipaje( Rfid(p_it->at<int>(0), num_vuelo)) );
 	}
    return equipajes;
 }

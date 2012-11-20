@@ -4,6 +4,8 @@
 #include "api_checkin.h"
 #include "api_controlador_de_vuelo.h"
 #include "api_torre_de_control.h"
+#include "api_despachante.h"
+
 #include "process.h"
 #include "constants.h"
 
@@ -92,11 +94,6 @@ int tomar_zona(int num_vuelo) {
 }
 
 void registrar_zona_en_uso(int num_vuelo, int num_zona) {
-   Database db("aeropuerto", false);
-	yasper::ptr<Statement> query = db.statement("insert into ZonasUtilizadas values (:zona, :vuelo)");
-	query->set(":zona", num_zona);
-	query->set(":vuelo", num_vuelo);
-
-   
-	yasper::ptr<TupleIterator> p_it = query->begin();
+   ApiDespachante despachante((num_zona+1)/ZONAS_POR_ROBOT_DESPACHO, PATH_KEYS);
+   despachante.asignar_vuelo(num_zona, num_vuelo);
 }

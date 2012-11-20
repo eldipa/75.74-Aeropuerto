@@ -10,8 +10,8 @@
 
 class Rfid {
 public:
-	Rfid(int rfid) :
-			rfid(rfid) {
+	Rfid(int rfid, int num_vuelo) :
+      rfid(rfid), numero_de_vuelo_destino(num_vuelo) {
 		memset(escala_destino, 0x00, MAX_SIZE_ESCALA);
 	}
 	virtual ~Rfid() {

@@ -67,7 +67,7 @@ std::vector<Equipaje> equipajes_para(VueloTrasbordo trasbordo) {
 
 	// Por ahora siempre crear 3 equipajes para cada vuelo trasbordo
 	for (int i = rfid_inicial; i < rfid_inicial + 3; i++) {
-		Equipaje equipaje(i);
+		Equipaje equipaje(Rfid(i, trasbordo.vuelo_destino));
 		equipajes.push_back(equipaje);
 	}
 

@@ -18,8 +18,14 @@
 #include "tupleiter.h"
 
 
-char *args_puesto_checkin[] = { (char*) "puesto_checkin", 
-                                (char*) "1", (char*) "1", NULL };
+char *args_puesto_checkin1[] = { (char*) "puesto_checkin", 
+                                (char*) "1", NULL };
+
+char *args_puesto_checkin2[] = { (char*) "puesto_checkin", 
+                                 (char*) "2", NULL };
+
+char *args_puesto_checkin3[] = { (char*) "puesto_checkin", 
+                                (char*) "3", NULL };
 
 char *args_robot_checkin[] = { (char*) "robot_checkin", (char*) "1", // ID
 		(char*) "1", (char*) "1", NULL };
@@ -28,7 +34,7 @@ char *args_scanner[] = { (char*) "robot_scanner", (char*) "1", // ID
 		(char*) "1", (char*) "1", NULL };
 
 char *args_robot_despacho[] = { (char*) "robot_despacho", (char*) "1", // ID
-		(char*) "1", (char*) "1", (char*) "1", NULL };
+		(char*) "1", (char*) "2", NULL };
 
 char *args_robot_carga0[] = { (char*) "robot_carga", (char*) "1", NULL };
 
@@ -85,7 +91,10 @@ int main(int argc, char** argv) {
 
    liberar_zonas();
 
-	Process puesto_checkin("puesto_checkin", args_puesto_checkin);
+	Process puesto_checkin1("puesto_checkin", args_puesto_checkin1);
+	Process puesto_checkin2("puesto_checkin", args_puesto_checkin2);
+	Process puesto_checkin3("puesto_checkin", args_puesto_checkin3);
+
 	Process robot_checkin("robot_checkin", args_robot_checkin);
 	Process robot_scanner("robot_scanner", args_scanner);
 	Process robot_despacho("robot_despacho", args_robot_despacho);
@@ -111,7 +120,9 @@ int main(int argc, char** argv) {
 
 	Log::info("finalizando robots...");
 
-	puesto_checkin.send_signal(SIGTERM);
+	puesto_checkin1.send_signal(SIGTERM);
+	puesto_checkin2.send_signal(SIGTERM);
+	puesto_checkin3.send_signal(SIGTERM);
 	robot_checkin.send_signal(SIGTERM);
 	robot_scanner.send_signal(SIGTERM);
 	robot_despacho.send_signal(SIGTERM);

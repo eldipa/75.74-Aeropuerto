@@ -4,7 +4,7 @@
 #include "cintas.h"
 #include "api_carga.h"
 #include "api_torre_de_control.h"
-
+#include "api_despachante.h"
 #include "api_admincontenedores.h"
 #include "api_checkin.h"
 #include <sys/stat.h>
@@ -19,7 +19,7 @@ const int cantidad_cintas_scanner = 1;
 const int cantidad_cintas_centrales = 1;
 const int cantidad_cintas_contenedor = 2;
 const int cantidad_robots_carga = 2;
-const int cantidad_puestos_checkin = 1;
+const int cantidad_puestos_checkin = 3;
 
 class TorreDeControl {
 public:
@@ -92,6 +92,16 @@ private:
 	MessageQueue queue_checkin;
 };
 
+class RobotsDespacho {
+public:
+   RobotsDespacho(int id_robot, char* path_robots_despacho):
+      sem_set(std::vector<unsigned short>(1,1),path_robots_despacho, ApiDespachante::cant_ipcs*id_robot),
+      asignaciones(ZonasAsignadas(), path_robots_despacho, id_robot*ApiDespachante::cant_ipcs+1) {
+   }
+private:
+   SemaphoreSet sem_set;
+   SharedObject<ZonasAsignadas> asignaciones;   
+};
 /*
  * Clase para crear fácilmente todo lo que se necesite en el aeropuerto
  */
@@ -112,6 +122,13 @@ public:
 		for (int i = 0; i < cantidad_puestos_checkin; i++) {
 			puesto_checkin[i] = new PuestoCheckin(path_lock, i + 1, 1);
 		}
+
+		Log::info("Creando ipcs para Robots de despacho...%s%s", path_to_locks,
+				PATH_ROBOT_DESPACHO);
+      snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_ROBOT_DESPACHO);
+      for(int i=0; i<cantidad_robots_carga; i++ ) {
+         robots_despacho[i] = new RobotsDespacho(i+1, path_lock);
+      }
 
 		Log::info("Creando ipcs para Torre de control...%s%s", path_to_locks,
 				PATH_TORRE_DE_CONTROL);
@@ -168,37 +185,47 @@ public:
 	;
 
 	virtual ~ConexionesAeropuerto() {
-
+      
+      for (int i = 0; i < cantidad_robots_carga; i++) {
+			delete robots_despacho[i];
+      }
+      
 		for (int i = 0; i < cantidad_puestos_checkin; i++) {
 			delete puesto_checkin[i];
 		}
+
 		for (int i = 0; i < cantidad_cintas_checkin; i++) {
 			delete cintas_checkin[i];
 		}
+
 		//for (int i = 0; i < cantidad_cintas_scanner; i++) {
 			delete cintas_scanner;
 		//}
+      
 		for (int i = 0; i < cantidad_cintas_centrales; i++) {
 			delete cintas_central[i];
 		}
 		for (int i = 0; i < cantidad_cintas_contenedor; i++) {
 			delete cintas_contenedor[i];
 		}
+      
 		for (int i = 0; i < cantidad_robots_carga; i++) {
 			delete cola_control_carga_checkin[i];
 		}
-
+      
 		delete torre_de_control;
 		delete admin_contenedores;
 		delete controlador_puesto_checkin;
 
 		delete cola_robot_zona_tractores;
 		delete cola_tractores_avion;
+      
 	}
 
 private:
+   RobotsDespacho * robots_despacho[2];
 	ControladorPuestoCheckin * controlador_puesto_checkin;
-	PuestoCheckin * puesto_checkin[1];
+	PuestoCheckin * puesto_checkin[3];
 	TorreDeControl * torre_de_control;
 	CintaCheckin * cintas_checkin[1];
 	CintaScanner<Equipaje> * cintas_scanner;
@@ -239,6 +266,7 @@ private:
 		crear_archivo_lck(path_to_locks, PATH_PUESTO_CHECKIN);
 		crear_archivo_lck(path_to_locks, PATH_COLA_CONTROL_CARGA_CHECKIN);
 		crear_archivo_lck(path_to_locks, PATH_COLA_CONTROL_CHECKIN);
+		crear_archivo_lck(path_to_locks, PATH_ROBOT_DESPACHO);
 	}
 
 	void crear_archivo_lck(const char *path_to_locks, const char * nombre_archivo) {

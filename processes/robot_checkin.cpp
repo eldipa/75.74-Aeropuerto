@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "api_cinta.h"
 #include "log.h"
 #include "equipaje.h"
 

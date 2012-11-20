@@ -6,6 +6,8 @@
 #include <string>
 
 #include "api_admincontenedores.h"
+#include "api_despachante.h"
+
 #include "api_carga.h"
 #include "contenedor.h"
 #include "equipaje.h"
@@ -16,8 +18,6 @@
 #include "database.h"
 #include "stmt.h"
 #include "tupleiter.h"
-
-void deshabilitar_robot_despacho(int num_zona);
 
 void agregar_equipaje(Equipaje & equipaje,
 		std::map<std::string, Contenedor> & contenedores_por_escala, ApiCarga &api_carga,
@@ -85,6 +85,7 @@ int main(int argc, char** argv) {
 	strcat(path, PATH_ADMIN_CONTENEDORES);
 
 	ApiAdminContenedores api_admin_contenedores(path);
+   ApiDespachante api_despachante(id_robot, PATH_KEYS);
 
 	int equipajes_por_cargar, equipajes_cargados;
 	equipajes_cargados = 0;
@@ -143,7 +144,7 @@ int main(int argc, char** argv) {
 
       //el robot de despacho ya no atiende al vuelo
       Log::info("RobotCarga(%d) Deshabilito el vuelo de la zona (%d) en el robot_despacho", id_robot, id_robot);
-      deshabilitar_robot_despacho(id_robot);
+      api_despachante.desasignar_vuelo(id_robot); //id_robot = num_zona
 
 		api_carga.esperar_avion_en_zona();
 
@@ -161,11 +162,3 @@ int main(int argc, char** argv) {
 
 }
 
-void deshabilitar_robot_despacho(int num_zona) {
-	Database db("aeropuerto", false);
-
-	yasper::ptr<Statement> query = db.statement("delete from ZonasUtilizadas where num_zona = :zona");
-	query->set(":zona", num_zona);
-
-	yasper::ptr<TupleIterator> p_it = query->begin();
-}
