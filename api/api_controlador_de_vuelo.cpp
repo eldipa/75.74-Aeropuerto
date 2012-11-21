@@ -11,20 +11,20 @@ ApiControladorDeVuelo::ApiControladorDeVuelo(const char* path_to_locks, int num_
    : path_to_locks(path_to_locks), num_vuelo(num_vuelo) {
 }
 
-void ApiControladorDeVuelo::iniciar_checkin(int num_puesto_checkin) {
-   enviar_mensaje_to_checkin(num_puesto_checkin, true);
+void ApiControladorDeVuelo::iniciar_checkin(int num_puesto_checkin, int num_zona) {
+   enviar_mensaje_to_checkin(num_puesto_checkin, num_zona, true);
 }
  
-void ApiControladorDeVuelo::cerrar_checkin(int num_puesto_checkin) {
-   enviar_mensaje_to_checkin(num_puesto_checkin, false);
+void ApiControladorDeVuelo::cerrar_checkin(int num_puesto_checkin, int num_zona) {
+   enviar_mensaje_to_checkin(num_puesto_checkin, num_zona, false);
 }
 
-void ApiControladorDeVuelo::enviar_mensaje_to_checkin(int num_puesto_checkin, bool iniciar_checkin) {
+void ApiControladorDeVuelo::enviar_mensaje_to_checkin(int num_puesto_checkin, int num_zona, bool iniciar_checkin) {
    tMeansajeCheckin msg_checkin;
    msg_checkin.mtype = num_puesto_checkin;
    msg_checkin.iniciar_checkin = iniciar_checkin;
    msg_checkin.num_vuelo = num_vuelo;
-
+   msg_checkin.num_zona = num_zona;
    char path_to_control_checkin_lock[128];
    snprintf(path_to_control_checkin_lock, 128, "%s%s", path_to_locks.c_str(), PATH_COLA_CONTROL_CHECKIN);
     

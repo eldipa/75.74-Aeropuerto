@@ -6,12 +6,12 @@
 class ApiControladorDeVuelo {
 public:
    ApiControladorDeVuelo(const char* path_to_locks, int num_vuelo);
-   void iniciar_checkin(int num_puesto_checkin);
-   void cerrar_checkin(int num_puesto_checkin);
+   void iniciar_checkin(int num_puesto_checkin, int num_zona);
+   void cerrar_checkin(int num_puesto_checkin, int num_zona);
    virtual ~ApiControladorDeVuelo();
 
 private:
-   void enviar_mensaje_to_checkin(int num_puesto_checkin, bool iniciar_checkin);
+   void enviar_mensaje_to_checkin(int num_puesto_checkin, int num_zona, bool iniciar_checkin);
 
    std::string path_to_locks;
    int num_vuelo;

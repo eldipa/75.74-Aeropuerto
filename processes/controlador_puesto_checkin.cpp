@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) try {
 
          strcpy(path, PATH_KEYS);
          strcat(path, PATH_COLA_CONTROL_CARGA_CHECKIN);
-         MessageQueue cola_mensajes_con_despachante_de_vuelo(path, 1);
+         MessageQueue cola_mensajes_con_despachante_de_vuelo(path, msg.num_zona);
          cola_mensajes_con_despachante_de_vuelo.push(&mensaje, sizeof(MENSAJE_CHECKIN_CERRADO)-sizeof(long));
 
       }

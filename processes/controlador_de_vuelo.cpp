@@ -72,13 +72,13 @@ int main(int argc, char** argv) try {
       Log::info("ControladorDeVuelos(%d) robot de despacho empieza a recibir equipajes para zona %d", num_vuelo, zona_utilizada);
       
       //abro checkin
-      api_vuelo.iniciar_checkin(num_puesto_checkin);
+      api_vuelo.iniciar_checkin(num_puesto_checkin, zona_utilizada);
       Log::info("ControladorDeVuelos(%d) incicio checkin puesto %d", num_vuelo, num_puesto_checkin);
       run_generador_pasajeros(num_vuelo, num_puesto_checkin);
 
       //espero cierre checkin
       sleep(duracion_checkin);
-      api_vuelo.cerrar_checkin(num_puesto_checkin);
+      api_vuelo.cerrar_checkin(num_puesto_checkin, zona_utilizada);
       Log::info("ControladorDeVuelos(%d) cierro checkin %d", num_vuelo, num_puesto_checkin);
 
       Log::info("ControladorDeVuelos(%d) termino...", num_vuelo);

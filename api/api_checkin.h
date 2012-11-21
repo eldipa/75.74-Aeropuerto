@@ -23,6 +23,7 @@ typedef struct t_msg_checkin {
    long mtype;// id_puesto_checkin
    bool iniciar_checkin; //false --> cerrar_checkin
    int num_vuelo;
+   int num_zona;
 } tMeansajeCheckin;
 
 typedef struct vuelo_en_checkin {
