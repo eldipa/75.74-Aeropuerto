@@ -35,7 +35,7 @@
 
 void MessageQueue::destroy() {
    Log::debug("%s message queue using the path %s with key %x.", "Destroying", path.c_str(), key);
-   if(msgctl(fd, IPC_RMID, 0) != 0) {
+   if(msgctl(fd, IPC_RMID, 0) == -1) {
       throw OSError("The message queue "
             MESSAGE_Key_Path_Permissions
             " cannot be destroyed",
@@ -84,7 +84,7 @@ ssize_t MessageQueue::pull(void *msg, size_t max_size_txt, long type) {
 MessageQueue::~MessageQueue() throw() {
     if(owner) {
         Log::debug("%s message queue using the path %s with key %x.", "Destroying", path.c_str(), key);
-        if(msgctl(fd, IPC_RMID, 0) != 0) {
+        if(msgctl(fd, IPC_RMID, 0) == -1) {
             Log::crit("An exception happend during the course of a destructor:\n%s", OSError("The message queue "
                         MESSAGE_Key_Path_Permissions
                         " cannot be destroyed",
