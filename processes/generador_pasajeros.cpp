@@ -74,7 +74,7 @@ std::vector<Equipaje>& get_equipajes(int num_vuelo, int num_pasajero, std::vecto
 	yasper::ptr<TupleIterator> p_end = query->end();
 
 	for (; (*p_it) != (*p_end); ++(*p_it)) {
-		equipajes.push_back( Equipaje( Rfid(p_it->at<int>(0), num_vuelo)) );
+		equipajes.push_back( Equipaje( Rfid(p_it->at<int>(0), num_vuelo), rand()%TOPE_PESO_VALIJA) );
 	}
    return equipajes;
 }

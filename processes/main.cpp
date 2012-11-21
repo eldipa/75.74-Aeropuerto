@@ -37,12 +37,20 @@ char *args_scanner1[] = { (char*) "robot_scanner", (char*) "1", // ID
 char *args_scanner2[] = { (char*) "robot_scanner", (char*) "2", // ID
 		(char*) "1", (char*) "1", NULL };
 
-char *args_robot_despacho[] = { (char*) "robot_despacho", (char*) "1", // ID
-		(char*) "1", (char*) "2", NULL };
+char *args_robot_despacho1[] = { (char*) "robot_despacho", (char*) "1", // ID
+                                 (char*) "1", (char*) "2", NULL };
 
-char *args_robot_carga0[] = { (char*) "robot_carga", (char*) "1", NULL };
+char *args_robot_despacho2[] = { (char*) "robot_despacho", (char*) "2", // ID
+                                 (char*) "3", (char*) "4", NULL };
 
-char *args_robot_carga1[] = { (char*) "robot_carga", (char*) "2", NULL };
+char *args_robot_carga1[] = { (char*) "robot_carga", (char*) "1", NULL };
+
+char *args_robot_carga2[] = { (char*) "robot_carga", (char*) "2", NULL };
+
+char *args_robot_carga3[] = { (char*) "robot_carga", (char*) "3", NULL };
+
+char *args_robot_carga4[] = { (char*) "robot_carga", (char*) "4", NULL };
+
 
 char *args_robot_sospechosos[] = { (char*) "robot_control_equipaje_sospechoso", (char*) "2",
 		(char*) "5", // ID
@@ -88,9 +96,12 @@ int main(int argc, char** argv) try {
                  processes.push_back(Process("robot_checkin", args_robot_checkin));
                  processes.push_back(Process("robot_scanner", args_scanner1));
                  processes.push_back(Process("robot_scanner", args_scanner2));
-                 processes.push_back(Process("robot_despacho", args_robot_despacho));
-                 processes.push_back(Process("robot_carga", args_robot_carga0));
+                 processes.push_back(Process("robot_despacho", args_robot_despacho1));
+                 processes.push_back(Process("robot_despacho", args_robot_despacho2));
                  processes.push_back(Process("robot_carga", args_robot_carga1));
+                 processes.push_back(Process("robot_carga", args_robot_carga2));
+                 processes.push_back(Process("robot_carga", args_robot_carga3));
+                 processes.push_back(Process("robot_carga", args_robot_carga4));
                  processes.push_back(Process("robot_control_equipaje_sospechoso", args_robot_sospechosos));
                 // processes.push_back(Process("robot_intercargo", args_robot_intercargo));
                  processes.push_back(Process("torre_de_control", args_torre_de_control));

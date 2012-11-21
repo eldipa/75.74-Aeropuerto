@@ -22,7 +22,7 @@
 void agregar_equipaje(Equipaje & equipaje,
                       std::map<std::string, Contenedor> & contenedores_por_escala, 
                       ApiCarga &api_carga,
-                      int id_robot) {
+                      int id_robot ) {
 
 	Log::info("RobotCarga(%d) se tomo el equipaje %s con escala destino '%s' peso=%d\n", id_robot,
              equipaje.toString().c_str(), equipaje.getRfid().get_escala().c_str(), equipaje.peso());
@@ -72,7 +72,7 @@ int main(int argc, char** argv) try {
 
 	std::map<std::string, Contenedor> contenedores_por_escala;
 
-	ApiCarga api_carga(1, path, id_robot, path_cola);
+	ApiCarga api_carga(id_robot, path, id_robot, path_cola);
    ApiDespachante api_despachante(id_robot, PATH_KEYS);
    ApiTorreDeControl api_torre( std::string(PATH_KEYS).append(PATH_TORRE_DE_CONTROL).c_str() );
 	int equipajes_por_cargar = 0;

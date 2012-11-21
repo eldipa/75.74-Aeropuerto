@@ -4,7 +4,7 @@ ApiComunicacionTrasbordo::ApiComunicacionTrasbordo(char * path_to_robots_interca
 		int id_instancia) {
 	// TODO Auto-generated constructor stub
 	id_instancia--;
-	path_to_robots_intercargo = NULL;
+	path_to_robots_intercargo = path_to_robots_intercargo;
 }
 
 ApiComunicacionTrasbordo::~ApiComunicacionTrasbordo() {

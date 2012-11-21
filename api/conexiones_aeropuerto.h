@@ -18,8 +18,8 @@
 const int cantidad_cintas_checkin = 1;
 const int cantidad_cintas_scanner = 1;
 const int cantidad_cintas_centrales = 1;
-const int cantidad_cintas_contenedor = 2;
-const int cantidad_robots_carga = 2;
+const int cantidad_cintas_contenedor = 4;
+const int cantidad_robots_carga = 4;
 const int cantidad_puestos_checkin = 3;
 
 class TorreDeControl {
