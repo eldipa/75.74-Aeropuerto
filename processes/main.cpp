@@ -65,8 +65,6 @@ char *args_avion2[] = { (char*) "avion", (char*) "2", NULL };
 void lanzar_vuelos();
 void lanzar_vuelo(int num_vuelo);
 
-void liberar_zonas();
-
 int main(int argc, char** argv) try {
 
 	//be_a_daemon();
@@ -80,8 +78,6 @@ int main(int argc, char** argv) try {
                  ConexionesAeropuerto aeropuerto(PATH_KEYS);
 
                  Log::info("iniciando simulación...");
-
-                 liberar_zonas();
 
                  processes.push_back(Process("puesto_checkin", args_puesto_checkin1));
                  processes.push_back(Process("puesto_checkin", args_puesto_checkin2));
@@ -128,19 +124,7 @@ int main(int argc, char** argv) try {
 } catch(...) {
    Log::crit("Critical error. Unknow exception at the end of the 'main' function.");
 }
-
-/*
- * Borra todas las zonas habilitadas en la BD.
- * Esto hay que cambiarlo por una shared memory con el robot_despacho.
- **/
-void liberar_zonas() {
-	Database db("aeropuerto", false);
-
-	yasper::ptr<Statement> query = db.statement("delete from ZonasUtilizadas");
-	yasper::ptr<TupleIterator> p_it = query->begin();
-}
                     
-
 void lanzar_vuelos() {
 	Database db("aeropuerto", true);
 	yasper::ptr<Statement> query = db.statement("select id from Vuelo");

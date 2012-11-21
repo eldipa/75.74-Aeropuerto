@@ -79,7 +79,7 @@ int main(int argc, char** argv) try {
       //espero cierre checkin
       sleep(duracion_checkin);
       api_vuelo.cerrar_checkin(num_puesto_checkin);
-      Log::info("ControladorDeVuelos(%d) cierro checkin %d", num_vuelo);
+      Log::info("ControladorDeVuelos(%d) cierro checkin %d", num_vuelo, num_puesto_checkin);
 
       Log::info("ControladorDeVuelos(%d) termino...", num_vuelo);
 

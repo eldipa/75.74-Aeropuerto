@@ -20,7 +20,7 @@ else
       exit 1
    fi
 
-   if echo ".tables" | sqlite3 $DATABASE_NAME | grep -q ".*[ \t]$1[ \t].*" 
+   if echo ".tables" | sqlite3 $DATABASE_NAME | grep -q "^$1[ \t].*\|.*[ \t]$1[ \t].*" 
    then
       echo "Loading..."
       echo -e ".separator \"$SEP\"\n.import $2 $1" | sqlite3 $DATABASE_NAME
