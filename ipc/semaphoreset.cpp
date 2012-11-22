@@ -39,7 +39,7 @@ void SemaphoreSet::destroy() {
    memset(&data, '0', sizeof(union semun));
 
    Log::debug("%s semaphore set using the path %s with key %x.", "Destroying", path.c_str(), key);
-   if(semctl(fd, 0, IPC_RMID, data) != 0) {
+   if(semctl(fd, 0, IPC_RMID, data) == -1) {
       throw OSError("The semaphore set (%i semaphores in it) "
             MESSAGE_Key_Path_Permissions
             " cannot be destroyed",
@@ -104,7 +104,7 @@ SemaphoreSet::~SemaphoreSet() throw() {
       memset(&data, '0', sizeof(union semun));
 
       Log::debug("%s semaphore set using the path %s with key %x.", "Destroying", path.c_str(), key);
-      if(semctl(fd, 0, IPC_RMID, data) != 0) {
+      if(semctl(fd, 0, IPC_RMID, data) == -1) {
          Log::crit("An exception happend during the course of a destructor:\n%s", OSError("The semaphore set (%i semaphores in it) "
                   MESSAGE_Key_Path_Permissions
                   " cannot be destroyed",
@@ -127,7 +127,7 @@ void SemaphoreSet::op(int semnum, bool signal_action) {
    dataop.sem_num = semnum;
    dataop.sem_op = signal_action? 1 : -1;
    dataop.sem_flg = 0;
-   if(semop(fd, &dataop, 1) != 0) {
+   if(semop(fd, &dataop, 1) == -1) {
       throw OSError("The semaphore number %i in the set "
             MESSAGE_Key_Path_Permissions
             " cannot be %s",

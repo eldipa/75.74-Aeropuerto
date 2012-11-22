@@ -50,7 +50,7 @@ Process::Process(const char* file, char *argv[]) {
         // children process
         execv(file, argv);
         throw OSError("The process's image '%s' cannot be loaded.", file);
-    }else if(pid < 0) {
+    }else if(pid == -1) {
         throw OSError("The process's children cannot be created (forked).");
     }else {
         // parent process
@@ -67,7 +67,7 @@ int Process::wait() {
 }
 
 void Process::send_signal(int signal, bool expect_alive) {
-    if(kill(pid, signal) < 0) {
+    if(kill(pid, signal) == -1) {
         if(errno == ESRCH and not expect_alive) return
         throw OSError("Error when sending a signal -%i to the process children with PID %i", signal, pid);
     }

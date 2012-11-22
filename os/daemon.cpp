@@ -49,17 +49,17 @@ static int filter_dot_entries(const struct dirent *entry) {
 void be_a_daemon() {
    // Set the process group id (gid) to be equal to the process id (pid)
    // forming a new group in which this process (pid) will be the leader
-   if(setpgid(0,0) != 0) {
+   if(setpgid(0,0) == -1) {
       throw OSError("The process group cannot be set");
    }
 
    // Deattach the tty
    int fd; 
-   if ((fd = open("/dev/tty", O_RDWR)) >= 0) { //if fail, the tty is no attached
-      if(ioctl(fd, TIOCNOTTY, 0) != 0) {
+   if ((fd = open("/dev/tty", O_RDWR)) == -1) { //if fail, the tty is no attached
+      if(ioctl(fd, TIOCNOTTY, 0) == -1) {
          throw OSError("The tty device attached (file descriptor %i) cannot be deattached", fd);
       }
-      if(close(fd) != 0) {
+      if(close(fd) == -1) {
          throw OSError("The tty device deattached (file descriptor %i) cannot be closed", fd);
       }
    }
@@ -85,7 +85,7 @@ void be_a_daemon() {
       free(namelist);
 
       for(int i = 0; i < n; ++i) {
-         if(close(open_filedescriptors[i]) != 0) {
+         if(close(open_filedescriptors[i]) == -1) {
             fallback = true;
             Log::warning("The file descriptor %i read from %s cannot be closed.", open_filedescriptors[i], buff);
             continue;
