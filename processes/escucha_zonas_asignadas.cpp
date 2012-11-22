@@ -17,11 +17,14 @@
 
 int main(/*int argc, char** argv*/) {
 	char path_ipc_intercargo[300];
+	char path_cola_escucha_asignaciones[300];
 
+	strcpy(path_cola_escucha_asignaciones, PATH_KEYS);
+	strcat(path_cola_escucha_asignaciones, PATH_COLA_ESCUCHA_ZONA_ASIGNADA);
 	strcpy(path_ipc_intercargo, PATH_KEYS);
 	strcat(path_ipc_intercargo, PATH_COLA_CARGADORES_TRASBORDO);
 
-	ApiComunicacionTrasbordo trasbordo(path_ipc_intercargo,0);
+	ApiComunicacionTrasbordo trasbordo(path_ipc_intercargo, path_cola_escucha_asignaciones, 0);
 
 	for (;;) {
 		Log::info("Esperando asignacion de zona");

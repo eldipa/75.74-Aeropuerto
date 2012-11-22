@@ -7,6 +7,7 @@
 #include "messagequeue.h"
 #include "semaphoreset.h"
 #include "sharedmemory.h"
+#include "api_constants.h"
 
 class ApiComunicacionTrasbordo {
 
@@ -14,6 +15,14 @@ private:
 	SemaphoreSet * semaforos;
 	SharedMemory * memoria_zonas;
 	MessageQueue * cola_asignaciones;
+	static const int cant_ipc = 3;
+	MENSAJE_ZONA_ASIGNADA mensaje;
+
+	int * vuelos_esperando; //MAX 30 vuelos esperando
+	int * zonas_asignadas; // MAX_ZONAS
+
+	int zona_asignada;
+	int vuelo_destino;
 
 public:
 	//VueloTrasbordo proximo_vuelo_trasbordo();
@@ -23,7 +32,7 @@ public:
 	int get_zona_asignada();
 	int get_vuelo_destino();
 
-	ApiComunicacionTrasbordo(char * path_to_robots_intercargo, int id_instancia);
+	ApiComunicacionTrasbordo(char * path_to_robots_intercargo,char * path_cola_comunicacion_trasbordo, int id_instancia);
 	virtual ~ApiComunicacionTrasbordo();
 
 };
