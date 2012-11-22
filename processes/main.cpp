@@ -31,7 +31,10 @@ char *args_puesto_checkin3[] = { (char*) "puesto_checkin",
 char *args_robot_checkin[] = { (char*) "robot_checkin", (char*) "1", // ID
 		(char*) "1", (char*) "1", NULL };
 
-char *args_scanner[] = { (char*) "robot_scanner", (char*) "1", // ID
+char *args_scanner1[] = { (char*) "robot_scanner", (char*) "1", // ID
+		(char*) "1", (char*) "1", NULL };
+
+char *args_scanner2[] = { (char*) "robot_scanner", (char*) "2", // ID
 		(char*) "1", (char*) "1", NULL };
 
 char *args_robot_despacho[] = { (char*) "robot_despacho", (char*) "1", // ID
@@ -83,7 +86,8 @@ int main(int argc, char** argv) try {
                  processes.push_back(Process("puesto_checkin", args_puesto_checkin2));
                  processes.push_back(Process("puesto_checkin", args_puesto_checkin3));
                  processes.push_back(Process("robot_checkin", args_robot_checkin));
-                 processes.push_back(Process("robot_scanner", args_scanner));
+                 processes.push_back(Process("robot_scanner", args_scanner1));
+                 processes.push_back(Process("robot_scanner", args_scanner2));
                  processes.push_back(Process("robot_despacho", args_robot_despacho));
                  processes.push_back(Process("robot_carga", args_robot_carga0));
                  processes.push_back(Process("robot_carga", args_robot_carga1));
