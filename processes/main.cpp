@@ -52,7 +52,7 @@ char *args_robot_carga3[] = { (char*) "robot_carga", (char*) "3", NULL };
 char *args_robot_carga4[] = { (char*) "robot_carga", (char*) "4", NULL };
 
 
-char *args_robot_sospechosos[] = { (char*) "robot_control_equipaje_sospechoso", (char*) "2",
+char *args_robot_sospechosos[] = { (char*) "robot_control_equipaje_sospechoso", (char*) "3",
 		(char*) "5", // ID
 		NULL };
 

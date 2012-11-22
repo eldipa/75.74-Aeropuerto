@@ -57,6 +57,7 @@ int main(int argc, char** argv) try {
 	char path_cola[300];
 	int id_robot;
 	int numero_de_vuelo;
+	int equipajes_por_cargar, equipajes_cargados;
 
 	if (argc < 2) {
 		Log::crit("Insuficientes parametros para robot de carga, se esperaba (id_robot)\n");
@@ -72,11 +73,9 @@ int main(int argc, char** argv) try {
 
 	std::map<std::string, Contenedor> contenedores_por_escala;
 
-	ApiCarga api_carga(id_robot, path, id_robot, path_cola);
+	ApiCarga api_carga(1, path, id_robot, path_cola);
    ApiDespachante api_despachante(id_robot, PATH_KEYS);
    ApiTorreDeControl api_torre( std::string(PATH_KEYS).append(PATH_TORRE_DE_CONTROL).c_str() );
-	int equipajes_por_cargar = 0;
-   int equipajes_cargados = -1;
 
 	Log::info("Iniciando robot carga(%d)\n", id_robot);
 
@@ -87,6 +86,7 @@ int main(int argc, char** argv) try {
 	for (;;) {
 		checkin_cerro = false;
 		equipajes_cargados = 0;
+      equipajes_por_cargar = 0;
 
 		while ( (!checkin_cerro) || (equipajes_cargados<equipajes_por_cargar) ) {
 			sleep(rand() % 10);
