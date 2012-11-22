@@ -1,6 +1,9 @@
 #include <iostream>
-#include <stdlib.h>
+#include <cstdlib>
 #include <unistd.h>
+#include <cstring>
+#include <cstdio>
+#include "cintas.h"
 
 #include "api_trasbordo.h"
 
@@ -8,72 +11,96 @@
 #include "constants.h"
 #include "log.h"
 
-std::vector<Equipaje> equipajes_para(VueloTrasbordo);
+#include "mensajes.h"
+#include "messagequeue.h"
+#include <map>
 
-int main(int argc, char** argv) try {
-	char path_torre_control[300];
-	char path_cinta_central[300];
+void cargar_equipajes(int numero_vuelo_destino, std::multimap<int, Equipaje> & equipajes_a_cargar) {
+	char path_archivo_equipajes[300];
+	FILE * equipajes_vuelo_destino;
+	char descripcion_equipaje[SIZE_DESCRIPCION_EQUIPAJE];
+	int peso_equipaje, rfid, vuelo_destino;
+	char escala_destino[MAX_SIZE_ESCALA];
+	int escalas[MAX_CANT_ESCALAS];
+	char primera_linea[300];
+	int numero_vuelo_entrante;
+
+	sprintf(path_archivo_equipajes, "equipaje_destino_%d.csv", numero_vuelo_destino);
+
+	equipajes_vuelo_destino = fopen(path_archivo_equipajes, "rt");
+
+	fscanf(equipajes_vuelo_destino, "%s\n", primera_linea);
+
+	while (fscanf(equipajes_vuelo_destino, "%d:%d:%s:%d:%d:%d:%d:%d:%d:%d:%s\n",
+			&numero_vuelo_entrante, &peso_equipaje, descripcion_equipaje, &rfid, &vuelo_destino,
+			escalas, escalas + 1, escalas + 2, escalas + 3, escalas + 4, escala_destino) != EOF) {
+		Rfid rf(rfid, numero_vuelo_destino);
+		strncpy(rf.escala_destino, escala_destino, MAX_SIZE_ESCALA);
+		rf.sospechoso = false;
+		memcpy(rf.escalas, escalas, sizeof(escalas));
+
+		Equipaje equipaje(rf, peso_equipaje);
+		equipaje.set_descripcion(descripcion_equipaje);
+		equipajes_a_cargar.insert(std::pair<int, Equipaje>(numero_vuelo_entrante, equipaje));
+	}
+
+	fclose(equipajes_vuelo_destino);
+}
+
+int main(int argc, char** argv) {
+	char path_cola_cargadores[300];
+	char path_memoria_cargadores[300];
+	char path_cinta_principal[300];
+	int zona_asignada;
+	int numero_vuelo_destino;
+	std::multimap<int, Equipaje>::iterator it;
+
+	MENSAJE_VUELO_ENTRANTE mensaje;
+
 	if (argc < 2) {
 		Log::crit(
-				"Insuficientes parametros para robot de Intercargo, se esperaba (id)\n");
+				"Insuficientes parametros para robot de Intercargo, se esperaba (num_vuelo_destino)\n");
 		exit(1);
 	}
 
-	strcpy(path_torre_control, PATH_KEYS);
-	strcat(path_torre_control, PATH_TORRE_DE_CONTROL);
-	strcpy(path_cinta_central, PATH_KEYS);
-	strcat(path_cinta_central, PATH_CINTA_CENTRAL);
+	numero_vuelo_destino = atoi(argv[1]);
 
-	ApiTrasbordo api_trasbordo(atoi(argv[1]), path_torre_control, path_cinta_central);
+	strcpy(path_cola_cargadores, PATH_KEYS);
+	strcat(path_cola_cargadores, PATH_COLA_CARGADORES_TRASBORDO);
+	strcpy(path_memoria_cargadores, PATH_KEYS);
+	strcat(path_memoria_cargadores, PATH_MEMORIA_CARGADORES_TRASBORDO);
+	strcpy(path_cinta_principal, PATH_KEYS);
+	strcat(path_cinta_principal, PATH_CINTA_CENTRAL);
 
-	for (;;) {
-		Log::info("Esperando que las equipajes listos para el trasbordo");
-		VueloTrasbordo trasbordo = api_trasbordo.proximo_vuelo_trasbordo();
+	MessageQueue cola_cargadores_equipaje(path_cola_cargadores, 0);
+	mensaje.mtype = numero_vuelo_destino;
 
-		Log::info("Nuevo vuelo de trasbordo %i -> %i", trasbordo.vuelo_origen,
-				trasbordo.vuelo_destino);
+	ApiTrasbordo api_trasbordo(atoi(argv[1]), "", path_cinta_principal);
 
-		sleep(rand() % SLEEP_TRASBORDO);
+	std::multimap<int, Equipaje> equipajes_a_cargar;
 
-		Log::info("Sacando equipajes %i -> %i", trasbordo.vuelo_origen, trasbordo.vuelo_destino);
+	cargar_equipajes(numero_vuelo_destino, equipajes_a_cargar);
 
-		std::vector<Equipaje> equipajes = equipajes_para(trasbordo);
+	Log::info("Esperando que se asigne la zona para vuelo %d", numero_vuelo_destino);
 
-		for (std::vector<Equipaje>::iterator equipaje = equipajes.begin();
-				equipaje < equipajes.end(); equipaje++) {
-			sleep(rand() % SLEEP_TRASBORDO);
+	zona_asignada = api_trasbordo.esperar_zona_asignada(numero_vuelo_destino);
 
-			Log::info("Sacando equipaje %i", (int) *equipaje);
+	CintaCentral cinta_equipajes(path_cinta_principal);
 
-			sleep(rand() % SLEEP_TRASBORDO);
-
-			Log::info("Poniendo equipaje %i en la cinta central", (int) *equipaje);
-
-			api_trasbordo.poner_en_cinta_principal(*equipaje);
+	while (!equipajes_a_cargar.empty()) {
+		Log::info("Esperando vuelos entrantes con equipaje destino a %d", numero_vuelo_destino);
+		cola_cargadores_equipaje.pull(&mensaje, sizeof(MENSAJE_VUELO_ENTRANTE) - sizeof(long),
+				numero_vuelo_destino);
+		Log::info("Comenzando a cargar equipaje de vuelo entrante %d", mensaje.vuelo_entrante);
+		for (it = equipajes_a_cargar.equal_range(mensaje.vuelo_entrante).first;
+				it != equipajes_a_cargar.equal_range(mensaje.vuelo_entrante).second; ++it) {
+			Log::info("Colocando equipaje %d:%s", (*it).second.getRfid().rfid,
+					(*it).second.get_descripcion());
+			cinta_equipajes.colocar_elemento(&(*it).second, zona_asignada + 5);
 		}
-
-		Log::info("Terminé con los equipajes %i -> %i", trasbordo.vuelo_origen,
-				trasbordo.vuelo_destino);
-
+		equipajes_a_cargar.erase(mensaje.vuelo_entrante);
 	}
-// avisar_contenedor_disponible ????
+	Log::info("Terminé con los equipajes con destino a %d", numero_vuelo_destino);
 
-} catch(const std::exception &e) {
-   Log::crit("%s", e.what());
-} catch(...) {
-   Log::crit("Critical error. Unknow exception at the end of the 'main' function.");
 }
 
-std::vector<Equipaje> equipajes_para(VueloTrasbordo trasbordo) {
-	std::vector<Equipaje> equipajes;
-
-	int rfid_inicial = trasbordo.vuelo_origen + trasbordo.vuelo_destino;
-
-	// Por ahora siempre crear 3 equipajes para cada vuelo trasbordo
-	for (int i = rfid_inicial; i < rfid_inicial + 3; i++) {
-		Equipaje equipaje(Rfid(i, trasbordo.vuelo_destino));
-		equipajes.push_back(equipaje);
-	}
-
-	return equipajes;
-}

@@ -45,8 +45,8 @@ char *args_robot_sospechosos[] = { (char*) "robot_control_equipaje_sospechoso", 
 		(char*) "5", // ID
 		NULL };
 
-char *args_robot_intercargo[] = { (char*) "robot_intercargo", (char*) "1", // ID
-		NULL };
+/*char *args_robot_intercargo[] = { (char*) "robot_intercargo", (char*) "1", // ID
+		NULL };*/
 
 char *args_torre_de_control[] = { (char*) "torre_de_control", NULL };
 
@@ -88,7 +88,7 @@ int main(int argc, char** argv) try {
                  processes.push_back(Process("robot_carga", args_robot_carga0));
                  processes.push_back(Process("robot_carga", args_robot_carga1));
                  processes.push_back(Process("robot_control_equipaje_sospechoso", args_robot_sospechosos));
-                 processes.push_back(Process("robot_intercargo", args_robot_intercargo));
+                // processes.push_back(Process("robot_intercargo", args_robot_intercargo));
                  processes.push_back(Process("torre_de_control", args_torre_de_control));
                  processes.push_back(Process("tractor", args_tractor1));
                  processes.push_back(Process("tractor", args_tractor2));

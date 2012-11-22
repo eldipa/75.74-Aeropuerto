@@ -14,5 +14,15 @@ typedef struct {
 	int cantidad_equipaje_total;
 }MENSAJE_CHECKIN_CERRADO;
 
+typedef struct {
+	long mtype;
+	int vuelo_entrante;
+}MENSAJE_VUELO_ENTRANTE;
+
+typedef struct {
+	long mtype;
+	int numero_de_vuelo;
+	int zona_asignada;
+}MENSAJE_ZONA_ASIGNADA;
 
 #endif /* MENSAJES_H_ */

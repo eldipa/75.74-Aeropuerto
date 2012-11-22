@@ -29,7 +29,9 @@
 #define PATH_COLA_CONTROL_CARGA_CHECKIN "/cola_control_carga.lck"
 #define PATH_COLA_CONTROL_CHECKIN "/cola_control_checkin.lck"
 #define PATH_ROBOT_DESPACHO "/robot_despacho.lck"
-
+#define PATH_COLA_CARGADORES_TRASBORDO "/cola_cargadores_equipaje_trasbordo.lck"
+#define PATH_MEMORIA_CARGADORES_TRASBORDO "/memoria_cargadores_equipaje_trasbordo.lck"
+#define PATH_COLA_ESCUCHA_ZONA_ASIGNADA "/cola_escucha_zona_asignada.lck"
 //CINTA CENTRAL
 
 

@@ -8,6 +8,9 @@
  * Es una Valija.
  * Tiene un rfid que la identifica
  **/
+
+#define SIZE_DESCRIPCION_EQUIPAJE 30
+
 class Equipaje {
 public:
 
@@ -59,7 +62,7 @@ public:
 private:
 	Rfid rfid;
 	int _peso;
-	char descripcion[30];
+	char descripcion[SIZE_DESCRIPCION_EQUIPAJE];
 };
 
 #endif /* EQUIPAJE_H_ */
