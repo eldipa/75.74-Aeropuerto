@@ -6,6 +6,7 @@
 #include "api_torre_de_control.h"
 #include "api_despachante.h"
 #include "api_checkin.h"
+#include "api_control_equipajes.h"
 #include <sys/stat.h>
 #include <cerrno>
 #include <cstdio>
@@ -21,6 +22,7 @@ const int cantidad_cintas_centrales = 1;
 const int cantidad_cintas_contenedor = 4;
 const int cantidad_robots_carga = 4;
 const int cantidad_puestos_checkin = 3;
+const int cantidad_robots_sospechosos = 1;
 
 class TorreDeControl {
 public:
@@ -180,6 +182,10 @@ public:
 		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_COLA_TRACTORES_AVIONES);
 		cola_tractores_avion = new MessageQueue(path_lock, 0, 0664, true);
 
+		for (int i = 0; i < cantidad_robots_sospechosos; i++) {
+			control_equipajes.push_back( new ApiControlEquipajes(3, 3,true) );
+		}
+
 	}
 	;
 
@@ -198,6 +204,7 @@ private:
    yasper::ptr<MessageQueue> cola_robot_zona_tractores;
    yasper::ptr<MessageQueue> cola_tractores_avion;
    std::vector< yasper::ptr<MessageQueue> > cola_control_carga_checkin;
+   std::vector< yasper::ptr<ApiControlEquipajes> > control_equipajes;
 
 	void crear_archivos_lck(const char *path_to_locks) {
 
@@ -230,6 +237,7 @@ private:
 		crear_archivo_lck(path_to_locks, PATH_COLA_CONTROL_CARGA_CHECKIN);
 		crear_archivo_lck(path_to_locks, PATH_COLA_CONTROL_CHECKIN);
 		crear_archivo_lck(path_to_locks, PATH_ROBOT_DESPACHO);
+		crear_archivo_lck(path_to_locks, PATH_CONTROL_SOSPECHOSOS);
 	}
 
 	void crear_archivo_lck(const char *path_to_locks, const char * nombre_archivo) {

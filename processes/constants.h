@@ -22,6 +22,7 @@
 #define SLEEP_DURACION_CHECKIN 15
 #define TIEMPO_SIMULACION 60
 
+#define CANT_SOSPECHOSOS 10 // 1 de cada CANT_SOSPECHOSOS es sospechoso.
 // Other
 #define TOPE_PESO_VALIJA 20
 
