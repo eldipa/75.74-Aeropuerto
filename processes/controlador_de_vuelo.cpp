@@ -62,10 +62,8 @@ int main(int argc, char** argv) try {
    int zona_utilizada = api_torre.pedir_zona(num_vuelo);
    Log::info("ControladorDeVuelos(%d) respuesta torre de control: num_zona=%d num_puesto_checkin=%d", num_vuelo, zona_utilizada, num_puesto_checkin);
 
-   int duracion_checkin = SLEEP_DURACION_CHECKIN;
-
    try {
-      sleep(SLEEP_DESPACHO_VUELO);
+      sleep(rand()%SLEEP_DESPACHO_VUELO);
 
       //activo robot_despacho
       registrar_zona_en_uso(num_vuelo, zona_utilizada);
@@ -77,7 +75,7 @@ int main(int argc, char** argv) try {
       run_generador_pasajeros(num_vuelo, num_puesto_checkin);
 
       //espero cierre checkin
-      sleep(duracion_checkin);
+      sleep(rand()%SLEEP_DURACION_CHECKIN);
       api_vuelo.cerrar_checkin(num_puesto_checkin, zona_utilizada);
       Log::info("ControladorDeVuelos(%d) cierro checkin %d", num_vuelo, num_puesto_checkin);
 

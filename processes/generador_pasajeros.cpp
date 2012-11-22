@@ -38,7 +38,7 @@ int main(int argc, char** argv) try {
       std::vector<Equipaje> equipajes;
 		checkin.llego_pasajero_para_checkin((*it), get_equipajes(num_vuelo, (*it), equipajes));
 		Log::info("GeneradorPasajeros(vuelo=%d) generando pasajero-checkin con equipaje: %s", num_vuelo, print_equipaje(equipajes).c_str());
-		sleep(SLEEP_LLEGADA_PASAJEROS_A_CHECKIN);
+		sleep(rand()%SLEEP_LLEGADA_PASAJEROS_A_CHECKIN);
    }
 
 	Log::info("GeneradorPasajeros(vuelo=%d) ya llegaron todos los pasajeros del vuelo %d", num_vuelo, num_vuelo);

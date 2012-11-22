@@ -14,6 +14,7 @@
 #include "log.h"
 #include "cintas.h"
 #include "process.h"
+#include "constants.h"
 
 #include "database.h"
 #include "stmt.h"
@@ -89,7 +90,7 @@ int main(int argc, char** argv) try {
       equipajes_por_cargar = 0;
 
 		while ( (!checkin_cerro) || (equipajes_cargados<equipajes_por_cargar) ) {
-			sleep(rand() % 10);
+			sleep(rand() % SLEEP_ROBOT_CARGA);
 			Log::info("RobotCarga(%s) Intentando tomar un nuevo equipaje de cinta(%s)\n", argv[1],argv[2]);
 			equipaje = api_carga.sacar_equipaje();
 
