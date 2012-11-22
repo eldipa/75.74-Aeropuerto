@@ -94,20 +94,22 @@ int main(int argc, char** argv) try {
 			Log::info("RobotCarga(%s) Intentando tomar un nuevo equipaje de cinta(%s)\n", argv[1],argv[2]);
 			equipaje = api_carga.sacar_equipaje();
 
-         numero_de_vuelo = equipaje.getRfid().numero_de_vuelo_destino;//por ahora el n° de vuelo lo saca del equipaje
+         //TODO: por ahora equipaje con rfid 0 es dummy(sale con este valor cuando se despierta la cinta por cierre de checkin)
+         if(equipaje.getRfid().rfid != 0) {
+            numero_de_vuelo = equipaje.getRfid().numero_de_vuelo_destino;//por ahora el n° de vuelo lo saca del equipaje
 
-			agregar_equipaje(equipaje, contenedores_por_escala, api_carga,id_robot);
-			equipajes_cargados++;
+            agregar_equipaje(equipaje, contenedores_por_escala, api_carga,id_robot);
+            equipajes_cargados++;
 
-         if(!checkin_cerro) {
-            Log::info("RobotCarga(%d) pongo equipaje %s en contenedor de escala '%s'.\n",
-                      id_robot, equipaje.toString().c_str(), equipaje.getRfid().get_escala().c_str() );
-         } else {
-            Log::info("RobotCarga(%d) pongo equipaje %s en contenedor de escala '%s'.ya carge %d/%d equipajes\n",
-                      id_robot, equipaje.toString().c_str(), equipaje.getRfid().get_escala().c_str(),
-                      equipajes_cargados, equipajes_por_cargar);
+            if(!checkin_cerro) {
+               Log::info("RobotCarga(%d) pongo equipaje %s en contenedor de escala '%s'.\n",
+                         id_robot, equipaje.toString().c_str(), equipaje.getRfid().get_escala().c_str() );
+            } else {
+               Log::info("RobotCarga(%d) pongo equipaje %s en contenedor de escala '%s'.ya carge %d/%d equipajes\n",
+                         id_robot, equipaje.toString().c_str(), equipaje.getRfid().get_escala().c_str(),
+                         equipajes_cargados, equipajes_por_cargar);
+            }
          }
-         
 
          if( (!checkin_cerro) && (checkin_cerro=api_carga.checkin_cerrado()) ) {
             equipajes_por_cargar = api_carga.obtener_cantidad_equipaje_total();
