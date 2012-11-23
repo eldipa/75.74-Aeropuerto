@@ -19,55 +19,55 @@
 
 #include <list>
 
-char *args_puesto_checkin1[] = { (char*) "puesto_checkin", 
+char *args_puesto_checkin1[] = { (char*) "puesto_checkin_1", 
                                 (char*) "1", NULL };
 
-char *args_puesto_checkin2[] = { (char*) "puesto_checkin", 
+char *args_puesto_checkin2[] = { (char*) "puesto_checkin_2", 
                                  (char*) "2", NULL };
 
-char *args_puesto_checkin3[] = { (char*) "puesto_checkin", 
+char *args_puesto_checkin3[] = { (char*) "puesto_checkin_3", 
                                 (char*) "3", NULL };
 
-char *args_robot_checkin[] = { (char*) "robot_checkin", (char*) "1", // ID
+char *args_robot_checkin[] = { (char*) "robot_checkin_1", (char*) "1", // ID
 		(char*) "1", (char*) "1", NULL };
 
-char *args_scanner1[] = { (char*) "robot_scanner", (char*) "1", // ID
+char *args_scanner1[] = { (char*) "robot_scanner_1", (char*) "1", // ID
 		(char*) "1", (char*) "1", NULL };
 
-char *args_scanner2[] = { (char*) "robot_scanner", (char*) "2", // ID
+char *args_scanner2[] = { (char*) "robot_scanner_1", (char*) "2", // ID
 		(char*) "1", (char*) "1", NULL };
 
-char *args_robot_despacho1[] = { (char*) "robot_despacho", (char*) "1", // ID
+char *args_robot_despacho1[] = { (char*) "robot_despacho_1", (char*) "1", // ID
                                  (char*) "1", (char*) "2", NULL };
 
-char *args_robot_despacho2[] = { (char*) "robot_despacho", (char*) "2", // ID
+char *args_robot_despacho2[] = { (char*) "robot_despacho_2", (char*) "2", // ID
                                  (char*) "3", (char*) "4", NULL };
 
-char *args_robot_carga1[] = { (char*) "robot_carga", (char*) "1", NULL };
+char *args_robot_carga1[] = { (char*) "robot_carga_1", (char*) "1", NULL };
 
-char *args_robot_carga2[] = { (char*) "robot_carga", (char*) "2", NULL };
+char *args_robot_carga2[] = { (char*) "robot_carga_2", (char*) "2", NULL };
 
-char *args_robot_carga3[] = { (char*) "robot_carga", (char*) "3", NULL };
+char *args_robot_carga3[] = { (char*) "robot_carga_3", (char*) "3", NULL };
 
-char *args_robot_carga4[] = { (char*) "robot_carga", (char*) "4", NULL };
+char *args_robot_carga4[] = { (char*) "robot_carga_4", (char*) "4", NULL };
 
 
-char *args_robot_sospechosos[] = { (char*) "robot_control_equipaje_sospechoso", (char*) "3",
+char *args_robot_sospechosos[] = { (char*) "robot_control_equipaje_sospechoso_5", (char*) "3",
 		(char*) "5", // ID
 		NULL };
 
 /*char *args_robot_intercargo[] = { (char*) "robot_intercargo", (char*) "1", // ID
 		NULL };*/
 
-char *args_torre_de_control[] = { (char*) "torre_de_control", NULL };
+char *args_torre_de_control[] = { (char*) "torre_de_control_1", NULL };
 
-char *args_tractor1[] = { (char*) "tractor", (char*) "1", NULL };
+char *args_tractor1[] = { (char*) "tractor_1", (char*) "1", NULL };
 
-char *args_tractor2[] = { (char*) "tractor", (char*) "2", NULL };
+char *args_tractor2[] = { (char*) "tractor_2", (char*) "2", NULL };
 
-char *args_avion1[] = { (char*) "avion", (char*) "1", NULL };
+char *args_avion1[] = { (char*) "avion_1", (char*) "1", NULL };
 
-char *args_avion2[] = { (char*) "avion", (char*) "2", NULL };
+char *args_avion2[] = { (char*) "avion_2", (char*) "2", NULL };
 
 /*
  * Lanza todos los vuelos registrados.
