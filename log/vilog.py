@@ -1,14 +1,14 @@
 import sys
 
-
 colors = map(lambda c: "\x1b[%im" % c, range(31, 38))
+colors += map(lambda c: "\x1b[7m%s" % c, colors)
 bold = "\x1b[1m"
 end = "\x1b[0m"
 
 if __name__ == '__main__':
     assert len(sys.argv) > 1, "Se debe espeficificar el nombre de los procesos que se quiere tracear."
-    assert len(sys.argv) < len(colors),  "Hay demasiados nombres, no se podra distingirlos a todos." 
     expecteds = sys.argv[1:]
+    assert len(expecteds) < len(colors) + 1,  "Hay demasiados nombres, no se podra distingirlos a todos." 
     color_by_process = dict(zip(expecteds, colors))
 
     for process, color in color_by_process.iteritems():
@@ -28,7 +28,7 @@ if __name__ == '__main__':
         for prefix in expecteds:
             if process_name.startswith(prefix) and len(best) < len(prefix):
                 best = prefix
-        
+         
         if not best:
            continue
 
