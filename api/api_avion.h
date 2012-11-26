@@ -19,13 +19,14 @@ private:
 	MessageQueue cola_tractor;
 
 public:
-	ApiAvion(int numero_de_vuelo, char * path_lock_cola_aviones) :
-			cola_tractor(path_lock_cola_aviones, 0) {
+	ApiAvion(char * directorio_de_trabajo, int numero_de_vuelo) :
+			cola_tractor(
+					std::string(directorio_de_trabajo).append(PATH_COLA_TRACTORES_AVIONES).c_str(),
+					0) {
 		this->numero_de_vuelo = numero_de_vuelo;
 	}
 
 	virtual ~ApiAvion() {
-
 	}
 
 	/*
@@ -53,7 +54,7 @@ public:
 	 * Desbloquea al avion, o permite el despegue
 	 **/
 	void notificar_depegue() {
-		Log::info("Avion(%d) Despegando", this->numero_de_vuelo);
+		Log::info("Despegando", this->numero_de_vuelo);
 	}
 
 	/*
@@ -78,16 +79,16 @@ public:
 		cantidad_contenedores_totales = 0;
 
 		do {
-			Log::info("Avion(%d) esperando equipaje", this->numero_de_vuelo);
+			Log::info("esperando equipaje", this->numero_de_vuelo);
 			cola_tractor.pull(&contenedor_avion, sizeof(ContenedorParaAvion) - sizeof(long),
 					this->numero_de_vuelo);
 			if (mostrar_cant_contenedores) {
-				Log::info("Avion(%d) contenedores total %d", this->numero_de_vuelo,
+				Log::info("contenedores total %d", this->numero_de_vuelo,
 						contenedor_avion.cantidad_total_contenedores);
 				mostrar_cant_contenedores = false;
 			}
 			cantidad_contenedores_actual++;
-			Log::info("Avion(%d) llegaron %d contenedores", this->numero_de_vuelo,
+			Log::info("llegaron %d contenedores", this->numero_de_vuelo,
 					cantidad_contenedores_actual);
 			cantidad_contenedores_totales = contenedor_avion.cantidad_total_contenedores;
 			contenedores.push_back(contenedor_avion.contenedor);

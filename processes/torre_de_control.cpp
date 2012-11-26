@@ -6,19 +6,15 @@
 #include <stdlib.h>
 #include <cstring>
 
-int main( /*int argc, char** argv */) try {
-	char path_torre_control[300];
+int main( int argc, char** argv ) try {
 
-   /*if (argc < 2) {
-      Log::crit("Insuficientes parametros para torre de control, se esperaba ()\n");
+   if (argc < 2) {
+      Log::crit("Insuficientes parametros para torre de control, se esperaba (directorio_de_trabajo)\n");
       exit(1);
-   }*/
-
-	strcpy(path_torre_control, PATH_KEYS);
-	strcat(path_torre_control, PATH_TORRE_DE_CONTROL);
+   }
 
    Log::info("Iniciando la torre de control");
-   ApiTorreDeControl torre_de_control(path_torre_control);
+   ApiTorreDeControl torre_de_control(argv[1]);
 
    // Acá tendría que ir la lógica de la torre de control
    // Por ahora harcodeo una notificación de llegada de vuelo

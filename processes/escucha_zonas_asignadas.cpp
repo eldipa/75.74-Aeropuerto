@@ -1,30 +1,20 @@
-#include <iostream>
-#include <stdlib.h>
-#include <unistd.h>
 #include <cstring>
-
-#include "api_trasbordo.h"
-
-#include "contenedor.h"
+#include <cstdlib>
 #include "constants.h"
 #include "log.h"
 
-#include "mensajes.h"
-#include "messagequeue.h"
-#include <cstdio>
-#include "process.h"
 #include "api_comunicacion_trasbordo.h"
 
-int main(/*int argc, char** argv*/) {
-	char path_ipc_intercargo[300];
-	char path_cola_escucha_asignaciones[300];
+int main(int argc, char* argv[])
+try {
 
-	strcpy(path_cola_escucha_asignaciones, PATH_KEYS);
-	strcat(path_cola_escucha_asignaciones, PATH_COLA_ESCUCHA_ZONA_ASIGNADA);
-	strcpy(path_ipc_intercargo, PATH_KEYS);
-	strcat(path_ipc_intercargo, PATH_COLA_CARGADORES_TRASBORDO);
+	if (argc < 2) {
+		Log::crit(
+				"Insuficientes parametros para Escucha Zonas Asignadas, se esperaba (directorio_de_trabajo)\n");
+		exit(1);
+	}
 
-	ApiComunicacionTrasbordo trasbordo(path_ipc_intercargo, path_cola_escucha_asignaciones, 0);
+	ApiComunicacionTrasbordo trasbordo(argv[1]);
 
 	for (;;) {
 		Log::info("Esperando asignacion de zona");
@@ -34,5 +24,10 @@ int main(/*int argc, char** argv*/) {
 		trasbordo.notificar_asignacion_de_zona(trasbordo.get_zona_asignada(),
 				trasbordo.get_vuelo_destino());
 	}
-
+}
+catch (const std::exception &e) {
+	Log::crit("%s", e.what());
+}
+catch (...) {
+	Log::crit("Critical error. Unknow exception at the end of the 'main' function.");
 }

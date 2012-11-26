@@ -11,6 +11,7 @@
 #include "mutex.h"
 #include "cintas.h"
 #include <vector>
+#include <string>
 
 class ApiCarga {
 private:
@@ -31,10 +32,9 @@ public:
 	 * El primer constructor crea los ipcs.Se llama solo una vez por cada controlador_de_carga.
 	 * recibe un path_carga y el id_robot_carga.Va a existir una ApiCarga por cada robot_carga.
 	 **/
-	ApiCarga(int id_robot_carga, const char * path_cinta_contenedor, int num_cinta,
-			const char * path_cola_tractores) :
-			id_robot_carga(id_robot_carga), cola_tractores(path_cola_tractores, 0), cinta_contenedor(
-					path_cinta_contenedor, num_cinta) {
+	ApiCarga(const char * directorio_de_trabajo,int id_robot_carga, int num_cinta) :
+			id_robot_carga(id_robot_carga), cola_tractores(std::string(directorio_de_trabajo).append(PATH_COLA_ROBOTS_ZONA_TRACTORES).c_str(), 0), cinta_contenedor(
+					std::string(directorio_de_trabajo).append(PATH_CINTA_CONTENEDOR).c_str(), num_cinta) {
 
 	}
 

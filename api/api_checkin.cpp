@@ -18,14 +18,14 @@
 #include "yasper.h"
 
 
-ApiCheckIn::ApiCheckIn(int id_checkin, const char* path_to_locks) : 
-   path_to_locks(path_to_locks),
+ApiCheckIn::ApiCheckIn(const char* directorio_de_trabajo,int id_checkin) :
+   path_to_locks(directorio_de_trabajo),
    id_checkin(id_checkin),
-   vuelo_actual(std::string(PATH_KEYS).append(PATH_PUESTO_CHECKIN).c_str(), id_checkin*cant_ipcs+2),
-   cinta_checkin_out(std::string(PATH_KEYS).append(PATH_CINTA_CHECKIN).c_str(), vuelo_actual->id_cinta_checkin),
-   sem_set(std::string(PATH_KEYS).append(PATH_PUESTO_CHECKIN).c_str(), id_checkin*cant_ipcs, 1),
+   vuelo_actual(std::string(directorio_de_trabajo).append(PATH_PUESTO_CHECKIN).c_str(), id_checkin*cant_ipcs+2),
+   cinta_checkin_out(std::string(directorio_de_trabajo).append(PATH_CINTA_CHECKIN).c_str(), vuelo_actual->id_cinta_checkin),
+   sem_set(std::string(directorio_de_trabajo).append(PATH_PUESTO_CHECKIN).c_str(), id_checkin*cant_ipcs, 1),
    mutex_checkin(sem_set, 0),
-   queue_pasajeros(std::string(PATH_KEYS).append(PATH_PUESTO_CHECKIN).c_str(), id_checkin*cant_ipcs+1) {
+   queue_pasajeros(std::string(directorio_de_trabajo).append(PATH_PUESTO_CHECKIN).c_str(), id_checkin*cant_ipcs+1) {
 
 }
 
@@ -47,7 +47,7 @@ void ApiCheckIn::iniciar_checkin( int numero_vuelo ) {
    mutex_checkin.lock();
    if( vuelo_actual->num_vuelo == -1 ) {
       MessageQueue checkin(std::string(PATH_KEYS).append(PATH_TORRE_DE_CONTROL).c_str(), Q_CHECKINS_HABILITADOS);
-   
+
       Log::info("Notificando checkin abierto para vuelo %i", numero_vuelo);
       // Envio un mensaje por cada vuelo de trasbordo
       for (int i = 0; i < cantidad_vuelos_trasbordo_a(numero_vuelo); i ++ ) {
@@ -72,7 +72,7 @@ int ApiCheckIn::cerrar_checkin() {
 
    Log::info("Notificando checkin cerrado para vuelo %i", vuelo_actual->num_vuelo);
    //checkin.push(&vuelo_actual, sizeof(vuelo_actual)); TODO:
-    
+
    vuelo_actual->num_vuelo = -1;
    equipajes_cargados = vuelo_actual->cant_equipajes;
 	mutex_checkin.unlock();

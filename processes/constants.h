@@ -23,7 +23,6 @@
 #define SLEEP_ROBOT_CARGA 2
 
 #define CANT_SOSPECHOSOS 10 // 1 de cada CANT_SOSPECHOSOS es sospechoso.
-
 // Other
 #define TOPE_PESO_VALIJA 20
 
@@ -31,5 +30,7 @@
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
 #define AT __FILE__ ":" TOSTRING(__LINE__)
+
+
 
 #endif

@@ -16,29 +16,27 @@
 #include <cstring>
 #include "mensajes.h"
 #include "cintas.h"
+#include <string>
 
-int main(int argc, char** argv) try {
+int main(int argc, char** argv)
+try {
 	int id_robot_carga;
-	char path[300];
 
 	if (argc < 2) {
 		Log::crit(
-				"Insuficientes parametros para control_carga_contenedores, se esperaba (id_robot_carga)\n",
-				argv[1]);
+				"Insuficientes parametros para control_carga_contenedores, se esperaba (directorio_de_trabajo, id_robot_carga)\n");
 		exit(1);
 	}
-	id_robot_carga = atoi(argv[1]);
+	id_robot_carga = atoi(argv[2]);
 
 	MENSAJE_CHECKIN_CERRADO mensaje;
-	strcpy(path, PATH_KEYS);
-	strcat(path, PATH_COLA_CONTROL_CARGA_CHECKIN);
-	MessageQueue cola_mensajes_con_despachante_de_vuelo(path, id_robot_carga);
+	MessageQueue cola_mensajes_con_despachante_de_vuelo(
+			std::string(argv[1]).append(PATH_COLA_CONTROL_CARGA_CHECKIN).c_str(), id_robot_carga);
 
-	strcpy(path, PATH_KEYS);
-	strcat(path, PATH_CINTA_CONTENEDOR);
-	CintaContenedor cinta_contenedor_carga(path, id_robot_carga);
+	CintaContenedor cinta_contenedor_carga(
+			std::string(argv[1]).append(PATH_CINTA_CONTENEDOR).c_str(), id_robot_carga);
 
-	Log::info("Control Carga Checkin(%s) espero mensaje checkin cerrado\n", argv[1]);
+	Log::info("Espero mensaje checkin cerrado\n");
 
 	cola_mensajes_con_despachante_de_vuelo.pull(&mensaje,
 			sizeof(MENSAJE_CHECKIN_CERRADO) - sizeof(long), 0);
@@ -49,8 +47,10 @@ int main(int argc, char** argv) try {
 
 	Log::info("Nada mas que hacer");
 	return 0;
-} catch(const std::exception &e) {
-   Log::crit("%s", e.what());
-} catch(...) {
-   Log::crit("Critical error. Unknow exception at the end of the 'main' function.");
+}
+catch (const std::exception &e) {
+	Log::crit("%s", e.what());
+}
+catch (...) {
+	Log::crit("Critical error. Unknow exception at the end of the 'main' function.");
 }

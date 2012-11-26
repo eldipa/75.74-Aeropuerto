@@ -4,19 +4,19 @@
 
 #include <string>
 
-ApiControlEquipajes::ApiControlEquipajes(int pos_consumidor_cinta_central,int pos_productor_cinta_central, bool create) :
+ApiControlEquipajes::ApiControlEquipajes(const char * directorio_de_trabajo,int pos_consumidor_cinta_central,int pos_productor_cinta_central, bool create) :
    pos_consumidor_cinta_central(pos_consumidor_cinta_central), 
    pos_productor_cinta_central(pos_productor_cinta_central), 
-   cinta_central(std::string(PATH_KEYS).append(PATH_CINTA_CENTRAL).c_str()),
-   queue_to_control_sospechosos(std::string(PATH_KEYS).append(PATH_CONTROL_SOSPECHOSOS).c_str(), 1, 0664, true) {
-   create = create;
+   cinta_central(std::string(directorio_de_trabajo).append(PATH_CINTA_CENTRAL).c_str()),
+   queue_to_control_sospechosos(std::string(directorio_de_trabajo).append(PATH_CONTROL_SOSPECHOSOS).c_str(), 1, 0664, true) {
+   create = false;
 }
 
-ApiControlEquipajes::ApiControlEquipajes(int pos_consumidor_cinta_central,int pos_productor_cinta_central) :
+ApiControlEquipajes::ApiControlEquipajes(const char * directorio_de_trabajo,int pos_consumidor_cinta_central,int pos_productor_cinta_central) :
    pos_consumidor_cinta_central(pos_consumidor_cinta_central), 
    pos_productor_cinta_central(pos_productor_cinta_central), 
-   cinta_central(std::string(PATH_KEYS).append(PATH_CINTA_CENTRAL).c_str()),
-   queue_to_control_sospechosos(std::string(PATH_KEYS).append(PATH_CONTROL_SOSPECHOSOS).c_str(), 1)
+   cinta_central(std::string(directorio_de_trabajo).append(PATH_CINTA_CENTRAL).c_str()),
+   queue_to_control_sospechosos(std::string(directorio_de_trabajo).append(PATH_CONTROL_SOSPECHOSOS).c_str(), 1)
 {
 }
 

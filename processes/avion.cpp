@@ -1,32 +1,23 @@
-/*
- * avion.cpp
- *
- *  Created on: 10/11/2012
- *      Author: gonzalo
- */
 #include <iostream>
-#include <stdlib.h>
-#include <stdio.h>
+#include <cstdlib>
+#include <cstdio>
 #include <unistd.h>
 #include "log.h"
 
 #include "api_avion.h"
 
-int main(int argc, char** argv) try {
+int main(int argc, char** argv)
+try {
 	//bool vuelo_cargado;
 	std::vector<Contenedor> contenedores;
-	char path[300];
 
 	if (argc < 2) {
 		Log::crit(
-				"Insuficientes parametros para avion, se esperaba (numero_de_vuelo(por ahora))\n");
+				"Insuficientes parametros para avion, se esperaba (directorio_de_trabajo, numero_de_vuelo)\n");
 		exit(1);
 	}
 
-	strcpy(path, PATH_KEYS);
-	strcat(path, PATH_COLA_TRACTORES_AVIONES);
-
-	ApiAvion vuelo(atoi(argv[1]), path);
+	ApiAvion vuelo(argv[1], atoi(argv[2]));
 	//vuelo_cargado = false;
 	// Acá tendría que ir la lógica de la torre de control
 	// Por ahora harcodeo una notificación de llegada de vuelo
@@ -40,8 +31,10 @@ int main(int argc, char** argv) try {
 
 	Log::info("Nada mas que hacer");
 	return 0;
-} catch(const std::exception &e) {
-   Log::crit("%s", e.what());
-} catch(...) {
-   Log::crit("Critical error. Unknow exception at the end of the 'main' function.");
+}
+catch (const std::exception &e) {
+	Log::crit("%s", e.what());
+}
+catch (...) {
+	Log::crit("Critical error. Unknow exception at the end of the 'main' function.");
 }

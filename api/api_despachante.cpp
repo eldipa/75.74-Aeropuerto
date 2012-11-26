@@ -1,11 +1,11 @@
 #include "api_despachante.h"
 #include "log.h"
 
-ApiDespachante::ApiDespachante(int numero_despachante, const char* path_to_locks) :
-   sem_set(std::string(path_to_locks).append(PATH_ROBOT_DESPACHO).c_str(), numero_despachante*cant_ipcs, 1),
+ApiDespachante::ApiDespachante(const char* directorio_de_trabajo,int numero_despachante) :
+   sem_set(std::string(directorio_de_trabajo).append(PATH_ROBOT_DESPACHO).c_str(), numero_despachante*cant_ipcs, 1),
    mutex_asignaciones(sem_set, 0),
-   asignaciones(std::string(path_to_locks).append(PATH_ROBOT_DESPACHO).c_str(), numero_despachante*cant_ipcs+1),
-   cinta(std::string(path_to_locks).append(PATH_CINTA_CENTRAL).c_str()) {
+   asignaciones(std::string(directorio_de_trabajo).append(PATH_ROBOT_DESPACHO).c_str(), numero_despachante*cant_ipcs+1),
+   cinta(std::string(directorio_de_trabajo).append(PATH_CINTA_CENTRAL).c_str()) {
 
 	this->numero_despachante = numero_despachante;
 	this->saco_elemento = true;
@@ -50,14 +50,14 @@ void ApiDespachante::avanzar_cinta() {
 }
 
 void ApiDespachante::asignar_vuelo(int zona, int vuelo) {
-   Log::info("ApiDespachante(%d) asignando zona %d a vuelo %d", numero_despachante, zona, vuelo);
+   Log::info("asignando zona %d a vuelo %d", numero_despachante, zona, vuelo);
    mutex_asignaciones.lock();
    asignaciones->asignar_vuelo(zona, vuelo);
    mutex_asignaciones.unlock();
 }
 
 void ApiDespachante::desasignar_vuelo(int num_vuelo) {
-   Log::info("ApiDespachante(%d) desasignando vuelo %d", numero_despachante, num_vuelo);
+   Log::info(" desasignando vuelo %d", numero_despachante, num_vuelo);
    mutex_asignaciones.lock();
    asignaciones->desasignar_vuelo(num_vuelo);
    mutex_asignaciones.unlock();

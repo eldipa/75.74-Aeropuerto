@@ -8,59 +8,55 @@
 #include "cintas.h"
 #include "constants.h"
 
-int main(int argc, char *argv[]) try {
+int main(int argc, char *argv[])
+try {
 	int id_robot;
 	int id_cinta_scanner;
-	char path_cinta_scanner[300];
-	char path_cinta_central[300];
 	if (argc < 4) {
-		Log::crit("Insuficientes parametros para scanner, se esperaba (id, id_cinta_scanner)\n");
+		Log::crit(
+				"Insuficientes parametros para scanner, se esperaba (directorio_de_trabajo, id, id_cinta_scanner)\n");
 		return (1);
 	}
 
-	id_robot = atoi(argv[1]); // de 1 a N
+	id_robot = atoi(argv[2]); // de 1 a N
 
 	if (id_robot < 1) {
 		Log::crit("ID de robot_scanner incorrecto %d\n", id_robot);
 		exit(1);
 	}
 
-	id_cinta_scanner = atoi(argv[2]);
+	id_cinta_scanner = atoi(argv[3]);
 
-	strcpy(path_cinta_scanner, PATH_KEYS);
-	strcat(path_cinta_scanner, PATH_CINTA_SCANNER);
-	strcpy(path_cinta_central, PATH_KEYS);
-	strcat(path_cinta_central, PATH_CINTA_CENTRAL);
+	CintaScanner<Equipaje> cinta_scanner(std::string(argv[1]).append(PATH_CINTA_SCANNER).c_str(),
+			id_cinta_scanner, id_robot);
+	ApiScanner api_escaner_cinta_central(argv[1], id_robot);
 
-	CintaScanner<Equipaje> cinta_scanner(path_cinta_scanner, id_cinta_scanner, id_robot);
-	ApiScanner api_escaner_cinta_central(id_robot, path_cinta_central);
-
-	Log::info("Iniciando scanner(%s), %s\n", argv[1], argv[2]);
+	Log::info("Iniciando scanner(%s), %s\n", argv[2], argv[3]);
 
 	for (;;) {
-		Log::info("Scanner(%s) Intentando tomar un nuevo equipaje de cinta de scanner(%s)\n",
-				argv[1], argv[3]);
+		Log::info("Intentando tomar un nuevo equipaje de cinta de scanner\n");
 		Equipaje equipaje = cinta_scanner.sacar_equipaje();
 
-		Log::info("Scanner(%s) Escaneando equipaje %s\n", argv[1], equipaje.toString().c_str());
+		Log::info("Escaneando equipaje %s\n", equipaje.toString().c_str());
 		equipaje.set_sospechoso((rand() % CANT_SOSPECHOSOS) == 0);
 
 		sleep(rand() % SLEEP_ROBOT_SCANNER);
 
 		if (equipaje.es_sospechoso()) {
-			Log::info("Scanner(%s) se encontro sospechoso el equipaje %s\n", argv[1],
-					equipaje.toString().c_str());
+			Log::info("se encontro sospechoso el equipaje %s\n", equipaje.toString().c_str());
 		} else {
-			Log::info("Scanner(%s) equipaje limpio: %s\n", argv[1], equipaje.toString().c_str());
+			Log::info("equipaje limpio: %s\n", equipaje.toString().c_str());
 		}
 
-		Log::info("Scanner(%s) pasando equipaje a cinta central (%s)\n", argv[1], argv[2]);
+		Log::info("pasando equipaje a cinta central (%s)\n", argv[2]);
 		api_escaner_cinta_central.colocar_equipaje_en_cinta_principal(equipaje);
 	}
 
-} catch(const std::exception &e) {
-   Log::crit("%s", e.what());
-} catch(...) {
-   Log::crit("Critical error. Unknow exception at the end of the 'main' function.");
+}
+catch (const std::exception &e) {
+	Log::crit("%s", e.what());
+}
+catch (...) {
+	Log::crit("Critical error. Unknow exception at the end of the 'main' function.");
 }
 

@@ -20,28 +20,28 @@ std::string print_equipaje(const std::vector<Equipaje>& equipajes);
 
 int main(int argc, char** argv) try {
 	if (argc < 3) {
-		Log::crit("Insuficientes parametros para generador_pasajeros, se esperaba (num_vuelo, num_puesto_checkin)\n");
+		Log::crit("Insuficientes parametros para generador_pasajeros, se esperaba (directorio_de_trabajo, num_vuelo, num_puesto_checkin)\n");
 		return (1);
 	}
 
-	int num_vuelo = atoi(argv[1]);
-	int num_puesto_checkin = atoi(argv[2]);
-	ApiCheckIn checkin(num_puesto_checkin, PATH_KEYS);
+	int num_vuelo = atoi(argv[2]);
+	int num_puesto_checkin = atoi(argv[3]);
+	ApiCheckIn checkin(argv[1],num_puesto_checkin);
    std::vector<int> id_pasajeros;
 
    get_pasajeros(num_vuelo, id_pasajeros);
 
-	Log::info("GeneradorPasajeros(vuelo=%d) total_pasajeros: %d", num_vuelo, id_pasajeros.size());
+	Log::info("total_pasajeros: %d", num_vuelo, id_pasajeros.size());
 
    std::vector<int>::iterator it;
    for( it=id_pasajeros.begin(); it != id_pasajeros.end(); it++) {
       std::vector<Equipaje> equipajes;
 		checkin.llego_pasajero_para_checkin((*it), get_equipajes(num_vuelo, (*it), equipajes));
-		Log::info("GeneradorPasajeros(vuelo=%d) generando pasajero-checkin con equipaje: %s", num_vuelo, print_equipaje(equipajes).c_str());
+		Log::info("generando pasajero-checkin con equipaje: %s", num_vuelo, print_equipaje(equipajes).c_str());
 		sleep(rand()%SLEEP_LLEGADA_PASAJEROS_A_CHECKIN);
    }
 
-	Log::info("GeneradorPasajeros(vuelo=%d) ya llegaron todos los pasajeros del vuelo %d", num_vuelo, num_vuelo);
+	Log::info("ya llegaron todos los pasajeros del vuelo %d", num_vuelo, num_vuelo);
 	return 0;
 
 } catch(const std::exception &e) {

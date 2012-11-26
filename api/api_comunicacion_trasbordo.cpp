@@ -1,12 +1,14 @@
 #include "api_comunicacion_trasbordo.h"
+#include <string>
+using namespace std;
+ApiComunicacionTrasbordo::ApiComunicacionTrasbordo(const char * directorio_de_trabajo) {
 
-ApiComunicacionTrasbordo::ApiComunicacionTrasbordo(char * path_to_robots_intercargo,
-		char * path_cola_comunicacion_trasbordo, int id_instancia) {
+	semaforos = new SemaphoreSet(string(directorio_de_trabajo).append(PATH_IPC_ROBOTS_INTERCARGO).c_str(), 0, 0, 0);
+	memoria_zonas = new SharedMemory(string(directorio_de_trabajo).append(PATH_IPC_ROBOTS_INTERCARGO).c_str(), 1, 0, 0, false, false);
+	cola_asignaciones = new MessageQueue(string(directorio_de_trabajo).append(PATH_COLA_ESCUCHA_ZONA_ASIGNADA).c_str(), 0);
 
-	semaforos = new SemaphoreSet(path_to_robots_intercargo, cant_ipc * id_instancia, 0, 0);
-	memoria_zonas = new SharedMemory(path_to_robots_intercargo, cant_ipc * id_instancia + 1, 0, 0,
-			false, false);
-	cola_asignaciones = new MessageQueue(path_cola_comunicacion_trasbordo, cant_ipc * id_instancia + 2);
+	zonas_asignadas = static_cast<int *>(memoria_zonas->memory_pointer());
+	vuelos_esperando = zonas_asignadas + MAX_ZONAS;
 
 }
 

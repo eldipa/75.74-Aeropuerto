@@ -13,16 +13,17 @@
 
 #include <stdexcept>
 #include <cstdio>
-#include <string.h>
+#include <cstring>
+#include <string>
 #include "yasper.h"
 
 void lanzar_notificadores_de_vuelos_de_intercargo(const char*, int);
 
-ApiTorreDeControl::ApiTorreDeControl(const char* path_torre_control) :
-   path_torre_control(path_torre_control),
-   queue_zonas(path_torre_control, Q_ZONAS),
-   queue_puestos_checkin(path_torre_control, Q_PUESTOS_CHECKIN),
-   queue_contenedores(path_torre_control, Q_CONTENEDORES) {
+ApiTorreDeControl::ApiTorreDeControl(const char* directorio_de_trabajo) :
+   path_torre_control(std::string(directorio_de_trabajo).append(PATH_TORRE_DE_CONTROL).c_str()),
+   queue_zonas(path_torre_control.c_str(), Q_ZONAS),
+   queue_puestos_checkin(path_torre_control.c_str(), Q_PUESTOS_CHECKIN),
+   queue_contenedores(path_torre_control.c_str(), Q_CONTENEDORES) {
 
    
 }
@@ -83,9 +84,8 @@ void ApiTorreDeControl::liberar_contenedor() {
 }
 
 int ApiTorreDeControl::pedir_puesto_checkin(int num_vuelo) {
-   num_vuelo = num_vuelo;
    tMsgCheckin msg;
-   queue_puestos_checkin.pull(&msg, sizeof(tMsgCheckin)-sizeof(long));
+   queue_puestos_checkin.pull(&msg, sizeof(tMsgCheckin)-sizeof(long),num_vuelo);
    return msg.puesto_checkin;
 }
  
@@ -98,9 +98,8 @@ void ApiTorreDeControl::liberar_puesto_checkin(int num_puesto_checkin) {
 
 int ApiTorreDeControl::pedir_zona(int num_vuelo) {
    Log::info("ApiTorreDeControl: pidiendo zona libre");
-   num_vuelo = num_vuelo;
    tMsgZona msg;
-   queue_zonas.pull(&msg, sizeof(tMsgZona)-sizeof(long));
+   queue_zonas.pull(&msg, sizeof(tMsgZona)-sizeof(long),num_vuelo);
    return msg.num_zona;
 }
 

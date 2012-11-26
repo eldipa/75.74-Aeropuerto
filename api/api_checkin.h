@@ -47,20 +47,20 @@ public:
 class ApiCheckIn {
 public:
 
-   ApiCheckIn(int id_checkin, const char* path_to_locks);
+   ApiCheckIn(const char* directorio_de_trabajo,int id_checkin );
    virtual ~ApiCheckIn();
-   
+
    /*
     * Asigna un vuelo al puesto de checkin.
     **/
    void iniciar_checkin( int numero_vuelo );
-    
+
    /*
-    * Cierra el checkin iniciado con #iniciar_checkin 
+    * Cierra el checkin iniciado con #iniciar_checkin
     * El checkin debe haber sido abi
     **/
    int cerrar_checkin();
-   
+
    /*
     * Bloquea hasta que llegue un mensaje de iniciar_checkin
     */
@@ -70,13 +70,13 @@ public:
     * Bloquea hasta que llegue un mensaje de controlador_de_checkin
     */
    void recibir_mensaje_controlador_checkin(tMeansajeCheckin&);
-   
+
    /*
     *  Registra un equipaje que hace checkin.
     *  A partir de aca el avion no sale hasta que llega el equipaje
     **/
    void registrar_equipaje( Equipaje& );
-   
+
    /*
     * Retorna el numero_vuelo que esta haciendo checkin en ese momento.
     * Si no se esta haciendo checkin en ese momento lanza la excepcion
@@ -103,7 +103,7 @@ public:
    int get_cinta_checkin();
 
 private:
-   static const int cant_ipcs = 3; 
+   static const int cant_ipcs = 3;
 
    std::string path_to_locks;
    int id_checkin;

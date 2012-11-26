@@ -6,6 +6,7 @@
 #include "contenedor.h"
 #include <vector>
 #include "log.h"
+#include <string>
 
 class ApiTractor {
 private:
@@ -15,9 +16,12 @@ private:
 	MessageQueue cola_robot_zona;
 
 public:
-	ApiTractor(int id_tractor, char * path_lock_cola_tractores, char * path_lock_cola_aviones) :
-			id(id_tractor), cola_avion(path_lock_cola_aviones, 0), cola_robot_zona(
-					path_lock_cola_tractores, 0) {
+	ApiTractor(const char * directorio_de_trabajo, int id_tractor) :
+			id(id_tractor), cola_avion(
+					std::string(directorio_de_trabajo).append(PATH_COLA_TRACTORES_AVIONES).c_str(),
+					0), cola_robot_zona(
+					std::string(directorio_de_trabajo).append(PATH_COLA_ROBOTS_ZONA_TRACTORES).c_str(),
+					0) {
 
 	}
 
@@ -35,7 +39,7 @@ public:
 	void cargar_contenedor_en_avion(const Contenedor & contenedor, int vuelo,
 			int cantidad_total_contenedores) {
 		ContenedorParaAvion contenedor_para_avion;
-      Log::debug("cargar_contenedor_en_avion: numero_vuelo=%d", vuelo);
+		Log::debug("cargar_contenedor_en_avion: numero_vuelo=%d", vuelo);
 		contenedor_para_avion.mtype = vuelo;
 		contenedor_para_avion.cantidad_total_contenedores = cantidad_total_contenedores;
 		contenedor_para_avion.contenedor = contenedor;

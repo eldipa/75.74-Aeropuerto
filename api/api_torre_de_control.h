@@ -6,7 +6,7 @@
 
 class ApiTorreDeControl {
 public:
-   ApiTorreDeControl(const char *path_torre_control);
+   ApiTorreDeControl(const char *directorio_de_trabajo);
    virtual ~ApiTorreDeControl() {};
    void notificar_llegada_vuelo(int numero_vuelo);
 

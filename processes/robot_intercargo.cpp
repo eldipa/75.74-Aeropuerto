@@ -23,13 +23,14 @@ void cargar_equipajes(int numero_vuelo_destino, std::multimap<int, Equipaje> & e
 	char primera_linea[300];
 	int numero_vuelo_entrante;
 
-	sprintf(path_archivo_equipajes, "equipaje_destino_%d.csv", numero_vuelo_destino);
+	sprintf(path_archivo_equipajes, "./entrada/equipaje_destino_%d.csv", numero_vuelo_destino);
 
 	equipajes_vuelo_destino = fopen(path_archivo_equipajes, "rt");
 
-	fscanf(equipajes_vuelo_destino, "%s\n", primera_linea);
+	fscanf(equipajes_vuelo_destino, "%[^\n]s\n", primera_linea);
 
-	while (fscanf(equipajes_vuelo_destino, "%d:%d:%s:%d:%d:%d:%d:%d:%d:%d:%s\n",
+
+	while (fscanf(equipajes_vuelo_destino, "%d:%d:%[^:]:%d:%d:%d:%d:%d:%d:%d:%[^\n]s\n",
 			&numero_vuelo_entrante, &peso_equipaje, descripcion_equipaje, &rfid, &vuelo_destino,
 			escalas, escalas + 1, escalas + 2, escalas + 3, escalas + 4, escala_destino) != EOF) {
 		Rfid rf(rfid, numero_vuelo_destino);
@@ -45,29 +46,22 @@ void cargar_equipajes(int numero_vuelo_destino, std::multimap<int, Equipaje> & e
 	fclose(equipajes_vuelo_destino);
 }
 
-int main(int argc, char** argv) {
-	char path_ipc_trasbordo[300];
-	char path_cinta_principal[300];
+int main(int argc, char** argv)
+try {
 	int zona_asignada;
 	int numero_vuelo_destino;
 	int numero_vuelo_entrante;
 	std::multimap<int, Equipaje>::iterator it;
 
-
-	if (argc < 2) {
+	if (argc < 3) {
 		Log::crit(
-				"Insuficientes parametros para robot de Intercargo, se esperaba (num_vuelo_destino)\n");
+				"Insuficientes parametros para robot de Intercargo, se esperaba (directorio_de_trabajo, num_vuelo_destino)\n");
 		exit(1);
 	}
 
-	numero_vuelo_destino = atoi(argv[1]);
+	numero_vuelo_destino = atoi(argv[2]);
 
-	strcpy(path_ipc_trasbordo, PATH_KEYS);
-	strcat(path_ipc_trasbordo, PATH_COLA_CARGADORES_TRASBORDO);
-	strcpy(path_cinta_principal, PATH_KEYS);
-	strcat(path_cinta_principal, PATH_CINTA_CENTRAL);
-
-	ApiTrasbordo api_trasbordo(path_ipc_trasbordo, path_cinta_principal, 0);
+	ApiTrasbordo api_trasbordo(argv[1]);
 
 	std::multimap<int, Equipaje> equipajes_a_cargar;
 
@@ -90,6 +84,11 @@ int main(int argc, char** argv) {
 		equipajes_a_cargar.erase(numero_vuelo_entrante);
 	}
 	Log::info("Terminé con los equipajes con destino a %d", numero_vuelo_destino);
-
 }
 
+catch (const std::exception &e) {
+	Log::crit("%s", e.what());
+}
+catch (...) {
+	Log::crit("Critical error. Unknow exception at the end of the 'main' function.");
+}

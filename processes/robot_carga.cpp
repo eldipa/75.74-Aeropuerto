@@ -25,20 +25,20 @@ void agregar_equipaje(Equipaje & equipaje,
                       ApiCarga &api_carga,
                       int id_robot ) {
 
-	Log::info("RobotCarga(%d) se tomo el equipaje %s con escala destino '%s' peso=%d\n", id_robot,
+	Log::info("se tomo el equipaje %s con escala destino '%s' peso=%d\n", id_robot,
              equipaje.toString().c_str(), equipaje.getRfid().get_escala().c_str(), equipaje.peso());
 
 	if (equipaje.peso() <= MAX_PESO_CONTENEDOR) {
 		std::string escala = equipaje.getRfid().get_escala();
 
 		if (contenedores_por_escala.find(escala) == contenedores_por_escala.end()) {
-			Log::info("RobotCarga(%d) no tengo contenedor, pido contenedor para escala '%s'\n",
+			Log::info("no tengo contenedor, pido contenedor para escala '%s'\n",
                    id_robot, escala.c_str());
 			contenedores_por_escala.insert(std::pair<std::string, Contenedor>(escala, Contenedor()));
 		}
 
 		if (!contenedores_por_escala[escala].hay_lugar(equipaje)) {
-			Log::info("RobotCarga(%d) contenedor lleno, pido contenedor para escala '%s'\n",
+			Log::info("contenedor lleno, pido contenedor para escala '%s'\n",
                    id_robot, escala.c_str());
 			api_carga.agregar_contenedor_cargado(contenedores_por_escala[escala]);
 			contenedores_por_escala[escala] = Contenedor();
@@ -46,7 +46,7 @@ void agregar_equipaje(Equipaje & equipaje,
 		contenedores_por_escala[escala].agregar_equipaje(equipaje);
 
 	} else {
-		Log::crit("RobotCarga(%d) El equipaje %s es mas grande que el propio contenedor!!!\n",
+		Log::crit("El equipaje %s es mas grande que el propio contenedor!!!\n",
                 id_robot, equipaje.toString().c_str());
 	}
 }
@@ -54,33 +54,27 @@ void agregar_equipaje(Equipaje & equipaje,
 int main(int argc, char** argv) try {
 	Equipaje equipaje;
 	bool checkin_cerro;
-	char path[300];
-	char path_cola[300];
 	int id_robot;
 	int numero_de_vuelo;
 	int equipajes_por_cargar, equipajes_cargados;
 
 	if (argc < 2) {
-		Log::crit("Insuficientes parametros para robot de carga, se esperaba (id_robot)\n");
+		Log::crit("Insuficientes parametros para robot de carga, se esperaba (directorio_de_trabajo, id_robot)\n");
 		exit(1);
 	}
 
-	id_robot = atoi(argv[1]);
+	id_robot = atoi(argv[2]);
 
-	strcpy(path, PATH_KEYS);
-	strcat(path, PATH_CINTA_CONTENEDOR);
-	strcpy(path_cola, PATH_KEYS);
-	strcat(path_cola, PATH_COLA_ROBOTS_ZONA_TRACTORES);
 
 	std::map<std::string, Contenedor> contenedores_por_escala;
 
-	ApiCarga api_carga(1, path, id_robot, path_cola);
-   ApiDespachante api_despachante(id_robot, PATH_KEYS);
-   ApiTorreDeControl api_torre( std::string(PATH_KEYS).append(PATH_TORRE_DE_CONTROL).c_str() );
+	ApiCarga api_carga(argv[1],1,  id_robot);
+   ApiDespachante api_despachante(argv[1],id_robot);
+   ApiTorreDeControl api_torre( argv[1]);
 
 	Log::info("Iniciando robot carga(%d)\n", id_robot);
 
-	Log::info("RobotCarga(%d), lanzando proceso control_carga_contenedores\n", id_robot);
+	Log::info("lanzando proceso control_carga_contenedores\n", id_robot);
 	char *args_control_carga[] = { (char*) "control_carga_contenedores", (char*) argv[1], NULL };
 	Process control_carga_contenedores("control_carga_contenedores", args_control_carga);
 
@@ -91,7 +85,7 @@ int main(int argc, char** argv) try {
 
 		while ( (!checkin_cerro) || (equipajes_cargados<equipajes_por_cargar) ) {
 			sleep(rand() % SLEEP_ROBOT_CARGA);
-			Log::info("RobotCarga(%s) Intentando tomar un nuevo equipaje de cinta(%s)\n", argv[1],argv[2]);
+			Log::info("Intentando tomar un nuevo equipaje de cinta(%s)\n", argv[1],argv[2]);
 			equipaje = api_carga.sacar_equipaje();
 
          //TODO: por ahora equipaje con rfid 0 es dummy(sale con este valor cuando se despierta la cinta por cierre de checkin)
@@ -102,10 +96,10 @@ int main(int argc, char** argv) try {
             equipajes_cargados++;
 
             if(!checkin_cerro) {
-               Log::info("RobotCarga(%d) pongo equipaje %s en contenedor de escala '%s'.\n",
+               Log::info("pongo equipaje %s en contenedor de escala '%s'.\n",
                          id_robot, equipaje.toString().c_str(), equipaje.getRfid().get_escala().c_str() );
             } else {
-               Log::info("RobotCarga(%d) pongo equipaje %s en contenedor de escala '%s'.ya carge %d/%d equipajes\n",
+               Log::info("pongo equipaje %s en contenedor de escala '%s'.ya carge %d/%d equipajes\n",
                          id_robot, equipaje.toString().c_str(), equipaje.getRfid().get_escala().c_str(),
                          equipajes_cargados, equipajes_por_cargar);
             }
@@ -113,14 +107,14 @@ int main(int argc, char** argv) try {
 
          if( (!checkin_cerro) && (checkin_cerro=api_carga.checkin_cerrado()) ) {
             equipajes_por_cargar = api_carga.obtener_cantidad_equipaje_total();
-            Log::info("RobotCarga(%d) notificado checkin cerrado. Equipaje total %d cargados %d\n",
+            Log::info("notificado checkin cerrado. Equipaje total %d cargados %d\n",
                       id_robot, equipajes_por_cargar, equipajes_cargados);
          }
 
 		}
 
       //el robot de despacho ya no atiende al vuelo
-      Log::info("RobotCarga(%d) Deshabilito el vuelo de la zona (%d) en el robot_despacho", id_robot, id_robot);
+      Log::info("Deshabilito el vuelo de la zona (%d) en el robot_despacho", id_robot, id_robot);
       api_despachante.desasignar_vuelo(id_robot); //id_robot = num_zona
 
 		api_carga.esperar_avion_en_zona();
@@ -134,13 +128,13 @@ int main(int argc, char** argv) try {
 		api_carga.enviar_contenedores_a_avion(numero_de_vuelo);
 		contenedores_por_escala.clear();
 
-		Log::info("RobotCarga(%s) fin de carga de equipajes del vuelo %d, libero la zona %d\n", argv[1], numero_de_vuelo, id_robot);
+		Log::info("fin de carga de equipajes del vuelo %d, libero la zona %d\n", argv[1], numero_de_vuelo, id_robot);
       api_torre.liberar_zona(id_robot); // id_robot = num_zona
 	}
 
 } catch(const std::exception &e) {
    Log::crit("%s", e.what());
 } catch(...) {
-   Log::crit("Critical error. Unknow exception at the end of the 'main' function.");
+	Log::crit("Critical error. Unknow exception at the end of the 'main' function.");
 }
 

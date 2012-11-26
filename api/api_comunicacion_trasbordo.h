@@ -32,7 +32,7 @@ public:
 	int get_zona_asignada();
 	int get_vuelo_destino();
 
-	ApiComunicacionTrasbordo(char * path_to_robots_intercargo,char * path_cola_comunicacion_trasbordo, int id_instancia);
+	ApiComunicacionTrasbordo(const char * directorio_de_trabajo);
 	virtual ~ApiComunicacionTrasbordo();
 
 };

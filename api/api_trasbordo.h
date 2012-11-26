@@ -17,7 +17,6 @@ private:
 	CintaCentral * cinta;
 
 	int id_productor;
-	const char* path_to_trasbordo;
 	MENSAJE_VUELO_ENTRANTE mensaje;
 	static const int cant_ipc = 3;
 
@@ -30,7 +29,8 @@ public:
 	int esperar_zona_asignada(int numero_vuelo);
 	int esperar_vuelo_entrante(int numero_vuelo_destino);
 
-	ApiTrasbordo(const char* path_to_trasbordo, char * path_to_cinta_central, int id_instancia);
+	ApiTrasbordo(const char* directorio_de_trabajo, bool create);
+	ApiTrasbordo(const char* directorio_de_trabajo);
 	virtual ~ApiTrasbordo();
 
 };

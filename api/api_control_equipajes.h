@@ -19,8 +19,8 @@ private:
    MessageQueue queue_to_control_sospechosos;
 
 public:
-   ApiControlEquipajes(int pos_consumidor_cinta_central,int pos_productor_cinta_central, bool create);
-	ApiControlEquipajes(int pos_consumidor_cinta_central, int pos_productor_cinta_central);
+   ApiControlEquipajes(const char * directorio_de_trabajo,int pos_consumidor_cinta_central,int pos_productor_cinta_central, bool create);
+	ApiControlEquipajes(const char * directorio_de_trabajo, int pos_consumidor_cinta_central, int pos_productor_cinta_central);
 	virtual ~ApiControlEquipajes();
 
 	Equipaje obtener_proximo_equipaje_sospechoso();

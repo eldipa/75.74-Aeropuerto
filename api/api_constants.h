@@ -29,14 +29,18 @@
 #define PATH_COLA_CONTROL_CARGA_CHECKIN "/cola_control_carga.lck"
 #define PATH_COLA_CONTROL_CHECKIN "/cola_control_checkin.lck"
 #define PATH_ROBOT_DESPACHO "/robot_despacho.lck"
-#define PATH_COLA_CARGADORES_TRASBORDO "/cola_cargadores_equipaje_trasbordo.lck"
+#define PATH_COLA_ROBOTS_INTERCARGO "/cola_escucha_robots_intercargo.lck"
 #define PATH_COLA_ESCUCHA_ZONA_ASIGNADA "/cola_escucha_zona_asignada.lck"
+#define PATH_IPC_ROBOTS_INTERCARGO "/ipc_robots_intercargo.lck"
 #define PATH_CONTROL_SOSPECHOSOS "/control_sospechosos.lck"
 //CINTA CENTRAL
 
 
 #define ID_ESCUCHA_TRACTOR 1
 
-#define MAX_ZONAS 10
 #define ZONAS_POR_ROBOT_DESPACHO 2
+#define MAX_ZONAS 10
 #define MAX_ROBOTS_INTERCARGO_ESPERANDO_POR_ZONAS 30
+#define MAX_INTERCARGOS_ESPERANDO 30 // cant max de robots de intercargo que esperan que se asigne una zona
+#define MAX_PATH_SIZE 300
+
