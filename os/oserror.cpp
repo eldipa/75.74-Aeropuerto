@@ -52,7 +52,7 @@ OSError::OSError(const char *format, ...) throw() {
    sprintf(msg_error+strlen(msg_error), " [code %i]: ", _errno);
 
    // NOTE: strerror is NOT THREAD SAFE.
-   const char *_m = strerror(_errno);
+   const char *_m = _errno != 0? strerror(_errno) : 0;
    int count = strlen(msg_error);
    if(count < OSError_LEN_BUFF_ERROR) {
       if(_m) {
