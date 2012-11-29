@@ -4,12 +4,34 @@
 #include "mensajes.h"
 
 #include <stdlib.h>
+#include <cstdio>
+
+int obtener_cantidad_equipaje_intercargo(int numero_de_vuelo, const char * file_path){
+	int cantidad_equipajes = 0;
+	char primera_linea[MAX_PATH_SIZE];
+	FILE * equipajes;
+	int vuelo_destino;
+	int total_equipajes;
+	
+	equipajes = fopen(file_path,"rt");
+	fscanf(equipajes,"%s",primera_linea);
+	while(fscanf(equipajes,"%d:%d",&vuelo_destino, &total_equipajes) != EOF){
+			if(vuelo_destino == numero_de_vuelo){
+				cantidad_equipajes = total_equipajes;
+				break;
+			}
+	}
+	fclose(equipajes);
+	
+	return cantidad_equipajes;
+}
 
 int main(int argc, char *argv[]) try {
-	char path[300];
-
-   if (argc < 2) {
-      Log::crit("Insuficientes parametros para controlador puesto_checkin, se esperaba (directorio_de_trabajo, id_checkin)\n");
+	char path[MAX_PATH_SIZE];
+	int cant_equipaje_intercargo;
+	
+   if (argc < 3) {
+      Log::crit("Insuficientes parametros para controlador puesto_checkin, se esperaba (directorio_de_trabajo, id_checkin, archivo_equipajes_intercargo)\n");
       return (1);
    }
 
@@ -24,6 +46,7 @@ int main(int argc, char *argv[]) try {
       if( msg.iniciar_checkin ) {
          Log::info("Llego mensaje puesto_checkin %d iniciar_checkin num_vuelo %d\n", atoi(argv[2]), msg.mtype, msg.num_vuelo);
          api_checkin.iniciar_checkin(msg.num_vuelo);
+		 cant_equipaje_intercargo = obtener_cantidad_equipaje_intercargo(msg.num_vuelo, argv[3]);
       } else {
          Log::info("Llego mensaje puesto_checkin %d cerrar_checkin \n", atoi(argv[2]), msg.mtype);
          int equipajes = api_checkin.cerrar_checkin();
@@ -31,7 +54,7 @@ int main(int argc, char *argv[]) try {
 
          MENSAJE_CHECKIN_CERRADO mensaje;
          mensaje.checkin_cerrado = 1;
-         mensaje.cantidad_equipaje_total = equipajes; // FALTA SUMAR EQUIPAJES POR INTERCARGO
+         mensaje.cantidad_equipaje_total = equipajes + cant_equipaje_intercargo; // FALTA SUMAR EQUIPAJES POR INTERCARGO
 
          strcpy(path, PATH_KEYS);
          strcat(path, PATH_COLA_CONTROL_CARGA_CHECKIN);
