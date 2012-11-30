@@ -29,6 +29,7 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include "oserror.h"
+#include <memory>
 
 class Socket {
    private:
@@ -36,8 +37,46 @@ class Socket {
       bool isstream;
       bool isconnected;
 
+      struct sockaddr_storage peer_addr;
+      socklen_t peer_addr_len;
+
    public:
-      Socket(bool isstream=true) : 
+      /*
+       * Create an end point for communication between process, even if they are in separated nodes.
+       * Two kinds of sockets can be created:
+       *    - connection-based, stream oriented (if the parameter isstream is True)
+       *    - connectionless, datagram oriented (if isstream is False)
+       * 
+       * The first kind is implemented with the TCP protocol meanwhile the second with the UDP protocol.
+       * See man udp(7) and man tcp(7)
+       *
+       * For the first case, the socket can acts as an active or passive end point.
+       * The first, will try to connect to a passive socket and stablish a channel of communication.
+       * To acomplish that, the active socket will call the method 'destination' to start the process.
+       *
+       * In the other side, a socket play a passive role when call the method 'listen' and waits to someone
+       * wants to connect to him.
+       * When this happen, the passive socket can create a new socket that will be the other side of the channel.
+       *
+       *  Active                                        Passive
+       *  act = Socket(True)                            pas = Socket(True)
+       *  act.source(...) //optional                    pas.source("PasService") //almost a must
+       *                            
+       *                                                other_side = pas.listen()
+       *                                                                  ^--------- wait until someone is connected
+       *
+       *  act.destionation("Passive", "PasService")
+       *            ------------------------(unblock)-> other_side = pas.listen() // the connection is stablished
+       *                                                                          // the first socket "pas" can still be 
+       *                                                                          // used to accept new connections
+       *  
+       *  act.sendsome(...)         -------------->     other_side.receivesome(...) // act and other_side are indistingibles
+       *  act.receivesome(...)      <--------------     other_side.sendsome(...)    // note how each know to where send the messages
+       *
+       *  act.~Socket() // finish                       other_side.~Socket() // finish
+       *
+       * */
+      explicit Socket(bool isstream=true) : 
          isstream(isstream),
          isconnected(false) {
          fd = socket(AF_INET, isstream? SOCK_STREAM : SOCK_DGRAM, 0);
@@ -86,9 +125,21 @@ class Socket {
          }
       }
 
-      void listen(int backlog) {
-         if(::listen(fd, backlog) == -1)
-            throw OSError("The socket was bound to the local address and the service '%s' but cannot stablish a queue of size %i for the comming connections.", service, backlog);
+      std::auto_ptr<Socket> listen(int backlog=0) {
+         if(not isstream)
+            throw NotImplementedError("A socket connectionless (datagram oriented) cannot be blocked to wait for a connection.");
+
+         if(backlog)
+            if(::listen(fd, backlog) == -1)
+               throw OSError("The socket cannot stablish a queue of size %i for the comming connections.", backlog);
+         
+         clean_from_who();
+         int other_side = ::accept(fd, (struct sockaddr *) &peer_addr, peer_addr_len);
+         if(other_side == -1) 
+            throw OSError("The socket was trying to accept new connections but this has failed.");
+
+         return std::auto_ptr<Socket>(new Socket(other_side));
+
       }
 
       ssize_t sendsome(const void *buf, size_t data_len) {
@@ -103,9 +154,37 @@ class Socket {
          ssize_t count = 0;
          ssize_t burst = 0;
          while(data_len > count and burst > 0)
-            count += (burst = sendsome(fd, buf + count, data_len - count));
+            count += (burst = sendsome(buf + count, data_len - count));
          
          return burst > 0;
+      }
+
+      ssize_t receivesome(void *buf, size_t buf_len) {
+          clean_from_who();
+          ssize_t count = ::recvfrom(fd, buf, buf_len, 0, (struct sockaddr *) &peer_addr, &peer_addr_len);
+          if(count == -1) 
+            throw OSError("The message cannot be received (of length least or equal to %i).", buf_len);
+
+          return count;
+      }
+
+      bool receiveall(void *buf, size_t data_len) {
+          ssize_t count = 0;
+          ssize_t burst = 0;
+          while(data_len > count and burst > 0) 
+              count += (burst = receivesome(buf + count, data_len - count));
+
+          return burst > 0;
+      }
+
+      void from_who(char *host, size_t host_length, char *service, size_t service_length) {
+         int status = getnameinfo((struct sockaddr *) &peer_addr, peer_addr_len, 
+                 host, host_length, service, service_length, NI_NAMEREQD | (isstream? 0 : NI_DGRAM));
+         if(status != 0) {
+            if(status != EAI_SYSTEM)
+               errno = 0; //The error code is not in the errno (it has garbage)
+            throw OSError("The name of the host and the service cannot be obtained: %s", gai_strerror(status));
+         }
       }
 
       ~Socket() {
@@ -121,6 +200,8 @@ class Socket {
       }
 
    private:
+      explicit Socket(int other_side) : fd(other_side), isstream(true), isconnected(true) {}
+
       struct addrinfo* resolve(const char* host, const char* service) {
          struct addrinfo hints;
          struct addrinfo *result = 0;
@@ -145,6 +226,11 @@ class Socket {
          }
          
          return result;
+      }
+
+      void clean_from_who() {
+          memset(&peer_addr, 0, sizeof(struct sockaddr_storage));
+          memset(&peer_addr_len, 0, sizeof(socklen_t));
       }
 
 };
