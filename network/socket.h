@@ -28,8 +28,14 @@
  *******************************************************************************/
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <netdb.h>
 #include "oserror.h"
+#include "valueerror.h"
+#include "notimplementederror.h"
+#include "log.h"
 #include <memory>
+#include <errno.h>
+#include <cstring>
 
 class Socket {
    private:
@@ -101,7 +107,7 @@ class Socket {
          isconnected(false) {
          fd = socket(AF_INET, isstream? SOCK_STREAM : SOCK_DGRAM, 0);
          if(fd == -1)
-            throw OSError("The socket cannot be created.")
+            throw OSError("The socket cannot be created.");
       }
 
       void destination(const char* host, const char* service) {
@@ -145,16 +151,15 @@ class Socket {
          }
       }
 
-      std::auto_ptr<Socket> listen(int backlog=0) {
+      std::auto_ptr<Socket> listen(int backlog) {
          if(not isstream)
             throw NotImplementedError("A socket connectionless (datagram oriented) cannot be blocked to wait for a connection.");
 
-         if(backlog)
-            if(::listen(fd, backlog) == -1)
-               throw OSError("The socket cannot stablish a queue of size %i for the comming connections.", backlog);
+         if(::listen(fd, backlog) == -1)
+            throw OSError("The socket cannot stablish a queue of size %i for the comming connections.", backlog);
          
          clean_from_who();
-         int other_side = ::accept(fd, (struct sockaddr *) &peer_addr, peer_addr_len);
+         int other_side = ::accept(fd, (struct sockaddr *) &peer_addr, &peer_addr_len);
          if(other_side == -1) 
             throw OSError("The socket was trying to accept new connections but this has failed.");
 
@@ -167,17 +172,17 @@ class Socket {
          if(count == -1) 
             throw OSError("The message length %i cannot be sent.", data_len);
          
-         return count
+         return count;
       }
 
-      bool sendall(const void *buf, size_t data_len) {
+      /*bool sendall(const void *buf, size_t data_len) {
          ssize_t count = 0;
          ssize_t burst = 0;
          while(data_len > count and burst > 0)
             count += (burst = sendsome(buf + count, data_len - count));
          
          return burst > 0;
-      }
+      }*/
 
       ssize_t receivesome(void *buf, size_t buf_len) {
           clean_from_who();
@@ -188,14 +193,14 @@ class Socket {
           return count;
       }
 
-      bool receiveall(void *buf, size_t data_len) {
+      /*bool receiveall(void *buf, size_t data_len) {
           ssize_t count = 0;
           ssize_t burst = 0;
           while(data_len > count and burst > 0) 
               count += (burst = receivesome(buf + count, data_len - count));
 
           return burst > 0;
-      }
+      }*/
 
       void from_who(char *host, size_t host_length, char *service, size_t service_length) {
          int status = getnameinfo((struct sockaddr *) &peer_addr, peer_addr_len, 
