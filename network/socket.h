@@ -75,6 +75,26 @@ class Socket {
        *
        *  act.~Socket() // finish                       other_side.~Socket() // finish
        *
+       *  When you use the second version of sockets, connectionless, datagram oriented,
+       *  there are not active or passive sockets.
+       *
+       *  One side                                      Other side
+       *  one = socket(False)
+       *  one.source(...) //optional
+       *
+       *  one.destination("Other side", "OtherService")
+       *
+       *  one.sendsome(...)         -------------->     other_side.receivesome(...)
+       *                                                other_side.from_who(Host, Service) // save the origins of the previous message
+       *                                                
+       *                                                other_side.destination(Host, Service) // set that address so you can response
+       *  one.receivesome(...)      <--------------     other_side.sendsome(...) 
+       *
+       *  one.sendsome(...)         -------------->     other_side.receivesome(...) // you don't need set again the destination if 
+       *  one.receivesome(...)      <--------------     other_side.sendsome(...) // you don't change the interlocutor.
+       *
+       *  one.destionation("Third", "ThirdService") // because this is connectionless, you can talk with others hosts
+       *
        * */
       explicit Socket(bool isstream=true) : 
          isstream(isstream),
