@@ -8,6 +8,7 @@
 
 int main(int, char *[]) try {
    char buf[1024];
+
    pid_t pid = fork();
    if(pid == -1) {
       perror("Fallo el fork.");

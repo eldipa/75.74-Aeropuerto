@@ -30,6 +30,7 @@
 #include <sys/types.h>
 #include <netdb.h>
 #include <memory>
+#include <string>
 
 
 class Socket {
@@ -102,11 +103,11 @@ class Socket {
        * */
       explicit Socket(bool isstream); 
 
-      void destination(const char* host, const char* service);
+      void destination(const std::string &host, const std::string &service);
       void disassociate();
-      void from_who(char *host, size_t host_length, char *service, size_t service_length);
+      void from_who(std::string &host, std::string &service);
 
-      void source(const char* service);
+      void source(const std::string &service);
 
       std::auto_ptr<Socket> listen(int backlog);
 

@@ -38,6 +38,7 @@
 #include <memory>
 #include <errno.h>
 #include <cstring>
+#include <string>
 
 Socket::Socket(bool isstream) : 
    isstream(isstream),
@@ -47,15 +48,12 @@ Socket::Socket(bool isstream) :
          throw OSError("The socket cannot be created.");
    }
 
-void Socket::destination(const char* host, const char* service) {
-   if(not host or not service)
-      throw ValueError("The argument host [which is %s] and the service [which is %s] must not be null.", host? "not null" : "null", service? "not null" : "null");
-
+void Socket::destination(const std::string &host, const std::string &service) {
    disassociate();
-   struct addrinfo *result = resolve(host, service);
+   struct addrinfo *result = resolve(host.c_str(), service.c_str());
    try {
       if(::connect(fd, result->ai_addr, result->ai_addrlen) == -1)
-         throw OSError("The connection to the host '%s' and the service '%s' has failed.", host, service);
+         throw OSError("The connection to the host '%s' and the service '%s' has failed.", host.c_str(), service.c_str());
 
       freeaddrinfo(result);
 
@@ -67,14 +65,11 @@ void Socket::destination(const char* host, const char* service) {
    isassociated = true;
 }
 
-void Socket::source(const char* service) {
-   if(not service)
-      throw ValueError("The argument service must not be null.");
-
-   struct addrinfo *result = resolve(0, service);
+void Socket::source(const std::string &service) {
+   struct addrinfo *result = resolve(0, service.c_str());
    try {
       if(::bind(fd, result->ai_addr, result->ai_addrlen) == -1)
-         throw OSError("The socket was not bound to the local address and the service '%s'.", service);
+         throw OSError("The socket was not bound to the local address and the service '%s'.", service.c_str());
 
       freeaddrinfo(result);
 
@@ -117,14 +112,21 @@ ssize_t Socket::receivesome(void *buf, size_t buf_len) {
    return count;
 }
 
-void Socket::from_who(char *host, size_t host_length, char *service, size_t service_length) {
+void Socket::from_who(std::string &host, std::string &service) {
+   char host_buf[NI_MAXHOST];
+   char service_buf[NI_MAXSERV];
+
    int status = getnameinfo((struct sockaddr *) &peer_addr, peer_addr_len, 
-         host, host_length, service, service_length, NI_NAMEREQD | (isstream? 0 : NI_DGRAM));
+            host_buf, NI_MAXHOST, service_buf, NI_MAXSERV, NI_NAMEREQD | (isstream? 0 : NI_DGRAM));
+
    if(status != 0) {
       if(status != EAI_SYSTEM)
          errno = 0; //The error code is not in the errno (it has garbage)
       throw OSError("The name of the host and the service cannot be obtained: %s", gai_strerror(status));
    }
+
+   host.assign(host_buf);
+   service.assign(service_buf);
 }
 
 void Socket::disassociate() {

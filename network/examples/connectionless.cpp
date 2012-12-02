@@ -4,12 +4,13 @@
 #include <memory>
 #include "socket.h"
 #include <cstring>
+#include <string>
 
 
 int main(int, char *[]) try {
    char buf[1024];
-   char host[1024];
-   char service[1024];
+   std::string host;
+   std::string service;
 
    pid_t pid = fork();
    if(pid == -1) {
@@ -41,7 +42,7 @@ int main(int, char *[]) try {
 
       std::cout << "[" << subprocess << "] Respuesta: " << buf << std::endl;
       
-      hijo.from_who(host, 1024, service, 1024);
+      hijo.from_who(host, service);
       std::cout << "[" << subprocess << "] Recibido desde Host: " << host << ", del Servicio: " << service << std::endl;
    }
    else {
@@ -53,7 +54,7 @@ int main(int, char *[]) try {
       padre.receivesome(buf, 1024);
       std::cout << "[Padre] Mensaje recibido: " << buf << std::endl;
    
-      padre.from_who(host, 1024, service, 1024);
+      padre.from_who(host, service);
       std::cout << "[Padre] Recibido desde Host: " << host << ", del Servicio: " << service << std::endl;
 
       std::cout << "[Padre] Enviando respuesta." << std::endl;
@@ -65,7 +66,7 @@ int main(int, char *[]) try {
       padre.receivesome(buf, 1024);
       std::cout << "[Padre] Mensaje recibido: " << buf << std::endl;
    
-      padre.from_who(host, 1024, service, 1024);
+      padre.from_who(host, service);
       std::cout << "[Padre] Recibido desde Host: " << host << ", del Servicio: " << service << std::endl;
 
       std::cout << "[Padre] Enviando respuesta." << std::endl;
