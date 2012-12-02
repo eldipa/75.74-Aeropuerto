@@ -3,6 +3,7 @@
 #include <cstdio>
 #include <memory>
 #include "socket.h"
+#include <cstring>
 
 
 int main(int, char *[]) try {
