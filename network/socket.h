@@ -101,14 +101,98 @@ class Socket {
        * */
       explicit Socket(bool isstream); 
 
+      /*
+       * This set the destination of the messages to be sent and filter the messages
+       * recieved, so you can receive message only from that destination.
+       *
+       * If the socket is connectionless, the messages from others sources are allowed
+       * but they are queue until you set its source address as the new destination.
+       * Then, you can call receivesome() to get these messages.
+       *
+       * When you use socket connection-oriented, this shouldn't be a problem.
+       * Tipically you set the destination once (to stablish the connection) and
+       * then you will talk to the other side.
+       *
+       * If in some point you can talk to other, you can call disassociate().
+       * For the socket connectionless, this will permit to recieve message from
+       * anyone.
+       * For the other sockets, this will shutdown the connection.
+       *
+       * See man connect(2) and man shutdown(2). In particular see the behavour of
+       * these syscall when using connectionless, man udp(7).
+       *
+       * In any case, host and service are the names of the destination and the name
+       * of the service listen in the other side.
+       * Using low level terminology, host and service are the IP and Port respectively.
+       * However you can use more high level names.
+       * See man getaddrinfo(3), the file /etc/hosts, man hosts(5), the file /etc/services
+       * and man services(5)
+       *
+       * To use an automatic resolver (like DNS), see man resolv.conf(5)
+       *
+       * */
       void destination(const std::string &host, const std::string &service);
       void disassociate();
-      void from_who(std::string &host, std::string &service);
 
+      /*
+       * This can be used to know the name of the host and service of:
+       *    - when this socket execute listen() and a new connection was arrived, the names of that peer
+       *    - when you receive a message using receivesome()
+       *
+       * See the documentation of destination() to kwno more of host and service.
+       * */
+      void from_who(std::string &host, std::string &service);
+      
+      /*
+       * This will set the service that this socket is attached. 
+       * If you don't set this, the socket will use a random unused service.
+       *
+       * See man bind(2).
+       * See the documentation of destination() to kwno more of host and service.
+       * */
       void source(const std::string &service);
 
+      /* 
+       * In order to wait for incomming connections (the socket must be a 
+       * connection oriented), you need to call this method.
+       * With this, the socket will turn in a passive socket, listen for at most
+       * 'backlog' connections. See man listen(2).
+       *
+       * When a new connection arrive, a handshake is perfomed and the connection
+       * is stablished. See man accept(2).
+       * When this happen, a new socket is returned to be used in the communication.
+       * 
+       * If there are not connections waiting, this function will blocks the caller.
+       *
+       * Note: this must be called only for connection oriented sockets and only
+       * after they set which service are providing (see source()).
+       * */
       std::auto_ptr<Socket> listen(int backlog);
 
+      /*
+       * This method will send and receive data from others.
+       * 
+       * In the first case, you will send "at most" data_len bytes from buf.
+       * In the other case, you will receive "at most" buf_len bytes in buf.
+       *
+       * In both cases, the real count of bytes sent or recieved will be returned.
+       *
+       * If the socket is connection oriented, a 0 is returned if the connection was
+       * closed.
+       * In the other kind of socket, this means that you sent or received a datagram
+       * of 0 bytes.
+       *
+       * Both methods will block the caller if no data can be sent or received.
+       *
+       * See man send(2), and man recv(2).
+       *
+       * Note: you can send and receive from your destination (see destination()).
+       * The only exception is if the socket is connectionless and the socket is
+       * disassociated (see disassociate()).
+       * In that special case, the socket can receive from anyone and you can
+       * consult who was the sender with from_who().
+       *
+       * */
       ssize_t sendsome(const void *buf, size_t data_len);
       ssize_t receivesome(void *buf, size_t buf_len);
 
