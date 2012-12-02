@@ -26,16 +26,16 @@
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.               *
  *                                                                             *
  *******************************************************************************/
-#include <sys/socket.h>
-#include <sys/types.h>
-#include "oserror.h"
+#include <netdb.h>
 #include <memory>
+#include <string>
+
 
 class Socket {
    private:
       int fd;
       bool isstream;
-      bool isconnected;
+      bool isassociated;
 
       struct sockaddr_storage peer_addr;
       socklen_t peer_addr_len;
@@ -75,164 +75,134 @@ class Socket {
        *
        *  act.~Socket() // finish                       other_side.~Socket() // finish
        *
+       *  When you use the second version of sockets, connectionless, datagram oriented,
+       *  there are not active or passive sockets.
+       *
+       *  One side                                      Other side
+       *  one = socket(False)
+       *  one.source(...) //optional
+       *
+       *  one.destination("Other side", "OtherService")
+       *
+       *  one.sendsome(...)         -------------->     other_side.receivesome(...)
+       *                                                other_side.from_who(Host, Service) // save the origins of the previous message
+       *                                                
+       *                                                other_side.destination(Host, Service) // set that address so you can response
+       *  one.receivesome(...)      <--------------     other_side.sendsome(...) 
+       *
+       *  one.sendsome(...)         -------------->     other_side.receivesome(...) // you don't need set again the destination if 
+       *  one.receivesome(...)      <--------------     other_side.sendsome(...) // you don't change the interlocutor.
+       *
+       *  one.destionation("Third", "ThirdService") // because this is connectionless, you can talk with others hosts
+       *     ...
+       *  one.disassociate()  // if you can receive message from unknow sources, you need to call this.
+       *  
+       *
        * */
-      explicit Socket(bool isstream=true) : 
-         isstream(isstream),
-         isconnected(false) {
-         fd = socket(AF_INET, isstream? SOCK_STREAM : SOCK_DGRAM, 0);
-         if(fd == -1)
-            throw OSError("The socket cannot be created.")
-      }
+      explicit Socket(bool isstream); 
 
-      void destination(const char* host, const char* service) {
-         if(not host or not service)
-            throw ValueError("The argument host [which is %s] and the service [which is %s] must not be null.", host? "not null" : "null", service? "not null" : "null");
+      /*
+       * This set the destination of the messages to be sent and filter the messages
+       * recieved, so you can receive message only from that destination.
+       *
+       * If the socket is connectionless, the messages from others sources are allowed
+       * but they are queue until you set its source address as the new destination.
+       * Then, you can call receivesome() to get these messages.
+       *
+       * When you use socket connection-oriented, this shouldn't be a problem.
+       * Tipically you set the destination once (to stablish the connection) and
+       * then you will talk to the other side.
+       *
+       * If in some point you can talk to other, you can call disassociate().
+       * For the socket connectionless, this will permit to recieve message from
+       * anyone.
+       * For the other sockets, this will shutdown the connection.
+       *
+       * See man connect(2) and man shutdown(2). In particular see the behavour of
+       * these syscall when using connectionless, man udp(7).
+       *
+       * In any case, host and service are the names of the destination and the name
+       * of the service listen in the other side.
+       * Using low level terminology, host and service are the IP and Port respectively.
+       * However you can use more high level names.
+       * See man getaddrinfo(3), the file /etc/hosts, man hosts(5), the file /etc/services
+       * and man services(5)
+       *
+       * To use an automatic resolver (like DNS), see man resolv.conf(5)
+       *
+       * */
+      void destination(const std::string &host, const std::string &service);
+      void disassociate();
 
-         if(isconnected) {
-            if(shutdown(fd, SHUT_RDWR) == -1)
-               throw OSError("The socket cannot be disconnected (shutdown).").what();
-         }
+      /*
+       * This can be used to know the name of the host and service of:
+       *    - when this socket execute listen() and a new connection was arrived, the names of that peer
+       *    - when you receive a message using receivesome()
+       *
+       * See the documentation of destination() to kwno more of host and service.
+       * */
+      void from_who(std::string &host, std::string &service);
+      
+      /*
+       * This will set the service that this socket is attached. 
+       * If you don't set this, the socket will use a random unused service.
+       *
+       * See man bind(2).
+       * See the documentation of destination() to kwno more of host and service.
+       * */
+      void source(const std::string &service);
 
-         struct addrinfo *result = resolve(host, service);
-         try {
-            if(::connect(fd, result->ai_addr, result->ai_addrlen) == -1)
-               throw OSError("The connection to the host '%s' and the service '%s' has failed.", host, service);
+      /* 
+       * In order to wait for incomming connections (the socket must be a 
+       * connection oriented), you need to call this method.
+       * With this, the socket will turn in a passive socket, listen for at most
+       * 'backlog' connections. See man listen(2).
+       *
+       * When a new connection arrive, a handshake is perfomed and the connection
+       * is stablished. See man accept(2).
+       * When this happen, a new socket is returned to be used in the communication.
+       * 
+       * If there are not connections waiting, this function will blocks the caller.
+       *
+       * Note: this must be called only for connection oriented sockets and only
+       * after they set which service are providing (see source()).
+       * */
+      std::auto_ptr<Socket> listen(int backlog);
 
-            freeaddrinfo(result);
+      /*
+       * This method will send and receive data from others.
+       * 
+       * In the first case, you will send "at most" data_len bytes from buf.
+       * In the other case, you will receive "at most" buf_len bytes in buf.
+       *
+       * In both cases, the real count of bytes sent or recieved will be returned.
+       *
+       * If the socket is connection oriented, a 0 is returned if the connection was
+       * closed.
+       * In the other kind of socket, this means that you sent or received a datagram
+       * of 0 bytes.
+       *
+       * Both methods will block the caller if no data can be sent or received.
+       *
+       * See man send(2), and man recv(2).
+       *
+       * Note: you can send and receive from your destination (see destination()).
+       * The only exception is if the socket is connectionless and the socket is
+       * disassociated (see disassociate()).
+       * In that special case, the socket can receive from anyone and you can
+       * consult who was the sender with from_who().
+       *
+       * */
+      ssize_t sendsome(const void *buf, size_t data_len);
+      ssize_t receivesome(void *buf, size_t buf_len);
 
-         }catch(...) {
-            freeaddrinfo(result);
-            throw;
-         }
-         
-         isconnected = true;
-      }
-
-      void source(const char* service) {
-         if(not service)
-            throw ValueError("The argument service must not be null.");
-
-         struct addrinfo *result = resolve(0, service);
-         try {
-            if(::bind(fd, result->ai_addr, result->ai_addrlen) == -1)
-               throw OSError("The socket was not bound to the local address and the service '%s'.", service);
-
-            freeaddrinfo(result);
-
-         }catch(...) {
-            freeaddrinfo(result);
-            throw;
-         }
-      }
-
-      std::auto_ptr<Socket> listen(int backlog=0) {
-         if(not isstream)
-            throw NotImplementedError("A socket connectionless (datagram oriented) cannot be blocked to wait for a connection.");
-
-         if(backlog)
-            if(::listen(fd, backlog) == -1)
-               throw OSError("The socket cannot stablish a queue of size %i for the comming connections.", backlog);
-         
-         clean_from_who();
-         int other_side = ::accept(fd, (struct sockaddr *) &peer_addr, peer_addr_len);
-         if(other_side == -1) 
-            throw OSError("The socket was trying to accept new connections but this has failed.");
-
-         return std::auto_ptr<Socket>(new Socket(other_side));
-
-      }
-
-      ssize_t sendsome(const void *buf, size_t data_len) {
-         ssize_t count = ::send(fd, buf, data_len, MSG_NOSIGNAL);
-         if(count == -1) 
-            throw OSError("The message length %i cannot be sent.", data_len);
-         
-         return count
-      }
-
-      bool sendall(const void *buf, size_t data_len) {
-         ssize_t count = 0;
-         ssize_t burst = 0;
-         while(data_len > count and burst > 0)
-            count += (burst = sendsome(buf + count, data_len - count));
-         
-         return burst > 0;
-      }
-
-      ssize_t receivesome(void *buf, size_t buf_len) {
-          clean_from_who();
-          ssize_t count = ::recvfrom(fd, buf, buf_len, 0, (struct sockaddr *) &peer_addr, &peer_addr_len);
-          if(count == -1) 
-            throw OSError("The message cannot be received (of length least or equal to %i).", buf_len);
-
-          return count;
-      }
-
-      bool receiveall(void *buf, size_t data_len) {
-          ssize_t count = 0;
-          ssize_t burst = 0;
-          while(data_len > count and burst > 0) 
-              count += (burst = receivesome(buf + count, data_len - count));
-
-          return burst > 0;
-      }
-
-      void from_who(char *host, size_t host_length, char *service, size_t service_length) {
-         int status = getnameinfo((struct sockaddr *) &peer_addr, peer_addr_len, 
-                 host, host_length, service, service_length, NI_NAMEREQD | (isstream? 0 : NI_DGRAM));
-         if(status != 0) {
-            if(status != EAI_SYSTEM)
-               errno = 0; //The error code is not in the errno (it has garbage)
-            throw OSError("The name of the host and the service cannot be obtained: %s", gai_strerror(status));
-         }
-      }
-
-      ~Socket() {
-         if(isconnected) {
-            if(shutdown(fd, SHUT_RDWR) == -1)
-               Log::crit("An exception happend during the course of a destructor:\n%s", OSError(
-                        "The socket cannot be disconnected (shutdown).").what());
-         }
-
-         if(close(fd) == -1)
-            Log::crit("An exception happend during the course of a destructor:\n%s", OSError(
-                     "The socket cannot be closed.").what());
-      }
+      ~Socket();
 
    private:
-      explicit Socket(int other_side) : fd(other_side), isstream(true), isconnected(true) {}
+      explicit Socket(int other_side);
+      struct addrinfo* resolve(const char* host, const char* service);
 
-      struct addrinfo* resolve(const char* host, const char* service) {
-         struct addrinfo hints;
-         struct addrinfo *result = 0;
-         int status = 0;
-
-         memset(&hints, 0, sizeof(struct addrinfo));
-         hints.ai_family = AF_INET;
-         hints.ai_socktype = isstream? SOCK_STREAM : SOCK_DGRAM; 
-         hints.ai_flags = host? 0 : AI_PASSIVE;
-         hints.ai_protocol = 0;
-
-         status = getaddrinfo(host, service, &hints, &result);
-         if(status != 0) {
-            if(status != EAI_SYSTEM)
-               errno = 0; //The error code is not in the errno (it has garbage)
-            throw OSError("The address cannot be obtained for the host '%s' and the service '%s': %s", host, service, gai_strerror(status));
-         }
-
-         if(not result) {
-            errno = 0;
-            throw OSError("The address cannot be obtained for the host '%s' and the service '%s', however no error was explicity generated.", host, service);
-         }
-         
-         return result;
-      }
-
-      void clean_from_who() {
-          memset(&peer_addr, 0, sizeof(struct sockaddr_storage));
-          memset(&peer_addr_len, 0, sizeof(socklen_t));
-      }
-
+      void clean_from_who();
 };
 
 

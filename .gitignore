@@ -28,3 +28,5 @@ processes/robot_despacho
 processes/robot_intercargo
 processes/scanner
 processes/torre_de_control
+network/examples/connection
+network/examples/connectionless
