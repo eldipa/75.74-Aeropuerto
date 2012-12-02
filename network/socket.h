@@ -41,7 +41,7 @@ class Socket {
    private:
       int fd;
       bool isstream;
-      bool isconnected;
+      bool isassociated;
 
       struct sockaddr_storage peer_addr;
       socklen_t peer_addr_len;
@@ -100,11 +100,14 @@ class Socket {
        *  one.receivesome(...)      <--------------     other_side.sendsome(...) // you don't change the interlocutor.
        *
        *  one.destionation("Third", "ThirdService") // because this is connectionless, you can talk with others hosts
+       *     ...
+       *  one.disassociate()  // if you can receive message from unknow sources, you need to call this.
+       *  
        *
        * */
       explicit Socket(bool isstream=true) : 
          isstream(isstream),
-         isconnected(false) {
+         isassociated(false) {
          fd = socket(AF_INET, isstream? SOCK_STREAM : SOCK_DGRAM, 0);
          if(fd == -1)
             throw OSError("The socket cannot be created.");
@@ -113,12 +116,8 @@ class Socket {
       void destination(const char* host, const char* service) {
          if(not host or not service)
             throw ValueError("The argument host [which is %s] and the service [which is %s] must not be null.", host? "not null" : "null", service? "not null" : "null");
-
-         if(isconnected) {
-            if(shutdown(fd, SHUT_RDWR) == -1)
-               throw OSError("The socket cannot be disconnected (shutdown).").what();
-         }
-
+         
+         disassociate();
          struct addrinfo *result = resolve(host, service);
          try {
             if(::connect(fd, result->ai_addr, result->ai_addrlen) == -1)
@@ -131,7 +130,7 @@ class Socket {
             throw;
          }
          
-         isconnected = true;
+         isassociated = true;
       }
 
       void source(const char* service) {
@@ -212,11 +211,27 @@ class Socket {
          }
       }
 
+      void disassociate() {
+         if(isassociated) {
+            if(isstream) {
+               if(shutdown(fd, SHUT_RDWR) == -1)
+                  throw OSError("The socket cannot be disassociated (shutdown).");
+            }
+            else {
+               struct sockaddr reset;
+               memset(&reset, 0, sizeof(reset));
+               reset.sa_family = AF_UNSPEC;
+               if(::connect(fd, &reset, sizeof(reset)) == -1)
+                  throw OSError("The socket cannot be disassociated (connect to unspecified address).");
+            }
+         }
+      }
+
       ~Socket() {
-         if(isconnected) {
+         if(isassociated and isstream) {
             if(shutdown(fd, SHUT_RDWR) == -1)
                Log::crit("An exception happend during the course of a destructor:\n%s", OSError(
-                        "The socket cannot be disconnected (shutdown).").what());
+                        "The socket cannot be disassociated (shutdown).").what());
          }
 
          if(close(fd) == -1)
@@ -225,7 +240,7 @@ class Socket {
       }
 
    private:
-      explicit Socket(int other_side) : fd(other_side), isstream(true), isconnected(true) {}
+      explicit Socket(int other_side) : fd(other_side), isstream(true), isassociated(true) {}
 
       struct addrinfo* resolve(const char* host, const char* service) {
          struct addrinfo hints;
@@ -256,6 +271,8 @@ class Socket {
       void clean_from_who() {
           memset(&peer_addr, 0, sizeof(struct sockaddr_storage));
           memset(&peer_addr_len, 0, sizeof(socklen_t));
+
+          peer_addr_len = sizeof(peer_addr);
       }
 
 };
