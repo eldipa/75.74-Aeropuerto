@@ -71,6 +71,8 @@ try {
 
 	zona_asignada = api_trasbordo.esperar_zona_asignada(numero_vuelo_destino);
 
+   Log::info("Se asigna la zona %d al vuelo %d", zona_asignada, numero_vuelo_destino);
+
 	while (!equipajes_a_cargar.empty()) {
 		Log::info("Esperando vuelos entrantes con equipaje destino a %d", numero_vuelo_destino);
 		numero_vuelo_entrante = api_trasbordo.esperar_vuelo_entrante(numero_vuelo_destino);
