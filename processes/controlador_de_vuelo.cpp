@@ -29,7 +29,7 @@ private:
 };
 
 
-void run_generador_pasajeros(int num_vuelo, int num_puesto_checkin) {
+void run_generador_pasajeros(char* directorio_de_trabajo, int num_vuelo, int num_puesto_checkin) {
    char buffer_vuelo[6];
    char buffer_puesto[6];
 
@@ -41,7 +41,8 @@ void run_generador_pasajeros(int num_vuelo, int num_puesto_checkin) {
    puesto << num_puesto_checkin;
    strcpy(buffer_puesto, puesto.str().c_str());
 
-   char *args_generador_pasajeros[] = { (char*) "generador_pasajeros", (char*) buffer_vuelo, //num_vuelo
+   char *args_generador_pasajeros[] = { (char*) "generador_pasajeros", (char*) directorio_de_trabajo,
+                                        (char*) buffer_vuelo, //num_vuelo
                                         (char*) buffer_puesto, NULL };
 	Process generator("generador_pasajeros", args_generador_pasajeros);
 }
@@ -56,30 +57,30 @@ int main(int argc, char** argv) try {
    ApiControladorDeVuelo api_vuelo(argv[1], num_vuelo);
    ApiTorreDeControl api_torre(argv[1]);
 
-   Log::info("Pido puesto de checkin y zona a torre de control para vuelo %d", num_vuelo, num_vuelo);
+   Log::info("Pido puesto de checkin y zona a torre de control para vuelo %d", num_vuelo);
 
    int num_puesto_checkin = api_torre.pedir_puesto_checkin(num_vuelo);
    int zona_utilizada = api_torre.pedir_zona(num_vuelo);
-   Log::info("Respuesta torre de control: num_zona=%d num_puesto_checkin=%d", num_vuelo, zona_utilizada, num_puesto_checkin);
+   Log::info("Respuesta torre de control: num_vuelo=%d num_zona=%d num_puesto_checkin=%d", num_vuelo, zona_utilizada, num_puesto_checkin);
 
    try {
       sleep(rand()%SLEEP_DESPACHO_VUELO);
 
       //activo robot_despacho
       registrar_zona_en_uso(argv[1],num_vuelo, zona_utilizada);
-      Log::info("Robot de despacho empieza a recibir equipajes para zona %d", num_vuelo, zona_utilizada);
+      Log::info("Robot de despacho empieza a recibir equipajes para vuelo %d, zona %d", num_vuelo, zona_utilizada);
 
       //abro checkin
       api_vuelo.iniciar_checkin(num_puesto_checkin, zona_utilizada);
-      Log::info("Inicio checkin puesto %d", num_vuelo, num_puesto_checkin);
-      run_generador_pasajeros(num_vuelo, num_puesto_checkin);
+      Log::info("Inicio checkin puesto %d vuelo %d", num_puesto_checkin, num_vuelo);
+      run_generador_pasajeros(argv[1], num_vuelo, num_puesto_checkin);
 
       //espero cierre checkin
       sleep(rand()%SLEEP_DURACION_CHECKIN);
       api_vuelo.cerrar_checkin(num_puesto_checkin, zona_utilizada);
-      Log::info("cierro checkin %d", num_vuelo, num_puesto_checkin);
+      Log::info("cierro checkin %d", num_puesto_checkin);
 
-      Log::info("termino...", num_vuelo);
+      Log::info("termino...");
 
    } catch (VueloNoRegistradoException & ) {
       Log::crit("El vuelo %d no se encuentra registrado en la BD\n", num_vuelo);

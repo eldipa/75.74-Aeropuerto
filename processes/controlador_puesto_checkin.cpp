@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) try {
       return (1);
    }
 
-   Log::info("Iniciando controlador puesto de checkin\n", atoi(argv[2]));
+   Log::info("Iniciando controlador puesto de checkin %d %s %s %s\n", argc, argv[1], argv[2], argv[3]);
 
    ApiCheckIn api_checkin(argv[1],atoi(argv[2]));
 
@@ -44,13 +44,13 @@ int main(int argc, char *argv[]) try {
       api_checkin.recibir_mensaje_controlador_checkin(msg);
 
       if( msg.iniciar_checkin ) {
-         Log::info("Llego mensaje puesto_checkin %d iniciar_checkin num_vuelo %d\n", atoi(argv[2]), msg.mtype, msg.num_vuelo);
+         Log::info("Llego mensaje puesto_checkin %d iniciar_checkin num_vuelo %d\n", msg.mtype, msg.num_vuelo);
          api_checkin.iniciar_checkin(msg.num_vuelo);
 		 cant_equipaje_intercargo = obtener_cantidad_equipaje_intercargo(msg.num_vuelo, argv[3]);
       } else {
-         Log::info("Llego mensaje puesto_checkin %d cerrar_checkin \n", atoi(argv[2]), msg.mtype);
+         Log::info("Llego mensaje puesto_checkin %d cerrar_checkin \n",  msg.mtype);
          int equipajes = api_checkin.cerrar_checkin();
-         Log::info("Cierro checkin, aviso a robot_carga que total_equipajes=%d \n", atoi(argv[2]), equipajes);
+         Log::info("Cierro checkin, aviso a robot_carga que total_equipajes=%d \n", equipajes);
 
          MENSAJE_CHECKIN_CERRADO mensaje;
          mensaje.checkin_cerrado = 1;

@@ -35,10 +35,10 @@ try {
 	for (;;) {
 		sleep(rand() % SLEEP_ROBOT_SOSPECHOSOS);
 
-		Log::info("esperando un equipaje sospechoso de cinta central(%s)\n", argv[1], argv[3]);
+		Log::info("esperando un equipaje sospechoso de cinta central(%s)\n", argv[3]);
 		Equipaje equipaje = api_control_equipajes.obtener_proximo_equipaje_sospechoso();
 
-		Log::info("recibo equipaje %s y lo envío a control\n", argv[1],
+		Log::info("recibo equipaje %s y lo envío a control\n",
 				equipaje.toString().c_str());
 
 		api_control_equipajes.enviar_equipaje_a_control(equipaje);

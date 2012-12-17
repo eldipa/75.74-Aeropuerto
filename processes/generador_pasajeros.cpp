@@ -31,17 +31,17 @@ int main(int argc, char** argv) try {
 
    get_pasajeros(num_vuelo, id_pasajeros);
 
-	Log::info("total_pasajeros: %d", num_vuelo, id_pasajeros.size());
+	Log::info("total_pasajeros: %d", id_pasajeros.size());
 
    std::vector<int>::iterator it;
    for( it=id_pasajeros.begin(); it != id_pasajeros.end(); it++) {
       std::vector<Equipaje> equipajes;
 		checkin.llego_pasajero_para_checkin((*it), get_equipajes(num_vuelo, (*it), equipajes));
-		Log::info("generando pasajero-checkin con equipaje: %s", num_vuelo, print_equipaje(equipajes).c_str());
+		Log::info("generando pasajero-checkin con equipaje: %s", print_equipaje(equipajes).c_str());
 		sleep(rand()%SLEEP_LLEGADA_PASAJEROS_A_CHECKIN);
    }
 
-	Log::info("ya llegaron todos los pasajeros del vuelo %d", num_vuelo, num_vuelo);
+	Log::info("ya llegaron todos los pasajeros del vuelo %d",  num_vuelo);
 	return 0;
 
 } catch(const std::exception &e) {

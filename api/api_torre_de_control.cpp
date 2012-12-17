@@ -84,8 +84,9 @@ void ApiTorreDeControl::liberar_contenedor() {
 }
 
 int ApiTorreDeControl::pedir_puesto_checkin(int num_vuelo) {
+   Log::info("ApiTorreDeControl: pidiendo puesto de checkin libre para vuelo %d", num_vuelo);
    tMsgCheckin msg;
-   queue_puestos_checkin.pull(&msg, sizeof(tMsgCheckin)-sizeof(long),num_vuelo);
+   queue_puestos_checkin.pull(&msg, sizeof(tMsgCheckin)-sizeof(long));
    return msg.puesto_checkin;
 }
  
@@ -97,9 +98,9 @@ void ApiTorreDeControl::liberar_puesto_checkin(int num_puesto_checkin) {
 }
 
 int ApiTorreDeControl::pedir_zona(int num_vuelo) {
-   Log::info("ApiTorreDeControl: pidiendo zona libre");
+   Log::info("ApiTorreDeControl: pidiendo zona libre para vuelo %d", num_vuelo);
    tMsgZona msg;
-   queue_zonas.pull(&msg, sizeof(tMsgZona)-sizeof(long),num_vuelo);
+   queue_zonas.pull(&msg, sizeof(tMsgZona)-sizeof(long));
    return msg.num_zona;
 }
 

@@ -34,7 +34,7 @@ int main(int argc, char** argv) try {
 		sleep(rand() % SLEEP_ROBOT_CHECKIN);
 
 		Equipaje equipaje = cinta_checkin.sacar_equipaje(id_robot);
-		Log::info("sacó %s", argv[2], equipaje.toString().c_str());
+		Log::info("sacó %s", equipaje.toString().c_str());
 
 		sleep(rand() % SLEEP_ROBOT_CHECKIN);
 

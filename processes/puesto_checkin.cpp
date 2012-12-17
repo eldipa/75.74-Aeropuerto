@@ -32,40 +32,40 @@ int main(int argc, char *argv[]) try {
    int vuelo_pasajero, id_pasajero;
 
    Log::info("Iniciando puesto_checkin(%s), conectado a cinta %i\n", argv[2], checkin.get_cinta_checkin() );
-   Log::info("lanzando controlador_puesto_checkin\n", argv[2]  );
+   Log::info("lanzando controlador_puesto_checkin\n" );
 
-   char *args_controlador[] = { (char*) "controlador_puesto_checkin", (char*) argv[2], (char*)"./entrada/equipajes_intercargo.csv", NULL };
+   char *args_controlador[] = { (char*) "controlador_puesto_checkin", (char*) argv[1], (char*) argv[2], (char*)"./entrada/equipajes_intercargo.csv", NULL };
 	Process controlador_puesto_checkin("controlador_puesto_checkin", args_controlador);
 
    for(;;) {
 
       std::vector<Equipaje> equipajes;
 
-      Log::info("Esperando nuevo pasajero...\n", atoi(argv[2]));
+      Log::info("Esperando nuevo pasajero...\n");
       checkin.recibir_pasajero_para_checkin(id_pasajero, equipajes);
       vuelo_pasajero = get_vuelo(id_pasajero);
 
-      Log::info("Llego el pasajero %d con %d valijas para hacer checkin\n", atoi(argv[2]), id_pasajero, equipajes.size());
+      Log::info("Llego el pasajero %d con %d valijas para hacer checkin\n", id_pasajero, equipajes.size());
       checkin.comienza_checkin_pasajero();
 
       try {
          
          if(checkin.get_vuelo_actual() == vuelo_pasajero) {
-            Log::info("comienza checkin del pasajero %d\n", atoi(argv[2]), id_pasajero);
+            Log::info("comienza checkin del pasajero %d\n", id_pasajero);
 
             //envio los equipajes a la cinta de checkin.
             std::vector<Equipaje>::iterator it;
             for( it=equipajes.begin();it!=equipajes.end();it++ ) {
-               Log::info("enviando equipaje %d a cinta de checkin\n", atoi(argv[2]), it->getRfid().rfid);
+               Log::info("enviando equipaje %d a cinta de checkin\n", it->getRfid().rfid);
                checkin.registrar_equipaje(*it);
             }
             
          } else {
             Log::info("el pasajero %d vino al puesto equivocado: vuelo_pasajero%d vuelo_checkin:%d\n",
-                      atoi(argv[2]), id_pasajero, vuelo_pasajero, checkin.get_vuelo_actual());
+                       id_pasajero, vuelo_pasajero, checkin.get_vuelo_actual());
          }
       } catch (PuestoCheckinSinVueloAsignado &) {
-         Log::info("No hay checkin habilitado en este momento\n", atoi(argv[2]) );
+         Log::info("No hay checkin habilitado en este momento\n" );
       }
       checkin.fin_checkin_pasajero();
    }
