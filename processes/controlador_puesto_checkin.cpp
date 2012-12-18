@@ -28,7 +28,7 @@ int obtener_cantidad_equipaje_intercargo(int numero_de_vuelo, const char * file_
 
 int main(int argc, char *argv[]) try {
 	char path[MAX_PATH_SIZE];
-	int cant_equipaje_intercargo;
+	int cant_equipaje_intercargo, cant_equipaje_checkin;
 	
    if (argc < 3) {
       Log::crit("Insuficientes parametros para controlador puesto_checkin, se esperaba (directorio_de_trabajo, id_checkin, archivo_equipajes_intercargo)\n");
@@ -38,6 +38,7 @@ int main(int argc, char *argv[]) try {
    Log::info("Iniciando controlador puesto de checkin %d %s %s %s\n", argc, argv[1], argv[2], argv[3]);
 
    ApiCheckIn api_checkin(argv[1],atoi(argv[2]));
+   cant_equipaje_intercargo = cant_equipaje_checkin = 0;
 
    for(;;) {
       tMeansajeCheckin msg;
@@ -46,15 +47,18 @@ int main(int argc, char *argv[]) try {
       if( msg.iniciar_checkin ) {
          Log::info("Llego mensaje puesto_checkin %d iniciar_checkin num_vuelo %d\n", msg.mtype, msg.num_vuelo);
          api_checkin.iniciar_checkin(msg.num_vuelo);
-		 cant_equipaje_intercargo = obtener_cantidad_equipaje_intercargo(msg.num_vuelo, argv[3]);
+         cant_equipaje_intercargo = obtener_cantidad_equipaje_intercargo(msg.num_vuelo, argv[3]);
       } else {
          Log::info("Llego mensaje puesto_checkin %d cerrar_checkin \n",  msg.mtype);
-         int equipajes = api_checkin.cerrar_checkin();
-         Log::info("Cierro checkin, aviso a robot_carga que total_equipajes=%d \n", equipajes);
+         cant_equipaje_checkin = api_checkin.cerrar_checkin();
+
+         Log::info("Cierro checkin, aviso a robot_carga que total_equipajes=%d(checkin) + %d(intercargo) = %d \n", 
+                   cant_equipaje_checkin, cant_equipaje_intercargo, cant_equipaje_checkin+cant_equipaje_intercargo);
 
          MENSAJE_CHECKIN_CERRADO mensaje;
+         mensaje.mtype = msg.num_zona;
          mensaje.checkin_cerrado = 1;
-         mensaje.cantidad_equipaje_total = equipajes + cant_equipaje_intercargo; // FALTA SUMAR EQUIPAJES POR INTERCARGO
+         mensaje.cantidad_equipaje_total = cant_equipaje_checkin + cant_equipaje_intercargo; // FALTA SUMAR EQUIPAJES POR INTERCARGO
 
          strcpy(path, PATH_KEYS);
          strcat(path, PATH_COLA_CONTROL_CARGA_CHECKIN);

@@ -27,7 +27,9 @@ try {
 				"Insuficientes parametros para control_carga_contenedores, se esperaba (directorio_de_trabajo, id_robot_carga)\n");
 		exit(1);
 	}
+
 	id_robot_carga = atoi(argv[2]);
+	Log::info("Iniciando controlador de carga para robot_carga %d\n", id_robot_carga);
 
 	MENSAJE_CHECKIN_CERRADO mensaje;
 	MessageQueue cola_mensajes_con_despachante_de_vuelo(

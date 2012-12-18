@@ -101,15 +101,17 @@ try {
 
 	{
 
-		if (argc > 1) {
-			strncpy(directorio_de_trabajo, argv[1], MAX_PATH_SIZE);
-		} else {
-			//strncpy(directorio_de_trabajo,"./locks",MAX_PATH_SIZE);
+		// if (argc > 1) {
+		// 	strncpy(directorio_de_trabajo, argv[1], MAX_PATH_SIZE);
+		// } else {
+      //    strncpy(directorio_de_trabajo, PATH_KEYS, MAX_PATH_SIZE);
+		// 	//strncpy(directorio_de_trabajo,"./locks",MAX_PATH_SIZE);
 
-			// Por ahora hasta poder cambiar el directorio de trabajo
-			strncpy(directorio_de_trabajo, PATH_KEYS, MAX_PATH_SIZE);
-		}
+		// 	// Por ahora hasta poder cambiar el directorio de trabajo
 
+		// }
+
+      strncpy(directorio_de_trabajo, PATH_KEYS, MAX_PATH_SIZE);
 		sprintf(id_productor_cinta_central, "%d", MAX_SCANNERS + 1);
 
 		ConexionesAeropuerto aeropuerto(directorio_de_trabajo);
@@ -141,7 +143,11 @@ try {
 		if (argc == 1) {
 			Log::info("Lanzo todos los vuelos registrados %s", argv[0]);
 			lanzar_vuelos();
-		}
+		} else {
+         for(int i = 1; i<argc-1; i++) {
+            lanzar_vuelo(i);
+         }
+      }
 
 		Log::notice("Done, waiting for a SIGINT or a SIGTERM signal.");
 		wait_signal();

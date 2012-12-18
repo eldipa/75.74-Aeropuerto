@@ -74,7 +74,7 @@ int main(int argc, char** argv) try {
 	Log::info("Iniciando robot carga(%d)\n", id_robot);
 
 	Log::info("lanzando proceso control_carga_contenedores\n");
-	char *args_control_carga[] = { (char*) "control_carga_contenedores", (char*) argv[1], NULL };
+	char *args_control_carga[] = { (char*) "control_carga_contenedores", (char*) argv[1], (char*) argv[2], NULL };
 	Process control_carga_contenedores("control_carga_contenedores", args_control_carga);
 
 	for (;;) {
