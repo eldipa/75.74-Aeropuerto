@@ -57,10 +57,12 @@ int main(int argc, char** argv) try {
    ApiControladorDeVuelo api_vuelo(argv[1], num_vuelo);
    ApiTorreDeControl api_torre(argv[1]);
 
-   Log::info("Pido puesto de checkin y zona a torre de control para vuelo %d", num_vuelo);
-
+   Log::info("Pido puesto de checkin libre para vuelo %d", num_vuelo);
    int num_puesto_checkin = api_torre.pedir_puesto_checkin(num_vuelo);
+
+   Log::info("Ok, puest = %d. Pido zona libre para vuelo %d", num_puesto_checkin, num_vuelo);
    int zona_utilizada = api_torre.pedir_zona(num_vuelo);
+
    Log::info("Respuesta torre de control: num_vuelo=%d num_zona=%d num_puesto_checkin=%d", num_vuelo, zona_utilizada, num_puesto_checkin);
 
    try {
@@ -78,7 +80,8 @@ int main(int argc, char** argv) try {
       //espero cierre checkin
       sleep(rand()%SLEEP_DURACION_CHECKIN);
       api_vuelo.cerrar_checkin(num_puesto_checkin, zona_utilizada);
-      Log::info("cierro checkin %d", num_puesto_checkin);
+      api_torre.liberar_puesto_checkin(num_puesto_checkin);
+      Log::info("cierro checkin vuelo %d y libero puesto de checkin %d", num_vuelo, num_puesto_checkin);
 
       Log::info("termino...");
 

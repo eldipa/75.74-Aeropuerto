@@ -51,13 +51,6 @@ public:
 	void esperar_habilitacion_despegue(int num_avion);
 
 	/*
-	 * Desbloquea al avion, o permite el despegue
-	 **/
-	void notificar_depegue() {
-		Log::info("Despegando", this->numero_de_vuelo);
-	}
-
-	/*
 	 * Devuelve True si el equipaje esta arriba del avion
 	 **/
 	bool equipaje_cargado(Equipaje&);

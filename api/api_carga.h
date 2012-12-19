@@ -5,6 +5,7 @@
 #include "contenedor.h"
 #include "messagequeue.h"
 #include "api_constants.h"
+#include "mensajes.h"
 #include "log.h"
 #include "semaphoreset.h"
 #include "sharedmemory.h"
@@ -19,6 +20,7 @@ private:
 	int id_robot_carga;
 	std::vector<Contenedor> contenedores;
 	MessageQueue cola_tractores;
+   MessageQueue cola_aviso_carga;
 	CintaContenedor cinta_contenedor;
 
 	int * cerro_el_checkin;
@@ -33,29 +35,14 @@ public:
 	 * recibe un path_carga y el id_robot_carga.Va a existir una ApiCarga por cada robot_carga.
 	 **/
 	ApiCarga(const char * directorio_de_trabajo,int id_robot_carga, int num_cinta) :
-			id_robot_carga(id_robot_carga), cola_tractores(std::string(directorio_de_trabajo).append(PATH_COLA_ROBOTS_ZONA_TRACTORES).c_str(), 0), cinta_contenedor(
-					std::string(directorio_de_trabajo).append(PATH_CINTA_CONTENEDOR).c_str(), num_cinta) {
+      id_robot_carga(id_robot_carga), 
+      cola_tractores(std::string(directorio_de_trabajo).append(PATH_COLA_ROBOTS_ZONA_TRACTORES).c_str(), 0), 
+      cola_aviso_carga(std::string(directorio_de_trabajo).append(PATH_COLA_CONTROL_CARGA_CHECKIN).c_str(), id_robot_carga), 
+      cinta_contenedor(std::string(directorio_de_trabajo).append(PATH_CINTA_CONTENEDOR).c_str(), num_cinta) {
 
 	}
 
 	~ApiCarga() {
-	}
-
-	/*
-	 * Bloquea hasta que el robot carga cargue n equipaejes en contenedores.
-	 * No bloquea y retorna un vector vacío si el robot_carga esta ocupado en otra carga.
-	 * En caso contrario devulve los contenedores con equipajes.
-	 * Cada contenedor guarda los rfids
-	 **/
-	std::vector<Contenedor> cargar_equipajes(int n) {
-		n = n - 1;
-		return std::vector<Contenedor>();
-	}
-
-	/* API para el controlador de carga */
-
-	void esperar_avion_en_zona() {
-
 	}
 
 	bool checkin_cerrado() {
@@ -63,7 +50,7 @@ public:
 	}
 
 	Equipaje sacar_equipaje() {
-		return cinta_contenedor.sacar_equipaje(id_robot_carga);
+		return cinta_contenedor.sacar_equipaje();
 	}
 
 	int obtener_cantidad_equipaje_total() {
@@ -107,9 +94,36 @@ public:
 					sizeof(BloqueContenedores), numero_de_vuelo);
 			cola_tractores.push((const void *) &bloque, sizeof(BloqueContenedores) - sizeof(long));
 		}
+
+      contenedores.clear();
+
 	}
 
+   /* 
+      parche: resetea la cinta contenedor cuando cerro el checkin
+      TODO: parche temporal para que el robot_carga no siga cargando equipagjes de otro vuelo
+      en los mismo contenedores.
+   */
+   void comenzar_nueva_carga() {
+      cinta_contenedor.comenzar_nueva_carga();
+   }
 
+   void cargar_equipajes(int equipajes_por_cargar) {
+      MENSAJE_CHECKIN_CERRADO mensaje;
+      mensaje.mtype = 1;
+      mensaje.checkin_cerrado = 1;
+      mensaje.cantidad_equipaje_total = equipajes_por_cargar;
+      cola_aviso_carga.push(&mensaje, sizeof(MENSAJE_CHECKIN_CERRADO)-sizeof(long));
+   }
+
+   int get_equipajes_por_cargar() {
+      MENSAJE_CHECKIN_CERRADO mensaje;
+      cola_aviso_carga.pull(&mensaje,sizeof(MENSAJE_CHECKIN_CERRADO) - sizeof(long), 0);
+      return mensaje.cantidad_equipaje_total;
+
+   }
+
+   
 private:
 
 };

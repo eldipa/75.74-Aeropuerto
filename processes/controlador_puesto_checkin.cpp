@@ -27,7 +27,6 @@ int obtener_cantidad_equipaje_intercargo(int numero_de_vuelo, const char * file_
 }
 
 int main(int argc, char *argv[]) try {
-	char path[MAX_PATH_SIZE];
 	int cant_equipaje_intercargo, cant_equipaje_checkin;
 	
    if (argc < 3) {
@@ -55,16 +54,8 @@ int main(int argc, char *argv[]) try {
          Log::info("Cierro checkin, aviso a robot_carga que total_equipajes=%d(checkin) + %d(intercargo) = %d \n", 
                    cant_equipaje_checkin, cant_equipaje_intercargo, cant_equipaje_checkin+cant_equipaje_intercargo);
 
-         MENSAJE_CHECKIN_CERRADO mensaje;
-         mensaje.mtype = msg.num_zona;
-         mensaje.checkin_cerrado = 1;
-         mensaje.cantidad_equipaje_total = cant_equipaje_checkin + cant_equipaje_intercargo; // FALTA SUMAR EQUIPAJES POR INTERCARGO
-
-         strcpy(path, PATH_KEYS);
-         strcat(path, PATH_COLA_CONTROL_CARGA_CHECKIN);
-         MessageQueue cola_mensajes_con_despachante_de_vuelo(path, msg.num_zona);
-         cola_mensajes_con_despachante_de_vuelo.push(&mensaje, sizeof(MENSAJE_CHECKIN_CERRADO)-sizeof(long));
-
+         ApiCarga api_carga(argv[1],msg.num_zona,  msg.num_zona);
+         api_carga.cargar_equipajes( cant_equipaje_checkin+cant_equipaje_intercargo );
       }
    }
 

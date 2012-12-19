@@ -6,6 +6,8 @@
 
 #include "api_avion.h"
 
+int get_total_valijas(const std::vector<Contenedor>&);
+
 int main(int argc, char** argv)
 try {
 	//bool vuelo_cargado;
@@ -26,7 +28,9 @@ try {
 	sleep(rand() % 10);
 	vuelo.notificar_avion_en_zona();
 	contenedores = vuelo.esperar_carga_equipajes();
-	vuelo.notificar_depegue();
+
+   Log::info("Despegando vuelo %d con %d contenedores y %d valijas", atoi(argv[2]), contenedores.size(), get_total_valijas(contenedores));
+
 	//}
 
 	Log::info("Nada mas que hacer");
@@ -37,4 +41,12 @@ catch (const std::exception &e) {
 }
 catch (...) {
 	Log::crit("Critical error. Unknow exception at the end of the 'main' function.");
+}
+
+int get_total_valijas(const std::vector<Contenedor>& contenedores) {
+   int cant_valijas = 0;
+   std::vector<Contenedor>::const_iterator it = contenedores.begin();
+   for(; it != contenedores.end(); it++)
+      cant_valijas += it->get_equipajes();
+   return cant_valijas;
 }

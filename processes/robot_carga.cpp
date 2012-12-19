@@ -67,7 +67,7 @@ int main(int argc, char** argv) try {
 
 	std::map<std::string, Contenedor> contenedores_por_escala;
 
-	ApiCarga api_carga(argv[1],1,  id_robot);
+	ApiCarga api_carga(argv[1],id_robot,  id_robot);
    ApiDespachante api_despachante(argv[1],id_robot);
    ApiTorreDeControl api_torre( argv[1]);
 
@@ -116,12 +116,10 @@ int main(int argc, char** argv) try {
       Log::info("Deshabilito el vuelo de la zona (%d) en el robot_despacho", id_robot, id_robot);
       api_despachante.desasignar_vuelo(id_robot); //id_robot = num_zona
 
-		api_carga.esperar_avion_en_zona();
-
-		// cargo el resto de los contenedores
-		std::map<std::string, Contenedor>::iterator it;
-		for (it = contenedores_por_escala.begin(); it != contenedores_por_escala.end(); it++)
-			api_carga.agregar_contenedor_cargado((*it).second);
+      // cargo el resto de los contenedores
+      std::map<std::string, Contenedor>::iterator it;
+      for (it = contenedores_por_escala.begin(); it != contenedores_por_escala.end(); it++)
+         api_carga.agregar_contenedor_cargado((*it).second);
 
 		Log::info("Carga finalizada, enviando contenedores a tractores");
 		api_carga.enviar_contenedores_a_avion(numero_de_vuelo);
@@ -129,6 +127,8 @@ int main(int argc, char** argv) try {
 
 		Log::info("fin de carga de equipajes del vuelo %d, libero la zona %d\n", numero_de_vuelo, id_robot);
       api_torre.liberar_zona(id_robot); // id_robot = num_zona
+
+      api_carga.comenzar_nueva_carga();
 	}
 
 } catch(const std::exception &e) {

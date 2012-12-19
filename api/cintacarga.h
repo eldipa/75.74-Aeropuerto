@@ -47,6 +47,10 @@ public:
 	bool checkin_ya_cerro();
 	int cantidad_valijas_totales();
 	void avisar_cierre_de_checkin(int cantidad_de_valijas);
+
+   /* parche */
+   void comenzar_nueva_carga();
+
 };
 
 template<typename T> CintaCarga<T>::CintaCarga(const char * absolute_path, int numero_cinta, int size,
@@ -226,8 +230,23 @@ void CintaCarga<T>::poner_equipaje(const T & elemento, int id_productor) {
 	}
 }
 
+/* 
+   resetea la cinta contenedor cuando cerro el checkin
+   parche temporal para que el robot_carga no siga cargando equipagjes de otro vuelo
+   en los mismo contenedores.
+   TODO: ver bien como se implementa esto.
+*/
 template<typename T>
-T CintaCarga<T>::sacar_equipaje(int id_consumidor) {
+void CintaCarga<T>::comenzar_nueva_carga() {
+   mutex->wait_on(0);
+   (*numero_de_valijas_totales) = 0;
+   (*checkin_cerrado) = 0;
+   ya_me_desperto_el_cierre_de_checkin = false;
+   mutex->signalize(0);
+}
+
+template<typename T>
+T CintaCarga<T>::sacar_equipaje(int id_consumidor = 1) {
 	T elemento;
 	bool extrajo = false;
 

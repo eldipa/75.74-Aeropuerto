@@ -16,6 +16,10 @@ bool Contenedor::hay_lugar(const Equipaje& e) {
 	return (e.peso() + peso <= MAX_PESO_CONTENEDOR);
 }
 
+int Contenedor::get_equipajes() const {
+   return cant_equipajes;
+}
+
 void Contenedor::agregar_equipaje(const Equipaje& e) {
 	if (!hay_lugar(e))
 		throw std::runtime_error("Contenedor: no hay lugar en el contenedor.exceso de peso");

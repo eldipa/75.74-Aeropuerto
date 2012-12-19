@@ -13,6 +13,7 @@
 #include "semaphoreset.h"
 #include "sharedmemory.h"
 #include "api_constants.h"
+#include "api_carga.h"
 #include <cstring>
 #include "mensajes.h"
 #include "cintas.h"
@@ -20,7 +21,6 @@
 
 int main(int argc, char** argv)
 try {
-	int id_robot_carga;
 
 	if (argc < 2) {
 		Log::crit(
@@ -28,26 +28,22 @@ try {
 		exit(1);
 	}
 
-	id_robot_carga = atoi(argv[2]);
+
+	int id_robot_carga = atoi(argv[2]);
+	int  equipajes_por_cargar = 0;
+
 	Log::info("Iniciando controlador de carga para robot_carga %d\n", id_robot_carga);
 
-	MENSAJE_CHECKIN_CERRADO mensaje;
-	MessageQueue cola_mensajes_con_despachante_de_vuelo(
-			std::string(argv[1]).append(PATH_COLA_CONTROL_CARGA_CHECKIN).c_str(), id_robot_carga);
-
-	CintaContenedor cinta_contenedor_carga(
-			std::string(argv[1]).append(PATH_CINTA_CONTENEDOR).c_str(), id_robot_carga);
+	ApiCarga api_carga(argv[1],id_robot_carga,  id_robot_carga);
+	CintaContenedor cinta_contenedor_carga(std::string(argv[1]).append(PATH_CINTA_CONTENEDOR).c_str(), id_robot_carga);
 
 	Log::info("Espero mensaje checkin cerrado\n");
 
-	cola_mensajes_con_despachante_de_vuelo.pull(&mensaje,
-			sizeof(MENSAJE_CHECKIN_CERRADO) - sizeof(long), 0);
+   for(;;) {
+      equipajes_por_cargar = api_carga.get_equipajes_por_cargar();
+      cinta_contenedor_carga.avisar_cierre_de_checkin(equipajes_por_cargar);
+   }
 
-	Log::info("Aviso al robot de carga el cierre del checkin\n");
-
-	cinta_contenedor_carga.avisar_cierre_de_checkin(mensaje.cantidad_equipaje_total);
-
-	Log::info("Nada mas que hacer");
 	return 0;
 }
 catch (const std::exception &e) {
