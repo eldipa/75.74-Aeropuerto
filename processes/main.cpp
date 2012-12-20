@@ -78,9 +78,7 @@ static char *args_tractor1[] = { (char*) "tractor_1", directorio_de_trabajo, (ch
 
 static char *args_tractor2[] = { (char*) "tractor_2", directorio_de_trabajo, (char*) "2", NULL };
 
-static char *args_avion1[] = { (char*) "avion_1", directorio_de_trabajo, (char*) "1", NULL };
-
-static char *args_avion2[] = { (char*) "avion_2", directorio_de_trabajo, (char*) "2", NULL };
+static char *args_scheduler_aviones[] = { (char*)"scheduler_aviones", directorio_de_trabajo, NULL };
 
 /*
  * Lanza todos los vuelos registrados.
@@ -100,16 +98,6 @@ try {
 	std::list<Process> processes;
 
 	{
-
-		// if (argc > 1) {
-		// 	strncpy(directorio_de_trabajo, argv[1], MAX_PATH_SIZE);
-		// } else {
-      //    strncpy(directorio_de_trabajo, PATH_KEYS, MAX_PATH_SIZE);
-		// 	//strncpy(directorio_de_trabajo,"./locks",MAX_PATH_SIZE);
-
-		// 	// Por ahora hasta poder cambiar el directorio de trabajo
-
-		// }
 
       strncpy(directorio_de_trabajo, PATH_KEYS, MAX_PATH_SIZE);
 		sprintf(id_productor_cinta_central, "%d", MAX_SCANNERS + 1);
@@ -136,8 +124,7 @@ try {
 		processes.push_back(Process("torre_de_control", args_torre_de_control));
 		processes.push_back(Process("tractor", args_tractor1));
 		processes.push_back(Process("tractor", args_tractor2));
-		processes.push_back(Process("avion", args_avion1));
-		processes.push_back(Process("avion", args_avion2));
+      processes.push_back(Process("scheduler_aviones", args_scheduler_aviones));
 
 		// sin argumentos lanzo todos los vuelos posibles.
 		if (argc == 1) {
