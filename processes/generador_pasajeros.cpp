@@ -1,4 +1,7 @@
 #include <stdlib.h>
+#include <iostream>
+#include <stdio.h>
+#include <unistd.h>
 
 #include "database.h"
 #include "stmt.h"
@@ -11,7 +14,7 @@
 #include <string>
 #include <vector>
 #include <sstream>
-
+#include <vector>
 #include "yasper.h"
 
 void get_pasajeros(int num_vuelo, std::vector<int>& id_pasajeros);
@@ -51,31 +54,67 @@ int main(int argc, char** argv) try {
 }
 
 void get_pasajeros(int num_vuelo, std::vector<int>& id_pasajeros) {
-	Database db("aeropuerto", true);
-   yasper::ptr<Statement> query = db.statement("select id from Pasajero where vuelo = :vuelo");
-	query->set(":vuelo", num_vuelo);
+	// Database db("aeropuerto", true);
+   // yasper::ptr<Statement> query = db.statement("select id from Pasajero where vuelo = :vuelo");
+	// query->set(":vuelo", num_vuelo);
 
-	yasper::ptr<TupleIterator> p_it = query->begin();
-	yasper::ptr<TupleIterator> p_end = query->end();
+	// yasper::ptr<TupleIterator> p_it = query->begin();
+	// yasper::ptr<TupleIterator> p_end = query->end();
 
-	for (; (*p_it) != (*p_end); ++(*p_it)) {
-		id_pasajeros.push_back( p_it->at<int>(0));
+	// for (; (*p_it) != (*p_end); ++(*p_it)) {
+	// 	id_pasajeros.push_back( p_it->at<int>(0));
+	// }
+
+   char primera_linea[255];
+	FILE * file_pasajeros;
+   int id_pasajero;
+   int num_vuelo_asignado;
+
+	file_pasajeros = fopen("./entrada/pasajeros.csv", "rt");
+	fscanf(file_pasajeros, "%[^\n]s\n", primera_linea);
+
+	while (fscanf(file_pasajeros, "%d:%d\n",&id_pasajero, &num_vuelo_asignado) != EOF) {
+      if(num_vuelo_asignado == num_vuelo) {
+         Log::debug("push pasajero %d para vuelo %d", id_pasajero, num_vuelo);
+         id_pasajeros.insert(id_pasajeros.begin(), id_pasajero);
+      }
 	}
+
+	fclose(file_pasajeros);
    
 }
 
 std::vector<Equipaje>& get_equipajes(int num_vuelo, int num_pasajero, std::vector<Equipaje>& equipajes) {
-	Database db("aeropuerto", true);
-	yasper::ptr<Statement> query = db.statement("select rfid from Equipaje where vuelo = :vuelo and id_pasajero = :pasajero");
-	query->set(":vuelo", num_vuelo);
-	query->set(":pasajero", num_pasajero);
+	// Database db("aeropuerto", true);
+	// yasper::ptr<Statement> query = db.statement("select rfid from Equipaje where vuelo = :vuelo and id_pasajero = :pasajero");
+	// query->set(":vuelo", num_vuelo);
+	// query->set(":pasajero", num_pasajero);
 
-	yasper::ptr<TupleIterator> p_it = query->begin();
-	yasper::ptr<TupleIterator> p_end = query->end();
+	// yasper::ptr<TupleIterator> p_it = query->begin();
+	// yasper::ptr<TupleIterator> p_end = query->end();
 
-	for (; (*p_it) != (*p_end); ++(*p_it)) {
-		equipajes.push_back( Equipaje( Rfid(p_it->at<int>(0), num_vuelo), rand()%TOPE_PESO_VALIJA) );
+	// for (; (*p_it) != (*p_end); ++(*p_it)) {
+	// 	equipajes.push_back( Equipaje( Rfid(p_it->at<int>(0), num_vuelo), rand()%TOPE_PESO_VALIJA) );
+	// }
+   // return equipajes;
+
+   char primera_linea[255];
+	FILE * file_equipajes;
+   int pasajero;
+   int vuelo;
+   int rfid;
+
+	file_equipajes = fopen("./entrada/equipajes.csv", "rt");
+	fscanf(file_equipajes, "%[^\n]s\n", primera_linea);
+
+	while (fscanf(file_equipajes, "%d:%d:%d\n",&rfid, &pasajero, &vuelo) != EOF) {
+      if((vuelo ==num_vuelo) && (pasajero ==num_pasajero)) {
+         Log::debug("push equipaje %d para pasajero %d, vuelo %d", rfid, pasajero, vuelo);
+         equipajes.push_back( Equipaje( Rfid(rfid, vuelo), rand()%TOPE_PESO_VALIJA) );
+      }
 	}
+
+	fclose(file_equipajes);
    return equipajes;
 }
 
