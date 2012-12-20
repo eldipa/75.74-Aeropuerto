@@ -18,13 +18,13 @@
 
 #include <list>
 
-static char buffer_num_vuelo[20];
+// static char buffer_num_vuelo[20];
 
 static char directorio_de_trabajo[MAX_PATH_SIZE];
 static char id_productor_cinta_central[10];
 
-static char *args_controlador_vuelo[] = { (char*) "controlador_de_vuelo", directorio_de_trabajo,
-		(char*) buffer_num_vuelo, NULL };
+// static char *args_controlador_vuelo[] = { (char*) "controlador_de_vuelo", directorio_de_trabajo,
+// 		(char*) buffer_num_vuelo, NULL };
 
 static char *args_puesto_checkin1[] = { (char*) "puesto_checkin_1", directorio_de_trabajo,
 		(char*) "1", NULL };
@@ -80,6 +80,8 @@ static char *args_tractor2[] = { (char*) "tractor_2", directorio_de_trabajo, (ch
 
 static char *args_scheduler_aviones[] = { (char*)"scheduler_aviones", directorio_de_trabajo, NULL };
 
+static char *args_scheduler_vuelos[] = { (char*)"scheduler_vuelos", directorio_de_trabajo, NULL };
+
 /*
  * Lanza todos los vuelos registrados.
  * A medida que se liberen las zonas, los vuelos van saliendo.
@@ -87,7 +89,8 @@ static char *args_scheduler_aviones[] = { (char*)"scheduler_aviones", directorio
 void lanzar_vuelos();
 void lanzar_vuelo(int num_vuelo);
 
-int main(int argc, char** argv)
+// int main(int argc, char** argv)
+int main()
 try {
 
 	//be_a_daemon();
@@ -125,16 +128,17 @@ try {
 		processes.push_back(Process("tractor", args_tractor1));
 		processes.push_back(Process("tractor", args_tractor2));
       processes.push_back(Process("scheduler_aviones", args_scheduler_aviones));
+      processes.push_back(Process("scheduler_vuelos", args_scheduler_vuelos));
 
 		// sin argumentos lanzo todos los vuelos posibles.
-		if (argc == 1) {
-			Log::info("Lanzo todos los vuelos registrados %s", argv[0]);
-			lanzar_vuelos();
-		} else {
-         for(int i = 1; i<argc-1; i++) {
-            lanzar_vuelo(i);
-         }
-      }
+		// if (argc == 1) {
+		// 	Log::info("Lanzo todos los vuelos registrados %s", argv[0]);
+		// 	lanzar_vuelos();
+		// } else {
+      //    for(int i = 1; i<argc-1; i++) {
+      //       lanzar_vuelo(i);
+      //    }
+      // }
 
 		Log::notice("Done, waiting for a SIGINT or a SIGTERM signal.");
 		wait_signal();
@@ -163,23 +167,23 @@ catch (...) {
 	Log::crit("Critical error. Unknow exception at the end of the 'main' function.");
 }
 
-void lanzar_vuelos() {
-	Database db("aeropuerto", true);
-	yasper::ptr<Statement> query = db.statement("select id from Vuelo");
+// void lanzar_vuelos() {
+// 	Database db("aeropuerto", true);
+// 	yasper::ptr<Statement> query = db.statement("select id from Vuelo");
 
-	yasper::ptr<TupleIterator> p_it = query->begin();
-	yasper::ptr<TupleIterator> p_end = query->end();
+// 	yasper::ptr<TupleIterator> p_it = query->begin();
+// 	yasper::ptr<TupleIterator> p_end = query->end();
 
-	for (; (*p_it) != (*p_end); ++(*p_it)) {
-		lanzar_vuelo(p_it->at<int>(0));
-	}
-}
+// 	for (; (*p_it) != (*p_end); ++(*p_it)) {
+// 		lanzar_vuelo(p_it->at<int>(0));
+// 	}
+// }
 
-void lanzar_vuelo(int num_vuelo) {
-	Log::info("Lanzando vuelo %d", num_vuelo);
-	std::stringstream sstr;
-	sstr << num_vuelo;
-	strcpy(buffer_num_vuelo, sstr.str().c_str());
+// void lanzar_vuelo(int num_vuelo) {
+// 	Log::info("Lanzando vuelo %d", num_vuelo);
+// 	std::stringstream sstr;
+// 	sstr << num_vuelo;
+// 	strcpy(buffer_num_vuelo, sstr.str().c_str());
 
-	Process controlador_vuelo1("controlador_de_vuelo", args_controlador_vuelo);
-}
+// 	Process controlador_vuelo1("controlador_de_vuelo", args_controlador_vuelo);
+// }
