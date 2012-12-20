@@ -32,28 +32,11 @@ ApiCheckIn::ApiCheckIn(const char* directorio_de_trabajo,int id_checkin) :
 ApiCheckIn::~ApiCheckIn() {
 }
 
-int cantidad_vuelos_trasbordo_a(int numero_vuelo) {
-	Database db("aeropuerto", true);
-
-        yasper::ptr<Statement> query = db.statement(
-			"select count(vuelo_destino) from VuelosIntercargo where vuelo_origen = :vuelo");
-	query->set(":vuelo", numero_vuelo);
-
-	return (query->begin()->at<int>(0));
-}
-
-
 void ApiCheckIn::iniciar_checkin( int numero_vuelo ) {
    mutex_checkin.lock();
    if( vuelo_actual->num_vuelo == -1 ) {
       MessageQueue checkin(std::string(PATH_KEYS).append(PATH_TORRE_DE_CONTROL).c_str(), Q_CHECKINS_HABILITADOS);
 
-      Log::info("Notificando checkin abierto para vuelo %i", numero_vuelo);
-      // Envio un mensaje por cada vuelo de trasbordo
-      for (int i = 0; i < cantidad_vuelos_trasbordo_a(numero_vuelo); i ++ ) {
-         checkin.push(&numero_vuelo, sizeof(numero_vuelo)-sizeof(long));
-      }
-      // Actualizo la info sobre el vuelo actual
       vuelo_actual->num_vuelo = numero_vuelo;
       vuelo_actual->cant_equipajes = 0;
    } else {

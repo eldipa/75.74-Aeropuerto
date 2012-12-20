@@ -76,25 +76,44 @@ int main(int argc, char *argv[]) try {
 }
 
 int get_vuelo(int id_pasajero) {
-	Database db("aeropuerto", true);
-	int num_vuelo = -1;
+	// Database db("aeropuerto", true);
+	// int num_vuelo = -1;
 
-	yasper::ptr<Statement> query = db.statement(
-			"select vuelo from Pasajero where id = :id_pasajero");
-	query->set(":id_pasajero", id_pasajero);
+	// yasper::ptr<Statement> query = db.statement(
+	// 		"select vuelo from Pasajero where id = :id_pasajero");
+	// query->set(":id_pasajero", id_pasajero);
 
-	yasper::ptr<TupleIterator> p_it = query->begin();
-	yasper::ptr<TupleIterator> p_end = query->end();
+	// yasper::ptr<TupleIterator> p_it = query->begin();
+	// yasper::ptr<TupleIterator> p_end = query->end();
 
-	//Estas dos lineas no son mas que unos alias
-	TupleIterator &it = *p_it;
-	TupleIterator &end = *p_end;
+	// //Estas dos lineas no son mas que unos alias
+	// TupleIterator &it = *p_it;
+	// TupleIterator &end = *p_end;
 
-	if (it != end) {
-		num_vuelo = it.at<int>(0);
-	} else {
-		Log::crit("llego un pasajero que no esta en la BD!!!");
+	// if (it != end) {
+	// 	num_vuelo = it.at<int>(0);
+	// } else {
+	// 	Log::crit("llego un pasajero que no esta en la BD!!!");
+	// }
+
+
+   char primera_linea[255];
+	FILE * file_pasajeros;
+   int num_vuelo = -1;
+   int pasajero;
+   int num_vuelo_asignado;
+
+	file_pasajeros = fopen("./entrada/pasajeros.csv", "rt");
+	fscanf(file_pasajeros, "%[^\n]s\n", primera_linea);
+
+	while ((fscanf(file_pasajeros, "%d:%d\n",&pasajero, &num_vuelo_asignado) != EOF) && (num_vuelo == -1)) {
+      if(id_pasajero == pasajero) {
+         num_vuelo = num_vuelo_asignado;
+         Log::debug("search vuelo para pasajero %d.respuesta vuelo=%d", id_pasajero, num_vuelo);
+      }
 	}
+
+	fclose(file_pasajeros);
 
 	return num_vuelo;
 
