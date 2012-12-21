@@ -13,6 +13,7 @@
 #include "stmt.h"
 #include "tupleiter.h"
 
+#include <unistd.h>
 #include <sstream>
 
 int tomar_zona(int num_zona);

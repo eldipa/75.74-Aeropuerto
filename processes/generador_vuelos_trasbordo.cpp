@@ -9,6 +9,7 @@
 #include "constants.h"
 #include "log.h"
 
+#include <unistd.h>
 #include "process.h"
 
 static char id_vuelo_destino[10];
