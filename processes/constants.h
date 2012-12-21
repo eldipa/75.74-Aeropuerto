@@ -4,13 +4,7 @@
 #include "cintas.h"
 #include "api_constants.h"
 
-#define CANT_CONTENEDORES_INICIAL 10
-
-#define MAX_PUESTOS_CHECKIN 10
-#define MAX_PUESTOS_SCANNER 4
-#define MAX_CONECTADOS_A_PPAL 3
-
-// Sleeps
+// *** Constantes de  simulacion *** 
 #define SLEEP_PUESTO_CHECKIN 1
 #define SLEEP_ROBOT_CHECKIN 2
 #define SLEEP_ROBOT_SCANNER 2
@@ -21,10 +15,16 @@
 #define SLEEP_DESPACHO_VUELO 3
 #define SLEEP_DURACION_CHECKIN 15
 #define SLEEP_ROBOT_CARGA 2
-
 #define CANT_SOSPECHOSOS 10 // 1 de cada CANT_SOSPECHOSOS es sospechoso.
-// Other
 #define TOPE_PESO_VALIJA 20
+// *** Constantes de simulacion *** Sleeps
+
+
+
+#define MAX_PUESTOS_CHECKIN 10
+#define MAX_PUESTOS_SCANNER 4
+#define MAX_CONECTADOS_A_PPAL 3
+#define CANT_CONTENEDORES_INICIAL 10
 
 // Other macros
 #define STRINGIFY(x) #x
