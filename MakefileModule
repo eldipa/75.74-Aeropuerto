@@ -83,7 +83,7 @@ DEPEND = $(TIMEIT) g++ -MM $(COMPILER_FLAGS) $(patsubst %, -I%, $(INCLUDE_PATHS)
 ARCHIVE = $(TIMEIT) ar $(ARCHIVER_FLAGS) $@ $^ 
 LINK = $(TIMEIT) g++ $(LINKER_FLAGS) $(patsubst %, -L%, $(EXTERNAL_LIBRARY_PATHS)) -o $@ $@.o $(filter-out $(patsubst %, %.o, $(TARGET)), $^)  $(patsubst %, -l%, $(EXTERNAL_LIBRARIES))
 DYNAMIC = $(TIMEIT) g++ -shared $(DYNAMIC_FLAGS) -o $@ $^ 
-MAKE_EXTERN = $(TIMEIT) $(MAKE) -e --no-print-directory -f $$external $(MAKECMDGOALS)
+MAKE_EXTERN = $(TIMEIT) $(SHELL) -c "( $(MAKE) -e --no-print-directory -f $$external $(MAKECMDGOALS) $(PRINT_MAKE_EXTERN_DONE) )"
 RM = $(TIMEIT) rm -f 
 
 #
@@ -96,10 +96,11 @@ ifeq ($(verbose), 0)
    PRINT_ARCHIVE = @printf "\033[36;1m  %-$(ALIGN)s \033[0m" "Archiving into $@" ; 
    PRINT_LINK = @printf "\033[36;1m  %-$(ALIGN)s \033[0m" "Linking into $@" ; 
    PRINT_DYNAMIC = @printf "\033[36;1m  %-$(ALIGN)s \033[0m" "Building shared library $@" ; 
-   PRINT_MAKE_EXTERN = printf "\033[36;3m  %s\033[36;1m %-$(ALIGN)s \033[0m" "Invoking" "make $(MAKECMDGOALS) $$external..." ; echo "" ; 
+   PRINT_MAKE_EXTERN = printf "\033[36;3m    %s\033[36;1m %-$(ALIGN)s \033[0m" "Invoking" "make $(MAKECMDGOALS) $$external..." ; echo "" ; 
    PRINT_RM_DEPS = @printf "\033[31m  %-$(ALIGN)s \033[0m" "Removing depenencies" ; 
    PRINT_RM_OBJECTS = @printf "\033[31m  %-$(ALIGN)s \033[0m" "Removing objects" ;
    PRINT_RM_TARGET = @printf "\033[31m  %-$(ALIGN)s \033[0m" "Removing target" ;
+   PRINT_MAKE_EXTERN_DONE = && printf \"\033[36;3m  %-$(ALIGN)s \033[0m\" \"  Done\"
 endif
 
 SRC = $(wildcard *.cpp)
@@ -142,7 +143,7 @@ mostlyclean: depclean
 
 clean: mostlyclean 
 	$(PRINT_RM_TARGET) $(RM) $(filter-out %.make, $(TARGET))  $(NL)
-	@for external in $(filter %.make,$(TARGET)) ; do $(PRINT_MAKE_EXTERN) $(MAKE_EXTERN) $(NL) ; done  
+	@for external in $(filter %.make,$(TARGET)) ; do $(PRINT_MAKE_EXTERN) $(MAKE_EXTERN) ; done  
 
 # This will include in this Makefile all the "sub makefiles" with the depenencies loaded
 # Only if not is a "clean" rule (eg. "make clean" or "make depclean")
