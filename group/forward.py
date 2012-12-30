@@ -45,7 +45,7 @@ while True:
       any_node.sendto('Head Group: %s Leader: %s Sender: %s' % (group_name, lider_name, my_name), (broadcast, dest_port))
       any_node.settimeout(20) #timeout, hay otra forma?
       try:
-         msg, who = any_node.recvfrom(60) #512?? cuanto deberia recibir?
+         msg, who = any_node.recvfrom(512) #512?? cuanto deberia recibir?
       except timeout:
          continue
       finally:
@@ -62,6 +62,7 @@ while True:
       if _kind == 'Tail' and _group == group_name:
          if (_leader != lider_name and _leader != my_name) or ((_leader == lider_name or _leader == my_name) and time() - start > wait_time):
             next_node.connect((_sender, dest_port))
+            print "Local Node: %s ----> External Node: %s" % (my_name, (_sender, dest_port))
             connected = True
    
    #End of the 'Head' stage,

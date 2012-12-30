@@ -5,7 +5,7 @@ sys.path.append("../ipc")
 
 from ipc import MessageQueue
 from socket import socket, AF_INET, SOCK_DGRAM, timeout, SOL_SOCKET, SO_BROADCAST
-from time import time
+from time import time, sleep
 import os
 
 from subprocess import check_output
@@ -37,7 +37,8 @@ while True:
       any_node.sendto('Tail Group: %s Leader: %s Sender: %s' % (group_name, lider_name, my_name), (broadcast, dest_port))
       try:
          #No hay ningun protocolo o verificacion, si se conecta, se asume que esta todo OK
-         previous_node, _ = listener.accept() 
+         previous_node, _a = listener.accept()
+         print "Local Node: %s <-- External Node: %s" % (my_name, _a)
       except timeout:
          previous_node = None
          continue
@@ -57,6 +58,7 @@ while True:
    else:
       ack = True
       while ack: #keep alive subprocess
+         sleep(10)
          ack = previous_node.sendall("ack") == None #algun formato para esto??
       
       print "SHUTDOWN"
