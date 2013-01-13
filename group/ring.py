@@ -12,8 +12,8 @@ BEACON_SERVICE = LISTEN_SERVICE
 # Based (but not enforced) in the types of protocols used in an ARP request/reply. 
 # See RFC 826
 PROTOCOL_TYPES = {
-      'IP' : (0x0800, 4),
-      'FQDN' : (0x0801, 0),
+      'IP' : 0x0800,
+      'FQDN' : 0x0801,
       }
 
 OWN_RING_CLOSE_TIMEWAIT = 1 * 60 # 1 minutes
@@ -50,12 +50,8 @@ def tail(broadcast_address, group_id, protocol_name, local_address, leader_addre
    listener.bind((local_address, LISTEN_SERVICE)) 
    listener.listen(LISTEN_QUEUE_LENGHT)
    
-   protocol_type, _len = PROTOCOL_TYPES[protocol_name]
-   if _len == 0: #extract the len of each address (the length is not fixed)
-      leader_address_len, local_address_len = len(leader_address), len(local_address)
-   else:
-      #length fixed
-      leader_address_len, local_address_len = _len, _len
+   protocol_type = PROTOCOL_TYPES[protocol_name]
+   leader_address_len, local_address_len = len(leader_address), len(local_address)
 
    tail_beacon = _create_beacon('TAIL', group_id, protocol_type, leader_address_len, leader_address, local_address_len, local_address)
 
@@ -79,17 +75,22 @@ def tail(broadcast_address, group_id, protocol_name, local_address, leader_addre
    return previous_node
 
 
-def head(datagram_socket, group_id, local_address, leader_address):
+def head(group_id, local_address, leader_address, protocol_name):
+   assert protocol_name in PROTOCOL_TYPES
+
+   datagram_socket = socket.socket(AF_INET, SOCK_DGRAM)
+   datagram_socket.bind((local_address, LISTEN_SERVICE))
+
    next_node = socket()
    start = time()
    while True
       msg, _ = datagram_socket.recvfrom(BEACON_BUF_MAX_SIZE) 
-      type, external_group_id, protocol_type = struct.unpack('>4sHH', msg[:8])
+      type, external_group_id, remote_protocol_type = struct.unpack('>4sHH', msg[:8])
       
       if type != 'TAIL' or group_id != external_group_id:
          #Mensaje invalido o de otro grupo
 
-      if protocol_type not in PROTOCOL_TYPES:
+      if remote_protocol_type not in PROTOCOL_TYPES:
          # Tipo desconocido
       
       try:
@@ -101,7 +102,7 @@ def head(datagram_socket, group_id, local_address, leader_address):
       time_elapsed = time() - start
 
       # Esto es valido solo para direcciones IP y por hostname
-      # Para soportar otros tipos de protocolo, se debe codear lo necesario en funcion de 'protocol_type'
+      # Para soportar otros tipos de protocolo, se debe codear lo necesario en funcion de 'remote_protocol_type y protocol_name'
       is_from_a_new_group = leader_address not in map(lambda t: t[3], getaddrinfo(remote_leader_address, LISTEN_SERVICE))
       is_myself = local_address in map(lambda t: t[3], getaddrinfo(remote_host_address, LISTEN_SERVICE)) 
 
