@@ -45,7 +45,7 @@ def passage_inbound_messages(inbound_socket, userland_inbound_queue, userland_ou
          if type not in ID_BY_TYPE.keys():
             #ERROR. Mensaje corrupto o desincronizado?
 
-         size = struct.unpack('>I', _recv(inbound_socket, 4))
+         size = struct.unpack('>H', _recv(inbound_socket, 2))
 
          if size > MAX_PAYLOAD:
             #ERROR. Mensaje corrupto o desincronizado? El size supera el limite definido (basado en el limite del payload de los mensajes que se pueden pushear en una cola compartida.
@@ -83,7 +83,10 @@ def passage_outbound_messages(outbound_socket, userland_outbound_queue):
             #ERROR alguien, de alguna manera, metio un mensjae en la cola demasiado grande
 
          type = TYPE_BY_ID[id]
-         size = struct.pack('>I', len(payload))
+         size = struct.pack('>H', len(payload))
+         
+         assert len(type) == 4
+         assert len(size) == 2
 
          _send(outbound_socket, type)
          _send(outbound_socket, size)
