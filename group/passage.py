@@ -34,6 +34,7 @@ def _recv(socket, length):
 
 
 def _send(socket, buf):
+   socket.sendall(buf)
 
 
 def passage_inbound_messages(inbound_socket, userland_inbound_queue, userland_outbound_queue):
