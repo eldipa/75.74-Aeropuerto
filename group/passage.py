@@ -14,7 +14,7 @@ ID_BY_TYPE = {
       'USER' : 1,
       }
 
-TYPE_BY_ID = dict(map(lambda type, id: (id, type), ID_BY_TYPE.items()))
+TYPE_BY_ID = dict(map(lambda type_id: (type_id[1], type_id[0]), ID_BY_TYPE.items()))
 
 assert len(ID_BY_TYPE) == len(TYPE_BY_ID)
 
@@ -27,6 +27,8 @@ def _recv(socket, length):
 
       if not chunks[-1]:
          #ERROR. Coneccion cerrada?
+         #XXX TODO esto es un bug, en algunas ocaciones recv retorna vacio (varias veces) entrando _recv en ciclo infinito
+         raise Exception
       
       i -= len(chunks[-1])
 
@@ -46,11 +48,13 @@ def passage_inbound_messages(inbound_socket, userland_inbound_queue, userland_ou
 
             if type not in ID_BY_TYPE.keys():
                #ERROR. Mensaje corrupto o desincronizado?
+               raise Exception
 
             size = struct.unpack('>H', _recv(inbound_socket, 2))
 
             if size > MAX_PAYLOAD:
                #ERROR. Mensaje corrupto o desincronizado? El size supera el limite definido (basado en el limite del payload de los mensajes que se pueden pushear en una cola compartida.
+               raise Exception
 
             payload =  _recv(inbound_socket, size)
 
@@ -67,6 +71,7 @@ def passage_inbound_messages(inbound_socket, userland_inbound_queue, userland_ou
                inbound_socket.send('?') # is alive the other side?
             except timeout:
                #ERROR. El anillo esta ROTO
+               raise Exception
             finally:
                inbound_socket.settimeout(RECEIVE_TIMEOUT)
    finally:
@@ -79,13 +84,15 @@ def passage_outbound_messages(outbound_socket, userland_outbound_queue):
 
    while True:
       try:
-         id, payload = message.unpack(outbound_socket.pull())
+         id, payload = message.unpack(userland_outbound_queue.pull())
 
          if id not in TYPE_BY_ID:
             #ERROR alguien, de alguna manera, metio un mensjae en la cola con un tipo inesperado
+            raise Exception
 
          if len(payload) > MAX_PAYLOAD:
             #ERROR alguien, de alguna manera, metio un mensjae en la cola demasiado grande
+            raise Exception
 
          type = TYPE_BY_ID[id]
          size = struct.pack('>H', len(payload))
@@ -99,3 +106,4 @@ def passage_outbound_messages(outbound_socket, userland_outbound_queue):
       
       except timeout:
          #ERROR, el anillo esta ROTO
+         raise Exception

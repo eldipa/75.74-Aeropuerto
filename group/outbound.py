@@ -6,6 +6,9 @@ sys.path.append("../ipc")
 from ipc import MessageQueue
 from subprocess import Popen
 
+import passage
+import ring
+
 if __name__ == '__main__':
    sockets_seized = []
 
@@ -17,5 +20,5 @@ if __name__ == '__main__':
    leader_address = local_address
    
    while True:
-      next_node = head(group_id, local_address, leader_address, protocol_name)
-      passage_outbound_messages(next_node, userland_outbound_queue)
+      next_node = ring.head(group_id, local_address, leader_address, protocol_name)
+      passage.passage_outbound_messages(next_node, userland_outbound_queue)
