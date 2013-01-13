@@ -1,6 +1,7 @@
 
 import struct
 import socket
+from socket import AF_INET, SOCK_DGRAM, SOL_SOCKET, SO_BROADCAST
 
 LISTEN_TIMEOUT = 30 
 LISTEN_SERVICE = 8084
@@ -36,8 +37,11 @@ def _create_beacon(beacon_type, group_id, protocol_type, leader_address_len, loc
    return struct.pack('>4sHHBB%is%is' % (leader_address_len, local_address_len), beacon_type, group_id, protocol_type, leader_address_len, local_address_len, leader_address, local_address)
 
 
-def tail(datagram_socket, broadcast_address, group_id, protocol_name, local_address, leader_address):
+def tail(broadcast_address, group_id, protocol_name, local_address, leader_address):
    assert protocol_name in PROTOCOL_TYPES
+   
+   datagram_socket = socket.socket(AF_INET, SOCK_DGRAM)
+   datagram_socket.setsockopt(SOL_SOCKET, SO_BROADCAST, 1)
 
    previous_node = None
    listener = socket.socket()
@@ -69,6 +73,8 @@ def tail(datagram_socket, broadcast_address, group_id, protocol_name, local_addr
 
    listener.shutdown(2)
    listener.close()
+
+   datagram_socket.close()
 
    return previous_node
 
