@@ -50,7 +50,7 @@ def passage_inbound_messages(inbound_socket, userland_inbound_queue, userland_ou
                #ERROR. Mensaje corrupto o desincronizado?
                raise Exception
 
-            size = struct.unpack('>H', _recv(inbound_socket, 2))
+            size = struct.unpack('>H', _recv(inbound_socket, 2))[0]
 
             if size > MAX_PAYLOAD:
                #ERROR. Mensaje corrupto o desincronizado? El size supera el limite definido (basado en el limite del payload de los mensajes que se pueden pushear en una cola compartida.
@@ -100,9 +100,7 @@ def passage_outbound_messages(outbound_socket, userland_outbound_queue):
          assert len(type) == 4
          assert len(size) == 2
 
-         _send(outbound_socket, type)
-         _send(outbound_socket, size)
-         _send(outbound_socket, payload)
+         _send(outbound_socket, type+size+payload)
       
       except timeout:
          #ERROR, el anillo esta ROTO

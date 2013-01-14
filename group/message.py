@@ -7,4 +7,4 @@ def pack(payload, type):
    return struct.pack(_format % len(payload), type, payload)
 
 def unpack(package):
-   return struct.unpack(_format % len(package) - _header_size, package)
+   return struct.unpack(_format % (len(package) - _header_size), package)
