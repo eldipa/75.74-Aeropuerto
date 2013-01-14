@@ -56,7 +56,7 @@ def tail(broadcast_address, group_id, protocol_name, local_address, leader_addre
    protocol_type = PROTOCOL_TYPES_BY_NAME[protocol_name]
    leader_address_len, local_address_len = len(leader_address), len(local_address)
 
-   tail_beacon = _create_beacon('TAIL', group_id, protocol_type, leader_address_len, local_address_len, leader_address, local_address)
+   tail_beacon = _create_beacon('OPEN', group_id, protocol_type, leader_address_len, local_address_len, leader_address, local_address)
 
    assert len(tail_beacon) == 4+2+2+1+1+leader_address_len+local_address_len
    assert len(tail_beacon) < BEACON_BUF_MAX_SIZE
@@ -90,7 +90,7 @@ def head(group_id, local_address, leader_address, protocol_name):
       msg, _ = datagram_socket.recvfrom(BEACON_BUF_MAX_SIZE) 
       type, external_group_id, remote_protocol_type = struct.unpack('>4sHH', msg[:8])
       
-      if type != 'TAIL' or group_id != external_group_id:
+      if type != 'OPEN' or group_id != external_group_id:
          #Mensaje invalido o de otro grupo
          raise Exception
 
