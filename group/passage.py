@@ -10,7 +10,7 @@ ISALIVE_TIMEOUT = 10 #10 seconds
 MAX_PAYLOAD = 2**14
 
 ID_BY_TYPE = {
-      'MOM1' : 2,
+      'LOOP' : 2,
       'USER' : 1,
       }
 
@@ -58,7 +58,7 @@ def passage_inbound_messages(inbound_socket, userland_inbound_queue, userland_ou
 
             payload =  _recv(inbound_socket, size)
 
-            if type == 'MOM1':
+            if type == 'LOOP':
                userland_outbound_queue.push(message.pack(payload, ID_BY_TYPE[type]))
             elif type == 'USER':
                userland_inbound_queue.push(message.pack(payload, ID_BY_TYPE[type]))
