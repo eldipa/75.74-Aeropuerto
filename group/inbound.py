@@ -12,17 +12,17 @@ import ring
 if __name__ == '__main__':
    sockets_seized = []
 
-   path, char_id_in, char_id_out, group_id, local_address, broadcast_address, protocol_name = sys.argv[1:]
+   path, char_id_in, char_id_out, group_id, localhost_name, network_name= sys.argv[1:]
    group_id = int(group_id)
 
    userland_inbound_queue = MessageQueue(path, char_id_in, 0644, True)
    userland_outbound_queue = MessageQueue(path, char_id_out, 0644, True)
-
-   leader_address = local_address
-
-   head_process = Popen(["python", "outbound.py", path, char_id_out, str(group_id), local_address, protocol_name])
+    
+   leader_name = localhost_name
+   
+   head_process = Popen(["python", "outbound.py", path, char_id_out, str(group_id), localhost_name])
    
    while True:
-      previous_node = ring.tail(broadcast_address, group_id, protocol_name, local_address, leader_address)
+      previous_node = ring.tail(network_name, group_id, localhost_name, leader_name)
       passage.passage_inbound_messages(previous_node, userland_inbound_queue, userland_outbound_queue)
 

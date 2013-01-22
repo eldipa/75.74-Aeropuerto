@@ -27,21 +27,19 @@ assert OWN_RING_CLOSE_TIMEWAIT < SELF_CLOSE_TIMEWAIT
 CLOSE_TIMEOUT = 30
 BEACON_BUF_MAX_SIZE = 1024 / 2
 
-def _create_beacon(beacon_type, group_id, protocol_type, leader_address_len, local_address_len, leader_address, local_address):
+def _create_beacon(beacon_type, group_id, leader_name_len, localhost_name_len, leader_name, localhost_name):
    assert len(beacon_type) == 4
    assert 0 < group_id < 2**16
-   assert 0 < protocol_type < 2**16
-   assert 0 < leader_address_len < 2**8
-   assert 0 < local_address_len < 2**8
+   assert 0 < leader_name_len < 2**8
+   assert 0 < localhost_name_len < 2**8
 
-   assert len(leader_address) == leader_address_len
-   assert len(local_address) == local_address_len
+   assert len(leader_name) == leader_name_len
+   assert len(localhost_name) == localhost_name_len
 
-   return struct.pack('>4sHHBB%is%is' % (leader_address_len, local_address_len), beacon_type, group_id, protocol_type, leader_address_len, local_address_len, leader_address, local_address)
+   return struct.pack('>4sHBB%is%is' % (leader_name_len, localhost_name_len), beacon_type, group_id, leader_name_len, localhost_name_len, leader_name, localhost_name)
 
 
-def tail(broadcast_address, group_id, protocol_name, local_address, leader_address):
-   assert protocol_name in PROTOCOL_TYPES_BY_NAME
+def tail(network_name, group_id, localhost_name, leader_name):
    
    datagram_socket = socket.socket(AF_INET, SOCK_DGRAM)
    datagram_socket.setsockopt(SOL_SOCKET, SO_BROADCAST, 1)
@@ -50,22 +48,21 @@ def tail(broadcast_address, group_id, protocol_name, local_address, leader_addre
    listener = socket.socket()
    listener.settimeout(LISTEN_TIMEOUT) 
 
-   listener.bind((local_address, LISTEN_SERVICE)) 
+   listener.bind((localhost_name, LISTEN_SERVICE)) 
    listener.listen(LISTEN_QUEUE_LENGHT)
    
-   protocol_type = PROTOCOL_TYPES_BY_NAME[protocol_name]
-   leader_address_len, local_address_len = len(leader_address), len(local_address)
+   leader_name_len, localhost_name_len = len(leader_name), len(localhost_name)
 
-   tail_beacon = _create_beacon('OPEN', group_id, protocol_type, leader_address_len, local_address_len, leader_address, local_address)
+   tail_beacon = _create_beacon('OPEN', group_id, leader_name_len, localhost_name_len, leader_name, localhost_name)
 
-   assert len(tail_beacon) == 4+2+2+1+1+leader_address_len+local_address_len
+   assert len(tail_beacon) == 4+2+2+1+1+leader_name_len+localhost_name_len
    assert len(tail_beacon) < BEACON_BUF_MAX_SIZE
 
    while not previous_node:
-      datagram_socket.sendto(tail_beacon, (broadcast_address, BEACON_SERVICE))
+      datagram_socket.sendto(tail_beacon, (network_name, BEACON_SERVICE))
       try:
          previous_node, _previous_node_address = listener.accept()
-         print "Local Node: %s <-- External Node: %s" % (local_address, _previous_node_address[0])
+         print "Local Node: %s <-- External Node: %s" % (localhost_name, _previous_node_address[0])
       except socket.timeout:
          previous_node = None
          continue
@@ -78,8 +75,7 @@ def tail(broadcast_address, group_id, protocol_name, local_address, leader_addre
    return previous_node
 
 
-def head(group_id, local_address, leader_address, protocol_name):
-   assert protocol_name in PROTOCOL_TYPES_BY_NAME
+def head(group_id, localhost_name, leader_name):
 
    datagram_socket = socket.socket(AF_INET, SOCK_DGRAM)
    datagram_socket.bind(("", LISTEN_SERVICE))
@@ -88,19 +84,15 @@ def head(group_id, local_address, leader_address, protocol_name):
    start = time.time()
    while True:
       msg, _ = datagram_socket.recvfrom(BEACON_BUF_MAX_SIZE) 
-      type, external_group_id, remote_protocol_type = struct.unpack('>4sHH', msg[:8])
+      type, external_group_id = struct.unpack('>4sH', msg[:6])
       
       if type != 'OPEN' or group_id != external_group_id:
          #Mensaje invalido o de otro grupo
          raise Exception
 
-      if remote_protocol_type not in PROTOCOL_TYPES:
-         # Tipo desconocido
-         raise Exception
-      
       try:
-         remote_leader_address_len, remote_host_address_len = struct.unpack('>BB', msg[8:10])
-         remote_leader_address, remote_host_address = struct.unpack('>%is%is' % (remote_leader_address_len, remote_host_address_len), msg[10:])
+         remote_leader_name_len, remote_host_name_len = struct.unpack('>BB', msg[8:10])
+         remote_leader_name, remote_host_name = struct.unpack('>%is%is' % (remote_leader_name_len, remote_host_name_len), msg[10:])
       except struct.error:
          #Mensaje invalido
          raise Exception
@@ -108,9 +100,8 @@ def head(group_id, local_address, leader_address, protocol_name):
       time_elapsed = time.time() - start
 
       # Esto es valido solo para direcciones IP y por hostname
-      # Para soportar otros tipos de protocolo, se debe codear lo necesario en funcion de 'remote_protocol_type y protocol_name'
-      is_from_a_new_group = leader_address not in map(lambda t: t[4][0], getaddrinfo(remote_leader_address, LISTEN_SERVICE))
-      is_myself = local_address in map(lambda t: t[4][0], getaddrinfo(remote_host_address, LISTEN_SERVICE)) 
+      is_from_a_new_group = leader_name != remote_leader_name
+      is_myself = localhost_name == remote_host_name
 
       if (is_from_a_new_group or 
             (not is_from_a_new_group and not is_myself and OWN_RING_CLOSE_TIMEWAIT < time_elapsed < SELF_CLOSE_TIMEWAIT) or
@@ -122,8 +113,8 @@ def head(group_id, local_address, leader_address, protocol_name):
          
          next_node.settimeout(CLOSE_TIMEOUT)
          try:
-            next_node.connect((remote_host_address, LISTEN_SERVICE))
-            print "Local Node: %s --> External Node: %s %s" % (local_address, remote_host_address, k)
+            next_node.connect((remote_host_name, LISTEN_SERVICE))
+            print "Local Node: %s --> External Node: %s %s" % (localhost_name, remote_host_name, k)
             return next_node
          except socket.error:
             #hubo un error de coneccion, ignorar y seguir buscando mas nodos
