@@ -13,6 +13,22 @@ class Driver:
     def __init__(self, leader_name):
         self.leader_name = leader_name
 
+    def handle_loop_message(self, loop_payload):
+        '''This function will process the loop message and will determine if the message should be passed to the next stage (the next process)
+           or it should be discarted. (Returning True or False).
+           '''
+        type = struct.unpack(">B", loop_payload[0])
+
+        if type == TYPE_BY_NAME['Leader']:
+            #leader_name_len = struct.unpack('>B', loop_payload[1])
+            #leader_name = struct.unpack('%is' % leader_name_len, loop_payload[2: leader_name_len+2])
+        else:
+            #Tipo incorrecto, como llego aqui?!?
+            raise Exception
+
+        return False
+
+
 if __name__ == '__main__':
    sockets_seized = []
 
