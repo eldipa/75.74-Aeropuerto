@@ -9,6 +9,11 @@ from subprocess import Popen
 import passage
 import ring
 
+class Driver:
+    def __init__(self, leader_name):
+        self.leader_name = leader_name
+
+
 if __name__ == '__main__':
    sockets_seized = []
 
@@ -17,8 +22,8 @@ if __name__ == '__main__':
 
    userland_outbound_queue = MessageQueue(path, char_id_out, 0644, False)
 
-   leader_name = localhost_name
+   driver = Driver(leader_name = localhost_name)
    
    while True:
-      next_node = ring.head(group_id, localhost_name, leader_name)
-      passage.passage_outbound_messages(next_node, userland_outbound_queue)
+      next_node = ring.head(group_id, localhost_name, driver)
+      passage.passage_outbound_messages(next_node, userland_outbound_queue, driver)

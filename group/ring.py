@@ -39,7 +39,8 @@ def _create_beacon(beacon_type, group_id, leader_name_len, localhost_name_len, l
    return struct.pack('>4sHBB%is%is' % (leader_name_len, localhost_name_len), beacon_type, group_id, leader_name_len, localhost_name_len, leader_name, localhost_name)
 
 
-def tail(network_name, group_id, localhost_name, leader_name):
+def tail(network_name, group_id, localhost_name, driver):
+   leader_name = driver.leader_name
    
    datagram_socket = socket.socket(AF_INET, SOCK_DGRAM)
    datagram_socket.setsockopt(SOL_SOCKET, SO_BROADCAST, 1)
@@ -75,7 +76,8 @@ def tail(network_name, group_id, localhost_name, leader_name):
    return previous_node
 
 
-def head(group_id, localhost_name, leader_name):
+def head(group_id, localhost_name, driver):
+   leader_name = driver.leader_name
 
    datagram_socket = socket.socket(AF_INET, SOCK_DGRAM)
    datagram_socket.bind(("", LISTEN_SERVICE))

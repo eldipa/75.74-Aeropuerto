@@ -40,7 +40,7 @@ def _send(socket, buf):
    socket.sendall(buf)
 
 
-def passage_inbound_messages(inbound_socket, userland_inbound_queue, userland_outbound_queue):
+def passage_inbound_messages(inbound_socket, userland_inbound_queue, userland_outbound_queue, driver):
    inbound_socket.settimeout(RECEIVE_TIMEOUT)
    try: 
       while True:
@@ -81,7 +81,7 @@ def passage_inbound_messages(inbound_socket, userland_inbound_queue, userland_ou
       inbound_socket.close()
 
 
-def passage_outbound_messages(outbound_socket, userland_outbound_queue):
+def passage_outbound_messages(outbound_socket, userland_outbound_queue, driver):
    outbound_socket.settimeout(SEND_TIMEOUT)
 
    while True:
