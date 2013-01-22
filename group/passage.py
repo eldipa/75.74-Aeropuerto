@@ -1,5 +1,6 @@
 import struct
 import message
+import loop
 
 from socket import timeout
 
@@ -59,7 +60,8 @@ def passage_inbound_messages(inbound_socket, userland_inbound_queue, userland_ou
             payload =  _recv(inbound_socket, size)
 
             if type == 'LOOP':
-               userland_outbound_queue.push(message.pack(payload, ID_BY_TYPE[type]))
+               if loop.handle_inbound(payload):
+                  userland_outbound_queue.push(message.pack(payload, ID_BY_TYPE[type]))
             elif type == 'USER':
                userland_inbound_queue.push(message.pack(payload, ID_BY_TYPE[type]))
             else:
@@ -95,6 +97,9 @@ def passage_outbound_messages(outbound_socket, userland_outbound_queue):
             raise Exception
 
          type = TYPE_BY_ID[id]
+         if type == 'loop' and not loop.handle_outbound(payload):
+             continue #loop message dicarted
+
          size = struct.pack('>H', len(payload))
          
          assert len(type) == 4
