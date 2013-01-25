@@ -25,4 +25,10 @@ typedef struct {
 	int zona_asignada;
 }MENSAJE_ZONA_ASIGNADA;
 
+typedef struct {
+	long mtype;
+	int id_emisor;
+	int dato;
+}MENSAJE_ENVIO_GRUPO;
+
 #endif /* MENSAJES_H_ */
