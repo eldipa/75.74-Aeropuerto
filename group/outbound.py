@@ -17,7 +17,19 @@ class Driver:
         type = struct.unpack(">B", loop_payload[0])
 
         if type == TYPE_BY_NAME['Leader']:
-            pass
+            leader_name_len = struct.unpack('>B', loop_payload[1])
+            leader_name = struct.unpack('%is' % leader_name_len, loop_payload[2: leader_name_len+2])
+            
+            if leader_name == self.localhost_name:
+                # Forwarding the message
+                return True
+
+
+            if leader_name <= self.leader_name:
+                return False
+            else:
+                self.leader_name = leader_name
+                return True
         else:
             #Tipo incorrecto, como llego aqui?!?
             raise Exception
