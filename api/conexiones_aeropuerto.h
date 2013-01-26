@@ -61,8 +61,7 @@ public:
 	;
 
 	virtual ~TorreDeControl() {
-	}
-	;
+	};
 
 private:
 	SemaphoreSet control;

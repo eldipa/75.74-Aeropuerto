@@ -13,7 +13,7 @@ public:
 	Contenedor();
 	void agregar_equipaje(const Equipaje& e);
 	bool hay_lugar(const Equipaje& e);
-   int get_equipajes() const;
+	int get_equipajes() const;
 	std::vector<int> get_rfids();
 	virtual ~Contenedor();
 

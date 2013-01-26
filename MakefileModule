@@ -25,7 +25,7 @@
 ###############################################################################
 
 # Tipical flags used by the compiler
-STRICT = -Wall -Wextra -pedantic -pedantic-errors -Werror  -std=c++98
+STRICT = -Wall -Wextra -pedantic -pedantic-errors -Werror  -std=c++98 -fpic
 DEBUG = -ggdb -DDEBUG -fno-inline -rdynamic
 OPTIMIZATION = -O0
 
@@ -60,6 +60,8 @@ EXTERNAL_LIBRARIES =
 #
 #  - lib*.so the the makefile will build a dynamic library using DYNAMIC
 #  	    and collecting all the *.o object
+#  - *.make then it is assumed that exists a file with that name an is a makefile with
+#           two defined rules 'all' and 'clean'
 #
 #  in other cases, the makefile will build an executable using LINK 
 #  In this case, TARGET MUST BE a name X where the object X.o can be builded (tipically,
@@ -81,6 +83,7 @@ DEPEND = $(TIMEIT) g++ -MM $(COMPILER_FLAGS) $(patsubst %, -I%, $(INCLUDE_PATHS)
 ARCHIVE = $(TIMEIT) ar $(ARCHIVER_FLAGS) $@ $^ 
 LINK = $(TIMEIT) g++ $(LINKER_FLAGS) $(patsubst %, -L%, $(EXTERNAL_LIBRARY_PATHS)) -o $@ $@.o $(filter-out $(patsubst %, %.o, $(TARGET)), $^)  $(patsubst %, -l%, $(EXTERNAL_LIBRARIES))
 DYNAMIC = $(TIMEIT) g++ -shared $(DYNAMIC_FLAGS) -o $@ $^ 
+MAKE_EXTERN = $(TIMEIT) $(SHELL) -c "( $(MAKE) -e --no-print-directory -f $$external $(MAKECMDGOALS) $(PRINT_MAKE_EXTERN_DONE) )"
 RM = $(TIMEIT) rm -f 
 
 #
@@ -93,9 +96,11 @@ ifeq ($(verbose), 0)
    PRINT_ARCHIVE = @printf "\033[36;1m  %-$(ALIGN)s \033[0m" "Archiving into $@" ; 
    PRINT_LINK = @printf "\033[36;1m  %-$(ALIGN)s \033[0m" "Linking into $@" ; 
    PRINT_DYNAMIC = @printf "\033[36;1m  %-$(ALIGN)s \033[0m" "Building shared library $@" ; 
-   PRINT_RM_DEPS = @printf "\033[31m  %-$(ALIGN)s \033[0m" "Removing depenencies..." ; 
-   PRINT_RM_OBJECTS = @printf "\033[31m  %-$(ALIGN)s \033[0m" "Removing objects..." ;
-   PRINT_RM_TARGET = @printf "\033[31m  %-$(ALIGN)s \033[0m" "Removing target..." ;
+   PRINT_MAKE_EXTERN = printf "\033[36;3m    %s\033[36;1m %-$(ALIGN)s \033[0m" "Invoking" "make $(MAKECMDGOALS) $$external..." ; echo "" ; 
+   PRINT_RM_DEPS = @printf "\033[31m  %-$(ALIGN)s \033[0m" "Removing depenencies" ; 
+   PRINT_RM_OBJECTS = @printf "\033[31m  %-$(ALIGN)s \033[0m" "Removing objects" ;
+   PRINT_RM_TARGET = @printf "\033[31m  %-$(ALIGN)s \033[0m" "Removing target" ;
+   PRINT_MAKE_EXTERN_DONE = && printf \"\033[36;3m  %-$(ALIGN)s \033[0m\" \"  Done\"
 endif
 
 SRC = $(wildcard *.cpp)
@@ -113,7 +118,8 @@ e1:
 endif
 
 
-all: $(DEPS) $(filter lib%.a,$(TARGET)) $(filter lib%.so,$(TARGET)) $(filter-out lib%.a lib%.so,$(TARGET))
+all: $(DEPS) $(filter lib%.a,$(TARGET)) $(filter lib%.so,$(TARGET)) $(filter-out lib%.a lib%.so %.make,$(TARGET))
+	@for external in $(filter %.make,$(TARGET)) ; do $(PRINT_MAKE_EXTERN) $(MAKE_EXTERN) $(NL) ; done  
 
 
 $(filter lib%.a,$(TARGET)): $(OBJ)
@@ -122,7 +128,7 @@ $(filter lib%.a,$(TARGET)): $(OBJ)
 $(filter lib%.so,$(TARGET)): $(OBJ)
 	$(PRINT_DYNAMIC) $(DYNAMIC) $(NL)
 
-$(filter-out lib%.a lib%.so,$(TARGET)): $(OBJ) $(LIBRARIES)
+$(filter-out lib%.a lib%.so %.make,$(TARGET)): $(OBJ) $(LIBRARIES)
 	$(PRINT_LINK) $(LINK) $(NL)
 
 
@@ -136,7 +142,8 @@ mostlyclean: depclean
 	$(PRINT_RM_OBJECTS) $(RM) $(OBJ)  $(NL)
 
 clean: mostlyclean 
-	$(PRINT_RM_TARGET) $(RM) $(TARGET)  $(NL)
+	$(PRINT_RM_TARGET) $(RM) $(filter-out %.make, $(TARGET))  $(NL)
+	@for external in $(filter %.make,$(TARGET)) ; do $(PRINT_MAKE_EXTERN) $(MAKE_EXTERN) ; done  
 
 # This will include in this Makefile all the "sub makefiles" with the depenencies loaded
 # Only if not is a "clean" rule (eg. "make clean" or "make depclean")
