@@ -8,6 +8,8 @@ from subprocess import Popen
 
 import passage
 import ring
+import struct
+import message
 
 class Driver:
     def __init__(self, localhost_name):
@@ -17,17 +19,19 @@ class Driver:
         '''This function will process the loop message and will determine if the message should be passed to the next stage (the next process)
            or it should be discarted. (Returning True or False).
            '''
-        type = struct.unpack(">B", loop_payload[0])
+        type = struct.unpack(">B", loop_payload[0])[0]
 
-        if type == TYPE_BY_NAME['Leader']:
-            leader_name_len = struct.unpack('>B', loop_payload[1])
-            leader_name = struct.unpack('%is' % leader_name_len, loop_payload[2: leader_name_len+2])
+        if type == passage.LOOP_SUBTYPE_BY_NAME['Leader']:
+            leader_name_len = struct.unpack('>B', loop_payload[1])[0]
+            leader_name = struct.unpack('%is' % leader_name_len, loop_payload[2: leader_name_len+2])[0]
 
             if leader_name == self.localhost_name:
                 #Stop the leader algorithm. 
                 #
                 # The inbound process MUST start sending its localname as leadername to the outbound queue.
                 # When that message come back to the outbound, then the algorithm finish and localname is the leadername
+                print "Leader:", leader_name
+                self.leader_name = leader_name
                 return False 
 
 
@@ -41,6 +45,11 @@ class Driver:
             raise Exception
 
         return False
+
+
+    def create_leader_proposal_msj(self):
+       s = struct.pack(">BB%is" % (len(localhost_name)), passage.LOOP_SUBTYPE_BY_NAME['Leader'], len(localhost_name), localhost_name)
+       return message.pack(s, passage.ID_BY_TYPE['LOOP'])
 
 
 if __name__ == '__main__':
@@ -58,5 +67,6 @@ if __name__ == '__main__':
    
    while True:
       previous_node = ring.tail(network_name, group_id, localhost_name, driver)
+      userland_outbound_queue.push(driver.create_leader_proposal_msj())
       passage.passage_inbound_messages(previous_node, userland_inbound_queue, userland_outbound_queue, driver)
 

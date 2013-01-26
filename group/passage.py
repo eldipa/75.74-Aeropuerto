@@ -14,6 +14,10 @@ ID_BY_TYPE = {
       'USER' : 1,
       }
 
+LOOP_SUBTYPE_BY_NAME = {
+      'Leader' : 0
+      }
+
 TYPE_BY_ID = dict(map(lambda type_id: (type_id[1], type_id[0]), ID_BY_TYPE.items()))
 
 assert len(ID_BY_TYPE) == len(TYPE_BY_ID)
@@ -96,7 +100,7 @@ def passage_outbound_messages(outbound_socket, userland_outbound_queue, driver):
             raise Exception
 
          type = TYPE_BY_ID[id]
-         if type == 'loop' and not driver.handle_loop_message(payload):
+         if type == 'LOOP' and not driver.handle_loop_message(payload):
              continue #loop message dicarted
 
          size = struct.pack('>H', len(payload))

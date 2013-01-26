@@ -56,7 +56,7 @@ def tail(network_name, group_id, localhost_name, driver):
 
    tail_beacon = _create_beacon('OPEN', group_id, leader_name_len, localhost_name_len, leader_name, localhost_name)
 
-   assert len(tail_beacon) == 4+2+2+1+1+leader_name_len+localhost_name_len
+   assert len(tail_beacon) == 4+2+1+1+leader_name_len+localhost_name_len
    assert len(tail_beacon) < BEACON_BUF_MAX_SIZE
 
    while not previous_node:
@@ -93,9 +93,9 @@ def head(group_id, localhost_name, driver):
          raise Exception
 
       try:
-         remote_leader_name_len, remote_host_name_len = struct.unpack('>BB', msg[8:10])
-         remote_leader_name, remote_host_name = struct.unpack('>%is%is' % (remote_leader_name_len, remote_host_name_len), msg[10:])
-      except struct.error:
+         remote_leader_name_len, remote_host_name_len = struct.unpack('>BB', msg[6:8])
+         remote_leader_name, remote_host_name = struct.unpack('>%is%is' % (remote_leader_name_len, remote_host_name_len), msg[8:])
+      except struct.error, e:
          #Mensaje invalido
          raise Exception
 
