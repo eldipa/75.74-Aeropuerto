@@ -13,6 +13,9 @@ ApiScanner::ApiScanner(const char * directorio_de_trabajo, const char* nombre_ae
 				std::string(directorio_de_trabajo).append(PATH_GRUPO_CINTA_CENTRAL).c_str(),
 				48) {
 
+	nombre_aeropuerto = NULL;
+	numero_de_sitio = 0;
+
 	// crear Manejador de grupos y colas
 	// escaner pertenece a los siguientes grupos
 	// MemoriaCompartida Cinta con RobotCheckin (+ Mutex Vacio)
@@ -26,12 +29,14 @@ ApiScanner::~ApiScanner() {
 }
 
 void ApiScanner::colocar_equipaje_en_cinta_principal(const Equipaje & equipaje) {
+	int peso;
 	MENSAJE_ENVIO_GRUPO mensaje;
 
 	mensaje.mtype = 1;
 
 	mensaje.id_emisor = 1;
 	mensaje.dato = 2;
+	peso = equipaje.peso(); // pongo esto para que compile
 
 	cola_grupo_envio.push(&mensaje, sizeof(MENSAJE_ENVIO_GRUPO) - sizeof(long));
 }

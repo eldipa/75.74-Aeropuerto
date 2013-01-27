@@ -20,9 +20,9 @@ void test_existe_cola(const char * key, int id) {
 
 int main()
 try {
-	char i;
+	int i;
 
-	for (i = 0; i < 256; i++) {
+	for (i = 0; i < 255; i++) {
 		char test_1[] =
 				"/root/Escritorio/AeropuertoDistribuido/processes/locks/cinta_central.lck";
 		//char id = i;

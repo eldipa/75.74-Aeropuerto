@@ -11,9 +11,12 @@ ApiDespachante::ApiDespachante(const char * directorio_de_trabajo, const char * 
 				49), cola_grupo_recepcion(
 				std::string(directorio_de_trabajo).append(PATH_GRUPO_CINTA_CENTRAL).c_str(),
 				48) {
-
+	
+	nombre_aeropuerto = NULL;
+	numero_de_sitio = 0;
 	this->numero_despachante = numero_despachante;
 	this->saco_elemento = true;
+
 
 }
 
