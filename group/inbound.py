@@ -55,8 +55,22 @@ class Driver:
 if __name__ == '__main__':
    sockets_seized = []
 
-   path, char_id_in, char_id_out, group_id, localhost_name, network_name= sys.argv[1:]
+   path, char_id_in, group_id, localhost_name, network_name= sys.argv[1:]
    group_id = int(group_id)
+
+   # The 'char' id can be an integer or a letter.
+   try:
+      char_id_in = int(char_id_in)
+   except ValueError:
+      char_id_in = int(ord(char_id_in))
+
+   # From the value of one char, we calculate the other
+   assert 0 <= char_id_in < 128
+   char_id_out = char_id_in + 128
+
+   # Because the MessageQueue constructor expect a 'char', we do the translate
+   char_id_in = chr(char_id_in)
+   char_id_out = chr(char_id_out)
 
    userland_inbound_queue = MessageQueue(path, char_id_in, 0644, True)
    userland_outbound_queue = MessageQueue(path, char_id_out, 0644, True)
