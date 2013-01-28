@@ -9,9 +9,9 @@ ApiScanner::ApiScanner(const char * directorio_de_trabajo, const char* nombre_ae
 		int numero_de_sitio, int numero_escaner) :
 		numero_escaner(numero_escaner), cola_grupo_envio(
 				std::string(directorio_de_trabajo).append(PATH_GRUPO_CINTA_CENTRAL).c_str(),
-				49), cola_grupo_recepcion(
+				0), cola_grupo_recepcion(
 				std::string(directorio_de_trabajo).append(PATH_GRUPO_CINTA_CENTRAL).c_str(),
-				48) {
+				1) {
 
 	nombre_aeropuerto = NULL;
 	numero_de_sitio = 0;
