@@ -10,6 +10,8 @@ import passage
 import ring
 import struct
 import message
+from invalid import *
+import traceback
 
 class Driver:
     def __init__(self, localhost_name):
@@ -53,7 +55,15 @@ class Driver:
 
 
 if __name__ == '__main__':
-   sockets_seized = []
+   if len(sys.argv[1:]) != 5:
+      print "Usage: inbound.py path char_id_in group_id localhost_name network_name"
+      print "  - path: a full path to a file to be used as part of the key for the in/out queues."
+      print "  - char_id_in: an integer or a character (converted in an int later) to be used as a part of the key of the inbound queue. The id used by the outbound queue will be that id+128."
+      print "  - group_id: the id of the group"
+      print "  - localhost_name: the name of this host viewed by other nodes."
+      print "  - network_name: the name of the network, which message addressed to network_name will be delivery to any node in that network (broadcast address)."
+      sys.exit(1)
+
 
    path, char_id_in, group_id, localhost_name, network_name= sys.argv[1:]
    group_id = int(group_id)
@@ -80,7 +90,22 @@ if __name__ == '__main__':
    head_process = Popen(["python", "outbound.py", path, char_id_out, str(group_id), localhost_name])
    
    while True:
-      previous_node = ring.tail(network_name, group_id, localhost_name, driver)
-      userland_outbound_queue.push(driver.create_leader_proposal_msj())
-      passage.passage_inbound_messages(previous_node, userland_inbound_queue, userland_outbound_queue, driver)
+      try:
+         previous_node = ring.tail(network_name, group_id, localhost_name, driver)
+         userland_outbound_queue.push(driver.create_leader_proposal_msj())
+         passage.passage_inbound_messages(previous_node, userland_inbound_queue, userland_outbound_queue, driver)
+      except InvalidMessage, e:
+         print e #TODO Log the exception, this is not critical.
+         print traceback.format_exc()
+      except UnstableChannel, e:
+         print e #TODO Log the exception, this is not critical.
+         print traceback.format_exc()
+      except KeyboardInterrupt:
+         print traceback.format_exc()
+         head_process.send_signal(2)
+         sys.exit(0)
+      except Exception, e:
+         print e #TODO Critical?
+         print traceback.format_exc()
+         head_process.send_signal(2)
 
