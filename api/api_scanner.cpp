@@ -30,13 +30,15 @@ void ApiScanner::colocar_equipaje_en_cinta_principal(const Equipaje & equipaje) 
 	int peso;
 	MENSAJE_ENVIO_GRUPO mensaje;
 
-	mensaje.mtype = 1;
+	/*mensaje.mtype = 1;
 
 	mensaje.id_emisor = 1;
 	mensaje.dato = 2;
 	peso = equipaje.peso(); // pongo esto para que compile
 
-	cola_grupo_envio.push(&mensaje, sizeof(MENSAJE_ENVIO_GRUPO) - sizeof(long));
+	cola_grupo_envio.push(&mensaje, sizeof(MENSAJE_ENVIO_GRUPO) - sizeof(long));*/
+
+	broker.test_imprimir_mensaje("Mensaje");
 }
 
 Equipaje ApiScanner::extraer_equipaje_de_cinta_escaner() {

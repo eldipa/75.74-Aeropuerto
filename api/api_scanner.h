@@ -5,12 +5,16 @@
 #include "cintas.h"
 #include "messagequeue.h"
 
+#include "local_broker.h"
+
 class ApiScanner {
 private:
 
 	int numero_escaner;
 	MessageQueue cola_grupo_envio;
 	MessageQueue cola_grupo_recepcion;
+
+	LocalBroker broker;
 
 public:
 

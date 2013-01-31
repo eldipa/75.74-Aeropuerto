@@ -53,7 +53,7 @@ export timeit = 1
 #  SUBMODULES = .
 #
 #  Note that the order is important and is honored in the building process.
-SUBMODULES = log common db os ipc network network/examples group api processes 
+SUBMODULES = log common db os ipc network network/examples group api rpc broker processes 
 
 #
 # END OF THE CONFIGURATION
