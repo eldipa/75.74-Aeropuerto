@@ -1,2 +1,4 @@
 INCLUDE_PATHS = ../os ../log
-TARGET = libipc.a python_wrap.make
+TARGET = libipc.a 
+
+# python_wrap.make (Deshabilitado. En vez de crear un wrapper cada vez que se compile, se debe usar el wrapper ya commiteado en el repositorio)
