@@ -55,7 +55,7 @@ class Driver:
 
 
     def create_leader_proposal_msj(self):
-       s = struct.pack(">BB%is" % (len(localhost_name)), passage.LOOP_SUBTYPE_BY_NAME['Leader'], len(localhost_name), localhost_name)
+       s = struct.pack(">HBB%is" % (len(localhost_name)), passage.TTL, passage.LOOP_SUBTYPE_BY_NAME['Leader'], len(localhost_name), localhost_name)
        return message.pack(s, passage.ID_BY_TYPE['LOOP'])
 
 

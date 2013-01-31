@@ -24,6 +24,8 @@ TYPE_BY_ID = dict(map(lambda type_id: (type_id[1], type_id[0]), ID_BY_TYPE.items
 
 assert len(ID_BY_TYPE) == len(TYPE_BY_ID)
 
+TTL = 255**2
+
 def _recv(socket, length, peer):
    i = length
    chunks = []
@@ -59,11 +61,18 @@ def passage_inbound_messages(inbound_socket, userland_inbound_queue, userland_ou
 
             if size > MAX_PAYLOAD:
                raise InvalidNetworkMessage("The message received from a member of the ring has a wrong value in the 'size' field (corrupted message).", size, peer) 
-
+            
             payload =  _recv(inbound_socket, size, peer)
 
             if type == 'LOOP':
-               if driver.handle_loop_message(payload):
+               ttl = struct.unpack('>H', payload[:2])[0]
+               
+               if ttl <= 0:
+                  print "Packet dicarted (TTL exceed)"
+                  continue #XXX Log this. Packet discarted
+               
+               if driver.handle_loop_message(payload[2:]):
+                  payload = struct.pack('>H', ttl - 1) + payload[2:]
                   userland_outbound_queue.push(message.pack(payload, ID_BY_TYPE[type]))
             elif type == 'USER':
                userland_inbound_queue.push(message.pack(payload, ID_BY_TYPE[type]))
@@ -99,7 +108,7 @@ def passage_outbound_messages(outbound_socket, userland_outbound_queue, driver):
                raise InvalidApplicationMessage("The lenght of the payload is greater than the expected.", payload)
 
             type = TYPE_BY_ID[id]
-            if type == 'LOOP' and not driver.handle_loop_message(payload):
+            if type == 'LOOP' and not driver.handle_loop_message(payload[2:]):
                 continue #loop message dicarted
 
             size = struct.pack('>H', len(payload))
