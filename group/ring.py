@@ -76,7 +76,6 @@ def tail(network_name, group_id, localhost_name, driver):
       
       return previous_node
    finally:
-      listener.shutdown(2)
       listener.close()
 
       datagram_socket.close()

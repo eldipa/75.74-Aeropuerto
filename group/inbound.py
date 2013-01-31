@@ -12,6 +12,11 @@ import struct
 import message
 from invalid import *
 import traceback
+import time
+
+ALREADY_ADDR_USED_ATTEMPTS = 10
+ALREADY_ADDR_USED_SLEEP = 1
+addr_attempts = 0
 
 class Driver:
     def __init__(self, localhost_name):
@@ -92,6 +97,7 @@ if __name__ == '__main__':
    while True:
       try:
          previous_node = ring.tail(network_name, group_id, localhost_name, driver)
+         addr_attempts = 0
          userland_outbound_queue.push(driver.create_leader_proposal_msj())
          passage.passage_inbound_messages(previous_node, userland_inbound_queue, userland_outbound_queue, driver)
       except InvalidMessage, e:
@@ -107,5 +113,14 @@ if __name__ == '__main__':
       except Exception, e:
          print e #TODO Critical?
          print traceback.format_exc()
+
+         if hasattr(e, 'errno') and e.errno == 98:
+            addr_attempts += 1
+            print "Address already used (attempts %i)" % addr_attempts
+            if addr_attempts < ALREADY_ADDR_USED_ATTEMPTS:
+               time.sleep(ALREADY_ADDR_USED_SLEEP)
+               continue
+
          head_process.send_signal(2)
+         sys.exit(2)
 
