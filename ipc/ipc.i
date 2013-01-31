@@ -6,9 +6,34 @@
 #include "messagequeue.h"
 #include <string>
 #include <vector>
+
+#include "../os/oserror.h"
+#include "../common/valueerror.h"
+#include "../common/notimplementederror.h"
 %}
 
 %feature("autodoc", "0");
+
+%exception {
+  try {
+    $action
+  } catch(const OSError &e) {
+    PyErr_SetString(PyExc_OSError, const_cast<char*>(e.what()));
+    return NULL;
+  } catch(const ValueError &e) {
+    PyErr_SetString(PyExc_ValueError, const_cast<char*>(e.what()));
+    return NULL;
+  } catch(const NotImplementedError &e) {
+    PyErr_SetString(PyExc_NotImplementedError, const_cast<char*>(e.what()));
+    return NULL;
+  } catch(const std::exception &e) {
+    PyErr_SetString(PyExc_Exception, const_cast<char*>(e.what()));
+    return NULL;
+  } catch(...) {
+    PyErr_SetString(PyExc_Exception, "Unknow internal error.");
+    return NULL;
+  }
+}
 
 class MessageQueue {
     public:
