@@ -13,14 +13,17 @@ import message
 from invalid import *
 import traceback
 import time
+import signal
 
 ALREADY_ADDR_USED_ATTEMPTS = 10
-ALREADY_ADDR_USED_SLEEP = 1
+ALREADY_ADDR_USED_SLEEP = 5
 addr_attempts = 0
 
 class Driver:
-    def __init__(self, localhost_name):
+    def __init__(self, localhost_name, path, char_id_out, group_id):
         self.leader_name = self.localhost_name = localhost_name
+        self.leader_process = None
+        self.path, self.char_id_out, self.group_id = path, char_id_out, group_id
 
     def handle_loop_message(self, loop_payload):
         '''This function will process the loop message and will determine if the message should be passed to the next stage (the next process)
@@ -39,14 +42,26 @@ class Driver:
                 # When that message come back to the outbound, then the algorithm finish and localname is the leadername
                 print "Leader:", leader_name
                 self.leader_name = leader_name
+
+                self.clean()
+                self.leader_process = Popen(["python", "leader.py", self.path, self.char_id_out, str(self.group_id), self.localhost_name])
                 return False 
 
 
             if leader_name <= self.leader_name:
                 return False
             else:
+                self.clean()
                 self.leader_name = leader_name
                 return True
+        elif type == passage.LOOP_SUBTYPE_BY_NAME['LinkBroken']:
+            open_node_name_len = struct.unpack('>B', loop_payload[1])[0]
+            open_node_name = struct.unpack('%is' % open_node_name_len, loop_payload[2: open_node_name_len+2])[0]
+
+            if open_node_name == self.localhost_name:
+               return False
+            else:
+               return True
         else:
             #Tipo incorrecto, como llego aqui?!?
             raise Exception
@@ -54,10 +69,26 @@ class Driver:
         return False
 
 
+    def clean(self):
+       if self.leader_process:
+          if not self.leader_process.poll():
+             try:
+               self.leader_process.send_signal(signal.SIGINT)
+             except OSError: #TODO ver por que hay problemass aqui
+               pass
+
+             #self.leader_process.wait()
+
+          self.leader_process = None
+
+
     def create_leader_proposal_msj(self):
        s = struct.pack(">HBB%is" % (len(localhost_name)), passage.TTL, passage.LOOP_SUBTYPE_BY_NAME['Leader'], len(localhost_name), localhost_name)
        return message.pack(s, passage.ID_BY_TYPE['LOOP'])
 
+    def create_linkbroken_msj(self):
+       s = struct.pack(">HBB%is" % (len(localhost_name)), passage.TTL, passage.LOOP_SUBTYPE_BY_NAME['LinkBroken'], len(localhost_name), localhost_name)
+       return message.pack(s, passage.ID_BY_TYPE['LOOP'])
 
 if __name__ == '__main__':
    if len(sys.argv[1:]) != 5:
@@ -90,12 +121,13 @@ if __name__ == '__main__':
    userland_inbound_queue = MessageQueue(path, char_id_in, 0644, True)
    userland_outbound_queue = MessageQueue(path, char_id_out, 0644, True)
     
-   driver = Driver(localhost_name)
+   driver = Driver(localhost_name, path, char_id_out, group_id)
    
    head_process = Popen(["python", "outbound.py", path, char_id_out, str(group_id), localhost_name])
    
    while True:
       try:
+         userland_outbound_queue.push(driver.create_linkbroken_msj())
          previous_node = ring.tail(network_name, group_id, localhost_name, driver)
          addr_attempts = 0
          userland_outbound_queue.push(driver.create_leader_proposal_msj())
@@ -122,5 +154,6 @@ if __name__ == '__main__':
                continue
 
          head_process.send_signal(2)
+         driver.clean()
          sys.exit(2)
 

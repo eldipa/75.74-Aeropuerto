@@ -33,6 +33,8 @@ class Driver:
             else:
                 self.leader_name = leader_name
                 return True
+        elif type == passage.LOOP_SUBTYPE_BY_NAME['LinkBroken']:
+            return True
         else:
             #Tipo incorrecto, como llego aqui?!?
             raise Exception
@@ -42,8 +44,8 @@ class Driver:
 if __name__ == '__main__':
    if len(sys.argv[1:]) != 4:
       print "Usage: outbound.py path char_id_in group_id localhost_name "
-      print "  - path: a full path to a file to be used as part of the key for the in/out queues."
-      print "  - char_id_in: an integer or a character (converted in an int later) to be used as a part of the key of the inbound queue. The id used by the outbound queue will be that id+128."
+      print "  - path: a full path to a file to be used as part of the key for the out queues."
+      print "  - char_id_out: an integer or a character (converted in an int later) to be used as a part of the key of the outbound queue. "
       print "  - group_id: the id of the group"
       print "  - localhost_name: the name of this host viewed by other nodes."
       print

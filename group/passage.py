@@ -18,7 +18,8 @@ ID_BY_TYPE = {
       }
 
 LOOP_SUBTYPE_BY_NAME = {
-      'Leader' : 0
+      'Leader' : 0,
+      'LinkBroken' : 1,
       }
 
 TYPE_BY_ID = dict(map(lambda type_id: (type_id[1], type_id[0]), ID_BY_TYPE.items()))
