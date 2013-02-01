@@ -4,6 +4,7 @@ import message
 from socket import timeout
 from invalid import *
 import traceback
+import socket
 
 RECEIVE_TIMEOUT = 10*60*60 #10 minutes
 SEND_TIMEOUT = 5*10*10 #5 minutes (should SEND_TIMEOUT < RECEIVE_TIMEOUT)
@@ -88,7 +89,10 @@ def passage_inbound_messages(inbound_socket, userland_inbound_queue, userland_ou
             finally:
                inbound_socket.settimeout(RECEIVE_TIMEOUT)
    finally:
-      inbound_socket.shutdown(2)
+      try:
+         inbound_socket.shutdown(2)
+      except socket.error:
+         pass 
       inbound_socket.close()
 
 
@@ -125,5 +129,8 @@ def passage_outbound_messages(outbound_socket, userland_outbound_queue, driver):
    except timeout:
       raise UnstableChannel("The other side (other peer) is not responding with any ACK.", peer)
    finally:
-      outbound_socket.shutdown(2)
+      try:
+         outbound_socket.shutdown(2)
+      except socket.error:
+         pass
       outbound_socket.close()
