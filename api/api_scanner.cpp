@@ -5,11 +5,12 @@
 #include "mensajes.h"
 #include <iostream>
 
-ApiScanner::ApiScanner(const char * directorio_de_trabajo, const char* nombre_aeropuerto,
-		int numero_de_sitio, int numero_escaner) :
-		numero_escaner(numero_escaner), cola_grupo_envio(
-				std::string(directorio_de_trabajo).append(PATH_GRUPO_CINTA_CENTRAL).c_str(), 128), cola_grupo_recepcion(
-				std::string(directorio_de_trabajo).append(PATH_GRUPO_CINTA_CENTRAL).c_str(), 0) {
+ApiScanner::ApiScanner(const char * directorio_de_trabajo, const char* nombre_aeropuerto, int numero_de_sitio,
+	int numero_escaner)
+	: numero_escaner(numero_escaner),
+		cola_grupo_envio(std::string(directorio_de_trabajo).append(PATH_GRUPO_CINTA_CENTRAL).c_str(), 128),
+		cola_grupo_recepcion(std::string(directorio_de_trabajo).append(PATH_GRUPO_CINTA_CENTRAL).c_str(), 0)
+{
 
 	nombre_aeropuerto = NULL;
 	numero_de_sitio = 0;
@@ -28,15 +29,15 @@ ApiScanner::~ApiScanner() {
 
 void ApiScanner::colocar_equipaje_en_cinta_principal(const Equipaje & equipaje) {
 	int peso;
-	MENSAJE_ENVIO_GRUPO mensaje;
+	//MENSAJE_ENVIO_GRUPO mensaje;
 
 	/*mensaje.mtype = 1;
 
-	mensaje.id_emisor = 1;
-	mensaje.dato = 2;
+	 mensaje.id_emisor = 1;
+	 mensaje.dato = 2;*/
 	peso = equipaje.peso(); // pongo esto para que compile
 
-	cola_grupo_envio.push(&mensaje, sizeof(MENSAJE_ENVIO_GRUPO) - sizeof(long));*/
+	/*cola_grupo_envio.push(&mensaje, sizeof(MENSAJE_ENVIO_GRUPO) - sizeof(long));*/
 
 	broker.test_imprimir_mensaje("Mensaje");
 }

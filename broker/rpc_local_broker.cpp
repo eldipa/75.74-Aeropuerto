@@ -19,17 +19,20 @@
  * Version remota de "printmessage"
  */
 int *printmessage_1_svc(char **msg, struct svc_req *svc_req)
-         // char **msg;                        /* doble indireccion  obligada por rpcgen */
-	// struct svc_req *svc_req;    /* handle de la comunicacion */
+// char **msg;                        /* doble indireccion  obligada por rpcgen */
+// struct svc_req *svc_req;    /* handle de la comunicacion */
 {
 	static int result; /*static obligatorio para los resultados */
+	rpcproc_t rq;
+
+	rq = svc_req->rq_proc;
+
 
 
 	std::cout << "Mensaje: " << msg << std::endl;
 
-	result = 1;     /* termina bien */
+	result = 1; /* termina bien */
 	printf("servidor: %s\n", *msg);
 	return (&result);
 }
-
 
