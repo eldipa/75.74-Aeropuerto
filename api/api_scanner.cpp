@@ -8,8 +8,8 @@
 ApiScanner::ApiScanner(const char * directorio_de_trabajo, const char* nombre_aeropuerto, int numero_de_sitio,
 	int numero_escaner)
 	: numero_escaner(numero_escaner),
-		cola_grupo_envio(std::string(directorio_de_trabajo).append(PATH_GRUPO_CINTA_CENTRAL).c_str(), 128),
-		cola_grupo_recepcion(std::string(directorio_de_trabajo).append(PATH_GRUPO_CINTA_CENTRAL).c_str(), 0)
+		cola_grupo_envio(std::string(directorio_de_trabajo).append(PATH_GRUPO_CINTA_CENTRAL).c_str(), char(128)),
+		cola_grupo_recepcion(std::string(directorio_de_trabajo).append(PATH_GRUPO_CINTA_CENTRAL).c_str(), char(0))
 {
 
 	nombre_aeropuerto = NULL;
