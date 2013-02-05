@@ -1,5 +1,0 @@
-INCLUDE_PATHS = ../api ../log ./../db ../ipc ../os ../common ../external 
-LIBRARIES = ../api/libapi.a  ../ipc/libipc.a ../db/libdb.a ../os/libos.a ../log/liblog.a  ../db/libdb.a ../common/libcommon.a 
-EXTERNAL_LIBRARIES = dl sqlite3
-LINKER_FLAGS += -rdynamic local_broker_server_stub.o
-TARGET = rpc_local_broker # rpc_intermediate_broker rpc_gateway_broker

@@ -12,55 +12,47 @@ int main(int argc, char *argv[])
 try {
 	int id_robot;
 	int id_cinta_scanner;
-	int id_sitio;
-	Equipaje e;
-
 	if (argc < 4) {
 		Log::crit(
-				"Insuficientes parametros para scanner, se esperaba (directorio_de_trabajo, nombre_aeropuerto, numero_de_sitio, id)\n");
+				"Insuficientes parametros para scanner, se esperaba (directorio_de_trabajo, id, id_cinta_scanner)\n");
 		return (1);
 	}
 
-	id_robot = atoi(argv[3]); // de 1 a N
+	id_robot = atoi(argv[2]); // de 1 a N
 
 	if (id_robot < 1) {
 		Log::crit("ID de robot_scanner incorrecto %d\n", id_robot);
 		exit(1);
 	}
 
-	id_sitio = atoi(argv[3]);
-	id_cinta_scanner = atoi(argv[4]);
+	id_cinta_scanner = atoi(argv[3]);
 
-	ApiScanner api_escaner_cinta_central(argv[1], argv[2], id_sitio, id_robot);
+	CintaScanner<Equipaje> cinta_scanner(std::string(argv[1]).append(PATH_CINTA_SCANNER).c_str(),
+			id_cinta_scanner, id_robot);
+	ApiScanner api_escaner_cinta_central(argv[1], id_robot);
 
-	for (int i = 0; i < 3; i++) {
-		api_escaner_cinta_central.colocar_equipaje_en_cinta_principal(e);
-		std::cout << "Mensaje Enviado" << std::endl;
+	Log::info("Iniciando scanner(%s), %s\n", argv[2], argv[3]);
+
+	for (;;) {
+		Log::info("Intentando tomar un nuevo equipaje de cinta de scanner\n");
+		Equipaje equipaje = cinta_scanner.sacar_equipaje();
+
+		Log::info("Escaneando equipaje %s\n", equipaje.toString().c_str());
+		equipaje.set_sospechoso((rand() % CANT_SOSPECHOSOS) == 0);
+
+		sleep(rand() % SLEEP_ROBOT_SCANNER);
+
+		if (equipaje.es_sospechoso()) {
+			Log::info("se encontro sospechoso el equipaje %s\n", equipaje.toString().c_str());
+		} else {
+			Log::info("equipaje limpio: %s\n", equipaje.toString().c_str());
+		}
+
+		Log::info("pasando equipaje a cinta central (%s)\n", argv[2]);
+		api_escaner_cinta_central.colocar_equipaje_en_cinta_principal(equipaje);
 	}
 
-	//Log::info("Iniciando scanner(%d), %s\n", id_robot, argv[3]);
-
-	/*for (;;) {
-	 Log::info("Intentando tomar un nuevo equipaje de cinta de scanner\n");
-	 Equipaje equipaje = cinta_scanner.sacar_equipaje();
-
-	 Log::info("Escaneando equipaje %s\n", equipaje.toString().c_str());
-	 equipaje.set_sospechoso((rand() % CANT_SOSPECHOSOS) == 0);
-
-	 sleep(rand() % SLEEP_ROBOT_SCANNER);
-
-	 if (equipaje.es_sospechoso()) {
-	 Log::info("se encontro sospechoso el equipaje %s\n", equipaje.toString().c_str());
-	 } else {
-	 Log::info("equipaje limpio: %s\n", equipaje.toString().c_str());
-	 }
-
-	 Log::info("pasando equipaje a cinta central (%d)\n", id_robot);
-	 api_escaner_cinta_central.colocar_equipaje_en_cinta_principal(equipaje);
-	 }*/
-
 }
-
 catch (const std::exception &e) {
 	Log::crit("%s", e.what());
 }

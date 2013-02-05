@@ -1,3 +1,0 @@
-INCLUDE_PATHS = ../os ../ipc ../log ../db ../common ../external
-LIBRARIES = -/libclientstub.a
-TARGET = librpc.a

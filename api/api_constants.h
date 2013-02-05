@@ -35,10 +35,6 @@
 #define PATH_CONTROL_SOSPECHOSOS "/control_sospechosos.lck"
 //CINTA CENTRAL
 
-// PATH GRUPOS
-#define PATH_GRUPO_CINTA_CENTRAL "/locks/cinta_central.lck"
-
-
 
 #define ID_ESCUCHA_TRACTOR 1
 

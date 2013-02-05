@@ -3,28 +3,20 @@
 
 #include "equipaje.h"
 #include "cintas.h"
-#include "messagequeue.h"
-
-#include "local_broker.h"
 
 class ApiScanner {
 private:
 
 	int numero_escaner;
-	MessageQueue cola_grupo_envio;
-	MessageQueue cola_grupo_recepcion;
-
-	LocalBroker broker;
-
+	CintaCentral cinta;
 public:
 
-	ApiScanner(const char * directorio_de_trabajo, const char * nombre_aeropuerto, int numero_de_sitio,
-			int numero_escaner);
+	ApiScanner(const char* directorio_de_trabajo, int numero_escaner);
 	virtual ~ApiScanner();
 
 	void colocar_equipaje_en_cinta_principal(const Equipaje & equipaje);
 
-	Equipaje extraer_equipaje_de_cinta_escaner();
+	Equipaje extraer_equipaje();
 };
 
 #endif /* APISCANNER_H_ */
