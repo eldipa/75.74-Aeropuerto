@@ -72,7 +72,7 @@ static char * args_generador_vuelos_trasbordo[] = { (char*) "generador_vuelos_tr
 static char *args_escucha_zonas_asignadas[] = { (char*) "escucha_zonas_asignadas",
 		directorio_de_trabajo, NULL };
 
-static char *args_torre_de_control[] = { (char*) "torre_de_control_1", directorio_de_trabajo, NULL };
+//static char *args_torre_de_control[] = { (char*) "torre_de_control_1", directorio_de_trabajo, NULL };
 
 static char *args_tractor1[] = { (char*) "tractor_1", directorio_de_trabajo, (char*) "1", NULL };
 
@@ -124,7 +124,7 @@ try {
 		processes.push_back(Process("robot_control_equipaje_sospechoso", args_robot_sospechosos));
 		processes.push_back(Process("generador_vuelos_trasbordo", args_generador_vuelos_trasbordo));
 		processes.push_back(Process("escucha_zonas_asignadas", args_escucha_zonas_asignadas));
-		processes.push_back(Process("torre_de_control", args_torre_de_control));
+//		processes.push_back(Process("torre_de_control", args_torre_de_control));
 		processes.push_back(Process("tractor", args_tractor1));
 		processes.push_back(Process("tractor", args_tractor2));
       processes.push_back(Process("scheduler_aviones", args_scheduler_aviones));
