@@ -1,5 +1,5 @@
-INCLUDE_PATHS = ../api ../log ./../db ../ipc ../os ../common ../external
-LIBRARIES = ../api/libapi.a  ../ipc/libipc.a ../db/libdb.a ../os/libos.a ../log/liblog.a  ../db/libdb.a ../common/libcommon.a
+INCLUDE_PATHS = ../api ../log ./../db ../ipc ../os ../common ../external ../local_broker ../network
+LIBRARIES = ../api/libapi.a  ../ipc/libipc.a ../db/libdb.a  ../network/libnetwork.a ../os/libos.a ../log/liblog.a  ../db/libdb.a  ../common/libcommon.a 
 EXTERNAL_LIBRARIES = dl sqlite3
 LINKER_FLAGS += -rdynamic
-TARGET = robot_scanner robot_control_equipaje_sospechoso robot_carga robot_despacho robot_checkin puesto_checkin main robot_intercargo  tractor avion generador_pasajeros control_carga_contenedores controlador_de_vuelo controlador_puesto_checkin generador_vuelos_trasbordo escucha_zonas_asignadas control_equipaje_sospechoso scheduler_aviones scheduler_vuelos
+TARGET = robot_scanner robot_control_equipaje_sospechoso robot_carga robot_despacho robot_checkin puesto_checkin main robot_intercargo  tractor avion generador_pasajeros control_carga_contenedores controlador_de_vuelo controlador_puesto_checkin generador_vuelos_trasbordo escucha_zonas_asignadas control_equipaje_sospechoso scheduler_aviones scheduler_vuelos debug

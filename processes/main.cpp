@@ -86,8 +86,8 @@ static char *args_scheduler_vuelos[] = { (char*)"scheduler_vuelos", directorio_d
  * Lanza todos los vuelos registrados.
  * A medida que se liberen las zonas, los vuelos van saliendo.
  **/
-void lanzar_vuelos();
-void lanzar_vuelo(int num_vuelo);
+//void lanzar_vuelos();
+//void lanzar_vuelo(int num_vuelo);
 
 // int main(int argc, char** argv)
 int main()

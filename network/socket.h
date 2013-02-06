@@ -198,11 +198,15 @@ class Socket {
 
       ~Socket();
 
-   private:
       explicit Socket(int other_side);
+      int get_fd();
+      void shutdown();
+
+   private:
       struct addrinfo* resolve(const char* host, const char* service);
 
       void clean_from_who();
+
 };
 
 
