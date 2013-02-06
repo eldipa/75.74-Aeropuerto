@@ -129,6 +129,8 @@ def passage_outbound_messages(outbound_socket, userland_outbound_queue, driver):
 
    except timeout:
       raise UnstableChannel("The other side (other peer) is not responding with any ACK.", peer)
+   except socket.error:
+      raise UnstableChannel("The other side (other peer) is not responding. It seem to be down.", peer)
    finally:
       try:
          outbound_socket.shutdown(2)
