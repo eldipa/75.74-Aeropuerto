@@ -5,7 +5,6 @@
  *      Author: gonzalo
  */
 
-
 /*
  * local_broker_launcher.cpp
  *
@@ -25,24 +24,23 @@ char debug [200];
 int main(int argc, char * argv [])
 try
 {
-	if(argc != 2){
+	if (argc != 2) {
 		std::cerr << "Falta el socket" << std::endl;
 		return -1;
 	}
 	int fd;
-	fd = atoi(argv[2]);
+
+	fd = atoi(argv [1]);
 
 	Socket socket(fd);
 
-	std::cout << "client_handler" << std::endl;
-
-	socket.receivesome(debug,200);
+	socket.receivesome(debug, 200);
 
 	std::cout << "Recibido: " << debug << std::endl;
 
-	snprintf(debug,200,"%s","RECIBIDO!");
+	snprintf(debug, 200, "%s", "RECIBIDO!");
 
-	socket.sendsome(debug,strlen(debug));
+	socket.sendsome(debug, strlen(debug));
 
 }
 catch (const std::exception & e) {
@@ -51,5 +49,6 @@ catch (const std::exception & e) {
 	Log::crit("%s", e.what());
 }
 catch (...) {
+	std::cerr << "Error Broker Local" << std::endl;
 	Log::crit("Critical error. Unknow exception at the end of the 'main' function.");
 }

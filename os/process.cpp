@@ -32,6 +32,7 @@
 #include <sys/wait.h>
 #include <signal.h>
 #include <errno.h>
+#include <cstdio>
 #include "oserror.h"
 #include "log.h"
 
@@ -49,6 +50,7 @@ Process::Process(const char* file, char *argv[]) {
     if(pid == 0) {
         // children process
         execv(file, argv);
+        perror("Error al hacer spawn: ");
         throw OSError("The process's image '%s' cannot be loaded.", file);
     }else if(pid == -1) {
         throw OSError("The process's children cannot be created (forked).");

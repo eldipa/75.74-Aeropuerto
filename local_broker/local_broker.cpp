@@ -11,6 +11,7 @@
 #include <cstdio>
 #include <cstring>
 #include <cstdlib>
+#include <iostream>
 #include "process.h"
 
 static char num_socket [11];
@@ -30,12 +31,20 @@ LocalBroker::~LocalBroker() {
 }
 
 void LocalBroker::run() {
-
+	char debug [200];
 	std::auto_ptr<Socket> new_socket;
 
 	new_socket = server_socket.listen(10);
 
 	snprintf(num_socket, 10, "%d", new_socket->get_fd());
+
+	//new_socket->receivesome(debug, 200);
+
+	//snprintf(debug, 200, "%s", "RECIBIDO!");
+
+	//new_socket->sendsome(debug, strlen(debug));
+
+	std::cout << "creando handler " << new_socket->get_fd() << std::endl;
 
 	Process p("client_handler", args_client_handler);
 

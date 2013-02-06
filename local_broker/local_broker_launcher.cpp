@@ -26,5 +26,6 @@ catch (const std::exception & e) {
 	Log::crit("%s", e.what());
 }
 catch (...) {
+	std::cerr << "Error Broker Local" << std::endl;
 	Log::crit("Critical error. Unknow exception at the end of the 'main' function.");
 }
