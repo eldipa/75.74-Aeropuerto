@@ -147,13 +147,6 @@ void Socket::disassociate() {
    }
 }
 
-void Socket::shutdown(){
-	if(isassociated and isstream) {
-	   if(::shutdown(fd, SHUT_RDWR) == -1)
-	      Log::crit("An exception happend during the course of a destructor:\n%s", OSError(
-	         "The socket cannot be disassociated (shutdown).").what());
-	}
-}
 
 Socket::~Socket() {
   /* if(isassociated and isstream) {

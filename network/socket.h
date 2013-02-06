@@ -200,7 +200,7 @@ class Socket {
 
       explicit Socket(int other_side);
       int get_fd();
-      void shutdown();
+
 
    private:
       struct addrinfo* resolve(const char* host, const char* service);
