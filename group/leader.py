@@ -1,5 +1,12 @@
-
 import sys
+
+sys.path.append("../ipc")
+
+from ipc import MessageQueue
+
+import traceback
+import stop
+
 
 
 if __name__ == '__main__':
@@ -17,4 +24,9 @@ if __name__ == '__main__':
    path, char_id_out, group_id, localhost_name = sys.argv[1:]
    print "Running Leader Process:", localhost_name
 
-
+   userland_outbound_queue = MessageQueue(path, char_id_out, 0644, False)
+   
+   # enviar un mensaje diciendo (cada cierto tiempo deberia pedir reelecciones)
+   # enviar un mensaje diciendo un beacon con su hostname y el group_id (ver puerto abajo)
+   #
+   # escucha mensajes en un puerto DISTINTO al puerto UDP usado por inbound/outbound

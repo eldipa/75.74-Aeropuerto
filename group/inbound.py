@@ -13,7 +13,8 @@ import message
 from invalid import *
 import traceback
 import time
-import signal
+
+import stop
 
 ALREADY_ADDR_USED_ATTEMPTS = 10
 ALREADY_ADDR_USED_SLEEP = 5
@@ -70,16 +71,8 @@ class Driver:
 
 
     def clean(self):
-       if self.leader_process:
-          if not self.leader_process.poll():
-             try:
-               self.leader_process.send_signal(signal.SIGINT)
-             except OSError: #TODO ver por que hay problemass aqui
-               pass
-
-             #self.leader_process.wait()
-
-          self.leader_process = None
+       stop.stop(self.leader_process)
+       self.leader_process = None
 
 
     def create_leader_proposal_msj(self):
@@ -125,35 +118,40 @@ if __name__ == '__main__':
    
    head_process = Popen(["python", "outbound.py", path, char_id_out, str(group_id), localhost_name])
    
-   while True:
-      try:
-         userland_outbound_queue.push(driver.create_linkbroken_msj())
-         previous_node = ring.tail(network_name, group_id, localhost_name, driver)
-         addr_attempts = 0
-         userland_outbound_queue.push(driver.create_leader_proposal_msj())
-         passage.passage_inbound_messages(previous_node, userland_inbound_queue, userland_outbound_queue, driver)
-      except InvalidMessage, e:
-         print e #TODO Log the exception, this is not critical.
-         print traceback.format_exc()
-      except UnstableChannel, e:
-         print e #TODO Log the exception, this is not critical.
-         print traceback.format_exc()
-      except KeyboardInterrupt:
-         print traceback.format_exc()
-         head_process.send_signal(2)
-         sys.exit(0)
-      except Exception, e:
-         print e #TODO Critical?
-         print traceback.format_exc()
+   try:
+      while True:
+         try:
+            userland_outbound_queue.push(driver.create_linkbroken_msj())
+            previous_node = ring.tail(network_name, group_id, localhost_name, driver)
+            addr_attempts = 0
+            userland_outbound_queue.push(driver.create_leader_proposal_msj())
+            passage.passage_inbound_messages(previous_node, userland_inbound_queue, userland_outbound_queue, driver)
+         except InvalidMessage, e:
+            print e #TODO Log the exception, this is not critical.
+            print traceback.format_exc()
+         except UnstableChannel, e:
+            print e #TODO Log the exception, this is not critical.
+            print traceback.format_exc()
+         except KeyboardInterrupt:
+            print traceback.format_exc()
+            head_process.send_signal(2)
+            sys.exit(0)
+         except Exception, e:
+            print e #TODO Critical?
+            print traceback.format_exc()
 
-         if hasattr(e, 'errno') and e.errno == 98:
-            addr_attempts += 1
-            print "Address already used (attempts %i)" % addr_attempts
-            if addr_attempts < ALREADY_ADDR_USED_ATTEMPTS:
-               time.sleep(ALREADY_ADDR_USED_SLEEP)
-               continue
-
-         head_process.send_signal(2)
-         driver.clean()
-         sys.exit(2)
+            if hasattr(e, 'errno') and e.errno == 98:
+               addr_attempts += 1
+               print "Address already used (attempts %i)" % addr_attempts
+               if addr_attempts < ALREADY_ADDR_USED_ATTEMPTS:
+                  time.sleep(ALREADY_ADDR_USED_SLEEP)
+                  continue
+            
+            stop.stop(head_process)
+            head_process = None
+            driver.clean()
+            sys.exit(2)
+   finally:
+      stop.stop(head_process)
+      driver.clean()
 

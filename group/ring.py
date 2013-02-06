@@ -30,16 +30,21 @@ CLOSE_TIMEOUT = 30
 BEACON_BUF_MAX_SIZE = 1024 / 2
 DOS_SLEEP = 0.0001
 
-def _create_beacon(beacon_type, group_id, leader_name_len, localhost_name_len, leader_name, localhost_name):
+def _create_beacon(beacon_type, group_id, leader_name_len, localhost_name_len, leader_name, localhost_name, with_local_name=True):
    assert len(beacon_type) == 4
    assert 0 < group_id < 2**16
+   
    assert 0 < leader_name_len < 2**8
-   assert 0 < localhost_name_len < 2**8
-
    assert len(leader_name) == leader_name_len
-   assert len(localhost_name) == localhost_name_len
 
-   return struct.pack('>4sHBB%is%is' % (leader_name_len, localhost_name_len), beacon_type, group_id, leader_name_len, localhost_name_len, leader_name, localhost_name)
+   if with_local_name:
+      assert 0 < localhost_name_len < 2**8
+      assert len(localhost_name) == localhost_name_len
+   
+   if with_local_name:
+      return struct.pack('>4sHBB%is%is' % (leader_name_len, localhost_name_len), beacon_type, group_id, leader_name_len, localhost_name_len, leader_name, localhost_name)
+   else:
+      return struct.pack('>4sHB%is' % (leader_name_len, ), beacon_type, group_id, leader_name_len, leader_name)
 
 
 def tail(network_name, group_id, localhost_name, driver):
