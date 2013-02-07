@@ -55,24 +55,27 @@ if __name__ == '__main__':
    path, char_id_out, group_id, localhost_name = sys.argv[1:]
    group_id = int(group_id)
 
+   syslog.openlog("outbound")
+   syslog.syslog(syslog.LOG_INFO, "Init 'outbound' process. Creating queue. Arguments: Path: %s Char_out_id: %s GroupId: %i Localhost: %s" % (
+      path, char_id_out, group_id, localhost_name))
    userland_outbound_queue = MessageQueue(path, char_id_out, 0644, False)
 
    driver = Driver(localhost_name)
    while True:
       try:
+         syslog.syslog(syslog.LOG_INFO, "Construction the ring")
          next_node = ring.head(group_id, localhost_name, driver)
+
+         syslog.syslog(syslog.LOG_INFO, "Connection ready. Forwarding the messages.")
          passage.passage_outbound_messages(next_node, userland_outbound_queue, driver)
+
       except InvalidMessage, e:
-         print e #TODO Log the exception, this is not critical.
-         print traceback.format_exc()
+         syslog.syslog(syslog.LOG_CRIT, "%s\n%s" % (traceback.format_exc(), str(e)))
       except UnstableChannel, e:
-         print e #TODO Log the exception, this is not critical.
-         print traceback.format_exc()
+         syslog.syslog(syslog.LOG_CRIT, "%s\n%s" % (traceback.format_exc(), str(e)))
       except KeyboardInterrupt:
-         print traceback.format_exc()
+         syslog.syslog(syslog.LOG_INFO, "Interruption:\n%s" % traceback.format_exc())
          sys.exit(0)
       except Exception, e:
-         print e #TODO Critical?
-         print traceback.format_exc()
-
+         syslog.syslog(syslog.LOG_CRIT, "Critical exception (will NOT shutdown) %s\n%s" % (traceback.format_exc(), str(e)))
 

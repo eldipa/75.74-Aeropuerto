@@ -1,5 +1,6 @@
 
 import sys
+import syslog
 
 sys.path.append("../ipc")
 
@@ -110,7 +111,10 @@ if __name__ == '__main__':
    # Because the MessageQueue constructor expect a 'char', we do the translate
    char_id_in = chr(char_id_in)
    char_id_out = chr(char_id_out)
-
+   
+   syslog.openlog("inbound")
+   syslog.syslog(syslog.LOG_INFO, "Init 'inbound' process. Creating queues. Arguments: Path: %s Char_in_id: %s GroupId: %i Localhost: %s NetworkName: %s" % (
+      path, char_id_in, group_id, localhost_name, network_name))
    userland_inbound_queue = MessageQueue(path, char_id_in, 0644, True)
    userland_outbound_queue = MessageQueue(path, char_id_out, 0644, True)
     
@@ -121,37 +125,41 @@ if __name__ == '__main__':
    try:
       while True:
          try:
+            syslog.syslog(syslog.LOG_INFO, "Pushing 'BrokenLink' in the output queue.")
             userland_outbound_queue.push(driver.create_linkbroken_msj())
+
+            syslog.syslog(syslog.LOG_INFO, "Construction the ring")
             previous_node = ring.tail(network_name, group_id, localhost_name, driver)
+            syslog.syslog(syslog.LOG_INFO, "External node %s connected to me" % str(previous_node.peer))
+
             addr_attempts = 0
+            syslog.syslog(syslog.LOG_INFO, "Pushing 'LeaderElection' in the output queue.")
             userland_outbound_queue.push(driver.create_leader_proposal_msj())
+
+            syslog.syslog(syslog.LOG_INFO, "Connection ready. Forwarding the messages.")
             passage.passage_inbound_messages(previous_node, userland_inbound_queue, userland_outbound_queue, driver)
+
          except InvalidMessage, e:
-            print e #TODO Log the exception, this is not critical.
-            print traceback.format_exc()
+            syslog.syslog(syslog.LOG_CRIT, "%s\n%s" % (traceback.format_exc(), str(e)))
          except UnstableChannel, e:
-            print e #TODO Log the exception, this is not critical.
-            print traceback.format_exc()
+            syslog.syslog(syslog.LOG_CRIT, "%s\n%s" % (traceback.format_exc(), str(e)))
          except KeyboardInterrupt:
-            print traceback.format_exc()
-            head_process.send_signal(2)
+            syslog.syslog(syslog.LOG_INFO, "Interruption:\n%s" % traceback.format_exc())
             sys.exit(0)
          except Exception, e:
-            print e #TODO Critical?
-            print traceback.format_exc()
+            syslog.syslog(syslog.LOG_CRIT, "Critical exception (will shutdown everything) %s\n%s" % (traceback.format_exc(), str(e)))
 
             if hasattr(e, 'errno') and e.errno == 98:
                addr_attempts += 1
-               print "Address already used (attempts %i)" % addr_attempts
+               syslog.syslog(syslog.LOG_INFO, "Address already used (attempts %i)" % addr_attempts)
                if addr_attempts < ALREADY_ADDR_USED_ATTEMPTS:
                   time.sleep(ALREADY_ADDR_USED_SLEEP)
                   continue
             
-            stop.stop(head_process)
-            head_process = None
-            driver.clean()
             sys.exit(2)
+
    finally:
+      syslog.syslog(syslog.LOG_INFO, "Shutdown 'inbound'. Stoping other processes.")
       stop.stop(head_process)
       driver.clean()
 
