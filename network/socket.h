@@ -166,8 +166,27 @@ class Socket {
        *
        * Note: this must be called only for connection oriented sockets and only
        * after they set which service are providing (see source()).
+       *
+       * The low level version 'listen_fd' will return the low level file descriptor
+       * of the socket. This will represent a valid, open and connected socket and
+       * should be used with caution, because can you can end with broken connections
+       * or no-closed sockets!
+       *
+       * You should wrap this low level file descriptor with the Socket(int) constructor
+       * as soon as possible.
        * */
       std::auto_ptr<Socket> listen(int backlog);
+      int listen_fd(int backlog);
+
+      /* 
+       * This constructor will accept a valid, open and connected file descriptor
+       * and will construct a Socket connection-oriented. 
+       * This is a very low function, use with caution.
+       *
+       * See the method Socket::listen_fd
+       *
+       * */
+      explicit Socket(int other_side);
 
       /*
        * This method will send and receive data from others.
@@ -198,15 +217,10 @@ class Socket {
 
       ~Socket();
 
-      explicit Socket(int other_side);
-      int get_fd();
-
-
    private:
       struct addrinfo* resolve(const char* host, const char* service);
 
       void clean_from_who();
-
 };
 
 

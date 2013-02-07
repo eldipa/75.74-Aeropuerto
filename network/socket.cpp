@@ -40,7 +40,7 @@
 #include <cstring>
 #include <string>
 
-Socket::Socket(bool isstream) :
+Socket::Socket(bool isstream) : 
    isstream(isstream),
    isassociated(false) {
       fd = socket(AF_INET, isstream? SOCK_STREAM : SOCK_DGRAM, 0);
@@ -80,6 +80,10 @@ void Socket::source(const std::string &service) {
 }
 
 std::auto_ptr<Socket> Socket::listen(int backlog) {
+   return std::auto_ptr<Socket>(new Socket(this->listen_fd(backlog)));
+}
+
+int Socket::listen_fd(int backlog) {
    if(not isstream)
       throw NotImplementedError("A socket connectionless (datagram oriented) cannot be blocked to wait for a connection.");
 
@@ -88,16 +92,15 @@ std::auto_ptr<Socket> Socket::listen(int backlog) {
 
    clean_from_who();
    int other_side = ::accept(fd, (struct sockaddr *) &peer_addr, &peer_addr_len);
-   if(other_side == -1)
+   if(other_side == -1) 
       throw OSError("The socket was trying to accept new connections but this has failed.");
-
-   return std::auto_ptr<Socket>(new Socket(other_side));
-
+   
+   return other_side;
 }
 
 ssize_t Socket::sendsome(const void *buf, size_t data_len) {
    ssize_t count = ::send(fd, buf, data_len, MSG_NOSIGNAL);
-   if(count == -1)
+   if(count == -1) 
       throw OSError("The message length %i cannot be sent.", data_len);
 
    return count;
@@ -106,7 +109,7 @@ ssize_t Socket::sendsome(const void *buf, size_t data_len) {
 ssize_t Socket::receivesome(void *buf, size_t buf_len) {
    clean_from_who();
    ssize_t count = ::recvfrom(fd, buf, buf_len, 0, (struct sockaddr *) &peer_addr, &peer_addr_len);
-   if(count == -1)
+   if(count == -1) 
       throw OSError("The message cannot be received (of length least or equal to %i).", buf_len);
 
    return count;
@@ -116,7 +119,7 @@ void Socket::from_who(std::string &host, std::string &service) {
    char host_buf[NI_MAXHOST];
    char service_buf[NI_MAXSERV];
 
-   int status = getnameinfo((struct sockaddr *) &peer_addr, peer_addr_len,
+   int status = getnameinfo((struct sockaddr *) &peer_addr, peer_addr_len, 
             host_buf, NI_MAXHOST, service_buf, NI_MAXSERV, NI_NAMEREQD | (isstream? 0 : NI_DGRAM));
 
    if(status != 0) {
@@ -132,7 +135,7 @@ void Socket::from_who(std::string &host, std::string &service) {
 void Socket::disassociate() {
    if(isassociated) {
       if(isstream) {
-         if(::shutdown(fd, SHUT_RDWR) == -1)
+         if(shutdown(fd, SHUT_RDWR) == -1)
             throw OSError("The socket cannot be disassociated (shutdown).");
       }
       else {
@@ -147,13 +150,12 @@ void Socket::disassociate() {
    }
 }
 
-
 Socket::~Socket() {
-  /* if(isassociated and isstream) {
+   if(isassociated and isstream) {
       if(shutdown(fd, SHUT_RDWR) == -1)
          Log::crit("An exception happend during the course of a destructor:\n%s", OSError(
                   "The socket cannot be disassociated (shutdown).").what());
-   }*/
+   }
 
    if(close(fd) == -1)
       Log::crit("An exception happend during the course of a destructor:\n%s", OSError(
@@ -169,7 +171,7 @@ struct addrinfo* Socket::resolve(const char* host, const char* service) {
 
    memset(&hints, 0, sizeof(struct addrinfo));
    hints.ai_family = AF_INET;
-   hints.ai_socktype = isstream? SOCK_STREAM : SOCK_DGRAM;
+   hints.ai_socktype = isstream? SOCK_STREAM : SOCK_DGRAM; 
    hints.ai_flags = host? 0 : AI_PASSIVE;
    hints.ai_protocol = 0;
 
@@ -193,10 +195,6 @@ void Socket::clean_from_who() {
    memset(&peer_addr_len, 0, sizeof(socklen_t));
 
    peer_addr_len = sizeof(peer_addr);
-}
-
-int Socket::get_fd(){
-	return this->fd;
 }
 
 
