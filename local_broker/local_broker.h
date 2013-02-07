@@ -9,15 +9,21 @@
 #define LOCALBROKER_H_
 
 #include "socket.h"
+#include "sharedmemory.h"
+#include "messagequeue.h"
+#include "semaphoreset.h"
+#include "mutex.h"
 
 class LocalBroker {
 private:
 
 	Socket server_socket;
+	SharedMemory tabla_clientes_locales;
+	SemaphoreSet mutex_clientes_locales;
 
 public:
 
-	LocalBroker();
+	LocalBroker(const std::string & directorio_de_trabajo);
 	virtual ~LocalBroker();
 
 	void run();

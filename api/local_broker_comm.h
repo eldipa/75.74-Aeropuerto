@@ -17,7 +17,7 @@ private:
 	Socket socket_broker;
 
 public:
-	LocalBrokerComm(const std::string & broker_hostname);
+	LocalBrokerComm(const std::string & app_name, const std::string & broker_hostname);
 	virtual ~LocalBrokerComm();
 };
 

@@ -9,28 +9,33 @@
 #include <cstdio>
 #include <cstring>
 #include <iostream>
+#include "genericerror.h"
+#include "mensajes_de_red.h"
 
-char data [200];
-
-
-LocalBrokerComm::LocalBrokerComm(const std::string & broker_hostname)
+LocalBrokerComm::LocalBrokerComm(const std::string & app_name, const std::string & broker_hostname)
 	: socket_broker(true)
 {
-	std::string name;
-	name = broker_hostname;
-	if (name == name) {
-
-	}
 	
-	socket_broker.destination("localhost","1234");
+	// Establezco conexion con el servidor
+	socket_broker.destination(broker_hostname.c_str(), "1234");
 
-	sprintf(data,"HOLA");
+	mensajes::mensajes_local_broker_t mensaje;
 
-	socket_broker.sendsome(data,strlen(data));
+	mensaje.peticion = mensajes::REGISTER;
 
-	socket_broker.receivesome(data,200);
+	bzero(mensaje.datos, sizeof(mensaje.datos));
 
-	std::cout << data << std::endl;
+	snprintf(mensaje.datos, sizeof(mensaje.datos),"%s", app_name.c_str());
+
+	// Hago un pedido de registro
+	socket_broker.sendsome(&mensaje, sizeof(mensajes::mensajes_local_broker_t));
+
+	socket_broker.receivesome(&mensaje, sizeof(mensajes::mensajes_local_broker_t));
+
+	if (mensaje.respuesta == mensajes::ERROR) {
+		throw GenericError("Register Error: %s",mensaje.datos);
+	}
+
 
 }
 

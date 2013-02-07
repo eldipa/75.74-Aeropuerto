@@ -25,7 +25,7 @@
 ###############################################################################
 
 # Tipical flags used by the compiler
-STRICT = -Wall -Wextra -pedantic -std=c++98 -fpic # -pedantic-errors -Werror 
+STRICT = -Wall -Wextra -pedantic -std=c++98 -fpic -pedantic-errors -Werror 
 DEBUG = -ggdb -DDEBUG -fno-inline -rdynamic
 OPTIMIZATION = -O0
 

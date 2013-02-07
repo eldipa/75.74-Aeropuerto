@@ -10,8 +10,8 @@
 
 int main()
 try {
-	LocalBrokerComm broker("TEST");
 
+	LocalBrokerComm broker("escaner1","localbroker1.sitio1.aeropuerto1");
 
 }
 catch (const std::exception &e) {
