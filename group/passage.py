@@ -54,7 +54,10 @@ def passage_inbound_messages(inbound_socket, userland_inbound_queue, userland_ou
 
       while True:
          try:
+            start_receiving = False
+            syslog.syslog(syslog.LOG_INFO, "Receiving packet...")
             type = _recv(inbound_socket, 4, peer)
+            start_receiving = True
 
             if type not in ID_BY_TYPE.keys():
                raise InvalidNetworkMessage("The message received from a member of the ring has a wrong type (corrupted message).", type, peer) 
@@ -69,26 +72,34 @@ def passage_inbound_messages(inbound_socket, userland_inbound_queue, userland_ou
             if type == 'LOOP':
                ttl = struct.unpack('>H', payload[:2])[0]
                
+               syslog.syslog(syslog.LOG_INFO, "LOOP packet recieved (TTL %i): %s" % (ttl, " ".join(map(lambda c: hex(ord(c))[2:], payload[2:]))))
                if ttl <= 0:
-                  print "Packet dicarted (TTL exceed)"
-                  continue #XXX Log this. Packet discarted
+                  syslog.syslog(syslog.LOG_INFO, "LOOP packet (TTL %i) discarted.")
+                  continue 
                
                if driver.handle_loop_message(payload[2:]):
+                  syslog.syslog(syslog.LOG_INFO, "Forwarding LOOP packet.")
                   payload = struct.pack('>H', ttl - 1) + payload[2:]
                   userland_outbound_queue.push(message.pack(payload, ID_BY_TYPE[type]))
             elif type == 'USER':
+               syslog.syslog(syslog.LOG_INFO, "USER packet recieved: %s" % (" ".join(map(lambda c: hex(ord(c))[2:], payload))))
                userland_inbound_queue.push(message.pack(payload, ID_BY_TYPE[type]))
             else:
                raise InvalidNetworkMessage("The message received from a member of the ring was corrupted.", payload, peer) 
 
          except timeout:
-            inbound_socket.settimeout(ISALIVE_TIMEOUT)
-            try:
-               inbound_socket.send('?') # is alive the other side?
-            except timeout:
+            if start_receiving:
+               syslog.syslog(syslog.LOG_INFO, "Packet received partially because timeout")
                raise UnstableChannel("The other side (other peer) is not responding to the probes.", peer)
-            finally:
-               inbound_socket.settimeout(RECEIVE_TIMEOUT)
+            else:
+               syslog.syslog(syslog.LOG_INFO, "No packet received, checking if it is alive...")
+               inbound_socket.settimeout(ISALIVE_TIMEOUT)
+               try:
+                  inbound_socket.send('?') # is alive the other side?
+               except timeout:
+                  raise UnstableChannel("The other side (other peer) is not responding to the probes.", peer)
+               finally:
+                  inbound_socket.settimeout(RECEIVE_TIMEOUT)
    finally:
       try:
          inbound_socket.shutdown(2)
@@ -104,6 +115,7 @@ def passage_outbound_messages(outbound_socket, userland_outbound_queue, driver):
    try:
       while True:
          try:
+            syslog.syslog(syslog.LOG_INFO, "Pulling packet...")
             id, payload = message.unpack(userland_outbound_queue.pull())
 
             if id not in TYPE_BY_ID:
@@ -121,11 +133,11 @@ def passage_outbound_messages(outbound_socket, userland_outbound_queue, driver):
             assert len(type) == 4
             assert len(size) == 2
 
+            syslog.syslog(syslog.LOG_INFO, "Sending %s packet: %s" (type, " ".join(map(lambda c: hex(ord(c))[2:], type+size+payload))))
             _send(outbound_socket, type+size+payload)
 
          except InvalidApplicationMessage, e:
-            print e #TODO Log the exception, this is not critical.
-            print traceback.format_exc()
+            syslog.syslog(syslog.LOG_CRIT, "%s\n%s" % (traceback.format_exc(), str(e)))
 
    except timeout:
       raise UnstableChannel("The other side (other peer) is not responding with any ACK.", peer)
