@@ -1,4 +1,6 @@
 
+import syslog
+
 import struct
 import time
 import socket
@@ -71,10 +73,11 @@ def tail(network_name, group_id, localhost_name, driver):
 
       while not previous_node:
          time.sleep(DOS_SLEEP)
+         syslog.syslog(syslog.LOG_INFO, "Sending OPEN beacon...")
          datagram_socket.sendto(tail_beacon, (network_name, BEACON_SERVICE))
          try:
             previous_node, _previous_node_address = listener.accept()
-            print "Local Node: %s <-- External Node: %s" % (localhost_name, _previous_node_address[0])
+            syslog.syslog(syslog.LOG_INFO, "Connection accepted: %s connected to %s" % (_previous_node_address[0], localhost_name))
          except socket.timeout:
             previous_node = None
             continue
@@ -82,7 +85,6 @@ def tail(network_name, group_id, localhost_name, driver):
       return previous_node
    finally:
       listener.close()
-
       datagram_socket.close()
 
 
@@ -99,14 +101,17 @@ def head(group_id, localhost_name, driver):
       while True:
          try:
             time.sleep(DOS_SLEEP)
+            syslog.syslog(syslog.LOG_INFO, "Waiting for an OPEN beacon...")
             msg, peer = datagram_socket.recvfrom(BEACON_BUF_MAX_SIZE) 
             try:
+               syslog.syslog(syslog.LOG_DEBUG, "Packet received: %s" % " ".join(map(lambda c: hex(ord(c)))))
                type, external_group_id = struct.unpack('>4sH', msg[:6])
                
                if type != 'OPEN':
                   raise InvalidNetworkMessage("The message has a wrong type", msg, peer)
 
                if group_id != external_group_id:
+                  syslog.syslog(syslog.LOG_DEBUG, "Packet OPEN received from other group, skipping. This group '%i', the other group '%i'" % (group_id, external_group_id))
                   #Otro grupo, skipping
                   continue
 
@@ -132,18 +137,19 @@ def head(group_id, localhost_name, driver):
                
                next_node.settimeout(CLOSE_TIMEOUT)
                try:
+                  syslog.syslog(syslog.LOG_INFO, "Connecting to %s ..." % str(remote_host_name))
                   next_node.connect((remote_host_name, LISTEN_SERVICE))
-                  print "Local Node: %s --> External Node: %s %s" % (localhost_name, remote_host_name, k)
+                  syslog.syslog(syslog.LOG_INFO, "Connection stablished with %s: %s (self) connected to %s (remote)." % (k, localhost_name, remote_host_name))
                   return next_node
                except socket.error:
+                  syslog.syslog(syslog.LOG_INFO, "Connection fail with %s. Retry." % str(remote_host_name))
                   #hubo un error de coneccion, ignorar y seguir buscando mas nodos
                   continue
                finally:
                   next_node.setblocking(1)
          
          except InvalidNetworkMessage, e:
-            print e #TODO Log the exception, this is not critical.
-            print traceback.format_exc()
+            syslog.syslog(syslog.LOG_CRIT, "%s\n%s" % (traceback.format_exc(), str(e)))
    finally:
       datagram_socket.close()
 

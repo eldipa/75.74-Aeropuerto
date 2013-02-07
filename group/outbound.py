@@ -1,5 +1,6 @@
 
 import sys
+import syslog
 
 sys.path.append("../ipc")
 
