@@ -15,7 +15,7 @@ try
 	argc = argc + 1 - 1;
 	argv = argv + 1 - 1;
 
-	LocalBroker server(".");
+	LocalBroker server("./locks");
 
 	server.run();
 

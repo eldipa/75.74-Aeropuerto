@@ -24,8 +24,8 @@ LocalBroker::LocalBroker(const std::string & directorio_de_trabajo)
 	: server_socket(true),
 		tabla_clientes_locales(std::string(directorio_de_trabajo).append(PATH_TABLA_CLIENTES_LOCALES).c_str(), char(0),
 			TAMANIO_SHM, 0664, true, false),
-		mutex_clientes_locales(std::string(directorio_de_trabajo).append(PATH_TABLA_CLIENTES_LOCALES).c_str(), char(0),
-			0664)
+		mutex_clientes_locales(std::vector<short unsigned int>(10, 1),
+			std::string(directorio_de_trabajo).append(PATH_MUTEX_CLIENTES_LOCALES).c_str(), char(0), 0664)
 {
 	std::string puerto("1234");
 
