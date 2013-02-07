@@ -114,7 +114,7 @@ if __name__ == '__main__':
    
    syslog.openlog("inbound")
    syslog.syslog(syslog.LOG_INFO, "Init 'inbound' process. Creating queues. Arguments: Path: %s Char_in_id: %s GroupId: %i Localhost: %s NetworkName: %s" % (
-      path, char_id_in, group_id, localhost_name, network_name))
+      path, hex(ord(char_id_in)), group_id, localhost_name, network_name))
    userland_inbound_queue = MessageQueue(path, char_id_in, 0644, True)
    userland_outbound_queue = MessageQueue(path, char_id_out, 0644, True)
     
@@ -130,7 +130,7 @@ if __name__ == '__main__':
 
             syslog.syslog(syslog.LOG_INFO, "Construction the ring")
             previous_node = ring.tail(network_name, group_id, localhost_name, driver)
-            syslog.syslog(syslog.LOG_INFO, "External node %s connected to me" % str(previous_node.peer))
+            syslog.syslog(syslog.LOG_INFO, "External node %s connected to me" % str(previous_node.getpeername()))
 
             addr_attempts = 0
             syslog.syslog(syslog.LOG_INFO, "Pushing 'LeaderElection' in the output queue.")

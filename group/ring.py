@@ -104,7 +104,7 @@ def head(group_id, localhost_name, driver):
             syslog.syslog(syslog.LOG_INFO, "Waiting for an OPEN beacon...")
             msg, peer = datagram_socket.recvfrom(BEACON_BUF_MAX_SIZE) 
             try:
-               syslog.syslog(syslog.LOG_DEBUG, "Packet received: %s" % " ".join(map(lambda c: hex(ord(c)))))
+               syslog.syslog(syslog.LOG_DEBUG, "Packet received: %s" % " ".join(map(lambda c: hex(ord(c)), msg)))
                type, external_group_id = struct.unpack('>4sH', msg[:6])
                
                if type != 'OPEN':

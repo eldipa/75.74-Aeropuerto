@@ -1,5 +1,6 @@
 import struct
 import message
+import syslog
 
 from socket import timeout
 from invalid import *
@@ -72,7 +73,7 @@ def passage_inbound_messages(inbound_socket, userland_inbound_queue, userland_ou
             if type == 'LOOP':
                ttl = struct.unpack('>H', payload[:2])[0]
                
-               syslog.syslog(syslog.LOG_INFO, "LOOP packet recieved (TTL %i): %s" % (ttl, " ".join(map(lambda c: hex(ord(c))[2:], payload[2:]))))
+               syslog.syslog(syslog.LOG_INFO, "LOOP packet recieved (TTL %i): %s" % (ttl, " ".join(map(lambda c: hex(ord(c)), payload[2:]))))
                if ttl <= 0:
                   syslog.syslog(syslog.LOG_INFO, "LOOP packet (TTL %i) discarted.")
                   continue 
@@ -82,7 +83,7 @@ def passage_inbound_messages(inbound_socket, userland_inbound_queue, userland_ou
                   payload = struct.pack('>H', ttl - 1) + payload[2:]
                   userland_outbound_queue.push(message.pack(payload, ID_BY_TYPE[type]))
             elif type == 'USER':
-               syslog.syslog(syslog.LOG_INFO, "USER packet recieved: %s" % (" ".join(map(lambda c: hex(ord(c))[2:], payload))))
+               syslog.syslog(syslog.LOG_INFO, "USER packet recieved: %s" % (" ".join(map(lambda c: hex(ord(c)), payload))))
                userland_inbound_queue.push(message.pack(payload, ID_BY_TYPE[type]))
             else:
                raise InvalidNetworkMessage("The message received from a member of the ring was corrupted.", payload, peer) 
@@ -133,7 +134,7 @@ def passage_outbound_messages(outbound_socket, userland_outbound_queue, driver):
             assert len(type) == 4
             assert len(size) == 2
 
-            syslog.syslog(syslog.LOG_INFO, "Sending %s packet: %s" (type, " ".join(map(lambda c: hex(ord(c))[2:], type+size+payload))))
+            syslog.syslog(syslog.LOG_INFO, "Sending %s packet: %s" % (type, " ".join(map(lambda c: hex(ord(c)), type+size+payload))))
             _send(outbound_socket, type+size+payload)
 
          except InvalidApplicationMessage, e:
