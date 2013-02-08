@@ -32,23 +32,33 @@ if __name__ == '__main__':
         line = sys.stdin.readline()
         if not line:
            break
-        _, _, time, _, process = line.split()[:5]
-        process = process[:-1]
+
         try:
-            process_name, _ = process.split("[")[:2]
+           _, _, time, d, process = line.split()[:5]
+
+           if d.endswith(":"):
+              process = d
+
+           process = process[:-1]
+           try:
+               process_name, _ = process.split("[")[:2]
+           except:
+               process_name = process
+           msg = " ".join(line.split()[5:])
+
+           best = ""
+           for prefix in expecteds:
+               if process_name.startswith(prefix) and len(best) < len(prefix):
+                   best = prefix
+    
+           if not best:
+              continue
+
+           color = color_by_process[best]
+           high = bold if any(map(lambda tag: msg.startswith(tag), ["[Emerg]", "[Alert]", "[Crit]", "[Err]", "[Warning]", "[Notice]"])) else ""
+
+           print time, color, process, high, msg, end
+        except KeyboardInterrupt:
+           raise
         except:
-            process_name = process
-        msg = " ".join(line.split()[5:])
-
-        best = ""
-        for prefix in expecteds:
-            if process_name.startswith(prefix) and len(best) < len(prefix):
-                best = prefix
- 
-        if not best:
-           continue
-
-        color = color_by_process[best]
-        high = bold if any(map(lambda tag: msg.startswith(tag), ["[Emerg]", "[Alert]", "[Crit]", "[Err]", "[Warning]", "[Notice]"])) else ""
-
-        print time, color, process, high, msg, end
+           pass
