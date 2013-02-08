@@ -21,6 +21,7 @@ ID_BY_TYPE = {
 LOOP_SUBTYPE_BY_NAME = {
       'Leader' : 0,
       'LinkBroken' : 1,
+      'BreakLinkForced' : 2,
       }
 
 TYPE_BY_ID = dict(map(lambda type_id: (type_id[1], type_id[0]), ID_BY_TYPE.items()))
@@ -126,6 +127,10 @@ def passage_outbound_messages(outbound_socket, userland_outbound_queue, driver):
                raise InvalidApplicationMessage("The lenght of the payload is greater than the expected.", payload)
 
             type = TYPE_BY_ID[id]
+            if type == 'LOOP' and struct.unpack(">B", payload[2])[0] == LOOP_SUBTYPE_BY_NAME['BreakLinkForced']:
+               syslog.syslog(syslog.LOG_INFO, "Breaking the link forced. Shutdown the socket...")
+               return
+
             if type == 'LOOP' and not driver.handle_loop_message(payload[2:]):
                 continue #loop message dicarted
 

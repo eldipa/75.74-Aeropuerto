@@ -32,7 +32,7 @@ CLOSE_TIMEOUT = 30
 BEACON_BUF_MAX_SIZE = 1024 / 2
 DOS_SLEEP = 0.0001
 
-def _create_beacon(beacon_type, group_id, leader_name_len, localhost_name_len, leader_name, localhost_name, with_local_name=True):
+def create_beacon(beacon_type, group_id, leader_name_len, localhost_name_len, leader_name, localhost_name, with_local_name=True):
    assert len(beacon_type) == 4
    assert 0 < group_id < 2**16
    
@@ -42,6 +42,8 @@ def _create_beacon(beacon_type, group_id, leader_name_len, localhost_name_len, l
    if with_local_name:
       assert 0 < localhost_name_len < 2**8
       assert len(localhost_name) == localhost_name_len
+   else:
+      assert localhost_name_len == localhost_name == None
    
    if with_local_name:
       return struct.pack('>4sHBB%is%is' % (leader_name_len, localhost_name_len), beacon_type, group_id, leader_name_len, localhost_name_len, leader_name, localhost_name)
@@ -66,7 +68,7 @@ def tail(network_name, group_id, localhost_name, driver):
       
       leader_name_len, localhost_name_len = len(leader_name), len(localhost_name)
 
-      tail_beacon = _create_beacon('OPEN', group_id, leader_name_len, localhost_name_len, leader_name, localhost_name)
+      tail_beacon = create_beacon('OPEN', group_id, leader_name_len, localhost_name_len, leader_name, localhost_name)
 
       assert len(tail_beacon) == 4+2+1+1+leader_name_len+localhost_name_len
       assert len(tail_beacon) < BEACON_BUF_MAX_SIZE
@@ -104,7 +106,7 @@ def head(group_id, localhost_name, driver):
             syslog.syslog(syslog.LOG_INFO, "Waiting for an OPEN beacon...")
             msg, peer = datagram_socket.recvfrom(BEACON_BUF_MAX_SIZE) 
             try:
-               syslog.syslog(syslog.LOG_DEBUG, "Packet received: %s" % " ".join(map(lambda c: hex(ord(c)), msg)))
+               syslog.syslog(syslog.LOG_DEBUG, "Packet received (%s): %s" % (str(peer), " ".join(map(lambda c: hex(ord(c)), msg))))
                type, external_group_id = struct.unpack('>4sH', msg[:6])
                
                if type != 'OPEN':

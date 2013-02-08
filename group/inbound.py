@@ -21,9 +21,16 @@ ALREADY_ADDR_USED_ATTEMPTS = 10
 ALREADY_ADDR_USED_SLEEP = 5
 addr_attempts = 0
 
+
+def create_leader_proposal_msj(localhost_name):
+   s = struct.pack(">HBB%is" % (len(localhost_name)), passage.TTL, passage.LOOP_SUBTYPE_BY_NAME['Leader'], len(localhost_name), localhost_name)
+   return message.pack(s, passage.ID_BY_TYPE['LOOP'])
+
+
 class Driver:
-    def __init__(self, localhost_name, path, char_id_out, group_id):
+    def __init__(self, localhost_name, path, char_id_out, group_id, network_name):
         self.leader_name = self.localhost_name = localhost_name
+        self.network_name = network_name
         self.leader_process = None
         self.path, self.char_id_out, self.group_id = path, char_id_out, group_id
 
@@ -42,11 +49,10 @@ class Driver:
                 #
                 # The inbound process MUST start sending its localname as leadername to the outbound queue.
                 # When that message come back to the outbound, then the algorithm finish and localname is the leadername
-                print "Leader:", leader_name
                 self.leader_name = leader_name
 
                 self.clean()
-                self.leader_process = Popen(["python", "leader.py", self.path, self.char_id_out, str(self.group_id), self.localhost_name])
+                self.leader_process = Popen(["python", "leader.py", self.path, self.char_id_out, str(self.group_id), self.localhost_name, self.network_name])
                 return False 
 
 
@@ -77,8 +83,7 @@ class Driver:
 
 
     def create_leader_proposal_msj(self):
-       s = struct.pack(">HBB%is" % (len(localhost_name)), passage.TTL, passage.LOOP_SUBTYPE_BY_NAME['Leader'], len(localhost_name), localhost_name)
-       return message.pack(s, passage.ID_BY_TYPE['LOOP'])
+       return create_leader_proposal_msj(self.localhost_name)
 
     def create_linkbroken_msj(self):
        s = struct.pack(">HBB%is" % (len(localhost_name)), passage.TTL, passage.LOOP_SUBTYPE_BY_NAME['LinkBroken'], len(localhost_name), localhost_name)
@@ -95,7 +100,7 @@ if __name__ == '__main__':
       sys.exit(1)
 
 
-   path, char_id_in, group_id, localhost_name, network_name= sys.argv[1:]
+   path, char_id_in, group_id, localhost_name, network_name = sys.argv[1:]
    group_id = int(group_id)
 
    # The 'char' id can be an integer or a letter.
@@ -118,7 +123,7 @@ if __name__ == '__main__':
    userland_inbound_queue = MessageQueue(path, char_id_in, 0644, True)
    userland_outbound_queue = MessageQueue(path, char_id_out, 0644, True)
     
-   driver = Driver(localhost_name, path, char_id_out, group_id)
+   driver = Driver(localhost_name, path, char_id_out, group_id, network_name)
    
    head_process = Popen(["python", "outbound.py", path, char_id_out, str(group_id), localhost_name])
    
