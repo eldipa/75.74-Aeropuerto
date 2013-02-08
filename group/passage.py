@@ -45,13 +45,23 @@ def _recv(socket, length, peer):
    return "".join(chunks)
 
 
-def _send(socket, buf):
-   socket.sendall(buf)
+def _send(socket, buf, peer):
+   i = 0
+   s = 0
+   while i < len(buf):
+      s = socket.send(buf[i:])
+      if s == 0:
+         raise UnstableChannel("The channel is unstable or the other side has closed the connection in the middle of a transmittion. ", peer)
+      if s < 0:
+         raise UnstableChannel("The channel is unstable because an unknow error (may be local, may be remote, or may be in the link). ", peer)
+      
+      i += s
 
 
 def passage_inbound_messages(inbound_socket, userland_inbound_queue, userland_outbound_queue, driver):
    try: 
       inbound_socket.settimeout(RECEIVE_TIMEOUT)
+      inbound_socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
       peer = inbound_socket.getpeername()
 
       while True:
@@ -112,6 +122,7 @@ def passage_inbound_messages(inbound_socket, userland_inbound_queue, userland_ou
 
 def passage_outbound_messages(outbound_socket, userland_outbound_queue, driver):
    outbound_socket.settimeout(SEND_TIMEOUT)
+   outbound_socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
    peer = outbound_socket.getpeername()
 
    try:
@@ -140,7 +151,7 @@ def passage_outbound_messages(outbound_socket, userland_outbound_queue, driver):
             assert len(size) == 2
 
             syslog.syslog(syslog.LOG_INFO, "Sending %s packet: %s" % (type, " ".join(map(lambda c: hex(ord(c)), type+size+payload))))
-            _send(outbound_socket, type+size+payload)
+            _send(outbound_socket, type+size+payload, peer)
 
          except InvalidApplicationMessage, e:
             syslog.syslog(syslog.LOG_CRIT, "%s\n%s" % (traceback.format_exc(), str(e)))
