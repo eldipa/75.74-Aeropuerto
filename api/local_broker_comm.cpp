@@ -25,7 +25,7 @@ LocalBrokerComm::LocalBrokerComm(const std::string & app_name, const std::string
 
 	bzero(mensaje.datos, sizeof(mensaje.datos));
 
-	snprintf(mensaje.datos, sizeof(mensaje.datos),"%s", app_name.c_str());
+	snprintf(mensaje.datos, sizeof(mensaje.datos), "%s", app_name.c_str());
 
 	// Hago un pedido de registro
 	socket_broker.sendsome(&mensaje, sizeof(mensajes::mensajes_local_broker_t));
@@ -33,9 +33,8 @@ LocalBrokerComm::LocalBrokerComm(const std::string & app_name, const std::string
 	socket_broker.receivesome(&mensaje, sizeof(mensajes::mensajes_local_broker_t));
 
 	if (mensaje.respuesta == mensajes::ERROR) {
-		throw GenericError("Register Error: %s",mensaje.datos);
+		throw GenericError("Register Error: %s", mensaje.datos);
 	}
-
 
 }
 
@@ -43,3 +42,24 @@ LocalBrokerComm::~LocalBrokerComm() {
 
 }
 
+void LocalBrokerComm::join(const std::string & nombre_recurso) {
+	std::string name;
+	name = nombre_recurso;
+	name = name + "";
+}
+
+void LocalBrokerComm::leave() {
+
+}
+
+void LocalBrokerComm::wait_mutex(const std::string & nombre_recurso) {
+	std::string name;
+	name = nombre_recurso;
+	name = name + "";
+}
+
+void LocalBrokerComm::free_mutex(const std::string & nombre_recurso) {
+	std::string name;
+	name = nombre_recurso;
+	name = name + "";
+}

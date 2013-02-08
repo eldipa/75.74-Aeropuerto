@@ -40,7 +40,7 @@
 #include <cstring>
 #include <string>
 
-Socket::Socket(bool isstream) : 
+Socket::Socket(bool isstream) :
    isstream(isstream),
    isassociated(false) {
       fd = socket(AF_INET, isstream? SOCK_STREAM : SOCK_DGRAM, 0);
@@ -92,15 +92,15 @@ int Socket::listen_fd(int backlog) {
 
    clean_from_who();
    int other_side = ::accept(fd, (struct sockaddr *) &peer_addr, &peer_addr_len);
-   if(other_side == -1) 
+   if(other_side == -1)
       throw OSError("The socket was trying to accept new connections but this has failed.");
-   
+
    return other_side;
 }
 
 ssize_t Socket::sendsome(const void *buf, size_t data_len) {
    ssize_t count = ::send(fd, buf, data_len, MSG_NOSIGNAL);
-   if(count == -1) 
+   if(count == -1)
       throw OSError("The message length %i cannot be sent.", data_len);
 
    return count;
@@ -109,9 +109,10 @@ ssize_t Socket::sendsome(const void *buf, size_t data_len) {
 ssize_t Socket::receivesome(void *buf, size_t buf_len) {
    clean_from_who();
    ssize_t count = ::recvfrom(fd, buf, buf_len, 0, (struct sockaddr *) &peer_addr, &peer_addr_len);
-   if(count == -1) 
+   if(count == -1)
       throw OSError("The message cannot be received (of length least or equal to %i).", buf_len);
-
+   if (count == 0)
+	  throw OSError("The other end has closed the socket");
    return count;
 }
 
@@ -119,7 +120,7 @@ void Socket::from_who(std::string &host, std::string &service) {
    char host_buf[NI_MAXHOST];
    char service_buf[NI_MAXSERV];
 
-   int status = getnameinfo((struct sockaddr *) &peer_addr, peer_addr_len, 
+   int status = getnameinfo((struct sockaddr *) &peer_addr, peer_addr_len,
             host_buf, NI_MAXHOST, service_buf, NI_MAXSERV, NI_NAMEREQD | (isstream? 0 : NI_DGRAM));
 
    if(status != 0) {
@@ -171,7 +172,7 @@ struct addrinfo* Socket::resolve(const char* host, const char* service) {
 
    memset(&hints, 0, sizeof(struct addrinfo));
    hints.ai_family = AF_INET;
-   hints.ai_socktype = isstream? SOCK_STREAM : SOCK_DGRAM; 
+   hints.ai_socktype = isstream? SOCK_STREAM : SOCK_DGRAM;
    hints.ai_flags = host? 0 : AI_PASSIVE;
    hints.ai_protocol = 0;
 

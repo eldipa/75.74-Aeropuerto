@@ -13,13 +13,13 @@
 #include "messagequeue.h"
 #include "semaphoreset.h"
 #include "mutex.h"
+#include "tabla_clientes.h"
 
 class LocalBroker {
 private:
 
 	Socket server_socket;
-	SharedMemory tabla_clientes_locales;
-	SemaphoreSet mutex_clientes_locales;
+	TablaClientes tabla_clientes_locales;
 
 public:
 

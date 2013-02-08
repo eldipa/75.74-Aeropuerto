@@ -15,17 +15,14 @@
 #include "process.h"
 #include "local_broker_constants.h"
 
+#define MAX_CLIENTES 100
 #define TAMANIO_SHM 1000
 
 static char num_socket [11];
 static char * args_client_handler [] = {(char*)"client_handler", num_socket, NULL};
 
 LocalBroker::LocalBroker(const std::string & directorio_de_trabajo)
-	: server_socket(true),
-		tabla_clientes_locales(std::string(directorio_de_trabajo).append(PATH_TABLA_CLIENTES_LOCALES).c_str(), char(0),
-			TAMANIO_SHM, 0664, true, false),
-		mutex_clientes_locales(std::vector<short unsigned int>(10, 1),
-			std::string(directorio_de_trabajo).append(PATH_MUTEX_CLIENTES_LOCALES).c_str(), char(0), 0664)
+	: server_socket(true), tabla_clientes_locales(directorio_de_trabajo, true)
 {
 	std::string puerto("1234");
 
@@ -51,7 +48,7 @@ void LocalBroker::run() {
 
 	//new_socket->sendsome(debug, strlen(debug));
 
-	std::cout << "creando handler " << new_socket << std::endl;
+	//std::cout << "creando handler " << new_socket << std::endl;
 
 	Process p("client_handler", args_client_handler);
 
