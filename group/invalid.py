@@ -1,7 +1,9 @@
 
+import traceback
+
 class RingException(Exception):
    def __init__(self, *args):
-      self.args = args
+      self.args = filter(None, args)
 
    def __str__(self):
       return "\n".join(map(str, self.args))
@@ -28,6 +30,8 @@ class InvalidApplicationMessage(InvalidMessage):
 
 
 class UnstableChannel(RingException):
-   def __init__(self, description, peer):
+   def __init__(self, description, peer, exception=None):
+      if exception:
+         description += "\nChannel Error: '%s'\n%s" % (str(exception), traceback.format_exc())
       RingException.__init__(self, description, peer)
 

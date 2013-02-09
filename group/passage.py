@@ -7,9 +7,9 @@ from invalid import *
 import traceback
 import socket
 
-RECEIVE_TIMEOUT = 10*60*60 #10 minutes
-SEND_TIMEOUT = 5*10*10 #5 minutes (should SEND_TIMEOUT < RECEIVE_TIMEOUT)
-ISALIVE_TIMEOUT = 10 #10 seconds
+KEEPALIVE_PROBE_COUNT = 8
+KEEPALIVE_IDLE_TIMEOUT = 1 * 60 # Value with a range of 1 to N (where N is tcp_keepidle divided by PR_SLOWHZ).
+KEEPALIVE_RETRY_SEND_PROBE = 10 # Value with a range of 1 to N (where N is tcp_keepintvl divided by PR_SLOWHZ).
 
 MAX_PAYLOAD = 2**14
 
@@ -60,8 +60,13 @@ def _send(socket, buf, peer):
 
 def passage_inbound_messages(inbound_socket, userland_inbound_queue, userland_outbound_queue, driver):
    try: 
-      inbound_socket.settimeout(RECEIVE_TIMEOUT)
       inbound_socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+
+      inbound_socket.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
+      inbound_socket.setsockopt(socket.SOL_TCP, socket.TCP_KEEPCNT, KEEPALIVE_PROBE_COUNT)
+      inbound_socket.setsockopt(socket.SOL_TCP, socket.TCP_KEEPIDLE, KEEPALIVE_IDLE_TIMEOUT)
+      inbound_socket.setsockopt(socket.SOL_TCP, socket.TCP_KEEPINTVL, KEEPALIVE_RETRY_SEND_PROBE)
+
       peer = inbound_socket.getpeername()
 
       while True:
@@ -80,13 +85,14 @@ def passage_inbound_messages(inbound_socket, userland_inbound_queue, userland_ou
                raise InvalidNetworkMessage("The message received from a member of the ring has a wrong value in the 'size' field (corrupted message).", size, peer) 
             
             payload =  _recv(inbound_socket, size, peer)
+            _send(inbound_socket, "A", peer)
 
             if type == 'LOOP':
                ttl = struct.unpack('>H', payload[:2])[0]
                
                syslog.syslog(syslog.LOG_INFO, "LOOP packet recieved (TTL %i): %s" % (ttl, " ".join(map(lambda c: hex(ord(c)), payload[2:]))))
                if ttl <= 0:
-                  syslog.syslog(syslog.LOG_INFO, "LOOP packet (TTL %i) discarted.")
+                  syslog.syslog(syslog.LOG_INFO, "LOOP packet (TTL %i) discarted." % ttl)
                   continue 
                
                if driver.handle_loop_message(payload[2:]):
@@ -99,19 +105,14 @@ def passage_inbound_messages(inbound_socket, userland_inbound_queue, userland_ou
             else:
                raise InvalidNetworkMessage("The message received from a member of the ring was corrupted.", payload, peer) 
 
-         except timeout:
+         except socket.error, e:
             if start_receiving:
-               syslog.syslog(syslog.LOG_INFO, "Packet received partially because timeout")
-               raise UnstableChannel("The other side (other peer) is not responding to the probes.", peer)
+               syslog.syslog(syslog.LOG_INFO, "Packet received partially because some connection error.")
             else:
-               syslog.syslog(syslog.LOG_INFO, "No packet received, checking if it is alive...")
-               inbound_socket.settimeout(ISALIVE_TIMEOUT)
-               try:
-                  inbound_socket.send('?') # is alive the other side?
-               except timeout:
-                  raise UnstableChannel("The other side (other peer) is not responding to the probes.", peer)
-               finally:
-                  inbound_socket.settimeout(RECEIVE_TIMEOUT)
+               syslog.syslog(syslog.LOG_INFO, "No packet received because some connection error.")
+
+            raise UnstableChannel("The other side (other peer) is not responding to the probes or an internal error happen.", peer, e)
+
    finally:
       try:
          inbound_socket.shutdown(2)
@@ -121,11 +122,15 @@ def passage_inbound_messages(inbound_socket, userland_inbound_queue, userland_ou
 
 
 def passage_outbound_messages(outbound_socket, userland_outbound_queue, driver):
-   outbound_socket.settimeout(SEND_TIMEOUT)
-   outbound_socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
-   peer = outbound_socket.getpeername()
-
    try:
+      outbound_socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+      peer = outbound_socket.getpeername()
+
+      outbound_socket.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
+      outbound_socket.setsockopt(socket.SOL_TCP, socket.TCP_KEEPCNT, KEEPALIVE_PROBE_COUNT)
+      outbound_socket.setsockopt(socket.SOL_TCP, socket.TCP_KEEPIDLE, KEEPALIVE_IDLE_TIMEOUT)
+      outbound_socket.setsockopt(socket.SOL_TCP, socket.TCP_KEEPINTVL, KEEPALIVE_RETRY_SEND_PROBE)
+
       while True:
          try:
             syslog.syslog(syslog.LOG_INFO, "Pulling packet...")
@@ -152,14 +157,15 @@ def passage_outbound_messages(outbound_socket, userland_outbound_queue, driver):
 
             syslog.syslog(syslog.LOG_INFO, "Sending %s packet: %s" % (type, " ".join(map(lambda c: hex(ord(c)), type+size+payload))))
             _send(outbound_socket, type+size+payload, peer)
+            ack = _recv(outbound_socket, 1, peer)
+            if ack != "A":
+               raise InvalidNetworkMessage("The ACK has is invalid '%s' for the message sent" % hex(ord(ack)), type+size+payload, peer)
 
          except InvalidApplicationMessage, e:
             syslog.syslog(syslog.LOG_CRIT, "%s\n%s" % (traceback.format_exc(), str(e)))
 
-   except timeout:
-      raise UnstableChannel("The other side (other peer) is not responding with any ACK.", peer)
-   except socket.error:
-      raise UnstableChannel("The other side (other peer) is not responding. It seem to be down.", peer)
+   except socket.error, e:
+      raise UnstableChannel("The other side (other peer) is not responding. It seem to be down.", peer, e)
    finally:
       try:
          outbound_socket.shutdown(2)

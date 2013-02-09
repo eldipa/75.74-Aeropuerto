@@ -12,6 +12,7 @@ LISTEN_TIMEOUT = 30
 LISTEN_SERVICE = 8084
 LISTEN_QUEUE_LENGHT = 10
 
+
 BEACON_SERVICE = LISTEN_SERVICE
 
 # Based (but not enforced) in the types of protocols used in an ARP request/reply. 
@@ -27,6 +28,9 @@ OWN_RING_CLOSE_TIMEWAIT = 1 * 60 # 1 minutes
 SELF_CLOSE_TIMEWAIT = 2 * 60 # 2 minutes
 
 assert OWN_RING_CLOSE_TIMEWAIT < SELF_CLOSE_TIMEWAIT
+
+LISTEN_RETRIES = 10
+assert LISTEN_RETRIES * LISTEN_TIMEOUT > SELF_CLOSE_TIMEWAIT 
 
 CLOSE_TIMEOUT = 30
 BEACON_BUF_MAX_SIZE = 1024 / 2
@@ -57,6 +61,7 @@ def tail(network_name, group_id, localhost_name, driver):
    datagram_socket = socket.socket(AF_INET, SOCK_DGRAM)
    listener = socket.socket()
    
+   retries = 0
    try:
       datagram_socket.setsockopt(SOL_SOCKET, SO_BROADCAST, 1)
 
@@ -82,6 +87,10 @@ def tail(network_name, group_id, localhost_name, driver):
             syslog.syslog(syslog.LOG_INFO, "Connection accepted: %s connected to %s" % (_previous_node_address[0], localhost_name))
          except socket.timeout:
             previous_node = None
+            retries += 1
+
+            if retries >= LISTEN_RETRIES:
+               raise UnstableChannel("It seems that nobody is listen the OPEN beacon.", None)
             continue
       
       return previous_node
