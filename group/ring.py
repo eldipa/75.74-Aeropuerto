@@ -135,8 +135,8 @@ def head(group_id, localhost_name, driver):
             time_elapsed = time.time() - start
 
             # Esto es valido solo para direcciones IP y por hostname
-            is_from_a_new_group = leader_name != remote_leader_name
             is_myself = localhost_name == remote_host_name
+            is_from_a_new_group = leader_name != remote_leader_name and not is_myself
 
             if (is_from_a_new_group or 
                   (not is_from_a_new_group and not is_myself and OWN_RING_CLOSE_TIMEWAIT < time_elapsed < SELF_CLOSE_TIMEWAIT) or
