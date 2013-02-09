@@ -12,7 +12,6 @@ import ring
 import struct
 from invalid import *
 import traceback
-import time
 
 class Driver:
     def __init__(self, localhost_name):
@@ -83,5 +82,4 @@ if __name__ == '__main__':
             syslog.syslog(syslog.LOG_CRIT, "Critical exception (will NOT shutdown) %s\n%s" % (traceback.format_exc(), str(e)))
    finally:
       syslog.syslog(syslog.LOG_INFO, "Shutdown 'outbound'.")
-      time.sleep(0.1)
 
