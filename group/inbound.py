@@ -165,6 +165,7 @@ if __name__ == '__main__':
 
    finally:
       syslog.syslog(syslog.LOG_INFO, "Shutdown 'inbound'. Stoping other processes.")
+      time.sleep(0.1)
       stop.stop(head_process)
       driver.clean()
 
