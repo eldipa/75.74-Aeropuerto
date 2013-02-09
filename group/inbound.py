@@ -18,7 +18,7 @@ import time
 import stop
 
 ALREADY_ADDR_USED_ATTEMPTS = 10
-ALREADY_ADDR_USED_SLEEP = 5
+ALREADY_ADDR_USED_SLEEP = 15
 addr_attempts = 0
 
 
@@ -47,11 +47,14 @@ class Driver:
 
             if leader_name == self.localhost_name:
                 syslog.syslog(syslog.LOG_DEBUG, "I'am the new leader %s (previous %s)." % (str(self.localhost_name), str(self.leader_name)))
-                #Stop the leader algorithm. 
+                                #Stop the leader algorithm. 
                 #
                 # The inbound process MUST start sending its localname as leadername to the outbound queue.
                 # When that message come back to the outbound, then the algorithm finish and localname is the leadername
                 self.leader_name = leader_name
+                
+                if self.leader_process and self.leader_process.poll() is None:
+                   return False #iam the leader already
 
                 self.clean()
                 self.leader_process = Popen(["python", "leader.py", self.path, self.char_id_out, str(self.group_id), self.localhost_name, self.network_name])
@@ -66,6 +69,7 @@ class Driver:
                 self.clean()
                 self.leader_name = leader_name
                 return True
+
         elif type == passage.LOOP_SUBTYPE_BY_NAME['LinkBroken']:
             open_node_name_len = struct.unpack('>B', loop_payload[1])[0]
             open_node_name = struct.unpack('%is' % open_node_name_len, loop_payload[2: open_node_name_len+2])[0]
@@ -73,6 +77,7 @@ class Driver:
             if open_node_name == self.localhost_name:
                return False
             else:
+               self.clean()
                return True
         else:
             #Tipo incorrecto, como llego aqui?!?
@@ -136,6 +141,7 @@ if __name__ == '__main__':
          try:
             syslog.syslog(syslog.LOG_INFO, "Pushing 'BrokenLink' in the output queue.")
             userland_outbound_queue.push(driver.create_linkbroken_msj())
+            driver.clean()
 
             syslog.syslog(syslog.LOG_INFO, "Construction the ring")
             previous_node = ring.tail(network_name, group_id, localhost_name, driver)
