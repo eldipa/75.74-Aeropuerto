@@ -28,8 +28,7 @@ class Driver:
                 # Forwarding the message
                 return True
 
-
-            if leader_name <= self.leader_name:
+            elif leader_name < self.localhost_name:
                 return False
             else:
                 self.leader_name = leader_name

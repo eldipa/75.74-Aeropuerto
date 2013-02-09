@@ -41,10 +41,12 @@ class Driver:
         type = struct.unpack(">B", loop_payload[0])[0]
 
         if type == passage.LOOP_SUBTYPE_BY_NAME['Leader']:
+            syslog.syslog(syslog.LOG_DEBUG, "Leader Election received...")
             leader_name_len = struct.unpack('>B', loop_payload[1])[0]
             leader_name = struct.unpack('%is' % leader_name_len, loop_payload[2: leader_name_len+2])[0]
 
             if leader_name == self.localhost_name:
+                syslog.syslog(syslog.LOG_DEBUG, "I'am the new leader %s (previous %s)." % (str(self.localhost_name), str(self.leader_name)))
                 #Stop the leader algorithm. 
                 #
                 # The inbound process MUST start sending its localname as leadername to the outbound queue.
@@ -56,9 +58,11 @@ class Driver:
                 return False 
 
 
-            if leader_name <= self.leader_name:
+            elif leader_name < self.localhost_name:
+                syslog.syslog(syslog.LOG_DEBUG, "Minor leader proposal %s discarted by %s (actual leader %s)." % (str(leader_name), str(self.localhost_name), str(self.leader_name) ))
                 return False
             else:
+                syslog.syslog(syslog.LOG_DEBUG, "Mayor leader proposal %s exceeds me %s (previous leader %s)." % (str(leader_name), str(self.localhost_name), str(self.leader_name) ))
                 self.clean()
                 self.leader_name = leader_name
                 return True

@@ -72,7 +72,7 @@ def passage_inbound_messages(inbound_socket, userland_inbound_queue, userland_ou
       while True:
          try:
             start_receiving = False
-            syslog.syslog(syslog.LOG_INFO, "Receiving packet...")
+            syslog.syslog(syslog.LOG_INFO, "Receiving packet from remote node %s..." % str(peer))
             type = _recv(inbound_socket, 4, peer)
             start_receiving = True
 
@@ -96,11 +96,11 @@ def passage_inbound_messages(inbound_socket, userland_inbound_queue, userland_ou
                   continue 
                
                if driver.handle_loop_message(payload[2:]):
-                  syslog.syslog(syslog.LOG_INFO, "Forwarding LOOP packet.")
+                  syslog.syslog(syslog.LOG_INFO, "Moving LOOP packet to output queue.")
                   payload = struct.pack('>H', ttl - 1) + payload[2:]
                   userland_outbound_queue.push(message.pack(payload, ID_BY_TYPE[type]))
             elif type == 'USER':
-               syslog.syslog(syslog.LOG_INFO, "USER packet recieved: %s" % (" ".join(map(lambda c: hex(ord(c)), payload))))
+               syslog.syslog(syslog.LOG_INFO, "Moving USER packet to the user (up): %s" % (" ".join(map(lambda c: hex(ord(c)), payload))))
                userland_inbound_queue.push(message.pack(payload, ID_BY_TYPE[type]))
             else:
                raise InvalidNetworkMessage("The message received from a member of the ring was corrupted.", payload, peer) 
@@ -133,7 +133,7 @@ def passage_outbound_messages(outbound_socket, userland_outbound_queue, driver):
 
       while True:
          try:
-            syslog.syslog(syslog.LOG_INFO, "Pulling packet...")
+            syslog.syslog(syslog.LOG_INFO, "Pulling packet from output queue (down)...")
             id, payload = message.unpack(userland_outbound_queue.pull())
 
             if id not in TYPE_BY_ID:
@@ -155,7 +155,7 @@ def passage_outbound_messages(outbound_socket, userland_outbound_queue, driver):
             assert len(type) == 4
             assert len(size) == 2
 
-            syslog.syslog(syslog.LOG_INFO, "Sending %s packet: %s" % (type, " ".join(map(lambda c: hex(ord(c)), type+size+payload))))
+            syslog.syslog(syslog.LOG_INFO, "Sending %s packet to the remote node %s: %s" % (type, str(peer), " ".join(map(lambda c: hex(ord(c)), type+size+payload))))
             _send(outbound_socket, type+size+payload, peer)
             ack = _recv(outbound_socket, 1, peer)
             if ack != "A":
