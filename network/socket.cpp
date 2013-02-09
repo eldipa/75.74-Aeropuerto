@@ -111,8 +111,7 @@ ssize_t Socket::receivesome(void *buf, size_t buf_len) {
    ssize_t count = ::recvfrom(fd, buf, buf_len, 0, (struct sockaddr *) &peer_addr, &peer_addr_len);
    if(count == -1)
       throw OSError("The message cannot be received (of length least or equal to %i).", buf_len);
-   if (count == 0)
-	  throw OSError("The other end has closed the socket");
+   
    return count;
 }
 
