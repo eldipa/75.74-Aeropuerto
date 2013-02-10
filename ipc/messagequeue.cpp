@@ -58,6 +58,22 @@ MessageQueue::MessageQueue(const char *absolute_path, char proj_id,
       }
    }
 
+
+MessageQueue::MessageQueue(const char *absolute_path, char proj_id, 
+                           int permissions, bool create, bool is_owner) : owner(is_owner),
+   path(absolute_path), 
+   permissions(permissions) {
+   key = get_key(absolute_path, proj_id);
+      Log::debug("%s message queue using the path %s with key %x.", (create? "Creating" : "Getting"), absolute_path, key);
+      fd = msgget(key, (create ? (IPC_CREAT | IPC_EXCL) : 0) | permissions);
+      if(fd == -1) {
+         throw OSError("The message queue %s "
+               MESSAGE_Key_Path_Permissions,
+               (create ? "cannot be created" : "does not exist"), 
+               key, path.c_str(), permissions);
+      }
+   }
+
 void MessageQueue::push(const void *msg, size_t size_txt) {
    if(msgsnd(fd, msg, size_txt, 0) == -1) {
       throw OSError("The message (text) of %i bytes in the queue "

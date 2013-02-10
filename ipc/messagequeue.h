@@ -66,6 +66,9 @@ class MessageQueue {
         MessageQueue(const char *absolute_path, char proj_id, 
               int permissions = 0664, bool create = false);
 
+        MessageQueue(const char *absolute_path, char proj_id, 
+                     int permissions, bool create, bool is_owner);
+
         void push(const void *msg, size_t size_txt);
         ssize_t pull(void *msg, size_t max_size_txt, long type = 0);
         
