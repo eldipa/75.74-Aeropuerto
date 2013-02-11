@@ -1,2 +1,2 @@
-INCLUDE_PATHS = ../os ../log
+INCLUDE_PATHS =  ../os ../log ../common
 TARGET = libipc.a python_wrap.make 
