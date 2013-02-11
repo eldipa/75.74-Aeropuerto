@@ -23,6 +23,9 @@ public:
       return new MessageQueue(abs_path.c_str(), proj_id, permissions, create);
    }
 
+   virtual ~IpcQueueManager() {
+   }
+
 private:
    std::string path_to_locks;
    int permissions;

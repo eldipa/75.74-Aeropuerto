@@ -8,13 +8,16 @@
 
 #include "process.h"
 #include "constants.h"
-#include "messagequeue.h"
 #include "daemon.h"
 #include "conexiones_aeropuerto.h"
 
 #include "database.h"
 #include "stmt.h"
 #include "tupleiter.h"
+
+#include "yasper.h"
+#include "iqueue_manager.h"
+#include "ipc_queue_manager.h"
 
 #include <list>
 
@@ -105,7 +108,8 @@ try {
       strncpy(directorio_de_trabajo, PATH_KEYS, MAX_PATH_SIZE);
 		sprintf(id_productor_cinta_central, "%d", MAX_SCANNERS + 1);
 
-		ConexionesAeropuerto aeropuerto(directorio_de_trabajo);
+      yasper::ptr<IQueueManager> queue_manager = new IpcQueueManager(directorio_de_trabajo);
+		ConexionesAeropuerto aeropuerto(directorio_de_trabajo, queue_manager);
 
 		Log::info("iniciando simulación...");
 

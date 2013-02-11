@@ -17,15 +17,18 @@
 #include <string>
 #include "yasper.h"
 
+#include "ipc_queue_manager.h"
+
 void lanzar_notificadores_de_vuelos_de_intercargo(const char*, int);
 
 ApiTorreDeControl::ApiTorreDeControl(const char* directorio_de_trabajo) :
-   path_torre_control(std::string(directorio_de_trabajo).append(PATH_TORRE_DE_CONTROL).c_str()),
-   queue_zonas(path_torre_control.c_str(), Q_ZONAS),
-   queue_puestos_checkin(path_torre_control.c_str(), Q_PUESTOS_CHECKIN),
-   queue_contenedores(path_torre_control.c_str(), Q_CONTENEDORES) {
+   queue_manager( new IpcQueueManager(directorio_de_trabajo) ),
+   queue_zonas( queue_manager->get_queue(PATH_TORRE_DE_CONTROL, Q_ZONAS) ),
+   queue_puestos_checkin( queue_manager->get_queue(PATH_TORRE_DE_CONTROL, Q_PUESTOS_CHECKIN) ),
+   queue_contenedores( queue_manager->get_queue(PATH_TORRE_DE_CONTROL, Q_CONTENEDORES) ) {   
 
-   
+   path_torre_control = std::string(directorio_de_trabajo);
+   path_torre_control.append(PATH_TORRE_DE_CONTROL);
 }
 
 void ApiTorreDeControl::notificar_llegada_vuelo(int numero_vuelo) {
@@ -74,19 +77,19 @@ void lanzar_notificadores_de_vuelos_de_intercargo(const char* path_torre_control
 
 void ApiTorreDeControl::pedir_contenedor() {
    tMsgContenedores msg;
-   queue_contenedores.pull(&msg, sizeof(tMsgContenedores)-sizeof(long));
+   queue_contenedores->pull(&msg, sizeof(tMsgContenedores)-sizeof(long));
 }
 
 void ApiTorreDeControl::liberar_contenedor() {
    tMsgContenedores msg;
    msg.mtype = 1;
-   queue_contenedores.push(&msg, sizeof(tMsgContenedores)-sizeof(long));
+   queue_contenedores->push(&msg, sizeof(tMsgContenedores)-sizeof(long));
 }
 
 int ApiTorreDeControl::pedir_puesto_checkin(int num_vuelo) {
    Log::info("ApiTorreDeControl: pidiendo puesto de checkin libre para vuelo %d", num_vuelo);
    tMsgCheckin msg;
-   queue_puestos_checkin.pull(&msg, sizeof(tMsgCheckin)-sizeof(long));
+   queue_puestos_checkin->pull(&msg, sizeof(tMsgCheckin)-sizeof(long));
    return msg.puesto_checkin;
 }
  
@@ -94,13 +97,13 @@ void ApiTorreDeControl::liberar_puesto_checkin(int num_puesto_checkin) {
    tMsgCheckin msg;
    msg.mtype = 1;
    msg.puesto_checkin = num_puesto_checkin;
-   queue_puestos_checkin.push(&msg, sizeof(tMsgCheckin)-sizeof(long));
+   queue_puestos_checkin->push(&msg, sizeof(tMsgCheckin)-sizeof(long));
 }
 
 int ApiTorreDeControl::pedir_zona(int num_vuelo) {
    Log::info("ApiTorreDeControl: pidiendo zona libre para vuelo %d", num_vuelo);
    tMsgZona msg;
-   queue_zonas.pull(&msg, sizeof(tMsgZona)-sizeof(long));
+   queue_zonas->pull(&msg, sizeof(tMsgZona)-sizeof(long));
    return msg.num_zona;
 }
 
@@ -108,5 +111,5 @@ void ApiTorreDeControl::liberar_zona(int num_zona) {
    tMsgZona msg;
    msg.mtype = 1;
    msg.num_zona = num_zona;
-   queue_zonas.push(&msg, sizeof(tMsgZona)-sizeof(long));
+   queue_zonas->push(&msg, sizeof(tMsgZona)-sizeof(long));
 }

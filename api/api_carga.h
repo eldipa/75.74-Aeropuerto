@@ -3,7 +3,6 @@
 
 #include "equipaje.h"
 #include "contenedor.h"
-#include "messagequeue.h"
 #include "api_constants.h"
 #include "mensajes.h"
 #include "log.h"
@@ -14,13 +13,21 @@
 #include <vector>
 #include <string>
 
+#include "yasper.h"
+#include "iqueue_manager.h"
+#include "ipc_queue_manager.h"
+#include "imessagequeue.h"
+
 class ApiCarga {
 private:
 	//std::string path;
 	int id_robot_carga;
 	std::vector<Contenedor> contenedores;
-	MessageQueue cola_tractores;
-   MessageQueue cola_aviso_carga;
+
+   yasper::ptr<IQueueManager> queue_manager;
+   yasper::ptr<IMessageQueue> cola_tractores;
+   yasper::ptr<IMessageQueue> cola_aviso_carga;
+
 	CintaContenedor cinta_contenedor;
 
 	int * cerro_el_checkin;
@@ -36,8 +43,9 @@ public:
 	 **/
 	ApiCarga(const char * directorio_de_trabajo,int id_robot_carga, int num_cinta) :
       id_robot_carga(id_robot_carga), 
-      cola_tractores(std::string(directorio_de_trabajo).append(PATH_COLA_ROBOTS_ZONA_TRACTORES).c_str(), 0), 
-      cola_aviso_carga(std::string(directorio_de_trabajo).append(PATH_COLA_CONTROL_CARGA_CHECKIN).c_str(), id_robot_carga), 
+      queue_manager( new IpcQueueManager(directorio_de_trabajo) ),
+      cola_tractores( queue_manager->get_queue(PATH_COLA_ROBOTS_ZONA_TRACTORES, 0) ), 
+      cola_aviso_carga( queue_manager->get_queue(PATH_COLA_CONTROL_CARGA_CHECKIN, id_robot_carga) ), 
       cinta_contenedor(std::string(directorio_de_trabajo).append(PATH_CINTA_CONTENEDOR).c_str(), num_cinta) {
 
 	}
@@ -92,7 +100,7 @@ public:
 			}
 			Log::info("Enviando Bloque %d/%d a tractores tamaño %d #vuelo= %d", i + 1, cant_bloques,
 					sizeof(BloqueContenedores), numero_de_vuelo);
-			cola_tractores.push((const void *) &bloque, sizeof(BloqueContenedores) - sizeof(long));
+			cola_tractores->push((const void *) &bloque, sizeof(BloqueContenedores) - sizeof(long));
 		}
 
       contenedores.clear();
@@ -113,12 +121,12 @@ public:
       mensaje.mtype = 1;
       mensaje.checkin_cerrado = 1;
       mensaje.cantidad_equipaje_total = equipajes_por_cargar;
-      cola_aviso_carga.push(&mensaje, sizeof(MENSAJE_CHECKIN_CERRADO)-sizeof(long));
+      cola_aviso_carga->push(&mensaje, sizeof(MENSAJE_CHECKIN_CERRADO)-sizeof(long));
    }
 
    int get_equipajes_por_cargar() {
       MENSAJE_CHECKIN_CERRADO mensaje;
-      cola_aviso_carga.pull(&mensaje,sizeof(MENSAJE_CHECKIN_CERRADO) - sizeof(long), 0);
+      cola_aviso_carga->pull(&mensaje,sizeof(MENSAJE_CHECKIN_CERRADO) - sizeof(long), 0);
       return mensaje.cantidad_equipaje_total;
 
    }

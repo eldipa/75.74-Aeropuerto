@@ -4,11 +4,17 @@
 #include "mensajes.h"
 #include "messagequeue.h"
 
+#include "yasper.h"
+#include "imessagequeue.h"
+#include "iqueue_manager.h"
+
 class ApiComunicacionIntercargo {
 private:
 
 	MENSAJE_VUELO_ENTRANTE mensaje;
-	MessageQueue * cola_cargadores_equipaje;
+
+   yasper::ptr<IQueueManager> queue_manager;
+   yasper::ptr<IMessageQueue> cola_cargadores_equipaje;
 
 public:
 	ApiComunicacionIntercargo(const char * directorio_de_trabajo);

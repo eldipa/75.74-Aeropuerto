@@ -4,17 +4,21 @@
 #include "equipaje.h"
 #include "cintas.h"
 #include "mensajes.h"
-#include "messagequeue.h"
 #include "semaphoreset.h"
 #include "sharedmemory.h"
 #include "api_constants.h"
+
+#include "yasper.h"
+#include "imessagequeue.h"
+#include "iqueue_manager.h"
 
 class ApiComunicacionTrasbordo {
 
 private:
 	SemaphoreSet * semaforos;
 	SharedMemory * memoria_zonas;
-	MessageQueue * cola_asignaciones;
+   yasper::ptr<IQueueManager> queue_manager;
+   yasper::ptr<IMessageQueue>  cola_asignaciones;
 	static const int cant_ipc = 3;
 	MENSAJE_ZONA_ASIGNADA mensaje;
 

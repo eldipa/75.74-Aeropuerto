@@ -4,10 +4,13 @@
 #include "equipaje.h"
 #include "semaphoreset.h"
 #include "mutex.h"
-#include "messagequeue.h"
 #include <memory>
 #include "sharedobject.h"
 #include "cintas.h"
+
+#include "yasper.h"
+#include "iqueue_manager.h"
+#include "imessagequeue.h"
 
 #define MAX_EQUIPAJES_POR_PERSONA 5
 
@@ -111,7 +114,9 @@ private:
    CintaCheckin cinta_checkin_out;
    SemaphoreSet sem_set;
    Mutex mutex_checkin;
-   MessageQueue queue_pasajeros;
+   yasper::ptr<IQueueManager> queue_manager;
+   yasper::ptr<IMessageQueue> queue_pasajeros;
+
 
 };
 
