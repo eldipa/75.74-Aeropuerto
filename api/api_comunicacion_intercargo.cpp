@@ -4,10 +4,10 @@
 using namespace std;
 #include "api_constants.h"
 
-#include "ipc_queue_manager.h"
+#include "api_configuracion.h"
 
 ApiComunicacionIntercargo::ApiComunicacionIntercargo(const char * directorio_de_trabajo) :
-   queue_manager( new IpcQueueManager(directorio_de_trabajo) ),
+   queue_manager( ApiConfiguracion::get_queue_manager(directorio_de_trabajo) ),
    cola_cargadores_equipaje( queue_manager->get_queue(PATH_COLA_ROBOTS_INTERCARGO, 0) ) {
 }
 

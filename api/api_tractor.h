@@ -10,7 +10,7 @@
 #include "yasper.h"
 #include "imessagequeue.h"
 #include "iqueue_manager.h"
-#include "ipc_queue_manager.h"
+#include "api_configuracion.h"
 
 class ApiTractor {
 private:
@@ -23,7 +23,7 @@ private:
 public:
 	ApiTractor(const char * directorio_de_trabajo, int id_tractor) :
       id(id_tractor), 
-      queue_manager( new IpcQueueManager(directorio_de_trabajo) ),
+      queue_manager( ApiConfiguracion::get_queue_manager(directorio_de_trabajo) ),
       cola_avion( queue_manager->get_queue(PATH_COLA_TRACTORES_AVIONES, 0) ),
       cola_robot_zona( queue_manager->get_queue(PATH_COLA_ROBOTS_ZONA_TRACTORES, 0) ) {
 

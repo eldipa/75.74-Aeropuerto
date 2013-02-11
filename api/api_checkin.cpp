@@ -16,7 +16,7 @@
 #include <stdexcept>
 
 #include "yasper.h"
-#include "ipc_queue_manager.h"
+#include "api_configuracion.h"
 
 ApiCheckIn::ApiCheckIn(const char* directorio_de_trabajo,int id_checkin) :
    path_to_locks(directorio_de_trabajo),
@@ -25,7 +25,7 @@ ApiCheckIn::ApiCheckIn(const char* directorio_de_trabajo,int id_checkin) :
    cinta_checkin_out(std::string(directorio_de_trabajo).append(PATH_CINTA_CHECKIN).c_str(), vuelo_actual->id_cinta_checkin),
    sem_set(std::string(directorio_de_trabajo).append(PATH_PUESTO_CHECKIN).c_str(), id_checkin*cant_ipcs, 1),
    mutex_checkin(sem_set, 0),
-   queue_manager( new IpcQueueManager(directorio_de_trabajo) ),
+   queue_manager( ApiConfiguracion::get_queue_manager(directorio_de_trabajo) ),
    queue_pasajeros( queue_manager->get_queue(PATH_PUESTO_CHECKIN, id_checkin*cant_ipcs+1) ) {
    //   queue_pasajeros(std::string(directorio_de_trabajo).append(PATH_PUESTO_CHECKIN).c_str(), id_checkin*cant_ipcs+1) {
 

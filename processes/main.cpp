@@ -17,7 +17,7 @@
 
 #include "yasper.h"
 #include "iqueue_manager.h"
-#include "ipc_queue_manager.h"
+#include "api_configuracion.h"
 
 #include <list>
 
@@ -108,7 +108,7 @@ try {
       strncpy(directorio_de_trabajo, PATH_KEYS, MAX_PATH_SIZE);
 		sprintf(id_productor_cinta_central, "%d", MAX_SCANNERS + 1);
 
-      yasper::ptr<IQueueManager> queue_manager = new IpcQueueManager(directorio_de_trabajo);
+      yasper::ptr<IQueueManager> queue_manager = ApiConfiguracion::get_queue_manager(directorio_de_trabajo);
 		ConexionesAeropuerto aeropuerto(directorio_de_trabajo, queue_manager);
 
 		Log::info("iniciando simulación...");

@@ -6,13 +6,13 @@
 #include "messagequeue.h"
 #include "mensajes.h"
 
-#include "ipc_queue_manager.h"
+#include "api_configuracion.h"
 
 #include <stdio.h>
 
 ApiControladorDeVuelo::ApiControladorDeVuelo(const char*  directorio_de_trabajo, int num_vuelo)
    : path_to_locks(directorio_de_trabajo), num_vuelo(num_vuelo),
-     queue_manager( new IpcQueueManager(directorio_de_trabajo) ),
+     queue_manager( ApiConfiguracion::get_queue_manager(directorio_de_trabajo) ),
      queue_trasbordo( queue_manager->get_queue(PATH_COLA_ESCUCHA_ZONA_ASIGNADA, 0) ),
      queue_checkin( queue_manager->get_queue(PATH_COLA_CONTROL_CHECKIN, 0) ) {
 }

@@ -15,8 +15,8 @@
 
 #include "yasper.h"
 #include "iqueue_manager.h"
-#include "ipc_queue_manager.h"
 #include "imessagequeue.h"
+#include "api_configuracion.h"
 
 class ApiCarga {
 private:
@@ -43,7 +43,7 @@ public:
 	 **/
 	ApiCarga(const char * directorio_de_trabajo,int id_robot_carga, int num_cinta) :
       id_robot_carga(id_robot_carga), 
-      queue_manager( new IpcQueueManager(directorio_de_trabajo) ),
+      queue_manager( ApiConfiguracion::get_queue_manager(directorio_de_trabajo) ),
       cola_tractores( queue_manager->get_queue(PATH_COLA_ROBOTS_ZONA_TRACTORES, 0) ), 
       cola_aviso_carga( queue_manager->get_queue(PATH_COLA_CONTROL_CARGA_CHECKIN, id_robot_carga) ), 
       cinta_contenedor(std::string(directorio_de_trabajo).append(PATH_CINTA_CONTENEDOR).c_str(), num_cinta) {

@@ -5,12 +5,12 @@
 #include <string>
 #include <vector>
 
-#include "ipc_queue_manager.h"
+#include "api_configuracion.h"
 
 using namespace std;
 
 ApiTrasbordo::ApiTrasbordo(const char* directorio_de_trabajo) :
-   queue_manager(new IpcQueueManager(directorio_de_trabajo)),
+   queue_manager(ApiConfiguracion::get_queue_manager(directorio_de_trabajo)),
    cola_cargadores_equipaje(queue_manager->get_queue(PATH_COLA_ROBOTS_INTERCARGO, 0)) {
 
 	semaforos = new SemaphoreSet(
@@ -26,7 +26,7 @@ ApiTrasbordo::ApiTrasbordo(const char* directorio_de_trabajo) :
 }
 
 ApiTrasbordo::ApiTrasbordo(const char* directorio_de_trabajo, bool create) :
-   queue_manager(new IpcQueueManager(directorio_de_trabajo)),
+   queue_manager(ApiConfiguracion::get_queue_manager(directorio_de_trabajo)),
    cola_cargadores_equipaje(queue_manager->get_queue(PATH_COLA_ROBOTS_INTERCARGO, 0, true)) {
 
 	std::vector<unsigned short> valores;

@@ -2,7 +2,7 @@
 #include "api_control_equipajes.h"
 #include "api_constants.h"
 
-#include "ipc_queue_manager.h"
+#include "api_configuracion.h"
 #include <string>
 
 ApiControlEquipajes::ApiControlEquipajes(const char * directorio_de_trabajo,int pos_consumidor_cinta_central,int pos_productor_cinta_central, bool create) :
@@ -10,7 +10,7 @@ ApiControlEquipajes::ApiControlEquipajes(const char * directorio_de_trabajo,int 
    pos_productor_cinta_central(pos_productor_cinta_central), 
    cinta_central(std::string(directorio_de_trabajo).append(PATH_CINTA_CENTRAL).c_str()),
 
-   queue_manager( new IpcQueueManager(directorio_de_trabajo) ),
+   queue_manager( ApiConfiguracion::get_queue_manager(directorio_de_trabajo) ),
    queue_to_control_sospechosos( queue_manager->get_queue(PATH_CONTROL_SOSPECHOSOS, 1,  create ) ) {
 
    create = create;
