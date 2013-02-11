@@ -1,4 +1,4 @@
-#ifndef IPC_QUEUE_MANAGER_H
+#ifndef IPC_QUEUE_MANAGER_H_
 #define IPC_QUEUE_MANAGER_H_
 
 #include "iqueue_manager.h"
