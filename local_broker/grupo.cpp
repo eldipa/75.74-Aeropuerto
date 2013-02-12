@@ -206,3 +206,7 @@ size_t Grupo::get_mem_size() {
 void* Grupo::memory_pointer() {
 	return memoria_compartida;
 }
+
+std::string Grupo::get_nombre_recurso(){
+	return this->nombre_recurso;
+}

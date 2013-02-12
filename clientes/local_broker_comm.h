@@ -15,6 +15,7 @@ class LocalBrokerComm {
 private:
 
 	Socket socket_broker;
+	size_t cantidad_de_bloques;
 	size_t tamanio_memoria;
 
 public:

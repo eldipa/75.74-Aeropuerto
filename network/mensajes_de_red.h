@@ -10,6 +10,7 @@
 
 #define DATA_SIZE 512
 #define MAX_NAME_SIZE 30
+#define TOKEN_HEADER_SIZE (MAX_NAME_SIZE)
 
 namespace mensajes {
 
@@ -28,9 +29,7 @@ typedef struct {
 } mensajes_local_broker_t;
 
 typedef struct {
-	size_t cant_bytes_total;
-	size_t numero_de_bloque;
-	char recurso[MAX_NAME_SIZE];
+	char recurso [MAX_NAME_SIZE];
 	char datos [DATA_SIZE];
 } mensajes_local_broker_token_t;
 

@@ -75,8 +75,17 @@ void TokenManager::run() {
 	std::string recurso;
 
 	g = grupos.at("cinta_principal");
-	strncpy((char *) g->memory_pointer(),"token_manager:1",512);
-	std::cout << (char *) g->memory_pointer() << std::endl;
+
+	// PARA DEBUG
+	//strncpy((char *) g->memory_pointer(),"token_manager:1",512);
+	/*for (int i = 0 ; i < 512 ; i++) {
+		((char *)g->memory_pointer()) [i] = 'A';
+	}
+	for (int i = 512 ; i < 1023 ; i++) {
+		((char *)g->memory_pointer()) [i] = 'B';
+	}
+	((char *)g->memory_pointer()) [1023] = '\0';
+	std::cout << (char *)g->memory_pointer() << std::endl;*/
 
 	do {
 		try {

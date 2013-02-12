@@ -20,11 +20,18 @@ private:
 	MessageQueue cola_token_manager;
 	Grupo * grupo;
 	std::string nombre_cliente;
+	char * mem_local;
+
+	size_t cantidad_de_bloques_a_enviar;
+	size_t tamanio_memoria;
 
 	void registrar_cliente(const std::string & nombre_cliente);
 	void join_group(const std::string & grupo);
 	void leave_group();
 	void loop_token();
+
+	void send_token();
+	size_t recv_token();
 
 public:
 	ClientHandler(const std::string & directorio_de_trabajo, char id, int fd);

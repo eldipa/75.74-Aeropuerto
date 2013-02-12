@@ -11,24 +11,20 @@ int main(int argc, char * argv [])
 try
 {
 	// data seria la memoria distribuida
-	char data [512];
+	char data [1024];
 	if (argc < 2) {
 		std::cerr << "Faltan argumentos" << std::endl;
 		return -1;
 	}
-	int a;
+	//int a;
 
 	LocalBrokerComm broker(argv [1], "localbroker1.sitio1.aeropuerto1");
 
-	broker.join("cinta_principal");
+	broker.join("sem_cinta_principal_1");
 
 	for (int i = 0 ; i < 3 ; i++) {
 		broker.wait_mutex(data);
 
-
-		sscanf(data, "%*[^:]:%d", &a);
-		a++;
-		snprintf(data, 512, "%s:%d", argv [1], a);
 		std::cout << data << std::endl;
 
 		broker.free_mutex(data);

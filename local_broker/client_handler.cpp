@@ -24,21 +24,39 @@ ClientHandler::ClientHandler(const std::string & directorio_de_trabajo, char id,
 	std::string name;
 	name = directorio_de_trabajo;
 	name = name + "";
+	mem_local = NULL;
 }
 
 ClientHandler::~ClientHandler() {
+	if (mem_local) {
+		delete [] mem_local;
+	}
 }
 
 //void ClientHandler::registrar_cliente(const std::string & nombre_cliente){
-
 //}
 
 void ClientHandler::join_group(const std::string & nombre_grupo) {
-
+	size_t tamanio;
 	// Obtengo la memoria compartida del grupo
 	grupo = new Grupo(directorio_de_trabajo, nombre_grupo);
 	// Agrego el cliente y el numero de la cola
 	grupo->join(nombre_cliente.c_str());
+
+	// calculo la cantidad de bloques a enviar por token
+	tamanio = grupo->get_mem_size();
+
+	cantidad_de_bloques_a_enviar = (tamanio / DATA_SIZE);
+
+	if (tamanio % DATA_SIZE != 0 || tamanio == 0) {
+		cantidad_de_bloques_a_enviar++;
+	}
+
+	tamanio_memoria = tamanio;
+
+	if (tamanio != 0) {
+		mem_local = new char [tamanio];
+	}
 }
 
 void ClientHandler::leave_group() {
@@ -60,7 +78,7 @@ void ClientHandler::procesar_peticion(mensajes::mensajes_local_broker_t & mensaj
 			std::cout << "Join: " << mensaje.datos << std::endl;
 			// buscar el grupo en el que está el recurso, si no existe crearlo
 			join_group(mensaje.datos);
-			snprintf(mensaje.datos, DATA_SIZE, "%lu", grupo->get_mem_size());
+			snprintf(mensaje.datos, DATA_SIZE, "%lu:%lu", this->cantidad_de_bloques_a_enviar, this->tamanio_memoria);
 			mensaje.respuesta = mensajes::OK;
 			break;
 		case mensajes::LEAVE:
@@ -73,49 +91,83 @@ void ClientHandler::procesar_peticion(mensajes::mensajes_local_broker_t & mensaj
 	socket.sendsome(&mensaje, sizeof(mensajes::mensajes_local_broker_t));
 }
 
-void ClientHandler::loop_token() {
+void ClientHandler::send_token() {
 	mensajes::mensajes_local_broker_token_t mensaje;
+	size_t i;
+	for (i = 0; i < this->cantidad_de_bloques_a_enviar ; i++) {
+		strncpy(mensaje.recurso, grupo->get_nombre_recurso().c_str(), MAX_NAME_SIZE);
+		if (tamanio_memoria != 0) {
+			memcpy(mensaje.datos, ((char *)grupo->memory_pointer() + i * DATA_SIZE),
+				std::min(this->tamanio_memoria - i * DATA_SIZE, size_t(DATA_SIZE)));
+		}
+		socket.sendsome(&mensaje, sizeof(mensajes::mensajes_local_broker_token_t));
+	}
+}
+
+size_t ClientHandler::recv_token() {
+	mensajes::mensajes_local_broker_token_t mensaje;
+	size_t cant = 0;
+	size_t leidos;
+	size_t i;
+
+	bzero(mem_local, grupo->get_mem_size());
+	for (i = 0; i < this->cantidad_de_bloques_a_enviar ; i++) {
+		cant = 0;
+		do {
+			leidos = socket.receivesome(((char *)&mensaje) + cant,
+				sizeof(mensajes::mensajes_local_broker_token_t) - cant);
+			if (leidos == 0) {
+				return 0;
+			}
+			cant += leidos;
+		} while (cant < sizeof(mensajes::mensajes_local_broker_token_t));
+		if (tamanio_memoria != 0) {
+			memcpy(mem_local + i * DATA_SIZE, mensaje.datos, std::min(tamanio_memoria, size_t(DATA_SIZE)));
+		}
+	}
+	// actualizo la memoria con lo recibido
+	if (tamanio_memoria != 0) {
+		memcpy(grupo->memory_pointer(), mem_local, grupo->get_mem_size());
+	}
+	return this->cantidad_de_bloques_a_enviar * DATA_SIZE;
+}
+
+void ClientHandler::loop_token() {
 	bool leave = false;
-	int a;
-	char data [DATA_SIZE];
+	bool tengo_el_token = false;
+	/*int a;
+	 char data [DATA_SIZE];*/
 	do {
 		try {
 			// espero el token
 			grupo->lock_token();
-			mensaje.cant_bytes_total = grupo->get_mem_size();
-
-			std::cout << (char*)grupo->memory_pointer() << std::endl;
-			sscanf((char*)grupo->memory_pointer(), "%[^:]:%d", data, &a);
-			a++;
-			snprintf((char*)grupo->memory_pointer(), DATA_SIZE, "%s:%d", "client_handler", a);
-			std::cout << (char*)grupo->memory_pointer() << std::endl;
+			tengo_el_token = true;
+			/*std::cout << (char*)grupo->memory_pointer() << std::endl;
+			 sscanf((char*)grupo->memory_pointer(), "%[^:]:%d", data, &a);
+			 a++;
+			 snprintf((char*)grupo->memory_pointer(), DATA_SIZE, "%s:%d", "client_handler", a);
+			 std::cout << (char*)grupo->memory_pointer() << std::endl;*/
 
 			// envio el token al cliente
-			memcpy(mensaje.datos, grupo->memory_pointer(), grupo->get_mem_size());
-			socket.sendsome(&mensaje, sizeof(mensajes::mensajes_local_broker_token_t));
+			send_token();
 
 			// espero que devuelva el token
-			if (socket.receivesome(&mensaje, sizeof(mensajes::mensajes_local_broker_token_t)) != 0) {
-				// actualizo la memoria con lo recibido
-				memcpy(grupo->memory_pointer(), mensaje.datos, grupo->get_mem_size());
-
-				sscanf((char*)grupo->memory_pointer(), "%[^:]:%d", data, &a);
-				a++;
-				snprintf((char*)grupo->memory_pointer(), DATA_SIZE, "%s:%d", "client_handler", a);
-				std::cout << (char*)grupo->memory_pointer() << std::endl;
-			} else {
+			if (recv_token() == 0) {
 				leave = true;
 			}
-
 		} catch (OSError & error) {
 			leave = true;
 		}
-
-		// libero el token
-		grupo->release_token(&cola_token_manager);
+		if (leave) {
+			// tengo que salir del grupo antes de liberar el token
+			leave_group();
+		}
+		if (tengo_el_token) {
+			// libero el token
+			grupo->release_token(&cola_token_manager);
+		}
+		tengo_el_token = false;
 	} while (!leave);
-
-	leave_group();
 
 }
 
@@ -152,14 +204,14 @@ try
 	id = atoi(argv [3]);
 
 	///// SOCKET ESCUCHA SOLO PARA DEBUG
-	/*int new_socket;
-	 std::string puerto("1234");
-	 Socket * server_socket = new Socket(true);
-	 server_socket->source(puerto);
-	 new_socket = server_socket->listen_fd(10);
-	 fd = new_socket;
-	 server_socket->disassociate();
-	 delete server_socket;*/
+	int new_socket;
+	std::string puerto("1234");
+	Socket * server_socket = new Socket(true);
+	server_socket->source(puerto);
+	new_socket = server_socket->listen_fd(10);
+	fd = new_socket;
+	server_socket->disassociate();
+	delete server_socket;
 
 	ClientHandler handler(argv [1], id, fd);
 

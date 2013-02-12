@@ -59,6 +59,7 @@ public:
 
 	size_t get_mem_size();
 	void* memory_pointer();
+	std::string get_nombre_recurso();
 
 };
 
