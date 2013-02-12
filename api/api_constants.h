@@ -44,3 +44,5 @@
 #define MAX_INTERCARGOS_ESPERANDO 30 // cant max de robots de intercargo que esperan que se asigne una zona
 #define MAX_PATH_SIZE 300
 
+#define MAX_NOMBRE_RECURSO 40
+

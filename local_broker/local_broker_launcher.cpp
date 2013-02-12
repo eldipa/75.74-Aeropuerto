@@ -15,7 +15,7 @@ try
 	argc = argc + 1 - 1;
 	argv = argv + 1 - 1;
 
-	LocalBroker server("./locks");
+	LocalBroker server("./locks","./group_list.txt");
 
 	server.run();
 

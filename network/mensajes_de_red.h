@@ -8,6 +8,9 @@
 #ifndef MENSAJES_DE_RED_H_
 #define MENSAJES_DE_RED_H_
 
+#define DATA_SIZE 512
+#define MAX_NAME_SIZE 30
+
 namespace mensajes {
 
 typedef enum {
@@ -21,8 +24,15 @@ typedef enum {
 typedef struct {
 	peticiones_t peticion;
 	respuestas_t respuesta;
-	char datos [200];
+	char datos [DATA_SIZE];
 } mensajes_local_broker_t;
+
+typedef struct {
+	size_t cant_bytes_total;
+	size_t numero_de_bloque;
+	char recurso[MAX_NAME_SIZE];
+	char datos [DATA_SIZE];
+} mensajes_local_broker_token_t;
 
 }
 #endif /* MENSAJES_DE_RED_H_ */

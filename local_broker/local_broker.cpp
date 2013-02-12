@@ -13,45 +13,65 @@
 #include <cstdlib>
 #include <iostream>
 #include "process.h"
+#include "oserror.h"
 #include "local_broker_constants.h"
 
 #define MAX_CLIENTES 100
-#define TAMANIO_SHM 1000
 
 static char num_socket [11];
-static char * args_client_handler [] = {(char*)"client_handler", num_socket, NULL};
+static char id_cola_token_manager [2];
+static char directorio_de_trabajo [200];
+static char groups_file [200];
+static char * args_client_handler [] = {
+	(char*)"client_handler", directorio_de_trabajo, num_socket, id_cola_token_manager, NULL};
 
-LocalBroker::LocalBroker(const std::string & directorio_de_trabajo)
-	: server_socket(true), tabla_clientes_locales(directorio_de_trabajo, true)
+//static char * args_token_manager [] = {
+//	(char*)"client_handler", directorio_de_trabajo, id_cola_token_manager, groups_file, NULL};
+
+LocalBroker::LocalBroker(const std::string & directorio, const std::string & groups)
+	: server_socket(true)
 {
 	std::string puerto("1234");
 
 	server_socket.source(puerto);
 
+	strncpy(directorio_de_trabajo, directorio.c_str(), 200);
+	strncpy(groups_file, groups.c_str(), 200);
+
 }
 
 LocalBroker::~LocalBroker() {
-
 }
 
 void LocalBroker::run() {
 	//char debug [200];
 	int new_socket;
+	bool exit = 0;
 
-	new_socket = server_socket.listen_fd(10);
+	//Process p("token_manager",args_token_manager);
 
-	snprintf(num_socket, 10, "%d", new_socket);
+	do {
+		try {
+			new_socket = server_socket.listen_fd(10);
 
-	//new_socket->receivesome(debug, 200);
+			snprintf(num_socket, 10, "%d", new_socket);
+			snprintf(id_cola_token_manager, 2, "%d", 0);
 
-	//snprintf(debug, 200, "%s", "RECIBIDO!");
+			//new_socket->receivesome(debug, 200);
 
-	//new_socket->sendsome(debug, strlen(debug));
+			//snprintf(debug, 200, "%s", "RECIBIDO!");
 
-	//std::cout << "creando handler " << new_socket << std::endl;
+			//new_socket->sendsome(debug, strlen(debug));
 
-	Process p("client_handler", args_client_handler);
+			//std::cout << "creando handler " << new_socket << std::endl;
 
+			Process p("client_handler", args_client_handler);
+
+			//exit = true;
+		} catch (OSError & error) {
+			exit = 1;
+		}
+	} while (!exit);
 	//p.wait();
 
 }

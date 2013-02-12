@@ -13,17 +13,16 @@
 #include "messagequeue.h"
 #include "semaphoreset.h"
 #include "mutex.h"
-#include "tabla_clientes.h"
+#include "grupo.h"
 
 class LocalBroker {
 private:
 
 	Socket server_socket;
-	TablaClientes tabla_clientes_locales;
 
 public:
 
-	LocalBroker(const std::string & directorio_de_trabajo);
+	LocalBroker(const std::string & directorio_de_trabajo, const std::string & groups_file);
 	virtual ~LocalBroker();
 
 	void run();

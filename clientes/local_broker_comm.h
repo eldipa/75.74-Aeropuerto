@@ -15,6 +15,7 @@ class LocalBrokerComm {
 private:
 
 	Socket socket_broker;
+	size_t tamanio_memoria;
 
 public:
 	LocalBrokerComm(const std::string & app_name, const std::string & broker_hostname);
@@ -23,8 +24,8 @@ public:
 	void join(const std::string & nombre_recurso);
 	void leave();
 
-	void wait_mutex(const std::string & nombre_recurso);
-	void free_mutex(const std::string & nombre_recurso);
+	void wait_mutex(void * memory);
+	void free_mutex(void * memory);
 };
 
 #endif /* LOCALBROKERCOMM_H_ */
