@@ -5,13 +5,19 @@
 #include <string.h>
 #include <stdexcept>
 
+#include "sharedobject.h"
+
+class MessageBrokerData {
+public:
+   char  proj_id_to_queue_id [255][255];
+};
 
 class MessageBroker {
 
 public:
 
-	MessageBroker(const char* absolute_path, bool create);
-	MessageBroker(const char* absolute_path);
+	MessageBroker(const char* directorio_de_trabajo, bool create);
+	MessageBroker(const char* directorio_de_trabajo);
 
    void create_queue(const char* queue_id);
    void destroy_queue(const char* queue_id);
@@ -22,10 +28,9 @@ public:
 	virtual ~MessageBroker();
 
 private:
-
-   std::string absolute_path;
-   char  proj_id_to_queue_id [255][255];
-
+   std::string queues_path;
+   bool is_owner;
+   SharedObject<MessageBrokerData> queue_ids;
    
    char allocate_queue_id(std::string queue_id);
    void deallocate_queue_id(std::string queue_id);

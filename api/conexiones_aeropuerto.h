@@ -23,6 +23,8 @@
 #include "iqueue_manager.h"
 #include "ipc_queue_manager.h"
 
+#include "message_broker.h"
+
 const int cantidad_cintas_checkin = 1;
 const int cantidad_cintas_scanner = 1;
 const int cantidad_cintas_centrales = 1;
@@ -126,6 +128,9 @@ public:
 		char path_lock[256];
 
 		crear_archivos_lck(path_to_locks);
+
+		Log::info("Creando ipcs para Message Broker en share memory...%s%s", path_to_locks,PATH_MESSAGE_BROKER);
+      shm_broker = new MessageBroker(path_to_locks, true);
 
 		Log::info("Creando ipcs para Controlador de puestos de checkin...%s%s", path_to_locks,
 				PATH_COLA_CONTROL_CHECKIN);
@@ -231,6 +236,8 @@ private:
 	yasper::ptr<IMessageQueue> cola_escucha_vuelos_entrantes;
 	yasper::ptr<ApiTrasbordo> trasbordo;
 
+   yasper::ptr<MessageBroker> shm_broker;
+
 	void crear_archivos_lck(const char *path_to_locks) {
 
 		struct stat buf;
@@ -266,6 +273,8 @@ private:
 		crear_archivo_lck(path_to_locks, PATH_IPC_ROBOTS_INTERCARGO);
 		crear_archivo_lck(path_to_locks, PATH_COLA_ESCUCHA_ZONA_ASIGNADA);
 		crear_archivo_lck(path_to_locks, PATH_COLA_ROBOTS_INTERCARGO);
+		crear_archivo_lck(path_to_locks, PATH_MESSAGE_BROKER);
+		crear_archivo_lck(path_to_locks, PATH_MESSAGE_BROKER_QUEUES);
 	}
 
 	void crear_archivo_lck(const char *path_to_locks, const char * nombre_archivo) {
