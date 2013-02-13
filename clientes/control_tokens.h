@@ -21,14 +21,23 @@ private:
 
 	char * token_esperando;
 
-public:
+	static ControlTokens * instance;
+
 	ControlTokens(const std::string & directorio_de_trabajo);
 	ControlTokens(const std::string & directorio_de_trabajo, bool create);
+
 	virtual ~ControlTokens();
+
+public:
 
 	void cargar_esperando_token(const char nombre [MAX_NAME_SIZE]);
 	void limpiar_esperando_token();
 	bool comparar_token(const char nombre [MAX_NAME_SIZE]);
+
+	static ControlTokens * get_instance(const std::string & directorio_de_trabajo);
+	static ControlTokens * get_instance(const std::string & directorio_de_trabajo, bool create);
+
+	static void destroy_instance();
 };
 
 #endif /* CONTROLRECURSOS_H_ */

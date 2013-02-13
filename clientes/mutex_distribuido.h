@@ -24,14 +24,15 @@ private:
 
 	SemaphoreSet * mutex;
 	std::string nombre_recurso;
+	ControlTokens * control;
 
 public:
 	MutexDistribuido(const std::string & directorio_de_trabajo, const std::string & nombre_grupo, char id, bool create);
 	MutexDistribuido(const std::string & directorio_de_trabajo, const std::string & nombre_grupo, char id);
 	virtual ~MutexDistribuido();
 
-	void lock(ControlTokens &);
-	void unlock(ControlTokens &);
+	void lock();
+	void unlock();
 
 	void entregar_token();
 	void esperar_token();

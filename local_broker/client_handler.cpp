@@ -78,7 +78,11 @@ void ClientHandler::procesar_peticion(mensajes::mensajes_local_broker_t & mensaj
 			//std::cout << "Join: " << mensaje.datos << std::endl;
 			// buscar el grupo en el que está el recurso, si no existe crearlo
 			join_group(mensaje.datos);
+#ifdef __x86_64__
 			snprintf(mensaje.datos, DATA_SIZE, "%lu:%lu", this->cantidad_de_bloques_a_enviar, this->tamanio_memoria);
+#else
+			snprintf(mensaje.datos, DATA_SIZE, "%u:%u", this->cantidad_de_bloques_a_enviar, this->tamanio_memoria);
+#endif
 			mensaje.respuesta = mensajes::OK;
 			break;
 		case mensajes::LEAVE:

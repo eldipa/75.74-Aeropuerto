@@ -38,6 +38,8 @@ MemoriaDistribuida::MemoriaDistribuida(const std::string & directorio_de_trabajo
 		std::string(directorio_de_trabajo).append(PREFIJO_RECURSO).append(nombre_grupo).append(POSTFIJO_LCK).c_str(),
 		char(2 * id + 1), 0664);
 
+	control = ControlTokens::get_instance(directorio_de_trabajo,true);
+
 }
 
 MemoriaDistribuida::MemoriaDistribuida(const std::string & directorio_de_trabajo, const std::string & nombre_grupo,
@@ -52,6 +54,8 @@ MemoriaDistribuida::MemoriaDistribuida(const std::string & directorio_de_trabajo
 	mutex = new SemaphoreSet(
 		std::string(directorio_de_trabajo).append(PREFIJO_RECURSO).append(nombre_grupo).append(POSTFIJO_LCK).c_str(),
 		char(2 * id + 1), 0);
+
+	control = ControlTokens::get_instance(directorio_de_trabajo);
 }
 
 MemoriaDistribuida::~MemoriaDistribuida() {
@@ -59,15 +63,16 @@ MemoriaDistribuida::~MemoriaDistribuida() {
 		delete memoria;
 	if (mutex)
 		delete mutex;
+	ControlTokens::destroy_instance();
 }
 
-void MemoriaDistribuida::lock(ControlTokens & control) {
-	control.cargar_esperando_token(nombre_recurso.c_str());
+void MemoriaDistribuida::lock() {
+	control->cargar_esperando_token(nombre_recurso.c_str());
 	mutex->wait_on(0);
 }
 
-void MemoriaDistribuida::unlock(ControlTokens &control) {
-	control.limpiar_esperando_token();
+void MemoriaDistribuida::unlock() {
+	control->limpiar_esperando_token();
 	mutex->signalize(1);
 }
 

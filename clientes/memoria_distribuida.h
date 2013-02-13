@@ -26,14 +26,15 @@ private:
 	SemaphoreSet * mutex;
 	std::string nombre_recurso;
 	size_t tamanio;
+	ControlTokens * control;
 
 public:
 	MemoriaDistribuida(const std::string & directorio_de_trabajo, const std::string & nombre_grupo,char id, size_t tamanio);
 	MemoriaDistribuida(const std::string & directorio_de_trabajo, const std::string & nombre_grupo,char id);
 	virtual ~MemoriaDistribuida();
 
-	void lock(ControlTokens &);
-	void unlock(ControlTokens &);
+	void lock();
+	void unlock();
 
 	void entregar_token();
 	void esperar_token();

@@ -59,7 +59,11 @@ void LocalBrokerComm::join(const std::string & nombre_recurso) {
 	if (mensaje.respuesta == mensajes::ERROR) {
 		throw GenericError("Join Error: %s", mensaje.datos);
 	} else {
+#ifdef __x86_64__
 		sscanf(mensaje.datos, "%lu:%lu", &this->cantidad_de_bloques, &this->tamanio_memoria);
+#else
+		sscanf(mensaje.datos, "%u:%u", &this->cantidad_de_bloques, &this->tamanio_memoria);
+#endif
 	}
 }
 
@@ -139,10 +143,14 @@ int main(int argc, char * argv []) {
 	sscanf(argv [3], "%[^:]:%[^:]", hostname, service);
 	strncpy(grupo, argv [4], MAX_NAME_SIZE);
 	id = atoi(argv[5]);
+#ifdef __x86_64__
 	sscanf(argv [6], "%lu", &tamanio);
+#else
+	sscanf(argv [6], "%u", &tamanio);
+#endif
+	ControlTokens * control = ControlTokens::get_instance(argv[1]);
 
 	//"localbroker1.sitio1.aeropuerto1";
-	ControlTokens control(argv [1]);
 	if (tamanio == 0) {
 		MutexDistribuido mutex(argv [1], grupo, id);
 		LocalBrokerComm broker(argv [2], hostname, service);
@@ -158,7 +166,7 @@ int main(int argc, char * argv []) {
 				// si lo necesita, actualizo la memoria y habilito el semaforo
 				// si no, lo devuelvo
 				// espero que termine de procesar
-				if (control.comparar_token(grupo)) {
+				if (control->comparar_token(grupo)) {
 					mutex.entregar_token();
 					mutex.esperar_token();
 				}
@@ -184,7 +192,7 @@ int main(int argc, char * argv []) {
 				// si lo necesita, actualizo la memoria y habilito el semaforo
 				// si no, lo devuelvo
 				// espero que termine de procesar
-				if (control.comparar_token(grupo)) {
+				if (control->comparar_token(grupo)) {
 					memoria.entregar_token();
 					memoria.esperar_token();
 				}

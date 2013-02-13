@@ -36,6 +36,8 @@ MutexDistribuido::MutexDistribuido(const std::string & directorio_de_trabajo, co
 			new SemaphoreSet(std::vector<short unsigned int>(2, 0),
 				std::string(directorio_de_trabajo).append(PREFIJO_RECURSO).append(nombre_grupo).append(POSTFIJO_LCK).c_str(),
 				id, 0664);
+
+		control = ControlTokens::get_instance(directorio_de_trabajo,true);
 	}
 
 }
@@ -47,20 +49,23 @@ MutexDistribuido::MutexDistribuido(const std::string & directorio_de_trabajo, co
 	mutex = new SemaphoreSet(
 		std::string(directorio_de_trabajo).append(PREFIJO_RECURSO).append(nombre_grupo).append(POSTFIJO_LCK).c_str(),
 		id, 0);
+
+	control = ControlTokens::get_instance(directorio_de_trabajo);
 }
 
 MutexDistribuido::~MutexDistribuido() {
 	if (mutex)
 		delete mutex;
+	ControlTokens::destroy_instance();
 }
 
-void MutexDistribuido::lock(ControlTokens & control) {
-	control.cargar_esperando_token(nombre_recurso.c_str());
+void MutexDistribuido::lock() {
+	control->cargar_esperando_token(nombre_recurso.c_str());
 	mutex->wait_on(0);
 }
 
-void MutexDistribuido::unlock(ControlTokens &control) {
-	control.limpiar_esperando_token();
+void MutexDistribuido::unlock() {
+	control->limpiar_esperando_token();
 	mutex->signalize(1);
 }
 

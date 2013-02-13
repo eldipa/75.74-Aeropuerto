@@ -39,7 +39,6 @@ try
 		snprintf(directorio_de_trabajo, 200, "%s", "/home/gonzalo/workspaces/git/75.74-Aeropuerto/clientes/locks2");
 	}
 
-	ControlTokens control(directorio_de_trabajo, true);
 	// mismo tamanño que en group_lists.txt en local broker
 	// faltaria inicializar la memoria
 	id_recurso = 1;
@@ -59,7 +58,7 @@ try
 
 	 while (*a < 20) {
 
-	 memoria.lock(control);
+	 memoria.lock();
 
 	 (*a)++;
 	 std::cout << argv [1] << ":" << *a << std::endl;
@@ -68,11 +67,11 @@ try
 	 }*/
 
 	for (int i = 0 ; i < 2 ; i++) {
-		mutex.lock(control);
+		mutex.lock();
 
 		std::cout << "A" << std::endl;
 
-		mutex.unlock(control);
+		mutex.unlock();
 	}
 
 }

@@ -20,7 +20,9 @@
 #include "daemon.h"
 
 TokenManager::TokenManager(const std::string & directorio_de_trabajo, char id, const std::string & groups_file)
-	: clientes(std::string(directorio_de_trabajo).append(PATH_COLA_TOKEN_MANAGER).c_str(), id, 0664, true)
+	: clientes(std::string(directorio_de_trabajo).append(PATH_COLA_TOKEN_MANAGER).c_str(), id, 0664, true),
+		outbound(std::string(directorio_de_trabajo).append(PATH_COLAS_BROKERS).c_str(), id ),
+		inbound(std::string(directorio_de_trabajo).append(PATH_COLAS_BROKERS).c_str(), id + 128)
 {
 	id = id + 1 - 1;
 	crear_grupos(directorio_de_trabajo, groups_file);
@@ -28,9 +30,9 @@ TokenManager::TokenManager(const std::string & directorio_de_trabajo, char id, c
 
 TokenManager::~TokenManager() {
 	Grupo * g;
-	std::map<std::string,Grupo *>::iterator i;
+	std::map<std::string, Grupo *>::iterator i;
 
-	for(i = this->grupos.begin() ; i != this->grupos.end() ; i++){
+	for (i = this->grupos.begin(); i != this->grupos.end() ; i++) {
 		g = i->second;
 		delete g;
 	}
@@ -77,27 +79,34 @@ void TokenManager::crear_grupos(const std::string & directorio_de_trabajo, const
 }
 
 void TokenManager::run() {
-	bool salir = false;
-	traspaso_token_t mensaje;
-	Grupo * g;
-	std::string recurso;
+	//bool salir = false;
+	//traspaso_token_t mensaje;
+	//Grupo * g;
+	//std::string recurso;
+	//traspaso_vista_t vista;
 
-	g = grupos.at("cinta_principal");
+
 
 	// PARA DEBUG
 	//strncpy((char *) g->memory_pointer(),"token_manager:1",512);
+	//g = grupos.at("cinta_principal");
 	/*for (int i = 0 ; i < 512 ; i++) {
-		((char *)g->memory_pointer()) [i] = 'A';
-	}
-	for (int i = 512 ; i < 1023 ; i++) {
-		((char *)g->memory_pointer()) [i] = 'B';
-	}
-	((char *)g->memory_pointer()) [1023] = '\0';
-	std::cout << (char *)g->memory_pointer() << std::endl;*/
+	 ((char *)g->memory_pointer()) [i] = 'A';
+	 }
+	 for (int i = 512 ; i < 1023 ; i++) {
+	 ((char *)g->memory_pointer()) [i] = 'B';
+	 }
+	 ((char *)g->memory_pointer()) [1023] = '\0';
+	 std::cout << (char *)g->memory_pointer() << std::endl;*/
 
-	ignore_signals();
+	//ignore_signals();
 
-	do {
+	char data [30];
+
+	inbound.pull(data,30,0);
+
+	std::cout << data << std::endl;
+	/*do {
 		try {
 			// Recibo todos los tokens
 			clientes.pull(&mensaje, sizeof(traspaso_token_t) - sizeof(long), 0);
@@ -113,7 +122,7 @@ void TokenManager::run() {
 			//std::cerr << error.what() << std::endl;
 			salir = true;
 		}
-	} while (!salir);
+	} while (!salir);*/
 
 }
 
