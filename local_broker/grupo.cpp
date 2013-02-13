@@ -10,6 +10,7 @@
 #include "genericerror.h"
 #include <cstring>
 #include "local_broker_messages.h"
+#include <iostream>
 
 Grupo::Grupo(const std::string & directorio_de_trabajo, std::string nombre_recurso)
 	:
@@ -17,7 +18,7 @@ Grupo::Grupo(const std::string & directorio_de_trabajo, std::string nombre_recur
 			std::string(directorio_de_trabajo).append(PREFIJO_RECURSO).append(nombre_recurso).append(".lck").c_str(),
 			char(0), 0, false, false),
 		mutex(std::string(directorio_de_trabajo).append(PREFIJO_RECURSO).append(nombre_recurso).append(".lck").c_str(),
-			char(1), 1),
+			char(1), 0),
 		cola(std::string(directorio_de_trabajo).append(PREFIJO_RECURSO).append(nombre_recurso).append(".lck").c_str(),
 			char(2)), nombre_recurso(nombre_recurso)
 {
@@ -48,7 +49,6 @@ Grupo::Grupo(const std::string & directorio_de_trabajo, std::string nombre_recur
 		for (int i = 1 ; i < MAX_CLIENTS ; i++) {
 			client_names [i] = client_names [i - 1] + MAX_NAME_SIZE * sizeof(char);
 			(*client_names) [i] = '\0';
-			//colas_asignadas [i] = 0;
 		}
 		memoria_compartida = reinterpret_cast<void *>(client_names [0] + MAX_CLIENTS * MAX_NAME_SIZE * sizeof(char));
 
@@ -88,6 +88,8 @@ void Grupo::join(const char nombre [MAX_NAME_SIZE]) {
 		}
 	}
 
+	std::cout << "Join: " << nombre << " to " << this->nombre_recurso << std::endl;
+
 	mutex.signalize(0);
 }
 
@@ -101,6 +103,8 @@ void Grupo::leave(const char nombre [MAX_NAME_SIZE]) {
 			break;
 		}
 	}
+
+	std::cout << "Leave: " << nombre << " from " << this->nombre_recurso << std::endl;
 
 	mutex.signalize(0);
 }
@@ -181,6 +185,10 @@ void Grupo::pasar_token_a_proximo_cliente() {
 
 		mensaje.mtype = cliente_actual + 1;
 	}
+
+	std::cout << "Passing Token from " << this->nombre_recurso << " to: " << client_names [cliente_actual] << "("
+		<< cliente_actual << ")" << std::endl;
+
 	cola.push(&mensaje, sizeof(traspaso_token_t) - sizeof(long));
 	mutex.signalize(0);
 }
@@ -207,6 +215,6 @@ void* Grupo::memory_pointer() {
 	return memoria_compartida;
 }
 
-std::string Grupo::get_nombre_recurso(){
+std::string Grupo::get_nombre_recurso() {
 	return this->nombre_recurso;
 }

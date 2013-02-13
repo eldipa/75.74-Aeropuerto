@@ -19,7 +19,7 @@ private:
 	size_t tamanio_memoria;
 
 public:
-	LocalBrokerComm(const std::string & app_name, const std::string & broker_hostname);
+	LocalBrokerComm(const std::string & app_name, const std::string & broker_hostname, const std::string & service);
 	virtual ~LocalBrokerComm();
 
 	void join(const std::string & nombre_recurso);
@@ -27,6 +27,8 @@ public:
 
 	void wait_mutex(void * memory);
 	void free_mutex(void * memory);
+
+	size_t get_mem_size();
 };
 
 #endif /* LOCALBROKERCOMM_H_ */

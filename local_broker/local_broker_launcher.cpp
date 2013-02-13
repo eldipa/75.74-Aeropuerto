@@ -8,12 +8,14 @@
 #include <iostream>
 #include "log.h"
 #include "local_broker.h"
+#include "daemon.h"
 
 int main(int argc, char * argv [])
 try
 {
 	argc = argc + 1 - 1;
 	argv = argv + 1 - 1;
+	ignore_signals();
 
 	LocalBroker server("./locks","./group_list.txt");
 

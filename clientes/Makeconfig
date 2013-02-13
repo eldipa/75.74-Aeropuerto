@@ -1,4 +1,4 @@
 INCLUDE_PATHS = ../os ../ipc ../log ../common ../network
 EXTERNAL_LIBRARIES = dl 
-LIBRARIES =  ../ipc/libipc.a ../network/libnetwork.a ../os/libos.a  ../common/libcommon.a ../log/liblog.a
-TARGET = libclientes.a comm_handler
+LIBRARIES = ../network/libnetwork.a ../ipc/libipc.a ../os/libos.a  ../common/libcommon.a ../log/liblog.a
+TARGET = libclientes.a local_broker_comm

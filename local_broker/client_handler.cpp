@@ -68,21 +68,21 @@ void ClientHandler::procesar_peticion(mensajes::mensajes_local_broker_t & mensaj
 
 	switch (mensaje.peticion) {
 		case mensajes::REGISTER:
-			std::cout << "Register: " << mensaje.datos << std::endl;
+			//std::cout << "Register: " << mensaje.datos << std::endl;
 			// chequear que la aplicacion no esté logueada actualment
 			//registrar_cliente(mensaje.datos);
 			// generar id de cliente/conexion
 			nombre_cliente.assign(mensaje.datos);
 			break;
 		case mensajes::JOIN:
-			std::cout << "Join: " << mensaje.datos << std::endl;
+			//std::cout << "Join: " << mensaje.datos << std::endl;
 			// buscar el grupo en el que está el recurso, si no existe crearlo
 			join_group(mensaje.datos);
 			snprintf(mensaje.datos, DATA_SIZE, "%lu:%lu", this->cantidad_de_bloques_a_enviar, this->tamanio_memoria);
 			mensaje.respuesta = mensajes::OK;
 			break;
 		case mensajes::LEAVE:
-			std::cout << "Leave: " << mensaje.datos << std::endl;
+			//std::cout << "Leave: " << mensaje.datos << std::endl;
 			// sacar al cliente del grupo
 			break;
 		default:
@@ -204,14 +204,14 @@ try
 	id = atoi(argv [3]);
 
 	///// SOCKET ESCUCHA SOLO PARA DEBUG
-	int new_socket;
+	/*int new_socket;
 	std::string puerto("1234");
 	Socket * server_socket = new Socket(true);
 	server_socket->source(puerto);
 	new_socket = server_socket->listen_fd(10);
 	fd = new_socket;
 	server_socket->disassociate();
-	delete server_socket;
+	delete server_socket;*/
 
 	ClientHandler handler(argv [1], id, fd);
 

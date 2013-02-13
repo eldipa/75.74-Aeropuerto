@@ -12,13 +12,17 @@
 #include <cstdlib>
 #include "genericerror.h"
 #include "mensajes_de_red.h"
+#include "control_tokens.h"
+#include "memoria_distribuida.h"
+#include "mutex_distribuido.h"
 
-LocalBrokerComm::LocalBrokerComm(const std::string & app_name, const std::string & broker_hostname)
+LocalBrokerComm::LocalBrokerComm(const std::string & app_name, const std::string & broker_hostname,
+	const std::string & service)
 	: socket_broker(true)
 {
 	
 	// Establezco conexion con el servidor
-	socket_broker.destination(broker_hostname.c_str(), "1234");
+	socket_broker.destination(broker_hostname.c_str(), service);
 
 	mensajes::mensajes_local_broker_t mensaje;
 
@@ -80,7 +84,7 @@ void LocalBrokerComm::wait_mutex(void * memory) {
 			}
 			cant += leidos;
 		} while (cant < sizeof(mensajes::mensajes_local_broker_token_t));
-		if (tamanio_memoria != 0) {
+		if (tamanio_memoria != 0 && memory != NULL) {
 			memcpy((char *)memory + i * DATA_SIZE, mensaje.datos, std::min(tamanio_memoria, size_t(DATA_SIZE)));
 		}
 	}
@@ -95,10 +99,102 @@ void LocalBrokerComm::free_mutex(void * memory) {
 	mensajes::mensajes_local_broker_token_t mensaje;
 	size_t i;
 	for (i = 0; i < this->cantidad_de_bloques ; i++) {
-		if (tamanio_memoria != 0) {
+		if (tamanio_memoria != 0 && memory != NULL) {
 			memcpy(mensaje.datos, ((char *)memory + i * DATA_SIZE),
 				std::min(this->tamanio_memoria - i * DATA_SIZE, size_t(DATA_SIZE)));
 		}
 		socket_broker.sendsome(&mensaje, sizeof(mensajes::mensajes_local_broker_token_t));
 	}
+}
+
+size_t LocalBrokerComm::get_mem_size() {
+	return this->tamanio_memoria;
+}
+
+int main(int argc, char * argv []) {
+	char hostname [100];
+	char service [10];
+	char grupo [MAX_NAME_SIZE];
+	size_t tamanio;
+	char id;
+
+	// maneja la comunicacion con el broker del lado del cliente
+	if (argc < 4) {
+		std::cerr << "Faltan argumentos" << std::endl;
+		std::cerr << "1: directorio de trabajo" << std::endl;
+		std::cerr << "2: nombre de la aplicacion" << std::endl;
+		std::cerr << "3: direccion del broker local (HOSTNAME:PUERTO)" << std::endl;
+		std::cerr << "4: nombre del grupo" << std::endl;
+		std::cerr << "5: id" << std::endl;
+		std::cerr << "6: tamanio mem compartida" << std::endl;
+		return -1;
+	}
+
+	std::cout << argv[0];
+	for(int i =1 ; i < argc ; i++){
+		std::cout << " "<< argv[i];
+	}
+	std::cout << std::endl;
+
+	sscanf(argv [3], "%[^:]:%[^:]", hostname, service);
+	strncpy(grupo, argv [4], MAX_NAME_SIZE);
+	id = atoi(argv[5]);
+	sscanf(argv [6], "%lu", &tamanio);
+
+	//"localbroker1.sitio1.aeropuerto1";
+	ControlTokens control(argv [1]);
+	if (tamanio == 0) {
+		MutexDistribuido mutex(argv [1], grupo, id);
+		LocalBrokerComm broker(argv [2], hostname, service);
+
+		broker.join(argv [4]);
+
+		while (true) {
+			// wait for token
+			try {
+				broker.wait_mutex(NULL);
+
+				// la aplicacion necesita el token?
+				// si lo necesita, actualizo la memoria y habilito el semaforo
+				// si no, lo devuelvo
+				// espero que termine de procesar
+				if (control.comparar_token(grupo)) {
+					mutex.entregar_token();
+					mutex.esperar_token();
+				}
+
+				// devuelvo el token al local_broker
+				broker.free_mutex(NULL);
+			} catch (OSError & error) {
+				break;
+			}
+		}
+	} else {
+		MemoriaDistribuida memoria(argv [1], grupo, id);
+		LocalBrokerComm broker(argv [2], hostname, service);
+
+		broker.join(argv [4]);
+
+		while (true) {
+			// wait for token
+			try {
+				broker.wait_mutex(memoria.memory_pointer());
+
+				// la aplicacion necesita el token?
+				// si lo necesita, actualizo la memoria y habilito el semaforo
+				// si no, lo devuelvo
+				// espero que termine de procesar
+				if (control.comparar_token(grupo)) {
+					memoria.entregar_token();
+					memoria.esperar_token();
+				}
+
+				// devuelvo el token al local_broker
+				broker.free_mutex(memoria.memory_pointer());
+			} catch (OSError & error) {
+				break;
+			}
+		}
+	}
+
 }

@@ -17,6 +17,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <cstring>
+#include "daemon.h"
 
 TokenManager::TokenManager(const std::string & directorio_de_trabajo, char id, const std::string & groups_file)
 	: clientes(std::string(directorio_de_trabajo).append(PATH_COLA_TOKEN_MANAGER).c_str(), id, 0664, true)
@@ -26,6 +27,13 @@ TokenManager::TokenManager(const std::string & directorio_de_trabajo, char id, c
 }
 
 TokenManager::~TokenManager() {
+	Grupo * g;
+	std::map<std::string,Grupo *>::iterator i;
+
+	for(i = this->grupos.begin() ; i != this->grupos.end() ; i++){
+		g = i->second;
+		delete g;
+	}
 }
 
 void TokenManager::crear_grupos(const std::string & directorio_de_trabajo, const std::string & groups_file) {
@@ -87,6 +95,8 @@ void TokenManager::run() {
 	((char *)g->memory_pointer()) [1023] = '\0';
 	std::cout << (char *)g->memory_pointer() << std::endl;*/
 
+	ignore_signals();
+
 	do {
 		try {
 			// Recibo todos los tokens
@@ -97,9 +107,10 @@ void TokenManager::run() {
 				throw GenericError("Error Grupo %s no encontrado", mensaje.recurso);
 			}
 			g = grupos.at(recurso);
+			sleep(1);
 			g->pasar_token_a_proximo_cliente();
 		} catch (OSError & error) {
-			std::cerr << error.what() << std::endl;
+			//std::cerr << error.what() << std::endl;
 			salir = true;
 		}
 	} while (!salir);
