@@ -3,9 +3,9 @@
 
 #include "messagequeue.h"
 
-#define RING_MAX_MESSAGE_SIZE  8192
+#define GROUP_MAX_MESSAGE_SIZE  8192
 
-class RingInterface {
+class GroupInterface {
    private:
       MessageQueue inbound;
       MessageQueue outbound;
@@ -29,7 +29,7 @@ class RingInterface {
        * Please, see the documentation of MessageQueue and the documentation of the communication system.
        *
        * */
-      RingInterface(const char *absolute_path, char proj_id);
+      GroupInterface(const char *absolute_path, char proj_id);
 
       /* 
        * Push a message to the next node. The communication system will handle this and will deliver the message
@@ -44,7 +44,7 @@ class RingInterface {
        * If the message is bigger, an exception will be raised.
        *
        * See the documentation of MessageQueue.
-       * Also, take note that the max size is defined in RING_MAX_MESSAGE_SIZE.
+       * Also, take note that the max size is defined in GROUP_MAX_MESSAGE_SIZE.
        * */
       void push(const char *msg, size_t size_msg);
       ssize_t pull(char *msg, size_t max_size_msg);
