@@ -2,25 +2,34 @@
 #include <cstring>
 #include <cstdio>
 #include <iostream>
-
-typedef struct {
-	long mtype;
-	char msg[10];
-} mensaje_t;
+#include "group_interface.h"
 
 int main() {
-	MessageQueue outbound("/tmp/test", char(128));
-	MessageQueue inbound("/tmp/test", char(0));
-	mensaje_t mensaje;
-
-	mensaje.mtype = 1;
+	char data[100];
+	GroupInterface grupo("/tmp/test", char(0));
 
 	for (int i = 0; i < 10; i++) {
-		sprintf(mensaje.msg, "hola%d", i);
 
-		std::cout << "enviado:" << mensaje.msg << std::endl;
+		sprintf(data,"hola %d",i);
 
-		outbound.push(&mensaje, sizeof(mensaje_t) - sizeof(long));
+		std::cout << "enviado: " << data << std::endl;
+
+		grupo.push(data, sizeof(data));
+
 	}
+	/*
+	 MessageQueue outbound("/tmp/test", char(128));
+	 MessageQueue inbound("/tmp/test", char(0));
+	 mensaje_t mensaje;
+
+	 mensaje.mtype = 1;
+
+	 for (int i = 0; i < 10; i++) {
+	 sprintf(mensaje.msg, "hola%d", i);
+
+	 std::cout << "enviado:" << mensaje.msg << std::endl;
+
+	 outbound.push(&mensaje, size_t(sizeof(mensaje_t) - sizeof(long)));
+	 }*/
 	return -1;
 }
