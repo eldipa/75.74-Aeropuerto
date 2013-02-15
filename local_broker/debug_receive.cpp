@@ -16,7 +16,7 @@ int main() {
 	mensaje.mtype = 1;
 
 	for (int i = 0; i < 10; i++) {
-		outbound.pull(&mensaje, sizeof(mensaje_t) - sizeof(long), 0);
+		inbound.pull(&mensaje, sizeof(mensaje_t) - sizeof(long), 0);
 
 		std::cout << "recibido: "<< mensaje.msg << std::endl;
 

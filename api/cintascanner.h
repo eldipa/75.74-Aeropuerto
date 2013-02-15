@@ -1,13 +1,13 @@
 #ifndef CINTASCANNER_H_
 #define CINTASCANNER_H_
 
-#define MAX_SCANNERS 4
 
 #include <vector>
 #include <cstring>
 #include "sharedmemory.h"
 #include "semaphoreset.h"
 #include "valueerror.h"
+#include "api_constants.h"
 
 // 1 productor N consumidores 1 cinta(shared memory) por consumidor
 template<typename T>
@@ -38,12 +38,13 @@ private:
 
 	const static int cant_ipc = 6;
 	int proxima_cinta_a_colocar;
+	int numero_cinta;
+
 	int * cantidad_de_escaners_activos;
 	int * ids_escaners_activos;
 	int * cinta_llena;
 	int * productor_esperando;
 
-	int numero_cinta;
 
 	void asignar_punteros(void * memory_pointer, int numero_cinta);
 	void inicializar_estructuras(int tamanio_vectores);

@@ -61,6 +61,8 @@ public:
 	void* memory_pointer();
 	std::string get_nombre_recurso();
 
+	void inicializar_memoria(const std::string & init_file);
+
 };
 
 #endif /* TABLACLIENTES_H_ */

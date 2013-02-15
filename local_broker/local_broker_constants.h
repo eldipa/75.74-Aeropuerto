@@ -17,6 +17,7 @@
 #define PATH_COLA_TOKEN_MANAGER "/cola_token_manager.lck"
 #define PATH_COLAS_BROKERS "/colas_broker.lck"
 #define PREFIJO_RECURSO "/recurso_"
+#include "api_constants.h"
 
 //#define MAX_NAME_SIZE 30
 #define MAX_CLIENTS 3

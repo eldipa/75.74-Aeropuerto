@@ -8,9 +8,12 @@
 #include "grupo.h"
 #include "local_broker_constants.h"
 #include "genericerror.h"
-#include <cstring>
 #include "local_broker_messages.h"
 #include <iostream>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include "init_parser.h"
 
 Grupo::Grupo(const std::string & directorio_de_trabajo, std::string nombre_recurso)
 	:
@@ -217,4 +220,42 @@ void* Grupo::memory_pointer() {
 
 std::string Grupo::get_nombre_recurso() {
 	return this->nombre_recurso;
+}
+
+void Grupo::inicializar_memoria(const std::string & init_file) {
+	FILE * file;
+	InitParser parser;
+	char data [100];
+	file = fopen(init_file.c_str(), "rt");
+	void * p;
+
+	if (file == NULL)
+		throw GenericError("El archivo %s no existe", init_file.c_str());
+
+	fscanf(file, "%*[^\n]\n"); // Evito la primera linea
+	int * int_val;
+
+	int vector;
+	int i;
+
+	while (fscanf(file, "%[^\n]\n", data) != EOF) {
+		parser.parse_line(data);
+		switch (parser.type()) {
+			case T_INT:
+				vector = parser.vector();
+				int_val = (int *)p;
+				i = 0;
+				while(i < vector){
+					(*int_val) = parser.int_val();
+					int_val++;
+					i++;
+				}
+				p = (void *)(int_val);
+				break;
+			default:
+				break;
+		}
+	}
+
+	fclose(file);
 }

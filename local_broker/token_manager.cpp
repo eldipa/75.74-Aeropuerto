@@ -79,10 +79,10 @@ void TokenManager::crear_grupos(const std::string & directorio_de_trabajo, const
 }
 
 void TokenManager::run() {
-	//bool salir = false;
-	//traspaso_token_t mensaje;
-	//Grupo * g;
-	//std::string recurso;
+	bool salir = false;
+	traspaso_token_t mensaje;
+	Grupo * g;
+	std::string recurso;
 	//traspaso_vista_t vista;
 
 
@@ -106,7 +106,7 @@ void TokenManager::run() {
 	inbound.pull(data,30,0);
 
 	std::cout << data << std::endl;
-	/*do {
+	do {
 		try {
 			// Recibo todos los tokens
 			clientes.pull(&mensaje, sizeof(traspaso_token_t) - sizeof(long), 0);
@@ -122,7 +122,7 @@ void TokenManager::run() {
 			//std::cerr << error.what() << std::endl;
 			salir = true;
 		}
-	} while (!salir);*/
+	} while (!salir);
 
 }
 
