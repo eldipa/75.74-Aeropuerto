@@ -24,6 +24,13 @@ LEADER_REELECTION_MINIMUN = 60 * 5 #5 minutes
 assert LISTEN_TIMEOUT < LEADER_REELECTION_MINIMUN
 
 
+import signal
+def handler(signum, frame):
+   raise KeyboardInterrupt("Interrupted by a TERM signal.")
+
+signal.signal(signal.SIGTERM, handler)
+
+
 def create_breaklink_msj():
    s = struct.pack(">HB", 0, passage.LOOP_SUBTYPE_BY_NAME['BreakLinkForced'])
    return message.pack(s, passage.ID_BY_TYPE['LOOP'])
