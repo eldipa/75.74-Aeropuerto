@@ -99,7 +99,7 @@ void ClientHandler::send_token() {
 	mensajes::mensajes_local_broker_token_t mensaje;
 	size_t i;
 	for (i = 0; i < this->cantidad_de_bloques_a_enviar ; i++) {
-		strncpy(mensaje.recurso, grupo->get_nombre_recurso().c_str(), MAX_NAME_SIZE);
+		strncpy(mensaje.recurso, grupo->get_nombre_recurso().c_str(), MAX_NOMBRE_RECURSO);
 		if (tamanio_memoria != 0) {
 			memcpy(mensaje.datos, ((char *)grupo->memory_pointer() + i * DATA_SIZE),
 				std::min(this->tamanio_memoria - i * DATA_SIZE, size_t(DATA_SIZE)));

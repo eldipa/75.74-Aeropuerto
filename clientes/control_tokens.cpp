@@ -11,7 +11,7 @@
 
 ControlTokens * ControlTokens::instance = NULL;
 
-#define MEMORIA_DE_CONTROL MAX_NAME_SIZE
+#define MEMORIA_DE_CONTROL MAX_NOMBRE_RECURSO
 
 ControlTokens::ControlTokens(const std::string & directorio_de_trabajo)
 	: memoria_control(std::string(directorio_de_trabajo).append(PATH_CONTROL_TOKENS).c_str(), char(0), 0, false, false),
@@ -35,9 +35,9 @@ ControlTokens::ControlTokens(const std::string & directorio_de_trabajo, bool cre
 ControlTokens::~ControlTokens() {
 }
 
-void ControlTokens::cargar_esperando_token(const char nombre [MAX_NAME_SIZE]) {
+void ControlTokens::cargar_esperando_token(const char nombre [MAX_NOMBRE_RECURSO]) {
 	mutex.wait_on(0);
-	strncpy(token_esperando, nombre, MAX_NAME_SIZE);
+	strncpy(token_esperando, nombre, MAX_NOMBRE_RECURSO);
 	mutex.signalize(0);
 }
 
@@ -47,10 +47,10 @@ void ControlTokens::limpiar_esperando_token() {
 	mutex.signalize(0);
 }
 
-bool ControlTokens::comparar_token(const char nombre [MAX_NAME_SIZE]) {
+bool ControlTokens::comparar_token(const char nombre [MAX_NOMBRE_RECURSO]) {
 	bool result;
 	mutex.wait_on(0);
-	result = (strncmp(token_esperando, nombre, MAX_NAME_SIZE) == 0);
+	result = (strncmp(token_esperando, nombre, MAX_NOMBRE_RECURSO) == 0);
 	mutex.signalize(0);
 	return result;
 }

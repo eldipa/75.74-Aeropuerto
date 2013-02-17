@@ -50,7 +50,7 @@ LocalBrokerComm::~LocalBrokerComm() {
 void LocalBrokerComm::join(const std::string & nombre_recurso) {
 	mensajes::mensajes_local_broker_t mensaje;
 	mensaje.peticion = mensajes::JOIN;
-	strncpy(mensaje.datos, nombre_recurso.c_str(), std::min(nombre_recurso.size(), size_t(MAX_NAME_SIZE)));
+	strncpy(mensaje.datos, nombre_recurso.c_str(), std::min(nombre_recurso.size(), size_t(MAX_NOMBRE_RECURSO)));
 
 	socket_broker.sendsome(&mensaje, sizeof(mensajes::mensajes_local_broker_t));
 
@@ -118,7 +118,7 @@ size_t LocalBrokerComm::get_mem_size() {
 int main(int argc, char * argv []) {
 	char hostname [100];
 	char service [10];
-	char grupo [MAX_NAME_SIZE];
+	char grupo [MAX_NOMBRE_RECURSO];
 	size_t tamanio;
 	char id;
 
@@ -141,7 +141,7 @@ int main(int argc, char * argv []) {
 	std::cout << std::endl;
 
 	sscanf(argv [3], "%[^:]:%[^:]", hostname, service);
-	strncpy(grupo, argv [4], MAX_NAME_SIZE);
+	strncpy(grupo, argv [4], MAX_NOMBRE_RECURSO);
 	id = atoi(argv[5]);
 #ifdef __x86_64__
 	sscanf(argv [6], "%lu", &tamanio);

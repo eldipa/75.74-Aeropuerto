@@ -38,18 +38,20 @@ private:
 
 	void * memoria_compartida;
 
-	bool locked_ya_esta_cliente(const char nombre [MAX_NAME_SIZE]);
+	traspaso_token_t mensaje;
+
+	bool locked_ya_esta_cliente(const char nombre [MAX_NOMBRE_RECURSO]);
 
 public:
 	Grupo(const std::string & directorio_de_trabajo, std::string nombre_recurso);
 	Grupo(const std::string & directorio_de_trabajo, std::string nombre_recurso, size_t tamanio_memoria, bool create);
 	virtual ~Grupo();
 
-	void join(const char nombre [MAX_NAME_SIZE]);
-	void leave(const char nombre [MAX_NAME_SIZE]);
-	bool ya_esta_cliente(const char nombre [MAX_NAME_SIZE]);
+	void join(const char nombre [MAX_NOMBRE_RECURSO]);
+	void leave(const char nombre [MAX_NOMBRE_RECURSO]);
+	bool ya_esta_cliente(const char nombre [MAX_NOMBRE_RECURSO]);
 
-	unsigned short obtener_numero_cola_de_cliente(const char nombre [MAX_NAME_SIZE]);
+	unsigned short obtener_numero_cola_de_cliente(const char nombre [MAX_NOMBRE_RECURSO]);
 	unsigned short obtener_proximo_cliente();
 
 	void pasar_token_a_proximo_cliente();

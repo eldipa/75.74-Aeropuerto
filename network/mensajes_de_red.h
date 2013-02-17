@@ -8,9 +8,10 @@
 #ifndef MENSAJES_DE_RED_H_
 #define MENSAJES_DE_RED_H_
 
+#include "constants.h"
+
 #define DATA_SIZE 512
-#define MAX_NAME_SIZE 30
-#define TOKEN_HEADER_SIZE (MAX_NAME_SIZE)
+#define TOKEN_HEADER_SIZE (MAX_NOMBRE_RECURSO)
 
 namespace mensajes {
 
@@ -29,7 +30,7 @@ typedef struct {
 } mensajes_local_broker_t;
 
 typedef struct {
-	char recurso [MAX_NAME_SIZE];
+	char recurso [MAX_NOMBRE_RECURSO];
 	char datos [DATA_SIZE];
 } mensajes_local_broker_token_t;
 

@@ -30,9 +30,9 @@ private:
 
 public:
 
-	void cargar_esperando_token(const char nombre [MAX_NAME_SIZE]);
+	void cargar_esperando_token(const char nombre [MAX_NOMBRE_RECURSO]);
 	void limpiar_esperando_token();
-	bool comparar_token(const char nombre [MAX_NAME_SIZE]);
+	bool comparar_token(const char nombre [MAX_NOMBRE_RECURSO]);
 
 	static ControlTokens * get_instance(const std::string & directorio_de_trabajo);
 	static ControlTokens * get_instance(const std::string & directorio_de_trabajo, bool create);

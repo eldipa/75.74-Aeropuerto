@@ -29,11 +29,9 @@ try
 		return -1;
 	}
 
-	//char * pointer;
-	//int * a;
 	strncpy(app_name, argv [1], 200);
 
-	if (strncmp(argv [1], "escaner1", MAX_NAME_SIZE) == 0) {
+	if (strncmp(argv [1], "escaner1", MAX_NOMBRE_RECURSO) == 0) {
 		snprintf(directorio_de_trabajo, 200, "%s", "/home/gonzalo/workspaces/git/75.74-Aeropuerto/clientes/locks");
 	} else {
 		snprintf(directorio_de_trabajo, 200, "%s", "/home/gonzalo/workspaces/git/75.74-Aeropuerto/clientes/locks2");
@@ -41,38 +39,48 @@ try
 
 	// mismo tamanño que en group_lists.txt en local broker
 	// faltaria inicializar la memoria
-	id_recurso = 1;
+	id_recurso = 0;
 	sprintf(id, "%d", id_recurso);
 	sprintf(nombre_grupo, "%s", "cinta_principal");
 	sprintf(tamanio, "%d", 0);
-	//MemoriaDistribuida memoria(directorio_de_trabajo, nombre_grupo, 0, 256);
+	sprintf(tamanio, "%d", 256);
+	MemoriaDistribuida memoria(directorio_de_trabajo, nombre_grupo, id_recurso, 256);
+	char * pointer;
+	int * a;
+
 	sprintf(nombre_grupo, "%s", "cinta_principal");
-	MutexDistribuido mutex(directorio_de_trabajo, nombre_grupo, id_recurso, true);
+	//MutexDistribuido mutex(directorio_de_trabajo, nombre_grupo, id_recurso, true);
 
 	Process p("/home/gonzalo/workspaces/git/75.74-Aeropuerto/clientes/local_broker_comm", args_local_broker_comm);
 
-	/*pointer = (char*)memoria.memory_pointer();
-	 a = reinterpret_cast<int *>(memoria.memory_pointer());
+	pointer = (char*)memoria.memory_pointer();
+	a = reinterpret_cast<int *>(memoria.memory_pointer());
 
-	 *a = 0;
+	a = (int *)pointer;
 
-	 while (*a < 20) {
+	//while (*a < 20) {
 
-	 memoria.lock();
+	memoria.lock();
 
-	 (*a)++;
-	 std::cout << argv [1] << ":" << *a << std::endl;
+	//(*a)++;
+	//std::cout << argv [1] << ":" << *a << std::endl;
 
-	 memoria.unlock(control);
-	 }*/
+	for (int i = 0 ; i < 30 ; i++) {
 
-	for (int i = 0 ; i < 2 ; i++) {
-		mutex.lock();
+		std::cout << a[i] << std::endl;
 
-		std::cout << "A" << std::endl;
-
-		mutex.unlock();
 	}
+
+	memoria.unlock();
+	//}
+
+	/*for (int i = 0 ; i < 2 ; i++) {
+	 mutex.lock();
+
+	 std::cout << "A" << std::endl;
+
+	 mutex.unlock();
+	 }*/
 
 }
 catch (const std::exception &e) {

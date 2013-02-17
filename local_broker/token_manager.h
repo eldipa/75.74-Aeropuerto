@@ -17,8 +17,6 @@ class TokenManager {
 private:
 	MessageQueue clientes;
 	std::map<std::string, Grupo *> grupos;
-	MessageQueue outbound;
-	MessageQueue inbound;
 
 	void crear_grupos(const std::string & directorio_de_trabajo, const std::string & groups_file);
 public:

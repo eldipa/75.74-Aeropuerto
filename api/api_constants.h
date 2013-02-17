@@ -1,5 +1,10 @@
 // Central
 
+#ifndef APICONSTANTS_H_
+#define APICONSTANTS_H_
+
+#include "constants.h"
+
 // IPCS sobre torre_de_control.lck
 #define MTX_CENTRAL 0
 #define Q_CHECKINS_HABILITADOS 1
@@ -43,7 +48,7 @@
 #define MAX_INTERCARGOS_ESPERANDO 30 // cant max de robots de intercargo que esperan que se asigne una zona
 #define MAX_PATH_SIZE 300
 
-#define MAX_NOMBRE_RECURSO 40
+
 
 // Configuración cintas
 #define CAPACIDAD_CINTA_CHECKIN 3
@@ -62,4 +67,6 @@
 #define CAPACIDAD_CINTA_CONTENEDOR 3
 
 #define MAX_SCANNERS 4
+#define MAX_DATA_SIZE 60
 
+#endif

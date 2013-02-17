@@ -4,6 +4,9 @@
 #include <cstring>
 #include "group_interface.h"
 
+#include <arpa/inet.h>
+#include <netinet/in.h> // See man byteorder(3)
+
 namespace {
    typedef struct {
       long type;
@@ -26,7 +29,7 @@ void GroupInterface::push(const char *msg, size_t size_msg) {
    MSG qpack;
    memset(&qpack, 0, sizeof(MSG));
 
-   qpack.type = 1;
+   qpack.type = htonl(1);
    memcpy(&qpack.msg, msg, size_msg);
 
    outbound.push(&qpack, size_msg+sizeof(long));
@@ -39,7 +42,7 @@ ssize_t GroupInterface::pull(char *msg, size_t max_size_msg) {
    MSG qpack;
    memset(&qpack, 0, sizeof(MSG));
 
-   ssize_t recv = inbound.pull(&qpack, max_size_msg+sizeof(long), 1);
+   ssize_t recv = inbound.pull(&qpack, max_size_msg+sizeof(long), htonl(1));
 
    memcpy(msg, &qpack.msg, recv);
    return recv;

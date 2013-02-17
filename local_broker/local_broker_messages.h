@@ -21,4 +21,15 @@ typedef struct {
 	char vista_grupo [MAX_NOMBRE_RECURSO];
 } traspaso_vista_t;
 
+typedef enum {
+	T_HELLO, T_VIEW_CHANGE, T_UPDATE_MEMORY, T_ALREADY_INITIALIZED
+} MENSAJE_GRUPO;
+
+typedef struct {
+	MENSAJE_GRUPO tipomsg;
+	char nombre_recurso [MAX_NOMBRE_RECURSO];
+	char id_broker_emisor[MAX_NOMBRE_RECURSO];
+	char data [MAX_DATA_SIZE];
+} mensaje_grupos_t;
+
 #endif /* LOCAL_BROKER_CONSTANTS_H_ */

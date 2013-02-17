@@ -10,6 +10,7 @@
 
 #include "mensajes_de_red.h"
 #include "messagequeue.h"
+#include "grupo.h"
 #include "socket.h"
 
 class ClientHandler {

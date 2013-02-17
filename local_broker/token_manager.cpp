@@ -10,21 +10,22 @@
 #include <iostream>
 #include <cstdlib>
 #include <cstdio>
-#include <fcntl.h>
 #include "log.h"
 #include "oserror.h"
 #include "genericerror.h"
+#include <fcntl.h>
 #include <unistd.h>
 #include <sys/stat.h>
 #include <cstring>
 #include "daemon.h"
+#include "group_comm_manager.h"
 
 TokenManager::TokenManager(const std::string & directorio_de_trabajo, char id, const std::string & groups_file)
-	: clientes(std::string(directorio_de_trabajo).append(PATH_COLA_TOKEN_MANAGER).c_str(), id, 0664, true),
-		outbound(std::string(directorio_de_trabajo).append(PATH_COLAS_BROKERS).c_str(), id ),
-		inbound(std::string(directorio_de_trabajo).append(PATH_COLAS_BROKERS).c_str(), id + 128)
+	: clientes(std::string(directorio_de_trabajo).append(PATH_COLA_TOKEN_MANAGER).c_str(), id, 0664, true)
 {
 	id = id + 1 - 1;
+	GroupCommManager manager(directorio_de_trabajo,"../group/inbound.py");
+	manager.levantar_grupo("cinta_principal",1);
 	crear_grupos(directorio_de_trabajo, groups_file);
 }
 
@@ -73,6 +74,13 @@ void TokenManager::crear_grupos(const std::string & directorio_de_trabajo, const
 		}
 		g = new Grupo(directorio_de_trabajo, nombre_recurso, tamanio_memoria, true);
 		grupos.insert(std::pair<std::string, Grupo *>(std::string(nombre_recurso), g));
+		if (tamanio_memoria > 0) {
+			strcpy(path, directorio_de_trabajo.c_str());
+			strcat(path, "/");
+			strcat(path, nombre_recurso);
+			strcat(path, POSTFIJO_INIT);
+			g->inicializar_memoria(path);
+		}
 	}
 
 	fclose(f);
@@ -84,8 +92,6 @@ void TokenManager::run() {
 	Grupo * g;
 	std::string recurso;
 	//traspaso_vista_t vista;
-
-
 
 	// PARA DEBUG
 	//strncpy((char *) g->memory_pointer(),"token_manager:1",512);
@@ -99,13 +105,10 @@ void TokenManager::run() {
 	 ((char *)g->memory_pointer()) [1023] = '\0';
 	 std::cout << (char *)g->memory_pointer() << std::endl;*/
 
-	//ignore_signals();
+	ignore_signals();
+	//char data [30];
 
-	char data [30];
-
-	inbound.pull(data,30,0);
-
-	std::cout << data << std::endl;
+	//std::cout << data << std::endl;
 	do {
 		try {
 			// Recibo todos los tokens

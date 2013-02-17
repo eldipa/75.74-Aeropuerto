@@ -1,4 +1,4 @@
-INCLUDE_PATHS = ../os ../common ../log
+INCLUDE_PATHS = ../os ../common ../log ../api
 LIBRARIES = ../os/libos.a ../log/liblog.a ../common/libcommon.a
 EXTERNAL_LIBRARIES = dl 
 LINKER_FLAGS += -rdynamic
