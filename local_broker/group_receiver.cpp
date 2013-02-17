@@ -7,7 +7,6 @@
 
 #include "group_receiver.h"
 
-
 #include <cstring>
 #include <cstdio>
 #include <iostream>
@@ -24,40 +23,66 @@ GroupReceiver::GroupReceiver(const std::string & directorio_de_trabajo, const st
 		grupo_remoto(std::string(directorio_de_trabajo).append(PATH_COLAS_BROKERS).c_str(), id),
 		grupo(directorio_de_trabajo, nombre_grupo), broker_remoto(nombre_broker_remoto)
 {
-
+	data_token = new char [grupo.get_mem_size()];
+	cantidad_recibida_token = 0;
+	cantidad_recibida_grupo = 0;
+	cantidad_de_bloques_por_token = (grupo.get_mem_size() / DATA_SIZE);
+	if (grupo.get_mem_size() % DATA_SIZE != 0 || grupo.get_mem_size() == 0) {
+		cantidad_de_bloques_por_token++;
+	}
 }
 
 GroupReceiver::~GroupReceiver() {
-
+	delete [] data_token;
 }
 
-void GroupReceiver::send_token() {
+size_t GroupReceiver::recv_token() {
+	bool mensaje_completo = false;
 
+	do {
+		grupo_remoto.pull((char*)&mensaje, sizeof(mensajes::mensajes_local_broker_group_t));
+
+		if (mensaje.tipo == mensajes::TOKEN_DELIVER) {
+			memcpy(data_token + mensaje.numero_de_mensaje * DATA_SIZE, mensaje.data, DATA_SIZE);
+			cantidad_recibida_token += DATA_SIZE;
+			if (cantidad_recibida_token >= mensaje.cantidad_bytes_total) {
+				mensaje_completo = true;
+				tipo_mensaje_recibido = mensajes::TOKEN_DELIVER;
+				cantidad_recibida_token = 0;
+			}
+		} else if (mensaje.tipo == mensajes::GROUP_DISCOVER) {
+			memcpy(data_group + mensaje.numero_de_mensaje * DATA_SIZE, mensaje.data, DATA_SIZE);
+			cantidad_recibida_grupo += DATA_SIZE;
+			if (cantidad_recibida_grupo >= mensaje.cantidad_bytes_total) {
+				mensaje_completo = true;
+				tipo_mensaje_recibido = mensajes::GROUP_DISCOVER;
+				cantidad_recibida_grupo = 0;
+			}
+		}
+	} while (mensaje_completo);
+
+	return 0;
+}
+
+void GroupReceiver::procesar_mensaje() {
+	if (tipo_mensaje_recibido == mensajes::TOKEN_DELIVER) {
+		memcpy(grupo.memory_pointer(), data_token, grupo.get_mem_size());
+		grupo.release_token(&this->cola_token_manager);
+	} else if (mensaje.tipo == mensajes::GROUP_DISCOVER) {
+		memcpy(mensaje.data, data_group, DATA_SIZE);
+		grupo_remoto.push((char *)&mensaje, sizeof(mensajes::mensajes_local_broker_group_t));
+	}
 }
 
 void GroupReceiver::loop_token() {
 	bool leave = false;
-	/*int a;
-	 char data [DATA_SIZE];*/
+
 	do {
 		try {
-			// espero el token
-			grupo.lock_token();
-			/*std::cout << (char*)grupo->memory_pointer() << std::endl;
-			 sscanf((char*)grupo->memory_pointer(), "%[^:]:%d", data, &a);
-			 a++;
-			 snprintf((char*)grupo->memory_pointer(), DATA_SIZE, "%s:%d", "client_handler", a);
-			 std::cout << (char*)grupo->memory_pointer() << std::endl;*/
-
-			// envio el token al cliente
-			send_token();
+			recv_token();
 
 		} catch (OSError & error) {
 			leave = true;
-		}
-		if (leave) {
-			// tengo que salir del grupo antes de liberar el token
-			grupo.leave(broker_remoto.c_str());
 		}
 	} while (!leave);
 }
@@ -69,7 +94,8 @@ void GroupReceiver::run() {
 int main(int argc, char * argv []) {
 	char id;
 	if (argc != 5) {
-		std::cerr << "Falta el directorio de trabajo, el id, el nombre del recurso, nombre_broker_remoto" << std::endl;
+		std::cerr << "Falta el directorio de trabajo, el id, el nombre del recurso, el nombre_broker_remoto"
+			<< std::endl;
 		return -1;
 	}
 	std::string lock_file(argv [1]);
@@ -81,17 +107,17 @@ int main(int argc, char * argv []) {
 	handler.run();
 
 	/*char data [100];
-	//GroupInterface grupo_remoto(lock_file.c_str(), id);
-	Grupo grupo(argv [1], argv [3]);
-	grupo.join(argv [4]);
+	 //GroupInterface grupo_remoto(lock_file.c_str(), id);
+	 Grupo grupo(argv [1], argv [3]);
+	 grupo.join(argv [4]);
 
-	for (int i = 0 ; i < 10 ; i++) {
+	 for (int i = 0 ; i < 10 ; i++) {
 
-		//grupo_remoto.pull(data, sizeof(data));
+	 //grupo_remoto.pull(data, sizeof(data));
 
-		std::cout << "recibido: " << data << std::endl;
+	 std::cout << "recibido: " << data << std::endl;
 
-	}*/
+	 }*/
 
 	/*
 	 MessageQueue outbound("/tmp/test", char(128));
@@ -107,5 +133,5 @@ int main(int argc, char * argv []) {
 
 	 outbound.push(&mensaje, size_t(sizeof(mensaje_t) - sizeof(long)));
 	 }*/
-	return -1;
+	return 0;
 }

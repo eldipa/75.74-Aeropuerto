@@ -12,6 +12,7 @@
 #include "messagequeue.h"
 #include "grupo.h"
 #include "group_interface.h"
+#include "mensajes_de_red.h"
 #include <string>
 
 class GroupReceiver {
@@ -20,11 +21,19 @@ private:
 	GroupInterface grupo_remoto;
 	Grupo grupo;
 	std::string broker_remoto;
+	mensajes::mensajes_local_broker_group_t mensaje;
+	char * data_token;
+	char data_group[DATA_SIZE];
+	size_t cantidad_de_bloques_por_token;
+
+	size_t cantidad_recibida_token;
+	size_t cantidad_recibida_grupo;
+	mensajes::GROUP_MSG_T tipo_mensaje_recibido;
 
 	void loop_token();
 
-	void send_token();
 	size_t recv_token();
+	void procesar_mensaje();
 
 public:
 	GroupReceiver(const std::string & directorio_de_trabajo, const std::string & nombre_grupo, char id,

@@ -20,6 +20,10 @@ private:
 	GroupInterface grupo_remoto;
 	Grupo grupo;
 	std::string broker_remoto;
+	mensajes::mensajes_local_broker_group_t mensaje;
+
+	int cantidad_de_bloques_por_token;
+	size_t tamanio_memoria;
 
 	void loop_token();
 

@@ -39,5 +39,7 @@
 #define PATH_COLAS_GRUPO "/colas_grupo.lck"
 #define MAX_NOMBRE_RECURSO 40
 
+#define GROUP_MSG_DATA_SIZE 256
+
 
 #endif /* CONSTANTS_H_ */

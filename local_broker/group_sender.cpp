@@ -21,7 +21,16 @@ GroupSender::GroupSender(const std::string & directorio_de_trabajo, const std::s
 	: grupo_remoto(std::string(directorio_de_trabajo).append(PATH_COLAS_BROKERS).c_str(), id),
 		grupo(directorio_de_trabajo, nombre_grupo), broker_remoto(nombre_broker_remoto)
 {
+	tamanio_memoria = grupo.get_mem_size();
 
+	cantidad_de_bloques_por_token = (tamanio_memoria / DATA_SIZE);
+
+	if (tamanio_memoria % DATA_SIZE != 0 || tamanio_memoria == 0) {
+		cantidad_de_bloques_por_token++;
+	}
+
+	mensaje.tipo = mensajes::TOKEN_DELIVER;
+	mensaje.cantidad_bytes_total = tamanio_memoria;
 }
 
 GroupSender::~GroupSender() {
@@ -29,6 +38,13 @@ GroupSender::~GroupSender() {
 }
 
 void GroupSender::send_token() {
+	int i;
+
+	for (i = 0; i < cantidad_de_bloques_por_token ; i++) {
+		mensaje.numero_de_mensaje = i;
+		memcpy(mensaje.data, (char*)grupo.memory_pointer() + i * DATA_SIZE, DATA_SIZE);
+		grupo_remoto.push((char*)&mensaje,sizeof(mensajes::mensajes_local_broker_group_t));
+	}
 
 }
 
