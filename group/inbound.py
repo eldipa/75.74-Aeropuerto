@@ -21,6 +21,11 @@ ALREADY_ADDR_USED_ATTEMPTS = 10
 ALREADY_ADDR_USED_SLEEP = 15
 addr_attempts = 0
 
+import signal
+def handler(signum, frame):
+   raise KeyboardInterrupt("Interrupted by a TERM signal.")
+
+signal.signal(signal.SIGTERM, handler)
 
 def create_leader_proposal_msj(localhost_name):
    s = struct.pack(">HBB%is" % (len(localhost_name)), passage.TTL, passage.LOOP_SUBTYPE_BY_NAME['Leader'], len(localhost_name), localhost_name)

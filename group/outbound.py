@@ -13,6 +13,12 @@ import struct
 from invalid import *
 import traceback
 
+import signal
+def handler(signum, frame):
+   raise KeyboardInterrupt("Interrupted by a TERM signal.")
+
+signal.signal(signal.SIGTERM, handler)
+
 class Driver:
     def __init__(self, localhost_name):
         self.leader_name = self.localhost_name = localhost_name 
