@@ -92,7 +92,7 @@ RM = $(TIMEIT) rm -f
 
 ifeq ($(verbose), 0)
    PRINT_COMPILE = @printf "\033[35m  %-$(ALIGN)s \033[0m" "Compiling $<" ; 
-   PRINT_DEPEND = @printf "\033[32;2m  %-$(ALIGN)s \033[0m" "Resolving dependencies for $(subst .deps,.cpp,$@)" ; 
+   PRINT_DEPEND = @printf "\033[32;2m  %-$(ALIGN)s \033[0m" "Dependencies of $(subst .deps,.cpp,$@)" ; 
    PRINT_ARCHIVE = @printf "\033[36;1m  %-$(ALIGN)s \033[0m" "Archiving into $@" ; 
    PRINT_LINK = @printf "\033[36;1m  %-$(ALIGN)s \033[0m" "Linking into $@" ; 
    PRINT_DYNAMIC = @printf "\033[36;1m  %-$(ALIGN)s \033[0m" "Building shared library $@" ; 
