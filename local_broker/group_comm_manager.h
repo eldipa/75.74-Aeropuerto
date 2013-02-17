@@ -13,12 +13,12 @@
 
 class GroupCommManager {
 private:
-
+	std::string directorio_de_trabajo;
 public:
-	GroupCommManager(const std::string & directorio_de_trabajo, const std::string & path_to_inbound);
+	GroupCommManager(const std::string & directorio_de_trabajo);
 	virtual ~GroupCommManager();
 
-	void levantar_grupo(const std::string & nombre_grupo, int numero_grupo);
+	void levantar_grupo(const std::string & nombre_grupo, char numero_grupo);
 };
 
 #endif /* GROUPCOMMMANAGER_H_ */

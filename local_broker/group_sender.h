@@ -19,7 +19,7 @@ private:
 
 	GroupInterface grupo_remoto;
 	Grupo grupo;
-	std::string broker_remoto;
+	std::string broker_local;
 	mensajes::mensajes_local_broker_group_t mensaje;
 
 	int cantidad_de_bloques_por_token;

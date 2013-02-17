@@ -17,11 +17,11 @@
 #include "oserror.h"
 #include "genericerror.h"
 
-GroupReceiver::GroupReceiver(const std::string & directorio_de_trabajo, const std::string & nombre_grupo, char id,
-	const std::string & nombre_broker_remoto)
+GroupReceiver::GroupReceiver(const std::string & directorio_de_trabajo, const std::string & nombre_grupo, char id/*,
+	const std::string & nombre_broker_local*/)
 	: cola_token_manager(std::string(directorio_de_trabajo).append(PATH_COLA_TOKEN_MANAGER).c_str(), char(0)),
 		grupo_remoto(std::string(directorio_de_trabajo).append(PATH_COLAS_BROKERS).c_str(), id),
-		grupo(directorio_de_trabajo, nombre_grupo), broker_remoto(nombre_broker_remoto)
+		grupo(directorio_de_trabajo, nombre_grupo)/*,broker_local(nombre_broker_local)*/
 {
 	data_token = new char [grupo.get_mem_size()];
 	cantidad_recibida_token = 0;
@@ -94,15 +94,13 @@ void GroupReceiver::run() {
 int main(int argc, char * argv []) {
 	char id;
 	if (argc != 5) {
-		std::cerr << "Falta el directorio de trabajo, el id, el nombre del recurso, el nombre_broker_remoto"
+		std::cerr << "Falta el directorio de trabajo, el id, el nombre del recurso, el nombre_broker_local"
 			<< std::endl;
 		return -1;
 	}
-	std::string lock_file(argv [1]);
-	lock_file.append(PATH_COLAS_BROKERS);
 	id = atoi(argv [2]);
 
-	GroupReceiver handler(argv [1], argv [3], id, argv [4]);
+	GroupReceiver handler(argv [1], argv [3], id/*, argv [4]*/);
 
 	handler.run();
 

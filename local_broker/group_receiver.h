@@ -20,7 +20,7 @@ private:
 	MessageQueue cola_token_manager;
 	GroupInterface grupo_remoto;
 	Grupo grupo;
-	std::string broker_remoto;
+	//std::string broker_local;
 	mensajes::mensajes_local_broker_group_t mensaje;
 	char * data_token;
 	char data_group[DATA_SIZE];
@@ -36,8 +36,8 @@ private:
 	void procesar_mensaje();
 
 public:
-	GroupReceiver(const std::string & directorio_de_trabajo, const std::string & nombre_grupo, char id,
-		const std::string & nombre_broker_remoto);
+	GroupReceiver(const std::string & directorio_de_trabajo, const std::string & nombre_grupo, char id/*,
+		const std::string & nombre_broker_remoto*/);
 	virtual ~GroupReceiver();
 
 	void run();

@@ -24,9 +24,9 @@ TokenManager::TokenManager(const std::string & directorio_de_trabajo, char id, c
 	: clientes(std::string(directorio_de_trabajo).append(PATH_COLA_TOKEN_MANAGER).c_str(), id, 0664, true)
 {
 	id = id + 1 - 1;
-	GroupCommManager manager(directorio_de_trabajo,"../group/inbound.py");
-	manager.levantar_grupo("cinta_principal",1);
+	GroupCommManager manager(directorio_de_trabajo);
 	crear_grupos(directorio_de_trabajo, groups_file);
+	manager.levantar_grupo("cinta_principal",char(1));
 }
 
 TokenManager::~TokenManager() {
@@ -74,13 +74,13 @@ void TokenManager::crear_grupos(const std::string & directorio_de_trabajo, const
 		}
 		g = new Grupo(directorio_de_trabajo, nombre_recurso, tamanio_memoria, true);
 		grupos.insert(std::pair<std::string, Grupo *>(std::string(nombre_recurso), g));
-		if (tamanio_memoria > 0) {
+		/*if (tamanio_memoria > 0) {
 			strcpy(path, directorio_de_trabajo.c_str());
 			strcat(path, "/");
 			strcat(path, nombre_recurso);
 			strcat(path, POSTFIJO_INIT);
 			g->inicializar_memoria(path);
-		}
+		}*/
 	}
 
 	fclose(f);

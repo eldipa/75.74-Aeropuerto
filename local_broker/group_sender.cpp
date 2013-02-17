@@ -17,9 +17,9 @@
 #include "genericerror.h"
 
 GroupSender::GroupSender(const std::string & directorio_de_trabajo, const std::string & nombre_grupo, char id,
-	const std::string & nombre_broker_remoto)
+	const std::string & nombre_broker_local)
 	: grupo_remoto(std::string(directorio_de_trabajo).append(PATH_COLAS_BROKERS).c_str(), id),
-		grupo(directorio_de_trabajo, nombre_grupo), broker_remoto(nombre_broker_remoto)
+		grupo(directorio_de_trabajo, nombre_grupo), broker_local(nombre_broker_local)
 {
 	tamanio_memoria = grupo.get_mem_size();
 
@@ -70,7 +70,7 @@ void GroupSender::loop_token() {
 		}
 		if (leave) {
 			// tengo que salir del grupo antes de liberar el token
-			grupo.leave(broker_remoto.c_str());
+			grupo.leave(broker_local.c_str());
 		}
 	} while (!leave);
 }
@@ -82,11 +82,9 @@ void GroupSender::run() {
 int main(int argc, char * argv []) {
 	char id;
 	if (argc != 5) {
-		std::cerr << "Falta el directorio de trabajo, el id, el nombre del recurso, nombre_broker_remoto" << std::endl;
+		std::cerr << "Falta el directorio de trabajo, el id, el nombre del recurso, nombre_broker_local" << std::endl;
 		return -1;
 	}
-	std::string lock_file(argv [1]);
-	lock_file.append(PATH_COLAS_BROKERS);
 	id = atoi(argv [2]);
 
 	GroupSender handler(argv [1], argv [3], id, argv [4]);
