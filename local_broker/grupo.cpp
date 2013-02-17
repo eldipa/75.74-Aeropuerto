@@ -62,7 +62,7 @@ Grupo::Grupo(const std::string & directorio_de_trabajo, std::string nombre_recur
 		traspaso_token_t mensaje;
 		mensaje.mtype = 1; // el primero que entre al grupo se lleva el token
 		strncpy(mensaje.recurso, nombre_recurso.c_str(), MAX_NOMBRE_RECURSO);
-		cola.push(&mensaje, sizeof(traspaso_token_t) - sizeof(long));
+		//cola.push(&mensaje, sizeof(traspaso_token_t) - sizeof(long));
 	}
 	cliente_actual = 0;
 	token_owner = -1;

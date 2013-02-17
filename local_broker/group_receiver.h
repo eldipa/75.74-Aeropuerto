@@ -22,8 +22,8 @@ private:
 	Grupo grupo;
 	//std::string broker_local;
 	mensajes::mensajes_local_broker_group_t mensaje;
-	char * data_token;
 	char data_group[DATA_SIZE];
+	char * data_token;
 	size_t cantidad_de_bloques_por_token;
 
 	size_t cantidad_recibida_token;

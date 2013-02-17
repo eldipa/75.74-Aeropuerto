@@ -1,3 +1,3 @@
 /*NOMBRE_GRUPO:TAMAÑO_MEMORIA_COMPARTIDA*/
-cinta_principal:256
+cinta_principal:600
 sem_cinta_principal_1:0

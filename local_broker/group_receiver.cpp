@@ -18,16 +18,18 @@
 #include "genericerror.h"
 
 GroupReceiver::GroupReceiver(const std::string & directorio_de_trabajo, const std::string & nombre_grupo, char id/*,
-	const std::string & nombre_broker_local*/)
+ const std::string & nombre_broker_local*/)
 	: cola_token_manager(std::string(directorio_de_trabajo).append(PATH_COLA_TOKEN_MANAGER).c_str(), char(0)),
 		grupo_remoto(std::string(directorio_de_trabajo).append(PATH_COLAS_BROKERS).c_str(), id),
 		grupo(directorio_de_trabajo, nombre_grupo)/*,broker_local(nombre_broker_local)*/
 {
-	data_token = new char [grupo.get_mem_size()];
+	size_t tamanio;
+	tamanio = grupo.get_mem_size();
+	data_token = new char [tamanio];
 	cantidad_recibida_token = 0;
 	cantidad_recibida_grupo = 0;
 	cantidad_de_bloques_por_token = (grupo.get_mem_size() / DATA_SIZE);
-	if (grupo.get_mem_size() % DATA_SIZE != 0 || grupo.get_mem_size() == 0) {
+	if (grupo.get_mem_size() % DATA_SIZE != 0 || grupo.get_mem_size() == 0 || grupo.get_mem_size() < DATA_SIZE) {
 		cantidad_de_bloques_por_token++;
 	}
 }
@@ -40,10 +42,12 @@ size_t GroupReceiver::recv_token() {
 	bool mensaje_completo = false;
 
 	do {
+
 		grupo_remoto.pull((char*)&mensaje, sizeof(mensajes::mensajes_local_broker_group_t));
 
 		if (mensaje.tipo == mensajes::TOKEN_DELIVER) {
-			memcpy(data_token + mensaje.numero_de_mensaje * DATA_SIZE, mensaje.data, DATA_SIZE);
+			memcpy((data_token + mensaje.numero_de_mensaje * DATA_SIZE), mensaje.data,
+				std::min(grupo.get_mem_size() - mensaje.numero_de_mensaje * DATA_SIZE, size_t(DATA_SIZE)));
 			cantidad_recibida_token += DATA_SIZE;
 			if (cantidad_recibida_token >= mensaje.cantidad_bytes_total) {
 				mensaje_completo = true;
@@ -59,7 +63,7 @@ size_t GroupReceiver::recv_token() {
 				cantidad_recibida_grupo = 0;
 			}
 		}
-	} while (mensaje_completo);
+	} while (!mensaje_completo);
 
 	return 0;
 }
@@ -76,10 +80,14 @@ void GroupReceiver::procesar_mensaje() {
 
 void GroupReceiver::loop_token() {
 	bool leave = false;
-
+	grupo.release_token(&this->cola_token_manager);
 	do {
 		try {
 			recv_token();
+
+			std::cout << "Recibido:" << mensaje.data << std::endl;
+
+			procesar_mensaje();
 
 		} catch (OSError & error) {
 			leave = true;
@@ -88,12 +96,26 @@ void GroupReceiver::loop_token() {
 }
 
 void GroupReceiver::run() {
+	std::cout << data_token << std::endl;
 	loop_token();
+}
+
+void print_args(int argc, char * argv []) {
+	int i;
+	std::cout << "argc=" << argc << std::endl;
+	std::cout << argv [0];
+	for (i = 1; i < argc ; i++) {
+		std::cout << " " << argv [i];
+	}
+	std::cout << std::endl;
 }
 
 int main(int argc, char * argv []) {
 	char id;
-	if (argc != 5) {
+
+	print_args(argc, argv);
+
+	if (argc < 5) {
 		std::cerr << "Falta el directorio de trabajo, el id, el nombre del recurso, el nombre_broker_local"
 			<< std::endl;
 		return -1;

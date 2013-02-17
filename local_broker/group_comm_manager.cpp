@@ -30,13 +30,13 @@ static char directorio_de_trabajo_relativo [FILENAME_MAX];
 static char nombre_del_grupo [MAX_NOMBRE_RECURSO];
 static char nombre_broker_local [MAX_NOMBRE_RECURSO];
 
-static char * group_sender_args [] = {
+/*static char * group_sender_args [] = {
 	(char*)"group_sender", directorio_de_trabajo_relativo, id, nombre_del_grupo, nombre_broker_local};
 
 static char * group_receiver_args [] = {
 	(char*)"group_receiver", directorio_de_trabajo_relativo, id, nombre_del_grupo, nombre_broker_local};
-
-void locate_dir(char launch_dir [FILENAME_MAX], char current_working_dir [FILENAME_MAX], char dir [FILENAME_MAX]) {
+*/
+void GroupCommManager::locate_dir(char launch_dir [FILENAME_MAX], char current_working_dir [FILENAME_MAX], char dir [FILENAME_MAX]) {
 	struct stat buf;
 	strcpy(launch_dir, current_working_dir);
 	strcat(launch_dir, "/");
@@ -51,7 +51,7 @@ void locate_dir(char launch_dir [FILENAME_MAX], char current_working_dir [FILENA
 	}
 }
 
-void relativize_dir(const char directorio_de_trabajo [FILENAME_MAX], char launch_dir [FILENAME_MAX]) {
+void GroupCommManager::relativize_dir(const char directorio_de_trabajo [FILENAME_MAX], char launch_dir [FILENAME_MAX]) {
 	char * dir;
 	const char *dir_cmp;
 	const char *dir_move;
@@ -138,8 +138,8 @@ void GroupCommManager::levantar_grupo(const std::string & nombre_grupo, char num
 		throw GenericError("Cannot change working dir to %s", launch_dir);
 	}
 
-	Process("group_receiver", group_receiver_args);
-	Process("group_sender", group_sender_args);
+	//Process("group_receiver", group_receiver_args);
+	//Process("group_sender", group_sender_args);
 
 	if (chdir(current_working_dir) != 0) {
 		throw GenericError("Cannot change working dir to %s", current_working_dir);
