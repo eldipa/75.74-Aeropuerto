@@ -17,6 +17,7 @@
 #define PATH_COLAS_CLIENTES "/colas_client_handler.lck"
 #define PATH_COLA_TOKEN_MANAGER "/cola_token_manager.lck"
 #define PATH_COLAS_BROKERS "/colas_broker.lck"
+#define PATH_COLA_LEADER "/cola_leader.lck"
 #define POSTFIJO_INIT ".init"
 
 //#define MAX_NAME_SIZE 30

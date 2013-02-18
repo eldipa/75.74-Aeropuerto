@@ -55,6 +55,7 @@ public:
 	unsigned short obtener_proximo_cliente();
 
 	void pasar_token_a_proximo_cliente();
+	void reenviar_token_al_cliente();
 
 	void lock_token();
 	void release_token(MessageQueue *);

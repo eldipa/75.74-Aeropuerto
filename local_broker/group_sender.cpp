@@ -110,7 +110,7 @@ void print_args(int argc, char * argv []){
 int main(int argc, char * argv[]) {
 	char id;
 
-	print_args(argc,argv);
+	//print_args(argc,argv);
 
 	if (argc < 5) {
 		std::cerr

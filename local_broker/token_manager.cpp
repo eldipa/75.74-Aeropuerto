@@ -20,13 +20,13 @@
 #include "daemon.h"
 #include "group_comm_manager.h"
 
-TokenManager::TokenManager(const std::string & directorio_de_trabajo, char id, const std::string & groups_file)
-	: clientes(std::string(directorio_de_trabajo).append(PATH_COLA_TOKEN_MANAGER).c_str(), id, 0664, true)
+TokenManager::TokenManager(const std::string & directorio, char id, const std::string & groups_file)
+	: clientes(std::string(directorio).append(PATH_COLA_TOKEN_MANAGER).c_str(), id, 0664, true),
+		directorio_de_trabajo(directorio)
 {
 	id = id + 1 - 1;
-	GroupCommManager manager(directorio_de_trabajo);
+
 	crear_grupos(directorio_de_trabajo, groups_file);
-	manager.levantar_grupo("cinta_principal",char(1));
 }
 
 TokenManager::~TokenManager() {
@@ -45,6 +45,7 @@ void TokenManager::crear_grupos(const std::string & directorio_de_trabajo, const
 	char primera_linea [200];
 	int tamanio_memoria;
 	int file;
+	int id_grupo;
 
 	f = fopen(groups_file.c_str(), "rt");
 
@@ -54,7 +55,7 @@ void TokenManager::crear_grupos(const std::string & directorio_de_trabajo, const
 	// evito la primera linea
 	fscanf(f, "%s\n", primera_linea);
 
-	while (fscanf(f, "%[^:]:%d\n", nombre_recurso, &tamanio_memoria) != EOF) {
+	while (fscanf(f, "%[^:]:%d:%d\n", nombre_recurso, &tamanio_memoria, &id_grupo) != EOF) {
 		// Crear Grupo
 		Grupo * g;
 		// Creo el archivo lck
@@ -74,13 +75,9 @@ void TokenManager::crear_grupos(const std::string & directorio_de_trabajo, const
 		}
 		g = new Grupo(directorio_de_trabajo, nombre_recurso, tamanio_memoria, true);
 		grupos.insert(std::pair<std::string, Grupo *>(std::string(nombre_recurso), g));
-		/*if (tamanio_memoria > 0) {
-			strcpy(path, directorio_de_trabajo.c_str());
-			strcat(path, "/");
-			strcat(path, nombre_recurso);
-			strcat(path, POSTFIJO_INIT);
-			g->inicializar_memoria(path);
-		}*/
+
+		GroupCommManager manager(directorio_de_trabajo);
+		manager.levantar_grupo(nombre_recurso, char(id_grupo));
 	}
 
 	fclose(f);

@@ -1,3 +1,3 @@
-/*NOMBRE_GRUPO:TAMAÑO_MEMORIA_COMPARTIDA*/
-cinta_principal:600
-sem_cinta_principal_1:0
+/*NOMBRE_GRUPO:TAMAÑO_MEMORIA_COMPARTIDA:ID_GRUPO*/
+cinta_principal:600:1
+sem_cinta_principal_1:0:2

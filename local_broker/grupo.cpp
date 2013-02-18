@@ -53,7 +53,8 @@ Grupo::Grupo(const std::string & directorio_de_trabajo, std::string nombre_recur
 			client_names [i] = client_names [i - 1] + MAX_NOMBRE_RECURSO * sizeof(char);
 			(*client_names) [i] = '\0';
 		}
-		memoria_compartida = reinterpret_cast<void *>(client_names [0] + MAX_CLIENTS * MAX_NOMBRE_RECURSO * sizeof(char));
+		memoria_compartida =
+			reinterpret_cast<void *>(client_names [0] + MAX_CLIENTS * MAX_NOMBRE_RECURSO * sizeof(char));
 
 		*cant_clientes = 0;
 		*mem_size = tamanio_memoria;
@@ -195,6 +196,19 @@ void Grupo::pasar_token_a_proximo_cliente() {
 	mutex.signalize(0);
 }
 
+// SOLO SE DEBE USAR CON group_sender
+void Grupo::reenviar_token_al_cliente() {
+	mutex.wait_on(0);
+
+	mensaje.mtype = cliente_actual + 1;
+
+	std::cout << "Resending Token from " << this->nombre_recurso << " to: " << client_names [cliente_actual] << "("
+		<< cliente_actual << ")" << std::endl;
+
+	cola.push(&mensaje, sizeof(traspaso_token_t) - sizeof(long));
+	mutex.signalize(0);
+}
+
 void Grupo::lock_token() {
 
 	cola.pull(&mensaje, sizeof(traspaso_token_t) - sizeof(long), this->numero_cola_asignada);
@@ -242,7 +256,7 @@ void Grupo::inicializar_memoria(const std::string & init_file) {
 				vector = parser.vector();
 				int_val = (int *)p;
 				i = 0;
-				while(i < vector){
+				while (i < vector) {
 					(*int_val) = parser.int_val();
 					int_val++;
 					i++;

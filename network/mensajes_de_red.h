@@ -36,15 +36,20 @@ typedef struct {
 } mensajes_local_broker_token_t;
 
 typedef enum {
-	TOKEN_DELIVER, GROUP_DISCOVER, LEADER
+	LEADER = 0, TOKEN_DELIVER = 1, GROUP_DISCOVER = 2, TOKEN_LOST = 3, INITALIZATION = 4, TOKEN_RECOVER = 5
 } GROUP_MSG_T;
 
 typedef struct {
 	GROUP_MSG_T tipo;
 	int numero_de_mensaje;
 	size_t cantidad_bytes_total;
-	char data[DATA_SIZE];
+	char data [DATA_SIZE];
 } mensajes_local_broker_group_t;
+
+typedef struct {
+	long mtype;
+	mensajes_local_broker_group_t data;
+} mensajes_local_broker_lider_t;
 
 }
 #endif /* MENSAJES_DE_RED_H_ */
