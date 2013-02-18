@@ -33,11 +33,12 @@ def create_leader_proposal_msj(localhost_name):
 
 
 class Driver:
-    def __init__(self, localhost_name, path, char_id_out, group_id, network_name):
+    def __init__(self, localhost_name, path, char_id_out, group_id, network_name, userland_inbound_queue):
         self.leader_name = self.localhost_name = localhost_name
         self.network_name = network_name
         self.leader_process = None
         self.path, self.char_id_out, self.group_id = path, char_id_out, group_id
+        self.userland_inbound_queue = userland_inbound_queue
 
     def handle_loop_message(self, loop_payload):
         '''This function will process the loop message and will determine if the message should be passed to the next stage (the next process)
@@ -63,6 +64,9 @@ class Driver:
 
                 self.clean()
                 self.leader_process = Popen(["python", "leader.py", self.path, self.char_id_out, str(self.group_id), self.localhost_name, self.network_name])
+               
+                #XXX Who has the token?
+                self.userland_inbound_queue.push(message.pack("\x00"*(4*3 + 256), passage.ID_BY_TYPE['USER']))
                 return False 
 
 
@@ -136,8 +140,8 @@ if __name__ == '__main__':
       path, hex(ord(char_id_in)), group_id, localhost_name, network_name))
    userland_inbound_queue = MessageQueue(path, char_id_in, 0644, True)
    userland_outbound_queue = MessageQueue(path, char_id_out, 0644, True)
-    
-   driver = Driver(localhost_name, path, char_id_out, group_id, network_name)
+   
+   driver = Driver(localhost_name, path, char_id_out, group_id, network_name, userland_inbound_queue)
    
    head_process = Popen(["python", "outbound.py", path, char_id_out, str(group_id), localhost_name])
    
