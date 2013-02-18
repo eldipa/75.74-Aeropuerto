@@ -124,13 +124,11 @@ private:
  */
 class ConexionesAeropuerto {
 public:
-	ConexionesAeropuerto(const char *path_to_locks, yasper::ptr<IQueueManager> queue_manager) : queue_manager(queue_manager) {
+	ConexionesAeropuerto(const char *path_to_locks) {
 		char path_lock[256];
-
 		crear_archivos_lck(path_to_locks);
 
-		Log::info("Creando ipcs para Message Broker en share memory...%s%s", path_to_locks,PATH_MESSAGE_BROKER);
-      shm_broker = new MessageBroker(path_to_locks, true);
+      queue_manager = ApiConfiguracion::get_queue_manager(path_to_locks, true);
 
 		Log::info("Creando ipcs para Controlador de puestos de checkin...%s%s", path_to_locks,
 				PATH_COLA_CONTROL_CHECKIN);

@@ -6,13 +6,16 @@
 #include <stdexcept>
 
 #include "sharedobject.h"
+#include "imessage_broker.h"
+
+#include "semaphoreset.h"
 
 class MessageBrokerData {
 public:
    char  proj_id_to_queue_id [255][255];
 };
 
-class MessageBroker {
+class MessageBroker : public IMessageBroker {
 
 public:
 
@@ -31,7 +34,8 @@ private:
    std::string queues_path;
    bool is_owner;
    SharedObject<MessageBrokerData> queue_ids;
-   
+   SemaphoreSet sem_set;
+
    char allocate_queue_id(std::string queue_id);
    void deallocate_queue_id(std::string queue_id);
    char get_proj_id(std::string queue_id);

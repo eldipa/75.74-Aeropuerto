@@ -5,31 +5,48 @@
 
 #include "message_broker.h"
 #include "brokermessagequeue.h"
+#include "message_broker_stub.h"
+
+#include <string>
+#include <sstream>
 
 class BrokerQueueManager : public IQueueManager {
 
 public:
 
-   BrokerQueueManager(const char* path_to_locks) : abs_path(path_to_locks) {
+   BrokerQueueManager(yasper::ptr<IMessageBroker> broker) : broker(broker) {
    }
 
    virtual yasper::ptr<IMessageQueue> get_queue(const char* queue_id, char proj_id, bool create =  false) {
-      queue_id = queue_id;
-      proj_id = proj_id;
-      create = create;
-      return new BrokerMessageQueue(queue_id, proj_id, create, new MessageBroker(abs_path.c_str()));
-      // std::string queue_broker_id(queue_id);
-      // queue_broker_id = queue_broker_id + "_" + proj_id;
-
-      // return new BrokerMessageQueue(queue_broker_id.c_str(), new MessageBroker(abs_path.c_str()), create);
+      return new BrokerMessageQueue(queue_id, proj_id, create, broker);
    }
 
    virtual ~BrokerQueueManager() {
    }
 
 private:
-   std::string abs_path;
-
-
+   yasper::ptr<IMessageBroker> broker;
 };
+
+/*
+class NetworkQueueManager : public IQueueManager{
+public:
+   NetworkQueueManager(const char* ip, int port = 7000) : ip(ip) {
+      std::stringstream sstr;sstr << port;
+      service = sstr.str();
+   }
+
+   virtual yasper::ptr<IMessageQueue> get_queue(const char* queue_id, char proj_id, bool create =  false) {
+      yasper::ptr<IMessageBroker>  broker = new MessageBrokerStub(ip.c_str(), service.c_str());
+      return new BrokerMessageQueue(queue_id, proj_id, create, broker);
+   }
+
+   virtual ~NetworkQueueManager() {
+   }
+private:
+
+   std::string ip;
+   std::string service;
+};
+*/
 #endif

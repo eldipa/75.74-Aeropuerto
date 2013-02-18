@@ -15,10 +15,6 @@
 #include "stmt.h"
 #include "tupleiter.h"
 
-#include "yasper.h"
-#include "iqueue_manager.h"
-#include "api_configuracion.h"
-
 #include <list>
 
 // static char buffer_num_vuelo[20];
@@ -108,8 +104,7 @@ try {
       strncpy(directorio_de_trabajo, PATH_KEYS, MAX_PATH_SIZE);
 		sprintf(id_productor_cinta_central, "%d", MAX_SCANNERS + 1);
 
-      yasper::ptr<IQueueManager> queue_manager = ApiConfiguracion::get_queue_manager(directorio_de_trabajo);
-		ConexionesAeropuerto aeropuerto(directorio_de_trabajo, queue_manager);
+		ConexionesAeropuerto aeropuerto(directorio_de_trabajo);
 
 		Log::info("iniciando simulación...");
 

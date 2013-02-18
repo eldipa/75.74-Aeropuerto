@@ -29,8 +29,13 @@ public:
    }
 
    virtual ~BrokerMessageQueue() {
-      if(is_owner)
-         broker->destroy_queue(id.c_str());
+      if(is_owner) {
+         try {
+            broker->destroy_queue(id.c_str());
+         } catch (std::exception error) {
+            Log::crit("Error al destruir queue_id:%s", id.c_str());
+         }
+      }
    }
 };
 

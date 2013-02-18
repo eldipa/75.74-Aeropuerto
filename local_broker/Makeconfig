@@ -2,4 +2,4 @@ INCLUDE_PATHS = ../api ../log ./../db ../ipc ../os ../common ../external ../netw
 LIBRARIES =  ../api/libapi.a ../ipc/libipc.a  ../network/libnetwork.a  ../os/libos.a ../log/liblog.a   ../common/libcommon.a 
 EXTERNAL_LIBRARIES = dl sqlite3
 LINKER_FLAGS += -rdynamic
-TARGET = local_broker_launcher client_handler liblocal_broker.a
+TARGET = local_broker_launcher client_handler liblocal_broker.a  message_broker_server
