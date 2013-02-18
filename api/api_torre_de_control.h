@@ -4,6 +4,10 @@
 #include "messagequeue.h"
 #include <string>
 
+#include "yasper.h"
+#include "imessagequeue.h"
+#include "iqueue_manager.h"
+
 class ApiTorreDeControl {
 public:
    ApiTorreDeControl(const char *directorio_de_trabajo);
@@ -36,9 +40,11 @@ private:
 
 
    std::string path_torre_control;
-   MessageQueue queue_zonas;
-   MessageQueue queue_puestos_checkin;
-   MessageQueue queue_contenedores;
+
+   yasper::ptr<IQueueManager> queue_manager;
+   yasper::ptr<IMessageQueue> queue_zonas;
+   yasper::ptr<IMessageQueue> queue_puestos_checkin;
+   yasper::ptr<IMessageQueue> queue_contenedores;
 
 
 };

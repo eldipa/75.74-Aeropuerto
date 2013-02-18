@@ -1,3 +1,2 @@
-INCLUDE_PATHS = ../os ../ipc ../log ../db ../common ../external ../network
+INCLUDE_PATHS = ../os ../ipc ../log ../db ../common ../external ../network ../local_broker
 LIBRARIES = ../clientes/libclientes.a
-TARGET = libapi.a

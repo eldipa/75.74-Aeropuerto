@@ -6,6 +6,10 @@
 #include "cintas.h"
 #include "rfid.h"
 
+#include "yasper.h"
+#include "imessagequeue.h"
+#include "iqueue_manager.h"
+
 typedef struct t_msg_sospechoso {
    long mtype;
    Equipaje equipaje;
@@ -16,7 +20,9 @@ private:
 	int pos_consumidor_cinta_central;
 	int pos_productor_cinta_central;
 	CintaCentral cinta_central;
-   MessageQueue queue_to_control_sospechosos;
+
+   yasper::ptr<IQueueManager> queue_manager;
+   yasper::ptr<IMessageQueue> queue_to_control_sospechosos;
 
 public:
    ApiControlEquipajes(const char * directorio_de_trabajo,int pos_consumidor_cinta_central,int pos_productor_cinta_central, bool create);

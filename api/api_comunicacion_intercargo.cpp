@@ -4,16 +4,14 @@
 using namespace std;
 #include "api_constants.h"
 
-ApiComunicacionIntercargo::ApiComunicacionIntercargo(const char * directorio_de_trabajo) {
-	//cola_cargadores_equipaje
+#include "api_configuracion.h"
 
-
-	cola_cargadores_equipaje = new MessageQueue(
-			string(directorio_de_trabajo).append(PATH_COLA_ROBOTS_INTERCARGO).c_str(), 0);
+ApiComunicacionIntercargo::ApiComunicacionIntercargo(const char * directorio_de_trabajo) :
+   queue_manager( ApiConfiguracion::get_queue_manager(directorio_de_trabajo) ),
+   cola_cargadores_equipaje( queue_manager->get_queue(PATH_COLA_ROBOTS_INTERCARGO, 0) ) {
 }
 
 ApiComunicacionIntercargo::~ApiComunicacionIntercargo() {
-	delete cola_cargadores_equipaje;
 }
 
 void ApiComunicacionIntercargo::informar_vuelo_entrante(int numero_vuelo_entrante,

@@ -1,22 +1,23 @@
 #include "api_trasbordo.h"
 #include "api_constants.h"
-#include "messagequeue.h"
 #include <exception>
 #include <stdexcept>
 #include <string>
 #include <vector>
 
+#include "api_configuracion.h"
+
 using namespace std;
 
-ApiTrasbordo::ApiTrasbordo(const char* directorio_de_trabajo) {
+ApiTrasbordo::ApiTrasbordo(const char* directorio_de_trabajo) :
+   queue_manager(ApiConfiguracion::get_queue_manager(directorio_de_trabajo)),
+   cola_cargadores_equipaje(queue_manager->get_queue(PATH_COLA_ROBOTS_INTERCARGO, 0)) {
 
 	semaforos = new SemaphoreSet(
 			string(directorio_de_trabajo).append(PATH_IPC_ROBOTS_INTERCARGO).c_str(), 0, 0, 0);
 	memoria_zonas = new SharedMemory(
 			string(directorio_de_trabajo).append(PATH_IPC_ROBOTS_INTERCARGO).c_str(), 1, 0, 0,
 			false, false);
-	cola_cargadores_equipaje = new MessageQueue(
-			string(directorio_de_trabajo).append(PATH_COLA_ROBOTS_INTERCARGO).c_str(), 0);
 	cinta = new CintaCentral(string(directorio_de_trabajo).append(PATH_CINTA_CENTRAL).c_str());
 	id_productor = -1;
 
@@ -24,7 +25,10 @@ ApiTrasbordo::ApiTrasbordo(const char* directorio_de_trabajo) {
 	vuelos_esperando = zonas_asignadas + MAX_ZONAS;
 }
 
-ApiTrasbordo::ApiTrasbordo(const char* directorio_de_trabajo, bool create) {
+ApiTrasbordo::ApiTrasbordo(const char* directorio_de_trabajo, bool create) :
+   queue_manager(ApiConfiguracion::get_queue_manager(directorio_de_trabajo)),
+   cola_cargadores_equipaje(queue_manager->get_queue(PATH_COLA_ROBOTS_INTERCARGO, 0, true)) {
+
 	std::vector<unsigned short> valores;
 	int i, tamanio;
 
@@ -39,9 +43,6 @@ ApiTrasbordo::ApiTrasbordo(const char* directorio_de_trabajo, bool create) {
 		memoria_zonas = new SharedMemory(
 				string(directorio_de_trabajo).append(PATH_IPC_ROBOTS_INTERCARGO).c_str(), 1,
 				tamanio, 0664, true, false);
-		cola_cargadores_equipaje = new MessageQueue(
-				string(directorio_de_trabajo).append(PATH_COLA_ROBOTS_INTERCARGO).c_str(), 0, 0664,
-				true);
 		cinta = NULL;
 		id_productor = -1;
 	}
@@ -50,7 +51,6 @@ ApiTrasbordo::ApiTrasbordo(const char* directorio_de_trabajo, bool create) {
 ApiTrasbordo::~ApiTrasbordo() {
 	delete semaforos;
 	delete memoria_zonas;
-	delete cola_cargadores_equipaje;
 	if (cinta) {
 		delete cinta;
 	}

@@ -8,21 +8,27 @@
 #include "pasajero.h"
 #include "contenedor.h"
 #include "api_constants.h"
-#include "messagequeue.h"
 
 #include "log.h"
 
+#include "yasper.h"
+#include "imessagequeue.h"
+#include "iqueue_manager.h"
+#include "ipc_queue_manager.h"
+
+#include "api_configuracion.h"
 class ApiAvion {
 private:
 
 	int numero_de_vuelo;
-	MessageQueue cola_tractor;
+
+   yasper::ptr<IQueueManager> queue_manager;
+   yasper::ptr<IMessageQueue> cola_tractor;
 
 public:
 	ApiAvion(char * directorio_de_trabajo, int numero_de_vuelo) :
-			cola_tractor(
-					std::string(directorio_de_trabajo).append(PATH_COLA_TRACTORES_AVIONES).c_str(),
-					0) {
+      queue_manager( ApiConfiguracion::get_queue_manager(directorio_de_trabajo) ),
+      cola_tractor(queue_manager->get_queue(PATH_COLA_TRACTORES_AVIONES, 0)) {
 		this->numero_de_vuelo = numero_de_vuelo;
 	}
 
@@ -73,7 +79,7 @@ public:
 
 		do {
 			Log::info("esperando equipaje", this->numero_de_vuelo);
-			cola_tractor.pull(&contenedor_avion, sizeof(ContenedorParaAvion) - sizeof(long),
+			cola_tractor->pull(&contenedor_avion, sizeof(ContenedorParaAvion) - sizeof(long),
 					this->numero_de_vuelo);
 			if (mostrar_cant_contenedores) {
 				Log::info("contenedores total %d", this->numero_de_vuelo,

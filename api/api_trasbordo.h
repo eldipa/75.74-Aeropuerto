@@ -4,16 +4,21 @@
 #include "equipaje.h"
 #include "cintas.h"
 #include "mensajes.h"
-#include "messagequeue.h"
 #include "semaphoreset.h"
 #include "sharedmemory.h"
+
+#include "yasper.h"
+#include "imessagequeue.h"
+#include "iqueue_manager.h"
 
 class ApiTrasbordo {
 
 private:
 	SemaphoreSet * semaforos;
 	SharedMemory * memoria_zonas;
-	MessageQueue * cola_cargadores_equipaje;
+
+   yasper::ptr<IQueueManager> queue_manager;
+   yasper::ptr<IMessageQueue> cola_cargadores_equipaje;
 	CintaCentral * cinta;
 
 	int id_productor;

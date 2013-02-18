@@ -3,6 +3,10 @@
 
 #include <string>
 
+#include "yasper.h"
+#include "imessagequeue.h"
+#include "iqueue_manager.h"
+
 class ApiControladorDeVuelo {
 public:
    ApiControladorDeVuelo(const char* directorio_de_trabajo, int num_vuelo);
@@ -15,6 +19,10 @@ private:
 
    std::string path_to_locks;
    int num_vuelo;
+
+   yasper::ptr<IQueueManager> queue_manager;
+   yasper::ptr<IMessageQueue> queue_trasbordo;
+   yasper::ptr<IMessageQueue> queue_checkin;
 };
 
 #endif
