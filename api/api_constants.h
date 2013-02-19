@@ -18,7 +18,8 @@
 #define MUTEX_INFO_VUELOS 0
 #define CANT_MUTEX_CENTRAL 1
 
-#define PATH_KEYS "/tmp/carpeta_keys_ftok"
+// #define PATH_KEYS "/tmp/carpeta_keys_ftok"
+#define DEFAULT_CONFIG_FILE "./config/simulacion.ini"
 
 #define PATH_CINTA_CHECKIN "/cinta_checkin.lck"
 #define PATH_CINTA_SCANNER "/cinta_scanner.lck"

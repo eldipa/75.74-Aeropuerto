@@ -46,10 +46,13 @@ void Server::run() {
       Log::crit("ServerError: Critical error. Unknow exception at the end of the 'main' function.");
    }
    
+   Log::info("Stop server, service:%s", service.c_str());
+   
    for(int i = 0; i<cant_childs; i++) {
       int status;
       wait(&status);
    }  
+
 }
 
 

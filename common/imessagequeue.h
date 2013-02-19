@@ -1,6 +1,8 @@
 #ifndef _IMESSAGEQUEUE_H_
 #define _IMESSAGEQUEUE_H_
 
+#include <sys/types.h>
+
 class IMessageQueue {
 public:
    virtual void push(const void *msg, size_t size_txt) = 0;

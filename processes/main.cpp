@@ -88,9 +88,10 @@ static char *args_scheduler_vuelos[] = { (char*)"scheduler_vuelos", directorio_d
 //void lanzar_vuelos();
 //void lanzar_vuelo(int num_vuelo);
 
-// int main(int argc, char** argv)
-int main()
+int main(int argc, char** argv)
+
 try {
+   std::string config_file( (argc>1)?argv[1]:DEFAULT_CONFIG_FILE );
 
 	//be_a_daemon();
 
@@ -100,8 +101,7 @@ try {
 	std::list<Process> processes;
 
 	{
-
-      strncpy(directorio_de_trabajo, PATH_KEYS, MAX_PATH_SIZE);
+      strncpy(directorio_de_trabajo, ApiConfiguracion::get_wkdir(config_file.c_str()).c_str(), MAX_PATH_SIZE);
 		sprintf(id_productor_cinta_central, "%d", MAX_SCANNERS + 1);
 
 		ConexionesAeropuerto aeropuerto(directorio_de_trabajo);
