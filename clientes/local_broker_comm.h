@@ -11,6 +11,8 @@
 #include <string>
 #include "socket.h"
 
+
+
 class LocalBrokerComm {
 private:
 
@@ -29,6 +31,7 @@ public:
 	void free_mutex(void * memory);
 
 	size_t get_mem_size();
+
 };
 
 #endif /* LOCALBROKERCOMM_H_ */

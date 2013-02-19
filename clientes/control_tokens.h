@@ -12,8 +12,6 @@
 #include "semaphoreset.h"
 #include "mensajes_de_red.h"
 
-// Todas las apis tienen que tener uno
-
 class ControlTokens {
 private:
 	SharedMemory memoria_control;

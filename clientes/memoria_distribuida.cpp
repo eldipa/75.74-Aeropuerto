@@ -6,7 +6,7 @@
  */
 
 #include "memoria_distribuida.h"
-#include "constants.h"
+#include "globalconstants.h"
 
 MemoriaDistribuida::MemoriaDistribuida(const std::string & directorio_de_trabajo, const std::string & nombre_grupo,
 	char id, size_t tamanio)

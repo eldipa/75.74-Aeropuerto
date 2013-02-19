@@ -3,7 +3,7 @@
 #ifndef APICONSTANTS_H_
 #define APICONSTANTS_H_
 
-#include "constants.h"
+#include "globalconstants.h"
 
 // IPCS sobre torre_de_control.lck
 #define MTX_CENTRAL 0

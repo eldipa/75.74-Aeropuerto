@@ -13,7 +13,7 @@ ApiControlEquipajes::ApiControlEquipajes(const char * directorio_de_trabajo,int 
    queue_manager( ApiConfiguracion::get_queue_manager(directorio_de_trabajo) ),
    queue_to_control_sospechosos( queue_manager->get_queue(PATH_CONTROL_SOSPECHOSOS, 1,  create ) ) {
 
-   create = create;
+   create = !!create;
 }
 
 ApiControlEquipajes::ApiControlEquipajes(const char * directorio_de_trabajo,int pos_consumidor_cinta_central,int pos_productor_cinta_central) :

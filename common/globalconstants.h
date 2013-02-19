@@ -5,8 +5,8 @@
  *      Author: gonzalo
  */
 
-#ifndef CONSTANTS_H_
-#define CONSTANTS_H_
+#ifndef GLOBALCONSTANTS_H_
+#define GLOBALCONSTANTS_H_
 
 // *** Constantes de  simulacion ***
 #define SLEEP_PUESTO_CHECKIN 1

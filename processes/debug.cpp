@@ -16,10 +16,10 @@ static char app_name [200];
 static char nombre_grupo [200];
 static char id [10];
 static char tamanio [10];
-static char * args_local_broker_comm [] = {
-	(char*)"/home/gonzalo/workspaces/git/75.74-Aeropuerto/clientes/local_broker_comm", directorio_de_trabajo, app_name,
-	(char*)"localbroker1.sitio1.aeropuerto1:1234", nombre_grupo, id, tamanio, NULL};
-
+/*static char * args_local_broker_comm [] = {
+ (char*)"/home/gonzalo/workspaces/git/75.74-Aeropuerto/clientes/local_broker_comm", directorio_de_trabajo, app_name,
+ (char*)"localbroker1.sitio1.aeropuerto1:1234", nombre_grupo, id, tamanio, NULL};
+ */
 int main(int argc, char * argv [])
 try
 {
@@ -32,7 +32,8 @@ try
 	strncpy(app_name, argv [1], 200);
 
 	if (strncmp(argv [1], "escaner1", MAX_NOMBRE_RECURSO) == 0) {
-		snprintf(directorio_de_trabajo, 200, "%s", "/home/gonzalo/workspaces/git/75.74-Aeropuerto/clientes/locks");
+		//snprintf(directorio_de_trabajo, 200, "%s", "/home/gonzalo/workspaces/git/75.74-Aeropuerto/clientes/locks");
+		snprintf(directorio_de_trabajo, 200, "%s", "./processes/locks");
 	} else {
 		snprintf(directorio_de_trabajo, 200, "%s", "/home/gonzalo/workspaces/git/75.74-Aeropuerto/clientes/locks2");
 	}
@@ -44,34 +45,36 @@ try
 	sprintf(nombre_grupo, "%s", "cinta_principal");
 	sprintf(tamanio, "%d", 0);
 	sprintf(tamanio, "%d", 256);
-	MemoriaDistribuida memoria(directorio_de_trabajo, nombre_grupo, id_recurso, 256);
-	char * pointer;
-	int * a;
+	//MemoriaDistribuida memoria(directorio_de_trabajo, nombre_grupo, id_recurso, 256);
+	//char * pointer;
+	//int * a;
 
 	sprintf(nombre_grupo, "%s", "cinta_principal");
-	//MutexDistribuido mutex(directorio_de_trabajo, nombre_grupo, id_recurso, true);
+	MutexDistribuido mutex(directorio_de_trabajo, nombre_grupo, id_recurso, true);
+	mutex.lanzar_comunicacion(directorio_de_trabajo, "escaner1", "localbroker1.sitio1.aeropuerto1:1234",
+		"cinta_principal", 0, 0);
 
-	Process p("/home/gonzalo/workspaces/git/75.74-Aeropuerto/clientes/local_broker_comm", args_local_broker_comm);
+	//Process p("/home/gonzalo/workspaces/git/75.74-Aeropuerto/clientes/local_broker_comm", args_local_broker_comm);
 
-	pointer = (char*)memoria.memory_pointer();
-	a = reinterpret_cast<int *>(memoria.memory_pointer());
+	//pointer = (char*)memoria.memory_pointer();
+	//a = reinterpret_cast<int *>(memoria.memory_pointer());
 
-	a = (int *)pointer;
+	//a = (int *)pointer;
 
 	//while (*a < 20) {
 
-	memoria.lock();
+	//memoria.lock();
 
 	//(*a)++;
 	//std::cout << argv [1] << ":" << *a << std::endl;
 
-	for (int i = 0 ; i < 30 ; i++) {
+	/*for (int i = 0 ; i < 30 ; i++) {
 
-		std::cout << a[i] << std::endl;
+		std::cout << a [i] << std::endl;
 
-	}
+	}*/
 
-	memoria.unlock();
+	//memoria.unlock();
 	//}
 
 	/*for (int i = 0 ; i < 2 ; i++) {

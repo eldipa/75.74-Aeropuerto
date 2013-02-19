@@ -8,7 +8,7 @@
 #ifndef MENSAJES_DE_RED_H_
 #define MENSAJES_DE_RED_H_
 
-#include "constants.h"
+#include "globalconstants.h"
 #include <cstring>
 
 #define DATA_SIZE 256
