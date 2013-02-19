@@ -21,8 +21,8 @@
 
 void lanzar_notificadores_de_vuelos_de_intercargo(const char*, int);
 
-ApiTorreDeControl::ApiTorreDeControl(const char* directorio_de_trabajo) :
-   queue_manager( ApiConfiguracion::get_queue_manager(directorio_de_trabajo) ),
+ApiTorreDeControl::ApiTorreDeControl(const char* directorio_de_trabajo, const char* config_file) :
+   queue_manager( ApiConfiguracion::get_queue_manager(directorio_de_trabajo, config_file) ),
    queue_zonas( queue_manager->get_queue(PATH_TORRE_DE_CONTROL, Q_ZONAS) ),
    queue_puestos_checkin( queue_manager->get_queue(PATH_TORRE_DE_CONTROL, Q_PUESTOS_CHECKIN) ),
    queue_contenedores( queue_manager->get_queue(PATH_TORRE_DE_CONTROL, Q_CONTENEDORES) ) {   

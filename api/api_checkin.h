@@ -50,7 +50,7 @@ public:
 class ApiCheckIn {
 public:
 
-   ApiCheckIn(const char* directorio_de_trabajo,int id_checkin );
+   ApiCheckIn(const char* directorio_de_trabajo, const char* conig_file, int id_checkin );
    virtual ~ApiCheckIn();
 
    /*

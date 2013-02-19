@@ -18,12 +18,12 @@ bool compare_time (tTaskVuelo t1, tTaskVuelo t2) {
    return ( t1.time < t2.time );
 }
 
-void lanzar_vuelo(tTaskVuelo, const char* dir);
+void lanzar_vuelo(tTaskVuelo, const char* dir, const char* config_file);
 void cargar_vuelos( std::list<tTaskVuelo>& );
 
 int main(int argc, char *argv[]) try {
-   if (argc < 1) {
-      Log::crit("Insuficientes parametros para scheduler_vuelos, se esperaba (directorio_de_trabajo)\n");
+   if (argc < 2) {
+      Log::crit("Insuficientes parametros para scheduler_vuelos, se esperaba (directorio_de_trabajo config_file)\n");
       return (1);
    }
    
@@ -37,7 +37,7 @@ int main(int argc, char *argv[]) try {
    while( !vuelos.empty() ) {
 
       while( (!vuelos.empty()) && (vuelos.front().time <= time ) ){
-         lanzar_vuelo(vuelos.front(), argv[1]);
+         lanzar_vuelo(vuelos.front(), argv[1], argv[2]);
          vuelos.pop_front();
       }
       sleep(1);
@@ -68,7 +68,7 @@ void cargar_vuelos(std::list<tTaskVuelo>& list) {
 
 }
 
-void lanzar_vuelo(tTaskVuelo t, const char* dir) {
+void lanzar_vuelo(tTaskVuelo t, const char* dir, const char* config_file) {
    char buffer_num_vuelo[6];
    char processName[255];
 
@@ -81,6 +81,6 @@ void lanzar_vuelo(tTaskVuelo t, const char* dir) {
    sstr << "controlador_de_vuelo_" << t.num_vuelo;
 	strcpy(processName, sstr.str().c_str());
 
-   char *args_controlador_vuelo[] = { (char*) processName, (char*)dir, (char*) buffer_num_vuelo, NULL };
+   char *args_controlador_vuelo[] = { (char*) processName, (char*)dir, (char*)config_file, (char*) buffer_num_vuelo, NULL };
 	Process controlador_vuelo1("controlador_de_vuelo", args_controlador_vuelo);
 }

@@ -9,14 +9,14 @@
 
 int main(int argc, char* argv[]) try {
 
-	if (argc < 2) {
-		Log::crit("Insuf parametros para controlador_equipajes_sospechosos,se esperaba (directorio_de_trabajo, pos_consumidor_cinta_central,pos_productor_cinta_central)\n");
+	if (argc < 5) {
+		Log::crit("Insuf parametros para controlador_equipajes_sospechosos,se esperaba (directorio_de_trabajo, config_file pos_consumidor_cinta_central,pos_productor_cinta_central)\n");
 		exit(1);
 	}
 
-	ApiControlEquipajes api_control_equipajes(argv[1], atoi(argv[2]), atoi(argv[3]));
+	ApiControlEquipajes api_control_equipajes(argv[1], argv[2], atoi(argv[3]), atoi(argv[4]));
 
-	Log::info("Iniciando ControlEquipajeSospechoso (pos=%s)\n", argv[2]);
+	Log::info("Iniciando ControlEquipajeSospechoso (pos=%s)\n", argv[3]);
 
 	for (;;) {
       Equipaje equipaje = api_control_equipajes.get_equipaje_a_controlar();

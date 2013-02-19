@@ -15,10 +15,8 @@ private:
 
 public:
    
-   // static yasper::ptr<IQueueManager> get_queue_manager(const char* directorio_de_trabajo, const char* config_file, bool create = false) {
-   static yasper::ptr<IQueueManager> get_queue_manager(const char* directorio_de_trabajo, bool create = false) {
-   //static yasper::ptr<IQueueManager> get_queue_manager(const char* directorio_de_trabajo, const char* config_file, bool create = false) {
-      // config_file = config_file;
+   static yasper::ptr<IQueueManager> get_queue_manager(const char* directorio_de_trabajo, const char* config_file, bool create = false) {
+      config_file = config_file;
       directorio_de_trabajo = directorio_de_trabajo;
       create = create;
 

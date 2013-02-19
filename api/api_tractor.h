@@ -21,9 +21,9 @@ private:
    yasper::ptr<IMessageQueue> cola_robot_zona;
 
 public:
-	ApiTractor(const char * directorio_de_trabajo, int id_tractor) :
+	ApiTractor(const char * directorio_de_trabajo, const char* config_file, int id_tractor) :
       id(id_tractor), 
-      queue_manager( ApiConfiguracion::get_queue_manager(directorio_de_trabajo) ),
+      queue_manager( ApiConfiguracion::get_queue_manager(directorio_de_trabajo, config_file) ),
       cola_avion( queue_manager->get_queue(PATH_COLA_TRACTORES_AVIONES, 0) ),
       cola_robot_zona( queue_manager->get_queue(PATH_COLA_ROBOTS_ZONA_TRACTORES, 0) ) {
 

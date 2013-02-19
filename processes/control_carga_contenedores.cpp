@@ -22,19 +22,19 @@
 int main(int argc, char** argv)
 try {
 
-	if (argc < 2) {
+	if (argc < 3) {
 		Log::crit(
-				"Insuficientes parametros para control_carga_contenedores, se esperaba (directorio_de_trabajo, id_robot_carga)\n");
+				"Insuficientes parametros para control_carga_contenedores, se esperaba (directorio_de_trabajo, config_file, id_robot_carga)\n");
 		exit(1);
 	}
 
 
-	int id_robot_carga = atoi(argv[2]);
+	int id_robot_carga = atoi(argv[3]);
 	int  equipajes_por_cargar = 0;
 
 	Log::info("Iniciando controlador de carga para robot_carga %d\n", id_robot_carga);
 
-	ApiCarga api_carga(argv[1],id_robot_carga,  id_robot_carga);
+	ApiCarga api_carga(argv[1], argv[2], id_robot_carga,  id_robot_carga);
 	CintaContenedor cinta_contenedor_carga(std::string(argv[1]).append(PATH_CINTA_CONTENEDOR).c_str(), id_robot_carga);
 
 	Log::info("Espero mensaje checkin cerrado\n");

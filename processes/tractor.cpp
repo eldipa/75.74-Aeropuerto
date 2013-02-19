@@ -11,13 +11,13 @@ int main(int argc, char** argv)
 try {
 	int i;
 	int id_tractor;
-	if (argc < 2) {
-		Log::crit("Insuficientes parametros para tractor, se esperaba (directorio_de_trabajo, id_tractor)\n");
+	if (argc < 3) {
+		Log::crit("Insuficientes parametros para tractor, se esperaba (directorio_de_trabajo, config_file, id_tractor)\n");
 		exit(1);
 	}
-	id_tractor = atoi(argv[2]);
+	id_tractor = atoi(argv[3]);
 
-	ApiTractor tractor(argv[1], id_tractor);
+	ApiTractor tractor(argv[1], argv[2], id_tractor);
 	std::vector<Contenedor> contenedores;
 	BloqueContenedores bloque;
 	while (true) {

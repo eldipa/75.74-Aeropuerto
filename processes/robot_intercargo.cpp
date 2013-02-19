@@ -53,15 +53,15 @@ try {
 	int numero_vuelo_entrante;
 	std::multimap<int, Equipaje>::iterator it;
 
-	if (argc < 3) {
+	if (argc < 4) {
 		Log::crit(
-				"Insuficientes parametros para robot de Intercargo, se esperaba (directorio_de_trabajo, num_vuelo_destino)\n");
+				"Insuficientes parametros para robot de Intercargo, se esperaba (directorio_de_trabajo, config_file, num_vuelo_destino)\n");
 		exit(1);
 	}
 
-	numero_vuelo_destino = atoi(argv[2]);
+	numero_vuelo_destino = atoi(argv[3]);
 
-	ApiTrasbordo api_trasbordo(argv[1]);
+	ApiTrasbordo api_trasbordo(argv[1], argv[2]);
 
 	std::multimap<int, Equipaje> equipajes_a_cargar;
 

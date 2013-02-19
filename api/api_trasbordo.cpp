@@ -9,8 +9,8 @@
 
 using namespace std;
 
-ApiTrasbordo::ApiTrasbordo(const char* directorio_de_trabajo) :
-   queue_manager(ApiConfiguracion::get_queue_manager(directorio_de_trabajo)),
+ApiTrasbordo::ApiTrasbordo(const char* directorio_de_trabajo, const char* config_file) :
+   queue_manager(ApiConfiguracion::get_queue_manager(directorio_de_trabajo, config_file)),
    cola_cargadores_equipaje(queue_manager->get_queue(PATH_COLA_ROBOTS_INTERCARGO, 0)) {
 
 	semaforos = new SemaphoreSet(
@@ -25,8 +25,8 @@ ApiTrasbordo::ApiTrasbordo(const char* directorio_de_trabajo) :
 	vuelos_esperando = zonas_asignadas + MAX_ZONAS;
 }
 
-ApiTrasbordo::ApiTrasbordo(const char* directorio_de_trabajo, bool create) :
-   queue_manager(ApiConfiguracion::get_queue_manager(directorio_de_trabajo)),
+ApiTrasbordo::ApiTrasbordo(const char* directorio_de_trabajo, const char* config_file, bool create) :
+   queue_manager(ApiConfiguracion::get_queue_manager(directorio_de_trabajo, config_file)),
    cola_cargadores_equipaje(queue_manager->get_queue(PATH_COLA_ROBOTS_INTERCARGO, 0, true)) {
 
 	std::vector<unsigned short> valores;

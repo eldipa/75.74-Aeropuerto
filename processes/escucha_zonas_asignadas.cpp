@@ -8,13 +8,13 @@
 int main(int argc, char* argv[])
 try {
 
-	if (argc < 2) {
+	if (argc < 3) {
 		Log::crit(
-				"Insuficientes parametros para Escucha Zonas Asignadas, se esperaba (directorio_de_trabajo)\n");
+				"Insuficientes parametros para Escucha Zonas Asignadas, se esperaba (directorio_de_trabajo, config_file)\n");
 		exit(1);
 	}
 
-	ApiComunicacionTrasbordo trasbordo(argv[1]);
+	ApiComunicacionTrasbordo trasbordo(argv[1], argv[2]);
 
 	for (;;) {
 		Log::info("Esperando asignacion de zona");

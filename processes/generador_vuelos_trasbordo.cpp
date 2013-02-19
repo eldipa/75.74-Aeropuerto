@@ -14,9 +14,10 @@
 
 static char id_vuelo_destino[10];
 static char directorio_de_trabajo[MAX_PATH_SIZE];
+static char config_file[MAX_PATH_SIZE];
 
 static char *args_robot_intercargo[] = { (char*) "robot_intercargo",
-		directorio_de_trabajo, (char*) id_vuelo_destino, NULL };
+                                         directorio_de_trabajo, config_file, (char*) id_vuelo_destino, NULL };
 
 void lanzar_cargador(int vuelo_destino) {
 	sprintf(id_vuelo_destino, "%d", vuelo_destino);
@@ -33,21 +34,22 @@ int main(int argc, char* argv[]) try{
 	int numero_vuelo_entrante;
 	int numero_vuelo_destino;
 
-	ApiComunicacionIntercargo api_comunicacion(argv[1]);
-	strncpy(directorio_de_trabajo, argv[1], MAX_PATH_SIZE);
-
-	if (argc < 4) {
+	if (argc < 5) {
 		Log::crit(
-				"Insuficientes parametros para robot de Intercargo, se esperaba (directorio_de_trabajo, path_archivo_vuelos_entrantes, path_archivo_vuelos_interconexion)\n");
+				"Insuficientes parametros para robot de Intercargo, se esperaba (directorio_de_trabajo, config_file, path_archivo_vuelos_entrantes, path_archivo_vuelos_interconexion)\n");
 		exit(1);
 	}
+
+	ApiComunicacionIntercargo api_comunicacion(argv[1], argv[2]);
+	strncpy(directorio_de_trabajo, argv[1], MAX_PATH_SIZE);
+	strncpy(config_file, argv[2], MAX_PATH_SIZE);
 
 	std::map<int, int> vuelos_lanzados;
 	std::multimap<int, int> vuelos_interconexion;
 	std::multimap<int, int>::iterator it;
 
-	strncpy(path_archivo_vuelos_entrantes, argv[2], MAX_PATH_SIZE);
-	strncpy(path_archivo_vuelos_interconexion, argv[3], MAX_PATH_SIZE);
+	strncpy(path_archivo_vuelos_entrantes, argv[3], MAX_PATH_SIZE);
+	strncpy(path_archivo_vuelos_interconexion, argv[4], MAX_PATH_SIZE);
 
 	archivo_vuelos_interconexion = fopen(path_archivo_vuelos_interconexion, "rt");
 	fscanf(archivo_vuelos_interconexion, "%[^\n]\n", primera_linea);

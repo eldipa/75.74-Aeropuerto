@@ -13,18 +13,18 @@
 int main(int argc, char** argv) try {
 	int id_robot;
 	int num_cinta_checkin;
-	if (argc < 3) {
+	if (argc < 5) {
 		Log::crit(
-				"Insuf parametros para robot de checkin,se esperaba (directorio_de_trabajo, id, num_cinta_checkin_in num_cinta_scanner)\n");
+				"Insuf parametros para robot de checkin,se esperaba (directorio_de_trabajo, config_file, id, num_cinta_checkin_in num_cinta_scanner)\n");
 		exit(1);
 	}
 
-	id_robot = atoi(argv[2]); // de 1 a N
-	num_cinta_checkin=atoi(argv[3]);
+	id_robot = atoi(argv[3]); // de 1 a N
+	num_cinta_checkin=atoi(argv[4]);
 
 	CintaCheckin cinta_checkin(std::string(argv[1]).append(PATH_CINTA_CHECKIN).c_str(), num_cinta_checkin);
 
-	CintaScanner<Equipaje> cinta_scanner(std::string(argv[1]).append(PATH_CINTA_SCANNER).c_str(), atoi(argv[4]));
+	CintaScanner<Equipaje> cinta_scanner(std::string(argv[1]).append(PATH_CINTA_SCANNER).c_str(), atoi(argv[5]));
 
 
 	// cada robot de checkin distribuye entre n scanners

@@ -22,14 +22,14 @@ std::vector<Equipaje>& get_equipajes(int num_vuelo, int num_pasajero, std::vecto
 std::string print_equipaje(const std::vector<Equipaje>& equipajes);
 
 int main(int argc, char** argv) try {
-	if (argc < 3) {
-		Log::crit("Insuficientes parametros para generador_pasajeros, se esperaba (directorio_de_trabajo, num_vuelo, num_puesto_checkin)\n");
+	if (argc < 5) {
+		Log::crit("Insuficientes parametros para generador_pasajeros, se esperaba (directorio_de_trabajo, config_file, num_vuelo, num_puesto_checkin)\n");
 		return (1);
 	}
 
-	int num_vuelo = atoi(argv[2]);
-	int num_puesto_checkin = atoi(argv[3]);
-	ApiCheckIn checkin(argv[1],num_puesto_checkin);
+	int num_vuelo = atoi(argv[3]);
+	int num_puesto_checkin = atoi(argv[4]);
+	ApiCheckIn checkin(argv[1], argv[2], num_puesto_checkin);
    std::vector<int> id_pasajeros;
 
    get_pasajeros(num_vuelo, id_pasajeros);

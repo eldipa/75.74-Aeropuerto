@@ -14,24 +14,24 @@ try {
 	int id_cinta_scanner;
 	if (argc < 4) {
 		Log::crit(
-				"Insuficientes parametros para scanner, se esperaba (directorio_de_trabajo, id, id_cinta_scanner)\n");
+				"Insuficientes parametros para scanner, se esperaba (directorio_de_trabajo, config_file, id, id_cinta_scanner)\n");
 		return (1);
 	}
 
-	id_robot = atoi(argv[2]); // de 1 a N
+	id_robot = atoi(argv[3]); // de 1 a N
 
 	if (id_robot < 1) {
 		Log::crit("ID de robot_scanner incorrecto %d\n", id_robot);
 		exit(1);
 	}
 
-	id_cinta_scanner = atoi(argv[3]);
+	id_cinta_scanner = atoi(argv[4]);
 
 	CintaScanner<Equipaje> cinta_scanner(std::string(argv[1]).append(PATH_CINTA_SCANNER).c_str(),
 			id_cinta_scanner, id_robot);
-	ApiScanner api_escaner_cinta_central(argv[1], id_robot);
+	ApiScanner api_escaner_cinta_central(argv[1], argv[2], id_robot);
 
-	Log::info("Iniciando scanner(%s), %s\n", argv[2], argv[3]);
+	Log::info("Iniciando scanner(%s), %s\n", argv[3], argv[4]);
 
 	for (;;) {
 		Log::info("Intentando tomar un nuevo equipaje de cinta de scanner\n");
@@ -48,7 +48,7 @@ try {
 			Log::info("equipaje limpio: %s\n", equipaje.toString().c_str());
 		}
 
-		Log::info("pasando equipaje a cinta central (%s)\n", argv[2]);
+		Log::info("pasando equipaje a cinta central (%s)\n", argv[3]);
 		api_escaner_cinta_central.colocar_equipaje_en_cinta_principal(equipaje);
 	}
 

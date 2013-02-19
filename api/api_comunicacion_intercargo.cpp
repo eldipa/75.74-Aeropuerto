@@ -6,8 +6,8 @@ using namespace std;
 
 #include "api_configuracion.h"
 
-ApiComunicacionIntercargo::ApiComunicacionIntercargo(const char * directorio_de_trabajo) :
-   queue_manager( ApiConfiguracion::get_queue_manager(directorio_de_trabajo) ),
+ApiComunicacionIntercargo::ApiComunicacionIntercargo(const char * directorio_de_trabajo, const char* config_file) :
+   queue_manager( ApiConfiguracion::get_queue_manager(directorio_de_trabajo, config_file) ),
    cola_cargadores_equipaje( queue_manager->get_queue(PATH_COLA_ROBOTS_INTERCARGO, 0) ) {
 }
 

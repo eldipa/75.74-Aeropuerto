@@ -1,12 +1,13 @@
 #include "api_despachante.h"
 #include "log.h"
 
-ApiDespachante::ApiDespachante(const char* directorio_de_trabajo,int numero_despachante) :
+ApiDespachante::ApiDespachante(const char* directorio_de_trabajo, const char* config_file, int numero_despachante) :
    sem_set(std::string(directorio_de_trabajo).append(PATH_ROBOT_DESPACHO).c_str(), numero_despachante*cant_ipcs, 1),
    mutex_asignaciones(sem_set, 0),
    asignaciones(std::string(directorio_de_trabajo).append(PATH_ROBOT_DESPACHO).c_str(), numero_despachante*cant_ipcs+1),
    cinta(std::string(directorio_de_trabajo).append(PATH_CINTA_CENTRAL).c_str()) {
 
+   config_file = config_file;
 	this->numero_despachante = numero_despachante;
 	this->saco_elemento = true;
 

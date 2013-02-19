@@ -20,66 +20,68 @@
 // static char buffer_num_vuelo[20];
 
 static char directorio_de_trabajo[MAX_PATH_SIZE];
+static char config_file[MAX_PATH_SIZE];
+
 static char id_productor_cinta_central[10];
 
 // static char *args_controlador_vuelo[] = { (char*) "controlador_de_vuelo", directorio_de_trabajo,
 // 		(char*) buffer_num_vuelo, NULL };
 
-static char *args_puesto_checkin1[] = { (char*) "puesto_checkin_1", directorio_de_trabajo,
+static char *args_puesto_checkin1[] = { (char*) "puesto_checkin_1", directorio_de_trabajo, config_file,
 		(char*) "1", NULL };
 
-static char *args_puesto_checkin2[] = { (char*) "puesto_checkin_2", directorio_de_trabajo,
+static char *args_puesto_checkin2[] = { (char*) "puesto_checkin_2", directorio_de_trabajo, config_file,
 		(char*) "2", NULL };
 
-static char *args_puesto_checkin3[] = { (char*) "puesto_checkin_3", directorio_de_trabajo,
+static char *args_puesto_checkin3[] = { (char*) "puesto_checkin_3", directorio_de_trabajo, config_file,
 		(char*) "3", NULL };
 
-static char *args_robot_checkin[] = { (char*) "robot_checkin_1", directorio_de_trabajo, (char*) "1",
+static char *args_robot_checkin[] = { (char*) "robot_checkin_1", directorio_de_trabajo,  config_file, (char*) "1",
 		(char*) "1", (char*) "1", NULL };
 
-static char *args_scanner1[] = { (char*) "robot_scanner_1", directorio_de_trabajo, (char*) "1",
+static char *args_scanner1[] = { (char*) "robot_scanner_1", directorio_de_trabajo,  config_file, (char*) "1",
 		(char*) "1", (char*) "1", NULL };
 
-static char *args_scanner2[] = { (char*) "robot_scanner_1", directorio_de_trabajo, (char*) "2",
+static char *args_scanner2[] = { (char*) "robot_scanner_1", directorio_de_trabajo, config_file,(char*) "2",
 		(char*) "1", (char*) "1", NULL };
 
-static char *args_robot_despacho1[] = { (char*) "robot_despacho_1", directorio_de_trabajo,
+static char *args_robot_despacho1[] = { (char*) "robot_despacho_1", directorio_de_trabajo,  config_file,
 		(char*) "1", (char*) "1", (char*) "2", NULL };
 
-static char *args_robot_despacho2[] = { (char*) "robot_despacho_2", directorio_de_trabajo,
+static char *args_robot_despacho2[] = { (char*) "robot_despacho_2", directorio_de_trabajo,config_file,
 		(char*) "2", (char*) "3", (char*) "4", NULL };
 
-static char *args_robot_carga1[] = { (char*) "robot_carga_1", directorio_de_trabajo, (char*) "1",
+static char *args_robot_carga1[] = { (char*) "robot_carga_1", directorio_de_trabajo,  config_file, (char*) "1",
 		NULL };
 
-static char *args_robot_carga2[] = { (char*) "robot_carga_2", directorio_de_trabajo, (char*) "2",
+static char *args_robot_carga2[] = { (char*) "robot_carga_2", directorio_de_trabajo,  config_file, (char*) "2",
 		NULL };
 
-static char *args_robot_carga3[] = { (char*) "robot_carga_3", directorio_de_trabajo, (char*) "3",
+static char *args_robot_carga3[] = { (char*) "robot_carga_3", directorio_de_trabajo,  config_file, (char*) "3",
 		NULL };
 
-static char *args_robot_carga4[] = { (char*) "robot_carga_4", directorio_de_trabajo, (char*) "4",
+static char *args_robot_carga4[] = { (char*) "robot_carga_4", directorio_de_trabajo,  config_file, (char*) "4",
 		NULL };
 
 static char *args_robot_sospechosos[] = { (char*) "robot_control_equipaje_sospechoso_5",
-		directorio_de_trabajo, (char*) "3", id_productor_cinta_central, NULL };
+		directorio_de_trabajo,  config_file, (char*) "3", id_productor_cinta_central, NULL };
 
 static char * args_generador_vuelos_trasbordo[] = { (char*) "generador_vuelos_trasbordo",
-		directorio_de_trabajo, (char*) "./entrada/vuelos_entrantes.csv",
+		directorio_de_trabajo,  config_file, (char*) "./entrada/vuelos_entrantes.csv",
 		(char*) "./entrada/vuelos_interconexion.csv", NULL };
 
 static char *args_escucha_zonas_asignadas[] = { (char*) "escucha_zonas_asignadas",
-		directorio_de_trabajo, NULL };
+		directorio_de_trabajo,  config_file, NULL };
 
 //static char *args_torre_de_control[] = { (char*) "torre_de_control_1", directorio_de_trabajo, NULL };
 
-static char *args_tractor1[] = { (char*) "tractor_1", directorio_de_trabajo, (char*) "1", NULL };
+static char *args_tractor1[] = { (char*) "tractor_1", directorio_de_trabajo,  config_file, (char*) "1", NULL };
 
-static char *args_tractor2[] = { (char*) "tractor_2", directorio_de_trabajo, (char*) "2", NULL };
+static char *args_tractor2[] = { (char*) "tractor_2", directorio_de_trabajo,  config_file, (char*) "2", NULL };
 
-static char *args_scheduler_aviones[] = { (char*)"scheduler_aviones", directorio_de_trabajo, NULL };
+static char *args_scheduler_aviones[] = { (char*)"scheduler_aviones", directorio_de_trabajo,  config_file, NULL };
 
-static char *args_scheduler_vuelos[] = { (char*)"scheduler_vuelos", directorio_de_trabajo, NULL };
+static char *args_scheduler_vuelos[] = { (char*)"scheduler_vuelos", directorio_de_trabajo,  config_file, NULL };
 
 /*
  * Lanza todos los vuelos registrados.
@@ -91,7 +93,7 @@ static char *args_scheduler_vuelos[] = { (char*)"scheduler_vuelos", directorio_d
 int main(int argc, char** argv)
 
 try {
-   std::string config_file( (argc>1)?argv[1]:DEFAULT_CONFIG_FILE );
+   strcpy(config_file, (argc>1)?argv[1]:DEFAULT_CONFIG_FILE);
 
 	//be_a_daemon();
 
@@ -101,10 +103,10 @@ try {
 	std::list<Process> processes;
 
 	{
-      strncpy(directorio_de_trabajo, ApiConfiguracion::get_wkdir(config_file.c_str()).c_str(), MAX_PATH_SIZE);
+      strncpy(directorio_de_trabajo, ApiConfiguracion::get_wkdir(config_file).c_str(), MAX_PATH_SIZE);
 		sprintf(id_productor_cinta_central, "%d", MAX_SCANNERS + 1);
 
-		ConexionesAeropuerto aeropuerto(directorio_de_trabajo);
+		ConexionesAeropuerto aeropuerto(directorio_de_trabajo, config_file);
 
 		Log::info("iniciando simulación...");
 

@@ -13,13 +13,13 @@ try {
 	//bool vuelo_cargado;
 	std::vector<Contenedor> contenedores;
 
-	if (argc < 2) {
+	if (argc < 3) {
 		Log::crit(
-				"Insuficientes parametros para avion, se esperaba (directorio_de_trabajo, numero_de_vuelo)\n");
+				"Insuficientes parametros para avion, se esperaba (directorio_de_trabajo, config_file, numero_de_vuelo)\n");
 		exit(1);
 	}
 
-	ApiAvion vuelo(argv[1], atoi(argv[2]));
+	ApiAvion vuelo(argv[1], argv[2], atoi(argv[3]));
 	//vuelo_cargado = false;
 	// Acá tendría que ir la lógica de la torre de control
 	// Por ahora harcodeo una notificación de llegada de vuelo
@@ -29,7 +29,7 @@ try {
 	vuelo.notificar_avion_en_zona();
 	contenedores = vuelo.esperar_carga_equipajes();
 
-   Log::info("Despegando vuelo %d con %d contenedores y %d valijas", atoi(argv[2]), contenedores.size(), get_total_valijas(contenedores));
+   Log::info("Despegando vuelo %d con %d contenedores y %d valijas", atoi(argv[3]), contenedores.size(), get_total_valijas(contenedores));
 
 	//}
 

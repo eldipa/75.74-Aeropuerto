@@ -3,9 +3,10 @@
 #include <stdlib.h>
 #include <string>
 
-ApiScanner::ApiScanner(const char* directorio_de_trabajo, int numero_escaner) :
+ApiScanner::ApiScanner(const char* directorio_de_trabajo, const char* config_file, int numero_escaner) :
 		numero_escaner(numero_escaner), cinta(
 				std::string(directorio_de_trabajo).append(PATH_CINTA_CENTRAL).c_str()) {
+   config_file = config_file;
 }
 
 ApiScanner::~ApiScanner() {

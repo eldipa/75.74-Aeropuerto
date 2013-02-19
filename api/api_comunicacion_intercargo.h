@@ -17,7 +17,7 @@ private:
    yasper::ptr<IMessageQueue> cola_cargadores_equipaje;
 
 public:
-	ApiComunicacionIntercargo(const char * directorio_de_trabajo);
+	ApiComunicacionIntercargo(const char * directorio_de_trabajo, const char* config_file);
 	virtual ~ApiComunicacionIntercargo();
 
 	void informar_vuelo_entrante(int numero_vuelo_entrante, int numero_vuelo_destino);

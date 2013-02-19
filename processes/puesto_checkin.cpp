@@ -23,18 +23,19 @@
 int get_vuelo(int id_pasajero);
 
 int main(int argc, char *argv[]) try {
-   if (argc < 2) {
-      Log::crit("Insuficientes parametros para puesto_checkin, se esperaba (directorio_de_trabajo, id_puesto_checkin)\n");
+   if (argc < 3) {
+      Log::crit("Insuficientes parametros para puesto_checkin, se esperaba (directorio_de_trabajo, config_file, id_puesto_checkin)\n");
       return (1);
    }
 
-   ApiCheckIn checkin(argv[1],atoi(argv[2]));
+   ApiCheckIn checkin(argv[1], argv[2], atoi(argv[3]));
    int vuelo_pasajero, id_pasajero;
 
-   Log::info("Iniciando puesto_checkin(%s), conectado a cinta %i\n", argv[2], checkin.get_cinta_checkin() );
+   Log::info("Iniciando puesto_checkin(%s), conectado a cinta %i\n", argv[3], checkin.get_cinta_checkin() );
    Log::info("lanzando controlador_puesto_checkin\n" );
 
-   char *args_controlador[] = { (char*) "controlador_puesto_checkin", (char*) argv[1], (char*) argv[2], (char*)"./entrada/equipajes_intercargo.csv", NULL };
+   char *args_controlador[] = { (char*) "controlador_puesto_checkin", (char*) argv[1], (char*)argv[2],
+                                (char*) argv[3], (char*)"./entrada/equipajes_intercargo.csv", NULL };
 	Process controlador_puesto_checkin("controlador_puesto_checkin", args_controlador);
 
    for(;;) {

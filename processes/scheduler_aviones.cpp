@@ -19,12 +19,12 @@ bool compare_time (tTaskAvion t1, tTaskAvion t2) {
 }
 
 
-void lanzar_avion(tTaskAvion, const char* dir);
+void lanzar_avion(tTaskAvion, const char* dir, const char*);
 void cargar_aviones( std::list<tTaskAvion>& );
 
 int main(int argc, char *argv[]) try {
-   if (argc < 1) {
-      Log::crit("Insuficientes parametros para scheduler_aviones, se esperaba (directorio_de_trabajo)\n");
+   if (argc < 2) {
+      Log::crit("Insuficientes parametros para scheduler_aviones, se esperaba (directorio_de_trabajo, config_file)\n");
       return (1);
    }
    
@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) try {
    while( !aviones.empty() ) {
 
       while( (!aviones.empty()) && (aviones.front().time <= time ) ){
-         lanzar_avion(aviones.front(), argv[1]);
+         lanzar_avion(aviones.front(), argv[1], argv[2]);
          aviones.pop_front();
       }
       sleep(1);
@@ -52,12 +52,14 @@ int main(int argc, char *argv[]) try {
    Log::crit("Critical error. Unknow exception at the end of the 'main' function.");
 }
 
-void lanzar_avion(tTaskAvion task, const char* directorio_de_trabajo) {
+void lanzar_avion(tTaskAvion task, const char* directorio_de_trabajo, const char* config_file) {
    char dir[255];
+   char config[255];
    char processName[255];
    char buffer_id_avion[6];
 
    strcpy(dir, directorio_de_trabajo);
+   strcpy(config, config_file);
 
    std::stringstream avion;
    avion << task.id_avion;
@@ -69,7 +71,7 @@ void lanzar_avion(tTaskAvion task, const char* directorio_de_trabajo) {
    
    Log::info("lanzando proceso avion %s %s %s", processName, dir, buffer_id_avion);
 
-   char *args_avion[] = { (char*) processName, (char*)dir, (char*) buffer_id_avion, NULL };   
+   char *args_avion[] = { (char*) processName, (char*)dir, (char*)config, (char*) buffer_id_avion, NULL };   
 	Process generator("avion", args_avion);
 }
 

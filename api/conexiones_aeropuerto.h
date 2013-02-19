@@ -35,7 +35,7 @@ const int cantidad_robots_sospechosos = 1;
 
 class TorreDeControl {
 public:
-	TorreDeControl(const char *directorio_de_trabajo, int cant_contenedores, int zona_desde,
+	TorreDeControl(const char *directorio_de_trabajo, const char* config_file, int cant_contenedores, int zona_desde,
                   int zona_hasta, int puesto_checkin_desde, int puesto_checkin_hasta, 
                   yasper::ptr<IQueueManager> queue_manager) :
 
@@ -48,7 +48,7 @@ public:
       queue_puestos_checkin(queue_manager->get_queue(PATH_TORRE_DE_CONTROL, Q_PUESTOS_CHECKIN, true)),
       queue_contenedores(queue_manager->get_queue(PATH_TORRE_DE_CONTROL, Q_CONTENEDORES, true)) {
 
-		ApiTorreDeControl api_torre(directorio_de_trabajo);
+		ApiTorreDeControl api_torre(directorio_de_trabajo, config_file);
 		for (int i = 0; i < cant_contenedores; i++) {
 			api_torre.liberar_contenedor();
 		}
@@ -124,11 +124,11 @@ private:
  */
 class ConexionesAeropuerto {
 public:
-	ConexionesAeropuerto(const char *path_to_locks) {
+	ConexionesAeropuerto(const char *path_to_locks, const char* config_file) {
 		char path_lock[256];
 		crear_archivos_lck(path_to_locks);
 
-      queue_manager = ApiConfiguracion::get_queue_manager(path_to_locks, true);
+      queue_manager = ApiConfiguracion::get_queue_manager(path_to_locks, config_file, true);
 
 		Log::info("Creando ipcs para Controlador de puestos de checkin...%s%s", path_to_locks,
 				PATH_COLA_CONTROL_CHECKIN);
@@ -151,7 +151,7 @@ public:
 		Log::info("Creando ipcs para Torre de control...%s%s", path_to_locks,
 				PATH_TORRE_DE_CONTROL);
 		//snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_TORRE_DE_CONTROL);
-		torre_de_control = new TorreDeControl(path_to_locks, 10, 1, cantidad_robots_carga, 1,
+		torre_de_control = new TorreDeControl(path_to_locks, config_file, 10, 1, cantidad_robots_carga, 1,
                                             cantidad_puestos_checkin, queue_manager);
 
 		Log::info("Creando cintas...");
@@ -201,7 +201,7 @@ public:
       cola_tractores_avion = queue_manager->get_queue(PATH_COLA_TRACTORES_AVIONES, 0, true);
 
 		for (int i = 0; i < cantidad_robots_sospechosos; i++) {
-			control_equipajes.push_back(new ApiControlEquipajes(path_to_locks, 3, 3, true));
+			control_equipajes.push_back(new ApiControlEquipajes(path_to_locks, config_file, 3, 3, true));
 		}
 
 		// INTERCARGO
@@ -209,7 +209,7 @@ public:
 		// cola_escucha_vuelos_entrantes = new MessageQueue(path_lock, 0, 0664, true);
       cola_escucha_vuelos_entrantes = queue_manager->get_queue(PATH_COLA_ESCUCHA_ZONA_ASIGNADA, 0, true);
 
-		trasbordo = new ApiTrasbordo(path_to_locks, true);
+		trasbordo = new ApiTrasbordo(path_to_locks, config_file, true);
 
 	};
 

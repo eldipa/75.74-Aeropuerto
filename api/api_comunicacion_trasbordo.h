@@ -36,7 +36,7 @@ public:
 	int get_zona_asignada();
 	int get_vuelo_destino();
 
-	ApiComunicacionTrasbordo(const char * directorio_de_trabajo);
+	ApiComunicacionTrasbordo(const char * directorio_de_trabajo, const char* config_file);
 	virtual ~ApiComunicacionTrasbordo();
 
 };

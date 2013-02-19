@@ -27,7 +27,7 @@ private:
 	Equipaje ultimo_equipaje_leido;
 	bool saco_elemento;
 public:
-	ApiDespachante(const char* directorio_de_trabajo,int numero_despachante);
+	ApiDespachante(const char* directorio_de_trabajo, const char* config_file, int numero_despachante);
 	virtual ~ApiDespachante();
 
 	Rfid leer_proximo_equipaje();

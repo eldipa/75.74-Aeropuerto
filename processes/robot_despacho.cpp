@@ -19,23 +19,23 @@
 
 int main(int argc, char** argv) try {
 
-	if (argc < 4) {
+	if (argc < 5) {
 		Log::info(
-				"insuf. param para robot de despacho,se esperaba(directorio_de_trabajo, id, zona_desde, zona_hasta...)\n");
+				"insuf. param para robot de despacho,se esperaba(directorio_de_trabajo, config_file, id, zona_desde, zona_hasta...)\n");
 		exit(1);
 	}
 
-	int id_robot = atoi(argv[2]);
+	int id_robot = atoi(argv[3]);
 
 	if (id_robot < 1) {
 		Log::crit("ID de robot_despacho incorrecto %d\n", id_robot);
 		exit(1);
 	}
 
-	int zona_desde = atoi(argv[3]);
-	int zona_hasta = atoi(argv[4]);
+	int zona_desde = atoi(argv[4]);
+	int zona_hasta = atoi(argv[5]);
 
-	ApiDespachante despachante_cinta_central(argv[1],id_robot);
+	ApiDespachante despachante_cinta_central(argv[1], argv[2], id_robot);
 
 
 	for (;;) {

@@ -26,8 +26,8 @@ private:
    yasper::ptr<IMessageQueue> cola_tractor;
 
 public:
-	ApiAvion(char * directorio_de_trabajo, int numero_de_vuelo) :
-      queue_manager( ApiConfiguracion::get_queue_manager(directorio_de_trabajo) ),
+	ApiAvion(char * directorio_de_trabajo, const char* config_file, int numero_de_vuelo) :
+      queue_manager( ApiConfiguracion::get_queue_manager(directorio_de_trabajo, config_file) ),
       cola_tractor(queue_manager->get_queue(PATH_COLA_TRACTORES_AVIONES, 0)) {
 		this->numero_de_vuelo = numero_de_vuelo;
 	}
