@@ -14,7 +14,8 @@ public:
    BrokerMessageQueue(const char* queue_id, char proj_id, bool create, yasper::ptr<MessageBroker> broker) :
       is_owner(create), broker(broker) {
 
-      id =  queue_id + proj_id;
+      id =  queue_id;
+      id += proj_id;
 
       if(is_owner)
          broker->create_queue(id.c_str());
