@@ -15,16 +15,23 @@ static char *args_message_broker[] = { (char*) "message_broker_server", working_
 
 int main(int argc, char** argv) {
    try {
-      dictionary * ini = NULL;
       std::string config_file( (argc>1)?argv[1]:DEFAULT_CONFIG_FILE );
-   
-      Log::notice("Launch message_broker_server, read configuration from %s", config_file.c_str());
 
+      dictionary * ini = NULL;
 
       if ( (ini=iniparser_load(config_file.c_str())) == NULL ) {
          Log::crit("cannot parse the config file: %s\n", config_file.c_str());
          throw GenericError("cannot parse the config file %s", config_file.c_str());
       }
+
+      int use_ipc = iniparser_getboolean(ini, "MESSAGE_BROKER:use_ipc", -1);
+
+      if(use_ipc) {
+         Log::notice("No se lanzan los message_broker, use_ipc=true en archivo de configuracion %s", config_file.c_str());
+         return 0;
+      }
+
+      Log::notice("Launch message_broker_server, read configuration from %s", config_file.c_str());
 
       strcpy(working_dir, iniparser_getstring(ini, "MESSAGE_BROKER:working_dir", NULL));
       strcpy(port, iniparser_getstring(ini, "MESSAGE_BROKER:port", NULL));

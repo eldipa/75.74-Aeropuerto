@@ -20,8 +20,30 @@ public:
       directorio_de_trabajo = directorio_de_trabajo;
       create = create;
 
-      // Funciona con colas del so como en la primer entrega
-      //return new IpcQueueManager(directorio_de_trabajo);
+      dictionary * ini = iniparser_load(config_file);
+
+      if (ini==NULL) {
+         Log::crit("cannot parse the config file: %s\n", config_file);
+         throw GenericError("cannot parse the config file %s", config_file);
+      }
+
+      char* working_dir;
+      char* ip;
+      char* port;
+      int use_ipc;
+
+      working_dir = iniparser_getstring(ini, "AEROPUERTO:working_dir", NULL);
+      ip = iniparser_getstring(ini, "MESSAGE_BROKER:ip", NULL);
+      port = iniparser_getstring(ini, "MESSAGE_BROKER:port", NULL);
+      use_ipc = iniparser_getboolean(ini, "MESSAGE_BROKER:use_ipc", -1);
+
+      if( !use_ipc ) {
+         return new BrokerQueueManager( new MessageBrokerStub(ip, port) );
+      } else {
+         return new IpcQueueManager(working_dir);
+      }
+
+      iniparser_freedict(ini);
 
       // Funciona con colas del so pero accedidas a travez de un broker en shared memory (para debug)
       // if( create )
@@ -29,8 +51,6 @@ public:
       // else
       //    return new BrokerQueueManager( new MessageBroker(directorio_de_trabajo) );
 
-      //accede a las colas a travez de un broker remoto
-      return new BrokerQueueManager( new MessageBrokerStub("localhost", "9000") );
    }
    
     static std::string get_wkdir(const char* archivo_configuracion) {
