@@ -34,7 +34,7 @@ void  MessageBroker::create_queue(const char* queue_id) {
 
    try {
       char proj_id = allocate_queue_id(queue_id);
-      Log::info( "broker_create id='%s' proj_id='%c' (%d)", queue_id, proj_id, (int)proj_id);
+      // Log::info( "broker_create id='%s' proj_id='%c' (%d)", queue_id, proj_id, (int)proj_id);
       MessageQueue queue( queues_path.c_str(), (char)proj_id, 0664, true, false);
    } catch(std::exception error) {
       throw MessageBrokerError( "OSError: Error al crear la cola %s", error.what());
@@ -45,7 +45,7 @@ void  MessageBroker::create_queue(const char* queue_id) {
 void MessageBroker::destroy_queue(const char* queue_id) {
    try {
       char proj_id = get_proj_id(queue_id);
-      Log::info( "broker_destroy queue_id='%s' local_proj_id='%c' (%d)", queue_id, proj_id, (int)proj_id);
+      // Log::info( "broker_destroy queue_id='%s' local_proj_id='%c' (%d)", queue_id, proj_id, (int)proj_id);
       MessageQueue queue( queues_path.c_str(), (char)proj_id, 0664, false, true);
       deallocate_queue_id(queue_id);
 
@@ -57,7 +57,7 @@ void MessageBroker::destroy_queue(const char* queue_id) {
 void MessageBroker::push(const char* queue_id, const void *msg, size_t size_txt) {
    try {
       char proj_id = get_proj_id(queue_id);
-      Log::info( "broker_push queue_id='%s' local_proj_id='%c' (%d)", queue_id, proj_id, (int)proj_id);
+      // Log::info( "broker_push queue_id='%s' local_proj_id='%c' (%d)", queue_id, proj_id, (int)proj_id);
       MessageQueue queue( queues_path.c_str(), (char)proj_id, 0664, false, false);
       queue.push(msg, size_txt);
    } catch(std::exception error) {
@@ -72,7 +72,7 @@ ssize_t MessageBroker::pull(const char* queue_id, void *msg, size_t max_size_txt
       char proj_id = get_proj_id(queue_id);
       MessageQueue queue( queues_path.c_str(), (char)proj_id, 0664, false, false);
 
-      Log::info( "broker_pull queue_id='%s' local_proj_id='%c' (%d)", queue_id, proj_id, (int)proj_id);
+      // Log::info( "broker_pull queue_id='%s' local_proj_id='%c' (%d)", queue_id, proj_id, (int)proj_id);
       result = queue.pull(msg, max_size_txt, type);
 
    } catch(OSError error) {

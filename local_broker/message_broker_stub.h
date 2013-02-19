@@ -11,6 +11,9 @@
 #include "socket.h"
 #include "message_broker_error.h"
 
+#include <iostream>
+#include <fstream>
+
 #define MAX_MSG_SIZE 16384
 
 #define BROKER_CREATE  0
@@ -24,6 +27,7 @@
 class BrokerRequest {
 public:
    int mtypebroker;
+   char sender_procname[255];
    char queue_id[255];
    size_t size_txt;
    size_t max_size_txt;
@@ -57,6 +61,8 @@ private:
    std::string ip;
    std::string port;
    Socket sock;
+
+   std::string get_proc_name();
 };
 
 

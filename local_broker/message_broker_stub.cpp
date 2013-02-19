@@ -6,6 +6,7 @@
 
 #include "message_broker_server.h"
 
+
 MessageBrokerStub::MessageBrokerStub(const char* ip, const char* port) :
    ip(ip), port(port), sock(true) {
 
@@ -23,7 +24,8 @@ void MessageBrokerStub::create_queue(const char* queue_id) {
 
    request.mtypebroker = BROKER_CREATE;
    strcpy(request.queue_id, queue_id);   
-
+   strcpy(request.sender_procname, get_proc_name().c_str() );
+ 
    try {
       MessageBrokerServer::sendall(sock, (char*)&request, sizeof(BrokerRequest));
       MessageBrokerServer::receiveall(sock, (char*)&response, sizeof(BrokerResponse));
@@ -44,6 +46,7 @@ void MessageBrokerStub::destroy_queue(const char* queue_id) {
 
    request.mtypebroker = BROKER_DESTROY;
    strcpy(request.queue_id, queue_id);   
+   strcpy(request.sender_procname, get_proc_name().c_str() );
 
    try {
       MessageBrokerServer::sendall(sock, (char*)&request, sizeof(BrokerRequest));
@@ -72,6 +75,7 @@ void MessageBrokerStub::push(const char* queue_id, const void *msg, size_t size_
    strcpy(request.queue_id, queue_id);   
    request.size_txt = size_txt;
    memcpy(request.msg, msg, size_txt+sizeof(long));
+   strcpy(request.sender_procname, get_proc_name().c_str() );
    
    try {
       MessageBrokerServer::sendall(sock, (char*)&request, sizeof(BrokerRequest));
@@ -95,6 +99,7 @@ ssize_t MessageBrokerStub::pull(const char* queue_id, void *msg, size_t max_size
    strcpy(request.queue_id, queue_id);   
    request.max_size_txt = max_size_txt;
    request.type = type;
+   strcpy(request.sender_procname, get_proc_name().c_str() );
 
    if(max_size_txt+sizeof(long)>MAX_MSG_SIZE)
       throw MessageBrokerError("Message for %s too long size=%d, max_size=%d", queue_id, max_size_txt, MAX_MSG_SIZE);
@@ -114,7 +119,14 @@ ssize_t MessageBrokerStub::pull(const char* queue_id, void *msg, size_t max_size
    }
    return response.msg_size;
 }
-
+ 
+std::string MessageBrokerStub::get_proc_name() {
+    std::ifstream comm("/proc/self/comm");
+    std::string name;
+    getline(comm, name);
+    return name;
+ }
 
 MessageBrokerStub::~MessageBrokerStub() {
 }
+
