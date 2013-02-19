@@ -52,7 +52,7 @@ if __name__ == '__main__':
       print "Usage: outbound.py path char_id_in group_id localhost_name "
       print "  - path: a full path to a file to be used as part of the key for the out queues."
       print "  - char_id_out: an integer or a character (converted in an int later) to be used as a part of the key of the outbound queue. "
-      print "  - group_id: the id of the group"
+      print "  - group_id: the id of the group (An id > 0)"
       print "  - localhost_name: the name of this host viewed by other nodes."
       print
       print "Note: you should NOT be executing this code by your self."
@@ -60,6 +60,7 @@ if __name__ == '__main__':
 
    path, char_id_out, group_id, localhost_name = sys.argv[1:]
    group_id = int(group_id)
+   assert group_id > 0
 
    syslog.openlog("outbound")
    syslog.syslog(syslog.LOG_INFO, "Init 'outbound' process. Creating queue. Arguments: Path: %s Char_out_id: %s GroupId: %i Localhost: %s" % (

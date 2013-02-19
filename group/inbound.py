@@ -112,7 +112,7 @@ if __name__ == '__main__':
       print "Usage: inbound.py path char_id_in group_id localhost_name network_name"
       print "  - path: a full path to a file to be used as part of the key for the in/out queues."
       print "  - char_id_in: an integer or a character (converted in an int later) to be used as a part of the key of the inbound queue. The id used by the outbound queue will be that id+128."
-      print "  - group_id: the id of the group"
+      print "  - group_id: the id of the group (An id > 0)"
       print "  - localhost_name: the name of this host viewed by other nodes."
       print "  - network_name: the name of the network, which message addressed to network_name will be delivery to any node in that network (broadcast address)."
       sys.exit(1)
@@ -120,6 +120,7 @@ if __name__ == '__main__':
 
    path, char_id_in, group_id, localhost_name, network_name = sys.argv[1:]
    group_id = int(group_id)
+   assert group_id > 0
 
    # The 'char' id can be an integer or a letter.
    try:
