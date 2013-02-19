@@ -127,7 +127,7 @@ int main(int argc, char * argv []) {
 		std::cerr << "Faltan argumentos" << std::endl;
 		std::cerr << "1: directorio de trabajo" << std::endl;
 		std::cerr << "2: nombre de la aplicacion" << std::endl;
-		std::cerr << "3: direccion del broker local (HOSTNAME:PUERTO)" << std::endl;
+		std::cerr << "3: archivo de lista de brokers locales (HOSTNAME:PUERTO)" << std::endl;
 		std::cerr << "4: nombre del grupo" << std::endl;
 		std::cerr << "5: id" << std::endl;
 		std::cerr << "6: tamanio mem compartida" << std::endl;

@@ -4,6 +4,8 @@
 #include <vector>
 #include "sharedmemory.h"
 #include "semaphoreset.h"
+#include "mutex.h"
+//#include "memoria_distribuida.h"
 #include <cstring>
 
 template<typename T>
@@ -67,7 +69,7 @@ template<typename T> CintaPrincipal<T>::CintaPrincipal(const char * absolute_pat
 	for (i = 0; i < cant_productores; i++) {
 		valores.push_back(1);
 	}
-	semaforo_productores = new SemaphoreSet(valores, absolute_path, +2, 0664);
+	semaforo_productores = new SemaphoreSet(valores, absolute_path, 2, 0664);
 
 	valores.clear();
 	valores.push_back(1);

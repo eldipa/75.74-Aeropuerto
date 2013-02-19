@@ -36,6 +36,8 @@ public:
 
 	void entregar_token();
 	void esperar_token();
+	void lanzar_comunicacion(const std::string & directorio_de_trabajo, const std::string & nombre_app,
+		const std::string & local_brokers_file, const std::string & nombre_grupo, char id, size_t tamanio_memoria);
 
 };
 

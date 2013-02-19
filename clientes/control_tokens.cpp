@@ -6,7 +6,7 @@
  */
 
 #include "control_tokens.h"
-#include "constants.h"
+#include "globalconstants.h"
 #include <cstring>
 
 ControlTokens * ControlTokens::instance = NULL;

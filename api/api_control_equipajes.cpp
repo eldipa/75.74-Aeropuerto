@@ -14,7 +14,7 @@ ApiControlEquipajes::ApiControlEquipajes(const char * directorio_de_trabajo,cons
    queue_manager( ApiConfiguracion::get_queue_manager(directorio_de_trabajo, config_file) ),
    queue_to_control_sospechosos( queue_manager->get_queue(PATH_CONTROL_SOSPECHOSOS, 1,  create ) ) {
 
-   create = create;
+   create = !!create;
 }
 
 ApiControlEquipajes::ApiControlEquipajes(const char * directorio_de_trabajo, const char* config_file,

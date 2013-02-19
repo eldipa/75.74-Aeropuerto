@@ -6,7 +6,20 @@
  */
 
 #include "mutex_distribuido.h"
-#include "constants.h"
+#include "globalconstants.h"
+#include "process.h"
+#include <cstdio>
+#include <cstring>
+#include "dir.h"
+
+static char directorio [FILENAME_MAX];
+static char nombre_app [MAX_NOMBRE_RECURSO];
+static char brokers_file [FILENAME_MAX];
+static char grupo [MAX_NOMBRE_RECURSO];
+static char id_ipc [4];
+static char tamanio_mem [10];
+static char * args_local_broker_comm [] = {
+	(char *)"local_broker_comm", directorio, nombre_app, brokers_file, grupo, id_ipc, tamanio_mem};
 
 MutexDistribuido::MutexDistribuido(const std::string & directorio_de_trabajo, const std::string & nombre_grupo, char id,
 	bool create)
@@ -37,7 +50,7 @@ MutexDistribuido::MutexDistribuido(const std::string & directorio_de_trabajo, co
 				std::string(directorio_de_trabajo).append(PREFIJO_RECURSO).append(nombre_grupo).append(POSTFIJO_LCK).c_str(),
 				id, 0664);
 
-		control = ControlTokens::get_instance(directorio_de_trabajo,true);
+		control = ControlTokens::get_instance(directorio_de_trabajo, true);
 	}
 
 }
@@ -75,5 +88,46 @@ void MutexDistribuido::entregar_token() {
 
 void MutexDistribuido::esperar_token() {
 	mutex->wait_on(1);
+}
+
+void MutexDistribuido::lanzar_comunicacion(const std::string & directorio_de_trabajo,
+	const std::string & nombre_aplicacion, const std::string & local_brokers_file, const std::string & nombre_grupo,
+	char id, size_t tamanio_memoria)
+{
+	char current_working_dir [FILENAME_MAX];
+	char launch_dir [FILENAME_MAX];
+
+	snprintf(directorio, FILENAME_MAX, "%s", directorio_de_trabajo.c_str());
+	snprintf(nombre_app, MAX_NOMBRE_RECURSO, "%s", nombre_aplicacion.c_str());
+	snprintf(brokers_file, FILENAME_MAX, "%s", local_brokers_file.c_str());
+	snprintf(grupo, MAX_NOMBRE_RECURSO, "%s", nombre_grupo.c_str());
+	snprintf(id_ipc, 4, "%d", id);
+
+#ifdef __x86_64__
+	snprintf(tamanio_mem, sizeof(tamanio_mem), "%lu", tamanio_memoria);
+#else
+	snprintf(tamanio_mem, sizeof(tamanio_mem), "%u", tamanio_memoria);
+#endif
+
+	if (!getcwd(current_working_dir, sizeof(current_working_dir)))
+		throw GenericError("Unable to get current working dir");
+	current_working_dir [sizeof(current_working_dir) - 1] = '\0';
+
+	locate_dir(launch_dir, current_working_dir, (char *)"clientes");
+
+	relativize_dir(directorio, directorio_de_trabajo.c_str(), launch_dir);
+	relativize_dir(brokers_file, directorio_de_trabajo.c_str(), local_brokers_file.c_str());
+
+	if (chdir(launch_dir) != 0) {
+		throw GenericError("Cannot change working dir to %s", launch_dir);
+	}
+
+	Process("local_broker_comm", args_local_broker_comm);
+
+	if (chdir(current_working_dir) != 0) {
+		throw GenericError("Cannot change working dir to %s", current_working_dir);
+	}
+
+
 }
 
