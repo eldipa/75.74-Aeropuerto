@@ -70,7 +70,7 @@ if __name__ == '__main__':
 
    datagram_socket = None
 
-   leader_beacon = ring.create_beacon('FIND', group_id, len(localhost_name), None, localhost_name, None, False)
+   leader_beacon = ring.create_beacon('FIND', group_id, len(localhost_name), None, None, localhost_name, None, None, False)
    assert len(leader_beacon) < ring.BEACON_BUF_MAX_SIZE
  
    start_time = time.time()

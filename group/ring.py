@@ -7,6 +7,7 @@ import socket
 from socket import AF_INET, SOCK_DGRAM, SOL_SOCKET, SO_BROADCAST, getaddrinfo
 from invalid import *
 import traceback
+import get_port
 
 LISTEN_TIMEOUT = 30 
 LISTEN_SERVICE = 8084
@@ -36,7 +37,7 @@ CLOSE_TIMEOUT = 30
 BEACON_BUF_MAX_SIZE = 1024 / 2
 DOS_SLEEP = 0.0001
 
-def create_beacon(beacon_type, group_id, leader_name_len, localhost_name_len, leader_name, localhost_name, with_local_name=True):
+def create_beacon(beacon_type, group_id, leader_name_len, localhost_name_len, service_name_len, leader_name, localhost_name, service_name, with_local_name=True):
    assert len(beacon_type) == 4
    assert 0 < group_id < 2**16
    
@@ -46,11 +47,13 @@ def create_beacon(beacon_type, group_id, leader_name_len, localhost_name_len, le
    if with_local_name:
       assert 0 < localhost_name_len < 2**8
       assert len(localhost_name) == localhost_name_len
+      assert len(service_name) == service_name_len
    else:
       assert localhost_name_len == localhost_name == None
+      assert service_name_len == service_name == None
    
    if with_local_name:
-      return struct.pack('>4sHBB%is%is' % (leader_name_len, localhost_name_len), beacon_type, group_id, leader_name_len, localhost_name_len, leader_name, localhost_name)
+      return struct.pack('>4sHBBB%is%is%is' % (leader_name_len, localhost_name_len, service_name_len), beacon_type, group_id, leader_name_len, localhost_name_len, leader_name, localhost_name, service_name)
    else:
       return struct.pack('>4sHB%is' % (leader_name_len, ), beacon_type, group_id, leader_name_len, leader_name)
 
@@ -68,14 +71,14 @@ def tail(network_name, group_id, localhost_name, driver):
       previous_node = None
       listener.settimeout(LISTEN_TIMEOUT) 
 
-      listener.bind((localhost_name, LISTEN_SERVICE)) 
+      listener, service_name = get_port.bind(listener, (localhost_name, LISTEN_SERVICE)) 
       listener.listen(LISTEN_QUEUE_LENGHT)
       
-      leader_name_len, localhost_name_len = len(leader_name), len(localhost_name)
+      leader_name_len, localhost_name_len, service_name_len = len(leader_name), len(localhost_name), len(service_name)
 
-      tail_beacon = create_beacon('OPEN', group_id, leader_name_len, localhost_name_len, leader_name, localhost_name)
+      tail_beacon = create_beacon('OPEN', group_id, leader_name_len, localhost_name_len, service_name_len, leader_name, localhost_name, service_name)
 
-      assert len(tail_beacon) == 4+2+1+1+leader_name_len+localhost_name_len
+      assert len(tail_beacon) == 4+2+1+1+1+leader_name_len+localhost_name_len+service_name_len
       assert len(tail_beacon) < BEACON_BUF_MAX_SIZE
 
       while not previous_node:
@@ -126,8 +129,8 @@ def head(group_id, localhost_name, driver):
                   #Otro grupo, skipping
                   continue
 
-               remote_leader_name_len, remote_host_name_len = struct.unpack('>BB', msg[6:8])
-               remote_leader_name, remote_host_name = struct.unpack('>%is%is' % (remote_leader_name_len, remote_host_name_len), msg[8:])
+               remote_leader_name_len, remote_host_name_len, remote_service_name_len = struct.unpack('>BBB', msg[6:9])
+               remote_leader_name, remote_host_name, remote_service_name = struct.unpack('>%is%is%is' % (remote_leader_name_len, remote_host_name_len, remote_service_name_len), msg[9:])
             except struct.error, e:
                #Mensaje invalido
                raise InvalidNetworkMessage("The message has a wrong format", msg, peer)
@@ -149,11 +152,11 @@ def head(group_id, localhost_name, driver):
                next_node.settimeout(CLOSE_TIMEOUT)
                try:
                   syslog.syslog(syslog.LOG_INFO, "Connecting to %s ..." % str(remote_host_name))
-                  next_node.connect((remote_host_name, LISTEN_SERVICE))
-                  syslog.syslog(syslog.LOG_INFO, "Connection stablished with %s: %s (self) connected to %s (remote)." % (k, localhost_name, remote_host_name))
+                  next_node.connect((remote_host_name, remote_service_name))
+                  syslog.syslog(syslog.LOG_INFO, "Connection stablished with %s: %s (self) connected to %s [%s] (remote)." % (k, localhost_name, remote_host_name, remote_service_name))
                   return next_node
                except socket.error:
-                  syslog.syslog(syslog.LOG_INFO, "Connection fail with %s. Retry." % str(remote_host_name))
+                  syslog.syslog(syslog.LOG_INFO, "Connection fail with %s [%s]. Retry." % (remote_host_name, remote_service_name))
                   #hubo un error de coneccion, ignorar y seguir buscando mas nodos
                   continue
                finally:
