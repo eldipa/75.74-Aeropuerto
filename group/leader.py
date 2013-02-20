@@ -117,6 +117,7 @@ if __name__ == '__main__':
             
             if localhost_name == remote_leader_name:
                syslog.syslog(syslog.LOG_ERR, "Packet FIND received from myself!")
+               continue
             
             
             syslog.syslog(syslog.LOG_INFO, "Pushing 'BreakLinkForced' in the output queue.")
