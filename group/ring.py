@@ -53,7 +53,7 @@ def create_beacon(beacon_type, group_id, leader_name_len, localhost_name_len, se
       assert service_name_len == service_name == None
    
    if with_local_name:
-      return struct.pack('>4sHBBB%is%is%is' % (leader_name_len, localhost_name_len, service_name_len), beacon_type, group_id, leader_name_len, localhost_name_len, leader_name, localhost_name, service_name)
+      return struct.pack('>4sHBBB%is%is%is' % (leader_name_len, localhost_name_len, service_name_len), beacon_type, group_id, leader_name_len, localhost_name_len, service_name_len, leader_name, localhost_name, service_name)
    else:
       return struct.pack('>4sHB%is' % (leader_name_len, ), beacon_type, group_id, leader_name_len, leader_name)
 
@@ -71,7 +71,7 @@ def tail(network_name, group_id, localhost_name, driver):
       previous_node = None
       listener.settimeout(LISTEN_TIMEOUT) 
 
-      listener, service_name = get_port.bind(listener, (localhost_name, LISTEN_SERVICE)) 
+      listener, service_name = get_port.bind(listener, localhost_name) 
       listener.listen(LISTEN_QUEUE_LENGHT)
       
       leader_name_len, localhost_name_len, service_name_len = len(leader_name), len(localhost_name), len(service_name)
@@ -151,6 +151,11 @@ def head(group_id, localhost_name, driver):
                
                next_node.settimeout(CLOSE_TIMEOUT)
                try:
+                  try:
+                     remote_service_name = socket.getservbyname(remote_service_name)
+                  except socket.error:
+                     remote_service_name = int(remote_service_name)
+
                   syslog.syslog(syslog.LOG_INFO, "Connecting to %s ..." % str(remote_host_name))
                   next_node.connect((remote_host_name, remote_service_name))
                   syslog.syslog(syslog.LOG_INFO, "Connection stablished with %s: %s (self) connected to %s [%s] (remote)." % (k, localhost_name, remote_host_name, remote_service_name))
