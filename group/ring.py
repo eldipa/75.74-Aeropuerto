@@ -10,11 +10,8 @@ import traceback
 import get_port
 
 LISTEN_TIMEOUT = 30 
-LISTEN_SERVICE = 8084
 LISTEN_QUEUE_LENGHT = 10
 
-
-BEACON_SERVICE = LISTEN_SERVICE
 
 # Based (but not enforced) in the types of protocols used in an ARP request/reply. 
 # See RFC 826
@@ -84,7 +81,7 @@ def tail(network_name, group_id, localhost_name, driver):
       while not previous_node:
          time.sleep(DOS_SLEEP)
          syslog.syslog(syslog.LOG_INFO, "Sending OPEN beacon...")
-         datagram_socket.sendto(tail_beacon, (network_name, BEACON_SERVICE))
+         datagram_socket.sendto(tail_beacon, (network_name, get_port.BEACON_SERVICE))
          try:
             previous_node, _previous_node_address = listener.accept()
             syslog.syslog(syslog.LOG_INFO, "Connection accepted: %s connected to %s" % (_previous_node_address[0], localhost_name))
@@ -109,14 +106,17 @@ def head(group_id, localhost_name, driver):
    datagram_socket = socket.socket(AF_INET, SOCK_DGRAM)
    next_node = socket.socket()
    try:
-      datagram_socket.bind(("", LISTEN_SERVICE))
+      datagram_socket, _ = get_port.bind(datagram_socket, "")
 
       start = time.time()
       while True:
          try:
             time.sleep(DOS_SLEEP)
             syslog.syslog(syslog.LOG_INFO, "Waiting for an OPEN beacon...")
-            msg, peer = datagram_socket.recvfrom(BEACON_BUF_MAX_SIZE) 
+            wrapped_msg, _ = datagram_socket.recvfrom(BEACON_BUF_MAX_SIZE) 
+            peer_len, = struct.unpack('>H', wrapped_msg[:2])
+            peer, = struct.unpack('>%is' % peer_len, wrapped_msg[2:peer_len+2])
+            msg = wrapped_msg[peer_len+2:]
             try:
                syslog.syslog(syslog.LOG_DEBUG, "Packet received (%s): %s" % (str(peer), " ".join(map(lambda c: hex(ord(c)), msg))))
                type, external_group_id = struct.unpack('>4sH', msg[:6])
