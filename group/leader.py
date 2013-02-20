@@ -51,7 +51,7 @@ if __name__ == '__main__':
       print "Usage: leader.py path char_id_in group_id localhost_name "
       print "  - path: a full path to a file to be used as part of the key for the out queues."
       print "  - char_id_out: an integer or a character (converted in an int later) to be used as a part of the key of the outbound queue. "
-      print "  - group_id: the id of the group (An id > 0)"
+      print "  - group_id: the id of the group (a no-negative)"
       print "  - localhost_name: the name of this host viewed by other nodes."
       print "  - network_name: the name of the network, which message addressed to network_name will be delivery to any node in that network (broadcast address)."
       print
@@ -61,7 +61,7 @@ if __name__ == '__main__':
    
    path, char_id_out, group_id, localhost_name, network_name = sys.argv[1:]
    group_id = int(group_id)
-   assert group_id > 0
+   assert group_id >= 0
 
    syslog.openlog("leader")
    syslog.syslog(syslog.LOG_INFO, "Init 'leader' process. Creating queue. Arguments: Path: %s Char_out_id: %s GroupId: %i Localhost: %s NetworkName: %s" % (

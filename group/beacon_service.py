@@ -57,9 +57,6 @@ if __name__ == '__main__':
                peer = str(peer)
                s = struct.pack(">H%is%is" % (len(peer), len(msg)), len(peer), peer, msg)
 
-               for i in clients:
-                  datagram_socket.sendto(s, (localhost_name, i))
-               
                if time.time() - last > DISCOVERY_TIME:
                   t = time.time()
                   syslog.syslog(syslog.LOG_INFO, "Discovering ...")
@@ -67,6 +64,9 @@ if __name__ == '__main__':
                   last = time.time()
                   syslog.syslog(syslog.LOG_INFO, "Found %i open services in %s time. Added: %i Removed: %i" % (len(_clients), str(last-t), len(set(_clients)-set(clients)), len(set(clients)-set(_clients)) ))
                   clients = _clients
+               
+               for i in clients:
+                  datagram_socket.sendto(s, (localhost_name, i))
 
             except InvalidNetworkMessage, e:
                syslog.syslog(syslog.LOG_CRIT, "%s\n%s" % (traceback.format_exc(), str(e)))
