@@ -121,6 +121,9 @@ def head(group_id, localhost_name, driver):
                syslog.syslog(syslog.LOG_DEBUG, "Packet received (%s): %s" % (str(peer), " ".join(map(lambda c: hex(ord(c)), msg))))
                type, external_group_id = struct.unpack('>4sH', msg[:6])
                
+               if type in ('FIND', ):
+                  continue #drop
+
                if type != 'OPEN':
                   raise InvalidNetworkMessage("The message has a wrong type", msg, peer)
 

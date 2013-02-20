@@ -51,7 +51,7 @@ if __name__ == '__main__':
                msg, peer = datagram_socket.recvfrom(ring.BEACON_BUF_MAX_SIZE)
                type, = struct.unpack('>4s', msg[:4])
 
-               if type not in ('OPEN', ):
+               if type not in ('OPEN', 'FIND'):
                   raise InvalidNetworkMessage("The message has a wrong type", msg, peer)
 
                peer = str(peer)
@@ -62,7 +62,8 @@ if __name__ == '__main__':
                   syslog.syslog(syslog.LOG_INFO, "Discovering ...")
                   _clients = get_port.discovery()
                   last = time.time()
-                  syslog.syslog(syslog.LOG_INFO, "Found %i open services in %s time. Added: %i Removed: %i" % (len(_clients), str(last-t), len(set(_clients)-set(clients)), len(set(clients)-(set(clients)-set(_clients))) ))
+                  syslog.syslog(syslog.LOG_INFO, "Found %i open services in %s time. Added: %i Removed: %i" % (len(_clients), str(last-t), len(set(_clients)-set(clients)), len(set(clients)-set(_clients)) ))
+                  clients = _clients
 
                for i in clients:
                   datagram_socket.sendto(s, (localhost_name, i))

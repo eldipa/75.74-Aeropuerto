@@ -24,6 +24,17 @@ def bind(socket, hostname):
             i += 0.1
          else:
             raise
+   
+   #full scan
+   for port in range(START_PORT, END_PORT+1):
+      try:
+         socket.bind((hostname, port))
+         return socket, str(port)
+      except S.error, e:
+         if hasattr(e, 'errno') and e.errno == 98:
+            pass
+         else:
+            raise
 
    raise "None address in the local host is valid or free."
 

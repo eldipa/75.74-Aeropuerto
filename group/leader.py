@@ -16,8 +16,8 @@ import syslog
 import struct
 from invalid import *
 import message
+import get_port
 
-LISTEN_LEADER_SERVICE = ring.LISTEN_SERVICE + 1
 LISTEN_TIMEOUT = 60
 LEADER_REELECTION_MINIMUN = 60 * 5 #5 minutes
 
@@ -42,7 +42,7 @@ def socket_udp(broadcast):
    if broadcast:
       datagram_socket.setsockopt(SOL_SOCKET, SO_BROADCAST, 1)
    else:
-      datagram_socket.bind(("", LISTEN_LEADER_SERVICE)) 
+      datagram_socket, _ = get_port.bind(datagram_socket, "")
 
    return datagram_socket
 
@@ -81,23 +81,29 @@ if __name__ == '__main__':
          try:
             syslog.syslog(syslog.LOG_INFO, "Sending FIND beacon...")
             datagram_socket = socket_udp(True)
-            datagram_socket.sendto(leader_beacon, (network_name, LISTEN_LEADER_SERVICE))
+            datagram_socket.sendto(leader_beacon, (network_name, get_port.BEACON_SERVICE))
             datagram_socket.close()
             
             syslog.syslog(syslog.LOG_INFO, "Waiting for a FIND beacon...")
             datagram_socket = socket_udp(False)
-            msg, peer = datagram_socket.recvfrom(ring.BEACON_BUF_MAX_SIZE) 
+            wrapped_msg, _ = datagram_socket.recvfrom(ring.BEACON_BUF_MAX_SIZE) 
+            peer_len, = struct.unpack('>H', wrapped_msg[:2])
+            peer, = struct.unpack('>%is' % peer_len, wrapped_msg[2:peer_len+2])
+            msg = wrapped_msg[peer_len+2:]
             datagram_socket.close()
 
             syslog.syslog(syslog.LOG_INFO, "Sending FIND beacon...")
             datagram_socket = socket_udp(True)
-            datagram_socket.sendto(leader_beacon, (network_name, LISTEN_LEADER_SERVICE))
+            datagram_socket.sendto(leader_beacon, (network_name, get_port.BEACON_SERVICE))
             datagram_socket.close()
 
             syslog.syslog(syslog.LOG_DEBUG, "Packet received (%s): %s" % (str(peer), " ".join(map(lambda c: hex(ord(c)), msg))))
 
             type, external_group_id = struct.unpack('>4sH', msg[:6])
             
+            if type in ('OPEN', ):
+               continue #drop
+
             if type != 'FIND':
                raise InvalidNetworkMessage("The message has a wrong type", msg, peer)
 
