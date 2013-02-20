@@ -68,7 +68,7 @@ def tail(network_name, group_id, localhost_name, driver):
       previous_node = None
       listener.settimeout(LISTEN_TIMEOUT) 
 
-      listener, service_name = get_port.bind(listener, localhost_name) 
+      listener, service_name = get_port.bind(listener, localhost_name.split(':')[0]) 
       listener.listen(LISTEN_QUEUE_LENGHT)
       
       leader_name_len, localhost_name_len, service_name_len = len(leader_name), len(localhost_name), len(service_name)
@@ -118,7 +118,7 @@ def head(group_id, localhost_name, driver):
             peer, = struct.unpack('>%is' % peer_len, wrapped_msg[2:peer_len+2])
             msg = wrapped_msg[peer_len+2:]
             try:
-               syslog.syslog(syslog.LOG_DEBUG, "Packet received (%s): %s" % (str(peer), " ".join(map(lambda c: hex(ord(c)), msg))))
+               syslog.syslog(syslog.LOG_DEBUG, "Packet received (%s): %s [%s]" % (str(peer), " ".join(map(lambda c: hex(ord(c)), msg)) , "".join([(c if ord('0') <= ord(c) <= ord('Z') else '.') for c in msg])))
                type, external_group_id = struct.unpack('>4sH', msg[:6])
                
                if type in ('FIND', ):
@@ -159,12 +159,14 @@ def head(group_id, localhost_name, driver):
                   except socket.error:
                      remote_service_name = int(remote_service_name)
 
+                  remote_host_name = remote_host_name.split(':')[0]
                   syslog.syslog(syslog.LOG_INFO, "Connecting to %s ..." % str(remote_host_name))
                   next_node.connect((remote_host_name, remote_service_name))
                   syslog.syslog(syslog.LOG_INFO, "Connection stablished with %s: %s (self) connected to %s [%s] (remote)." % (k, localhost_name, remote_host_name, remote_service_name))
                   return next_node
-               except socket.error:
+               except socket.error, e:
                   syslog.syslog(syslog.LOG_INFO, "Connection fail with %s [%s]. Retry." % (remote_host_name, remote_service_name))
+                  syslog.syslog(syslog.LOG_CRIT, "%s\n%s" % (traceback.format_exc(), str(e)))
                   #hubo un error de coneccion, ignorar y seguir buscando mas nodos
                   continue
                finally:

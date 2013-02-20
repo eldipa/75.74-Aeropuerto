@@ -26,7 +26,7 @@ def handler(signum, frame):
 
 signal.signal(signal.SIGTERM, handler)
 
-DISCOVERY_TIME = 5
+DISCOVERY_TIME = 2
 
 if __name__ == '__main__':
    if len(sys.argv[1:]) != 1:

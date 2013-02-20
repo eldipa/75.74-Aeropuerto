@@ -53,7 +53,7 @@ if __name__ == '__main__':
       print "  - path: a full path to a file to be used as part of the key for the out queues."
       print "  - char_id_out: an integer or a character (converted in an int later) to be used as a part of the key of the outbound queue. "
       print "  - group_id: the id of the group (a no-negative)"
-      print "  - localhost_name: the name of this host viewed by other nodes."
+      print "  - localhost_name: the name of this host viewed by other nodes and its id."
       print
       print "Note: you should NOT be executing this code by your self."
       sys.exit(1)
@@ -61,10 +61,11 @@ if __name__ == '__main__':
    path, char_id_out, group_id, localhost_name = sys.argv[1:]
    group_id = int(group_id)
    assert group_id >= 0
+   assert ":" in localhost_name
 
-   syslog.openlog("outbound")
-   syslog.syslog(syslog.LOG_INFO, "Init 'outbound' process. Creating queue. Arguments: Path: %s Char_out_id: %s GroupId: %i Localhost: %s" % (
-      path, hex(ord(char_id_out)), group_id, localhost_name))
+   syslog.openlog("outbound[%s]" % localhost_name.split(':')[1])
+   syslog.syslog(syslog.LOG_INFO, "Init 'outbound' process. Creating queue. Arguments: Path: %s Char_out_id: %s GroupId: %i Localhost: %s Parent PID: %s" % (
+      path, hex(ord(char_id_out)), group_id, localhost_name.split(':')[0], localhost_name.split(':')[1]))
    userland_outbound_queue = MessageQueue(path, char_id_out, 0644, False)
 
    driver = Driver(localhost_name)
