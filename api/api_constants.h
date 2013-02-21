@@ -41,6 +41,7 @@
 #define PATH_IPC_ROBOTS_INTERCARGO "/ipc_robots_intercargo.lck"
 #define PATH_CONTROL_SOSPECHOSOS "/control_sospechosos.lck"
 
+#define PATH_TORRE_DE_CONTROL_SVC "/torre_de_control_svc.lck"
 #define PATH_MESSAGE_BROKER_QUEUES "/message_broker_queues.lck"
 #define PATH_MESSAGE_BROKER "/message_broker.lck"
 

@@ -12,6 +12,8 @@
 class ApiConfiguracion {
 private:
    static std::string wkdir;
+   static std::string torre_ip;
+   static std::string torre_wkdir;
 
 public:
    
@@ -59,6 +61,40 @@ public:
        } 
        return ApiConfiguracion::wkdir;
     }
+
+   static std::string get_torre_ip(const char* config_file) {
+      if(ApiConfiguracion::torre_ip == "") {
+         dictionary * ini = iniparser_load(config_file);
+
+         if (ini==NULL) {
+            Log::crit("cannot parse the config file: %s\n", config_file);
+            throw GenericError("cannot parse the config file %s", config_file);
+         }
+
+         ApiConfiguracion::torre_ip = iniparser_getstring(ini, "TORRE_DE_CONTROL:ip", NULL);
+         Log::info("ApiConfiguracion: ok al leer ip %s", torre_ip.c_str());
+         iniparser_freedict(ini);
+      }
+
+      return ApiConfiguracion::torre_ip;
+   }
+
+   static std::string get_torre_wkdir(const char* config_file) {
+      if(ApiConfiguracion::torre_wkdir == "") {
+         dictionary * ini = iniparser_load(config_file);
+
+         if (ini==NULL) {
+            Log::crit("cannot parse the config file: %s\n", config_file);
+            throw GenericError("cannot parse the config file %s", config_file);
+         }
+
+         ApiConfiguracion::wkdir = iniparser_getstring(ini, "TORRE_DE_CONTROL:working_dir", NULL);
+         Log::info("ApiConfiguracion: ok al leer TORRE_DE_CONTROL:working_dir %s", ApiConfiguracion::torre_wkdir.c_str());
+         iniparser_freedict(ini);
+      }
+
+      return ApiConfiguracion::torre_wkdir;
+   }
 
 private:
 

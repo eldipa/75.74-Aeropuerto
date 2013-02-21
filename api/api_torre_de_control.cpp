@@ -22,6 +22,10 @@
 void lanzar_notificadores_de_vuelos_de_intercargo(const char*, int);
 
 ApiTorreDeControl::ApiTorreDeControl(const char* directorio_de_trabajo, const char* config_file) :
+   // sem_set(std::string(directorio_de_trabajo).append(PATH_TORRE_DE_CONTROL_SVC).c_str(), 0, 1),
+   // mutex_asignaciones(sem_set, 0),
+   // asignaciones(std::string(directorio_de_trabajo).append(PATH_TORRE_DE_CONTROL_SVC).c_str(), 1),
+
    queue_manager( ApiConfiguracion::get_queue_manager(directorio_de_trabajo, config_file) ),
    queue_zonas( queue_manager->get_queue(PATH_TORRE_DE_CONTROL, Q_ZONAS) ),
    queue_puestos_checkin( queue_manager->get_queue(PATH_TORRE_DE_CONTROL, Q_PUESTOS_CHECKIN) ),
@@ -30,6 +34,7 @@ ApiTorreDeControl::ApiTorreDeControl(const char* directorio_de_trabajo, const ch
    path_torre_control = std::string(directorio_de_trabajo);
    path_torre_control.append(PATH_TORRE_DE_CONTROL);
 }
+
 
 void ApiTorreDeControl::notificar_llegada_vuelo(int numero_vuelo) {
     SemaphoreSet control(path_torre_control.c_str(), MTX_CENTRAL, CANT_MUTEX_CENTRAL);
@@ -113,3 +118,29 @@ void ApiTorreDeControl::liberar_zona(int num_zona) {
    msg.num_zona = num_zona;
    queue_zonas->push(&msg, sizeof(tMsgZona)-sizeof(long));
 }
+
+// void ApiTorreDeControl::asignar_vuelo(int zona, int vuelo) {
+//    Log::info("Torre de control: asignando zona %d a vuelo %d", zona, vuelo);
+
+//    mutex_asignaciones.lock();
+//    asignaciones->asignar_vuelo(zona, vuelo);
+//    mutex_asignaciones.unlock();   
+// }
+
+// void ApiTorreDeControl::desasignar_vuelo(int num_vuelo) {
+//    Log::info("ApiTorreDeControl: desasignando vuelo %d",  num_vuelo);
+   
+//    mutex_asignaciones.lock();
+//    asignaciones->desasignar_vuelo(num_vuelo);
+//    mutex_asignaciones.unlock();   
+// }
+
+// int ApiTorreDeControl::get_zona(int num_vuelo) {
+//    Log::info("ApiTorreDeControl obtuve resultado del rpc server: zona del vuelo %d", num_vuelo);
+
+//    mutex_asignaciones.lock();
+//    int zona = asignaciones->get_zona(num_vuelo);
+//    mutex_asignaciones.unlock();
+//    return zona;
+   
+// }
