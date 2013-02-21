@@ -10,8 +10,7 @@
 
 #include <string>
 #include "socket.h"
-
-
+#include "mensajes_de_red.h"
 
 class LocalBrokerComm {
 private:
@@ -24,7 +23,7 @@ public:
 	LocalBrokerComm(const std::string & app_name, const std::string & broker_hostname, const std::string & service);
 	virtual ~LocalBrokerComm();
 
-	void join(const std::string & nombre_recurso);
+	void join(const std::string & nombre_recurso, mensajes::peticiones_t tipo_join);
 	void leave();
 
 	void wait_mutex(void * memory);

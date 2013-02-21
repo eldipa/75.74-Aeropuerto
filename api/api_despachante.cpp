@@ -1,13 +1,17 @@
 #include "api_despachante.h"
 #include "log.h"
+#include "api_common.h"
 
-ApiDespachante::ApiDespachante(const char* directorio_de_trabajo, const char* config_file, int numero_despachante) :
-   sem_set(std::string(directorio_de_trabajo).append(PATH_ROBOT_DESPACHO).c_str(), numero_despachante*cant_ipcs, 1),
-   mutex_asignaciones(sem_set, 0),
-   asignaciones(std::string(directorio_de_trabajo).append(PATH_ROBOT_DESPACHO).c_str(), numero_despachante*cant_ipcs+1),
-   cinta(std::string(directorio_de_trabajo).append(PATH_CINTA_CENTRAL).c_str()) {
+ApiDespachante::ApiDespachante(const char* directorio_de_trabajo, const char* config_file, int numero_despachante)
+	:
+	// sem_set(std::string(directorio_de_trabajo).append(PATH_ROBOT_DESPACHO).c_str(), numero_despachante*cant_ipcs, 1),
+	//mutex_asignaciones(sem_set, 0),
+	// asignaciones(std::string(directorio_de_trabajo).append(PATH_ROBOT_DESPACHO).c_str(), numero_despachante*cant_ipcs+1),
+		cinta(std::string("despachante").append(intToString(numero_despachante)).c_str(), directorio_de_trabajo,
+			numero_despachante - 1, -1)
+{
 
-   config_file = config_file;
+	config_file = config_file + 1;
 	this->numero_despachante = numero_despachante;
 	this->saco_elemento = true;
 
@@ -51,22 +55,26 @@ void ApiDespachante::avanzar_cinta() {
 }
 
 void ApiDespachante::asignar_vuelo(int zona, int vuelo) {
-   Log::info("asignando zona %d a vuelo %d", numero_despachante, zona, vuelo);
-   mutex_asignaciones.lock();
-   asignaciones->asignar_vuelo(zona, vuelo);
-   mutex_asignaciones.unlock();
+	Log::info("asignando zona %d a vuelo %d", numero_despachante, zona, vuelo);
+	// mutex_asignaciones.lock();
+	//  asignaciones->asignar_vuelo(zona, vuelo);
+	// mutex_asignaciones.unlock();
+	zona = zona + 1;
+	vuelo = vuelo + 1;
 }
 
 void ApiDespachante::desasignar_vuelo(int num_vuelo) {
-   Log::info(" desasignando vuelo %d", numero_despachante, num_vuelo);
-   mutex_asignaciones.lock();
-   asignaciones->desasignar_vuelo(num_vuelo);
-   mutex_asignaciones.unlock();
+	Log::info(" desasignando vuelo %d", numero_despachante, num_vuelo);
+	/// mutex_asignaciones.lock();
+	// asignaciones->desasignar_vuelo(num_vuelo);
+	// mutex_asignaciones.unlock();
+	num_vuelo = num_vuelo + 1;
 }
 
 int ApiDespachante::get_zona(int num_vuelo) {
-   mutex_asignaciones.lock();
-   int zona = asignaciones->get_zona(num_vuelo);
-   mutex_asignaciones.unlock();
-   return zona;
+	// mutex_asignaciones.lock();
+	// int zona = asignaciones->get_zona(num_vuelo);
+	// mutex_asignaciones.unlock();
+	//return zona;
+	return num_vuelo + 1;
 }

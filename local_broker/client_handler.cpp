@@ -14,6 +14,10 @@
 #include "mensajes_de_red.h"
 #include "messagequeue.h"
 #include "oserror.h"
+#include <sys/wait.h>
+#include <unistd.h>
+#include "daemon.h"
+#include "commerror.h"
 
 #include "client_handler.h"
 
@@ -25,6 +29,7 @@ ClientHandler::ClientHandler(const std::string & directorio_de_trabajo, char id,
 	name = directorio_de_trabajo;
 	name = name + "";
 	mem_local = NULL;
+	tipo_join = mensajes::JOIN;
 }
 
 ClientHandler::~ClientHandler() {
@@ -38,6 +43,7 @@ ClientHandler::~ClientHandler() {
 
 void ClientHandler::join_group(const std::string & nombre_grupo) {
 	size_t tamanio;
+	this->nombre_grupo = nombre_grupo;
 	// Obtengo la memoria compartida del grupo
 	grupo = new Grupo(directorio_de_trabajo, nombre_grupo);
 	// Agrego el cliente y el numero de la cola
@@ -48,7 +54,7 @@ void ClientHandler::join_group(const std::string & nombre_grupo) {
 
 	cantidad_de_bloques_a_enviar = (tamanio / DATA_SIZE);
 
-	if (tamanio % DATA_SIZE != 0 || tamanio == 0) {
+	if (tamanio % DATA_SIZE != 0 || tamanio == 0 || tamanio < DATA_SIZE) {
 		cantidad_de_bloques_a_enviar++;
 	}
 
@@ -75,9 +81,12 @@ void ClientHandler::procesar_peticion(mensajes::mensajes_local_broker_t & mensaj
 			nombre_cliente.assign(mensaje.datos);
 			break;
 		case mensajes::JOIN:
+		case mensajes::JOIN_FORK:
+
 			//std::cout << "Join: " << mensaje.datos << std::endl;
 			// buscar el grupo en el que está el recurso, si no existe crearlo
 			join_group(mensaje.datos);
+			tipo_join = mensaje.peticion;
 #ifdef __x86_64__
 			snprintf(mensaje.datos, DATA_SIZE, "%lu:%lu", this->cantidad_de_bloques_a_enviar, this->tamanio_memoria);
 #else
@@ -136,43 +145,106 @@ size_t ClientHandler::recv_token() {
 	return this->cantidad_de_bloques_a_enviar * DATA_SIZE;
 }
 
+void ClientHandler::loop_token_fork() {
+	pid_t pid_hijo;
+	bool leave;
+	ignore_signals();
+
+	pid_hijo = fork();
+
+	if (pid_hijo) { // padre envia token a cliente4
+		ignore_childs();
+		do {
+			try {
+
+				if (recv_token() == 0) {
+					leave = true;
+				} else {
+					std::cout << " Recibo token " << nombre_grupo << " de " << nombre_cliente << std::endl;
+					grupo->release_token(&cola_token_manager);
+					std::cout << " Libero token " << nombre_grupo << std::endl;
+				}
+			} catch (OSError & error) {
+				leave = true;
+			} catch (CommError & error) {
+				leave = true;
+			}
+			if (leave) {
+				int status = -1;
+				leave_group();
+				socket.disassociate();
+				waitpid(pid_hijo, &status, 0);
+				//std::cout << "padre leave" << std::endl;
+			}
+		} while (!leave);
+	} else {
+		bool tengo_token = false;
+		;
+		do {
+			try {
+				//std::cout << getpid() << " Hijo recibo token cola" << std::endl;
+				std::cout << " Espero token " << nombre_grupo << std::endl;
+				grupo->lock_token();
+				tengo_token = true;
+				//std::cout << getpid() << " Hijo envio token socket" << std::endl;
+				std::cout << " Envio token " << nombre_grupo << " a " << nombre_cliente << std::endl;
+				send_token();
+				tengo_token = false;
+			} catch (OSError & error) {
+				leave = true;
+				//kill(getppid(), SIGTERM);
+				//std::cout << "hijo leave" << std::endl;
+			} catch (CommError & error) {
+				leave = true;
+			}
+		} while (!leave);
+		if (tengo_token) {
+			grupo->release_token(&cola_token_manager);
+		}
+	}
+}
+
 void ClientHandler::loop_token() {
 	bool leave = false;
 	bool tengo_el_token = false;
 	/*int a;
 	 char data [DATA_SIZE];*/
-	do {
-		try {
-			// espero el token
-			grupo->lock_token();
-			tengo_el_token = true;
-			/*std::cout << (char*)grupo->memory_pointer() << std::endl;
-			 sscanf((char*)grupo->memory_pointer(), "%[^:]:%d", data, &a);
-			 a++;
-			 snprintf((char*)grupo->memory_pointer(), DATA_SIZE, "%s:%d", "client_handler", a);
-			 std::cout << (char*)grupo->memory_pointer() << std::endl;*/
 
-			// envio el token al cliente
-			send_token();
+	if (tipo_join == mensajes::JOIN_FORK) {
+		loop_token_fork();
+	} else {
+		do {
+			try {
+				// espero el token
+				grupo->lock_token();
+				tengo_el_token = true;
+				/*std::cout << (char*)grupo->memory_pointer() << std::endl;
+				 sscanf((char*)grupo->memory_pointer(), "%[^:]:%d", data, &a);
+				 a++;
+				 snprintf((char*)grupo->memory_pointer(), DATA_SIZE, "%s:%d", "client_handler", a);
+				 std::cout << (char*)grupo->memory_pointer() << std::endl;*/
 
-			// espero que devuelva el token
-			if (recv_token() == 0) {
+				// envio el token al cliente
+				send_token();
+
+				// espero que devuelva el token
+				if (recv_token() == 0) {
+					leave = true;
+				}
+			} catch (OSError & error) {
 				leave = true;
 			}
-		} catch (OSError & error) {
-			leave = true;
-		}
-		if (leave) {
-			// tengo que salir del grupo antes de liberar el token
-			leave_group();
-		}
-		if (tengo_el_token) {
-			// libero el token
-			grupo->release_token(&cola_token_manager);
-		}
-		tengo_el_token = false;
-	} while (!leave);
-
+			if (leave) {
+				// tengo que salir del grupo antes de liberar el token
+				leave_group();
+			}
+			if (tengo_el_token) {
+				// libero el token
+				grupo->release_token(&cola_token_manager);
+			}
+			tengo_el_token = false;
+		} while (!leave);
+	}
 }
 
 void ClientHandler::run() {
@@ -186,7 +258,8 @@ void ClientHandler::run() {
 
 		this->procesar_peticion(mensaje);
 
-	} while (mensaje.peticion != mensajes::LEAVE && mensaje.peticion != mensajes::JOIN);
+	} while (mensaje.peticion != mensajes::LEAVE && mensaje.peticion != mensajes::JOIN
+		&& mensaje.peticion != mensajes::JOIN_FORK);
 
 	loop_token();
 
@@ -202,20 +275,20 @@ try
 	int fd;
 	char id;
 
-	std::cout << "client_handler " << argv [1] << " " << argv [2] << " " << argv [3] << std::endl;
+	//std::cout << "client_handler " << argv [1] << " " << argv [2] << " " << argv [3] << std::endl;
 
 	fd = atoi(argv [2]);
 	id = atoi(argv [3]);
 
 	///// SOCKET ESCUCHA SOLO PARA DEBUG
 	/*int new_socket;
-	std::string puerto("1234");
-	Socket * server_socket = new Socket(true);
-	server_socket->source(puerto);
-	new_socket = server_socket->listen_fd(10);
-	fd = new_socket;
-	server_socket->disassociate();
-	delete server_socket;*/
+	 std::string puerto("1234");
+	 Socket * server_socket = new Socket(true);
+	 server_socket->source(puerto);
+	 new_socket = server_socket->listen_fd(10);
+	 fd = new_socket;
+	 server_socket->disassociate();
+	 delete server_socket;*/
 
 	ClientHandler handler(argv [1], id, fd);
 
@@ -233,6 +306,6 @@ catch (const std::exception & e) {
 	Log::crit("%s", e.what());
 }
 catch (...) {
-	std::cerr << "Error Broker Local" << std::endl;
+	//std::cerr << "Error Broker Local" << std::endl;
 	Log::crit("Critical error. Unknow exception at the end of the 'main' function.");
 }

@@ -17,7 +17,7 @@
 namespace mensajes {
 
 typedef enum {
-	REGISTER, JOIN, LEAVE, TOKEN_FREE, END_JOIN
+	REGISTER, JOIN, JOIN_FORK, LEAVE, TOKEN_FREE, END_JOIN
 } peticiones_t;
 
 typedef enum {

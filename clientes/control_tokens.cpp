@@ -8,6 +8,9 @@
 #include "control_tokens.h"
 #include "globalconstants.h"
 #include <cstring>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/stat.h>
 
 ControlTokens * ControlTokens::instance = NULL;
 
@@ -28,6 +31,7 @@ ControlTokens::ControlTokens(const std::string & directorio_de_trabajo, bool cre
 			std::string(directorio_de_trabajo).append(PATH_CONTROL_TOKENS).c_str(), char(1), 0664)
 {
 	if (create) {
+
 		token_esperando = (char *)memoria_control.memory_pointer();
 	}
 }
@@ -55,8 +59,31 @@ bool ControlTokens::comparar_token(const char nombre [MAX_NOMBRE_RECURSO]) {
 	return result;
 }
 
+void ControlTokens::test_and_clear_if_esperando_token(const char nombre [MAX_NOMBRE_RECURSO]) {
+	bool result;
+	mutex.wait_on(0);
+	result = (strncmp(token_esperando, nombre, MAX_NOMBRE_RECURSO) == 0);
+	if (result == 0) {
+		*token_esperando = '\0';
+	}
+	mutex.signalize(0);
+}
+
 ControlTokens * ControlTokens::get_instance(const std::string & directorio_de_trabajo) {
 	if (ControlTokens::instance == NULL) {
+		int file;
+		struct stat buf;
+		char path [200];
+		strcpy(path, directorio_de_trabajo.c_str());
+		strcat(path, PATH_CONTROL_TOKENS);
+		if (stat(path, &buf) != 0) {
+			file = open(path, O_CREAT | 0664);
+			if (file != -1) {
+				close(file);
+			} else {
+				//THROW OSERROR
+			}
+		}
 		ControlTokens::instance = new ControlTokens(directorio_de_trabajo);
 	}
 	return ControlTokens::instance;

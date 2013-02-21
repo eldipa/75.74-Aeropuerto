@@ -15,6 +15,7 @@
 #include "process.h"
 #include "oserror.h"
 #include "local_broker_constants.h"
+#include <csignal>
 
 #define MAX_CLIENTES 100
 
@@ -41,15 +42,21 @@ LocalBroker::LocalBroker(const std::string & directorio, const std::string & gro
 }
 
 LocalBroker::~LocalBroker() {
+	std::vector<Process *> :: iterator i;
+	for(i = hijos.begin();i!=hijos.end();i++){
+		(*i)->send_signal(SIGTERM,false);
+		(*i)->wait();
+		delete (*i);
+	}
 }
 
 void LocalBroker::run() {
 	//char debug [200];
 	int new_socket;
 	bool exit = 0;
-
-	Process p("token_manager",args_token_manager);
-
+	Process * handler;
+	Process * p = new Process("token_manager",args_token_manager);
+	hijos.push_back(p);
 	do {
 		try {
 			new_socket = server_socket.listen_fd(10);
@@ -65,8 +72,9 @@ void LocalBroker::run() {
 
 			//std::cout << "creando handler " << new_socket << std::endl;
 
-			Process p("client_handler", args_client_handler);
+			handler = new Process("client_handler", args_client_handler);
 
+			hijos.push_back(handler);
 			//exit = true;
 		} catch (OSError & error) {
 			exit = 1;

@@ -6,14 +6,21 @@
 #include "semaphoreset.h"
 #include "log.h"
 #include <cstring>
+#include "memoria_distribuida.h"
+#include "semaphore_set_distribuido.h"
+#include "api_constants.h"
+#include "api_common.h"
 
-template<typename T>
+template <typename T>
 class CintaCarga {
 private:
-	SharedMemory * memoria_compartida;
-	SemaphoreSet * semaforo_productores;
-	SemaphoreSet * semaforo_consumidores;
-	SemaphoreSet * mutex;
+	/*SharedMemory * memoria_compartida;
+	 SemaphoreSet * semaforo_productores;
+	 SemaphoreSet * semaforo_consumidores;
+	 SemaphoreSet * mutex;*/
+	MemoriaDistribuida * memoria_compartida;
+	SemaphoreSetDistribuido * semaforo_productores;
+	SemaphoreSetDistribuido * semaforo_consumidores;
 
 	const int * tamanio_vector;
 	int * posicion_libre;
@@ -36,9 +43,8 @@ private:
 	void despertar_consumidores();
 	void despertar_productores();
 public:
-	CintaCarga(const char * absolute_path, int numero_cinta, int size, int cant_productores,
-			int cant_consumidores);
-	CintaCarga(const char * absolute_path, int numero_cinta);
+	CintaCarga(const char * app_name, const char * directorio_de_trabajo, int numero_cinta, int size);
+	CintaCarga(const char * app_name, const char * directorio_de_trabajo, int numero_cinta);
 	virtual ~CintaCarga();
 
 	void poner_equipaje(const T & elemento, int id_productor);
@@ -48,13 +54,14 @@ public:
 	int cantidad_valijas_totales();
 	void avisar_cierre_de_checkin(int cantidad_de_valijas);
 
-   /* parche */
-   void comenzar_nueva_carga();
+	/* parche */
+	void comenzar_nueva_carga();
 
 };
 
-template<typename T> CintaCarga<T>::CintaCarga(const char * absolute_path, int numero_cinta, int size,
-		int cant_productores, int cant_consumidores) {
+template <typename T> CintaCarga<T>::CintaCarga(const char * app_name, const char * absolute_path, int numero_cinta,
+	int size)
+{
 
 	int * tamanio_de_vector;
 	int tamanio_shared_memory;
@@ -68,25 +75,24 @@ template<typename T> CintaCarga<T>::CintaCarga(const char * absolute_path, int n
 	std::vector<unsigned short> valores;
 
 	tamanio_control = 10 * sizeof(int);
-	tamanio_id_productores = cant_productores * sizeof(int);
-	tamanio_id_consumidores = cant_consumidores * sizeof(int);
+	tamanio_id_productores = CANTIDAD_MAX_PRODUCTORES_CINTA_CONTENEDOR * sizeof(int);
+	tamanio_id_consumidores = CANTIDAD_MAX_CONSUMIDORES_CINTA_CONTENEDOR* sizeof(int);
 	tamanio_dato = sizeof(T);
-	tamanio_shared_memory = tamanio_control + tamanio_id_productores + tamanio_id_consumidores
-			+ size * tamanio_dato;
-	memoria_compartida = new SharedMemory(absolute_path, cant_ipc * (numero_cinta - 1), tamanio_shared_memory,
-			0664, true, false);
+	tamanio_shared_memory = tamanio_control + tamanio_id_productores + tamanio_id_consumidores + size * tamanio_dato;
+	memoria_compartida = new SharedMemory(absolute_path, cant_ipc * (numero_cinta - 1), tamanio_shared_memory, 0664,
+		true, false);
 
-	valores.push_back(1);
-	mutex = new SemaphoreSet(valores, absolute_path, cant_ipc * (numero_cinta - 1) + 1, 0664);
+	//valores.push_back(1);
+	//mutex = new SemaphoreSet(valores, absolute_path, cant_ipc * (numero_cinta - 1) + 1, 0664);
 
 	valores.clear();
-	for (i = 0; i < cant_productores; i++) {
+	for (i = 0; i < CANTIDAD_MAX_PRODUCTORES_CINTA_CONTENEDOR ; i++) {
 		valores.push_back(1);
 	}
 	semaforo_productores = new SemaphoreSet(valores, absolute_path, cant_ipc * (numero_cinta - 1) + 2, 0664);
 
 	valores.clear();
-	for (i = 0; i < cant_consumidores; i++) {
+	for (i = 0; i < CANTIDAD_MAX_CONSUMIDORES_CINTA_CONTENEDOR ; i++) {
 		valores.push_back(1);
 	}
 	semaforo_consumidores = new SemaphoreSet(valores, absolute_path, cant_ipc * (numero_cinta - 1) + 3, 0664);
@@ -103,37 +109,46 @@ template<typename T> CintaCarga<T>::CintaCarga(const char * absolute_path, int n
 	checkin_cerrado = cantidad_consumidores_esperando + 1;
 	numero_de_valijas_totales = checkin_cerrado + 1;
 	ids_productores_esperando = numero_de_valijas_totales + 1;
-	ids_consumidores_esperando = ids_productores_esperando + cant_productores;
-	vector_elementos = reinterpret_cast<T *>(ids_consumidores_esperando + cant_consumidores);
+	ids_consumidores_esperando = ids_productores_esperando + CANTIDAD_MAX_PRODUCTORES_CINTA_CONTENEDOR;
+	vector_elementos = reinterpret_cast<T *>(ids_consumidores_esperando + CANTIDAD_MAX_CONSUMIDORES_CINTA_CONTENEDOR);
 
 	// Inicializo el control de la memoria
 	*tamanio_de_vector = size;
 	*posicion_libre = 0;
 	*posicion_ocupada = 0;
 	*cantidad_elementos = 0;
-	*cantidad_productores = cant_productores;
-	*cantidad_consumidores = cant_consumidores;
+	*cantidad_productores = CANTIDAD_MAX_PRODUCTORES_CINTA_CONTENEDOR;
+	*cantidad_consumidores = CANTIDAD_MAX_CONSUMIDORES_CINTA_CONTENEDOR;
 	*cantidad_productores_esperando = 0;
 	*cantidad_consumidores_esperando = 0;
 	*checkin_cerrado = 0;
 	*numero_de_valijas_totales = 0;
-	for (i = 0; i < cant_productores; i++) {
-		ids_productores_esperando[i] = 0;
+	for (i = 0; i < CANTIDAD_MAX_PRODUCTORES_CINTA_CONTENEDOR ; i++) {
+		ids_productores_esperando [i] = 0;
 	}
-	for (i = 0; i < cant_consumidores; i++) {
-		ids_consumidores_esperando[i] = 0;
+	for (i = 0; i < CANTIDAD_MAX_CONSUMIDORES_CINTA_CONTENEDOR ; i++) {
+		ids_consumidores_esperando [i] = 0;
 	}
 	ya_me_desperto_el_cierre_de_checkin = false;
 }
 
-template<typename T> CintaCarga<T>::CintaCarga(const char * absolute_path, int numero_cinta) {
+template <typename T> CintaCarga<T>::CintaCarga(const char * app_name, const char * directorio_de_trabajo,
+	int numero_cinta)
+{
+	std::vector<short unsigned int> valores;
+	//this->memoria_compartida = new SharedMemory(absolute_path, cant_ipc * (numero_cinta - 1), 0, false, false);
 
-	this->memoria_compartida = new SharedMemory(absolute_path, cant_ipc * (numero_cinta - 1), 0, false,
-			false);
+	//this->mutex = new SemaphoreSet(absolute_path, cant_ipc * (numero_cinta - 1) + 1, 0, 0);
+	//this->semaforo_productores = new SemaphoreSet(absolute_path, cant_ipc * (numero_cinta - 1) + 2, 0, 0);
+	//this->semaforo_consumidores = new SemaphoreSet(absolute_path, cant_ipc * (numero_cinta - 1) + 3, 0, 0);
 
-	this->mutex = new SemaphoreSet(absolute_path, cant_ipc * (numero_cinta - 1) + 1, 0, 0);
-	this->semaforo_productores = new SemaphoreSet(absolute_path, cant_ipc * (numero_cinta - 1) + 2, 0, 0);
-	this->semaforo_consumidores = new SemaphoreSet(absolute_path, cant_ipc * (numero_cinta - 1) + 3, 0, 0);
+	this->memoria_compartida = new MemoriaDistribuida(directorio_de_trabajo, app_name,
+		std::string("cinta_contenedor").append(intToString(numero_cinta)).c_str(), 0, TAMANIO_MEMORIA_CINTA_CARGA);
+
+	this->semaforo_productores = new SemaphoreSetDistribuido(valores, directorio_de_trabajo, app_name,
+		std::string("cco_sem_prod_").append(intToString(numero_cinta)), true);
+	this->semaforo_consumidores = new SemaphoreSetDistribuido(valores, directorio_de_trabajo, app_name,
+		std::string("cco_sem_cons_").append(intToString(numero_cinta)), true);
 
 	tamanio_vector = static_cast<const int *>(memoria_compartida->memory_pointer());
 	posicion_libre = const_cast<int*>(tamanio_vector) + 1;
@@ -151,15 +166,15 @@ template<typename T> CintaCarga<T>::CintaCarga(const char * absolute_path, int n
 	ya_me_desperto_el_cierre_de_checkin = false;
 }
 
-template<typename T> CintaCarga<T>::~CintaCarga() {
+template <typename T> CintaCarga<T>::~CintaCarga() {
 	if (this->memoria_compartida) {
 		delete this->memoria_compartida;
 		this->memoria_compartida = NULL;
 	}
-	if (this->mutex) {
+	/*if (this->mutex) {
 		delete this->mutex;
 		this->mutex = NULL;
-	}
+	}*/
 	if (this->semaforo_consumidores) {
 		delete this->semaforo_consumidores;
 		this->semaforo_consumidores = NULL;
@@ -170,46 +185,48 @@ template<typename T> CintaCarga<T>::~CintaCarga() {
 	}
 }
 
-template<typename T>
+template <typename T>
 void CintaCarga<T>::despertar_consumidores() { // se llama con el mutex tomado
 	int i;
 	if (*cantidad_consumidores_esperando > 0) {
-		for (i = 0; i < *this->cantidad_consumidores; i++) {
-			if (this->ids_consumidores_esperando[i] == 1) {
+		for (i = 0; i < *this->cantidad_consumidores ; i++) {
+			if (this->ids_consumidores_esperando [i] == 1) {
 				semaforo_consumidores->signalize(i);
-				this->ids_consumidores_esperando[i] = 0;
+				this->ids_consumidores_esperando [i] = 0;
 			}
 		}
 		*this->cantidad_consumidores_esperando = 0;
 	}
 }
 
-template<typename T>
+template <typename T>
 void CintaCarga<T>::despertar_productores() { // se llama con el mutex tomado
 	int i;
 	if (*cantidad_productores_esperando > 0) {
-		for (i = 0; i < *this->cantidad_productores; i++) {
-			if (this->ids_productores_esperando[i] == 1) {
+		for (i = 0; i < *this->cantidad_productores ; i++) {
+			if (this->ids_productores_esperando [i] == 1) {
 				semaforo_productores->signalize(i);
-				this->ids_productores_esperando[i] = 0;
+				this->ids_productores_esperando [i] = 0;
 			}
 		}
 		*this->cantidad_productores_esperando = 0;
 	}
 }
 
-template<typename T>
+template <typename T>
 void CintaCarga<T>::poner_equipaje(const T & elemento, int id_productor) {
 	bool coloque = false;
 
 	while (!coloque) {
 
-		semaforo_productores->wait_on(id_productor - 1); // espera por si esta lleno
+		//semaforo_productores->wait_on(id_productor - 1); // espera por si esta lleno
+		semaforo_productores->wait_on(0);
 
-		mutex->wait_on(0);
+		//mutex->wait_on(0);
+		memoria_compartida->lock();
 
 		if (*this->cantidad_elementos < *this->tamanio_vector) { // puedo colocar
-			memcpy(&(vector_elementos[*this->posicion_libre]), &elemento, sizeof(T));
+			memcpy(&(vector_elementos [*this->posicion_libre]), &elemento, sizeof(T));
 			*posicion_libre = (*posicion_libre + 1) % *this->tamanio_vector;
 			(*this->cantidad_elementos)++;
 			coloque = true;
@@ -221,46 +238,52 @@ void CintaCarga<T>::poner_equipaje(const T & elemento, int id_productor) {
 
 		if (*this->cantidad_elementos == *this->tamanio_vector) { // lo llené
 			(*this->cantidad_productores_esperando)++;
-			this->ids_productores_esperando[id_productor - 1] = 1;
+			this->ids_productores_esperando [id_productor - 1] = 1;
 		} else {
-			semaforo_productores->signalize(id_productor - 1);
+			//semaforo_productores->signalize(id_productor - 1);
+			semaforo_productores->signalize(0);
 		}
 
-		mutex->signalize(0);
+		//mutex->signalize(0);
+		memoria_compartida->unlock();
 	}
 }
 
 /* 
-   resetea la cinta contenedor cuando cerro el checkin
-   parche temporal para que el robot_carga no siga cargando equipagjes de otro vuelo
-   en los mismo contenedores.
-   TODO: ver bien como se implementa esto.
-*/
-template<typename T>
+ resetea la cinta contenedor cuando cerro el checkin
+ parche temporal para que el robot_carga no siga cargando equipagjes de otro vuelo
+ en los mismo contenedores.
+ TODO: ver bien como se implementa esto.
+ */
+template <typename T>
 void CintaCarga<T>::comenzar_nueva_carga() {
-   mutex->wait_on(0);
-   (*numero_de_valijas_totales) = 0;
-   (*checkin_cerrado) = 0;
-   ya_me_desperto_el_cierre_de_checkin = false;
-   mutex->signalize(0);
+	//mutex->wait_on(0);
+	memoria_compartida->lock();
+	(*numero_de_valijas_totales) = 0;
+	(*checkin_cerrado) = 0;
+	ya_me_desperto_el_cierre_de_checkin = false;
+	//mutex->signalize(0);
+	memoria_compartida->unlock();
 }
 
-template<typename T>
+template <typename T>
 T CintaCarga<T>::sacar_equipaje(int id_consumidor = 1) {
 	T elemento;
 	bool extrajo = false;
 
 	while (!extrajo) {
 
-		this->semaforo_consumidores->wait_on(id_consumidor - 1);
+		//this->semaforo_consumidores->wait_on(id_consumidor - 1);
+		this->semaforo_consumidores->wait_on(0);
 
-		mutex->wait_on(0);
+		//mutex->wait_on(0);
+		memoria_compartida->lock();
 
 		if (ya_me_desperto_el_cierre_de_checkin || *this->checkin_cerrado == 0) {
 
 			if (*this->cantidad_elementos > 0) {
 				extrajo = true;
-				memcpy((void *) &elemento, &(vector_elementos[*this->posicion_ocupada]), sizeof(T));
+				memcpy((void *)&elemento, &(vector_elementos [*this->posicion_ocupada]), sizeof(T));
 				*this->posicion_ocupada = (*this->posicion_ocupada + 1) % *this->tamanio_vector;
 				(*this->cantidad_elementos)--;
 
@@ -271,50 +294,57 @@ T CintaCarga<T>::sacar_equipaje(int id_consumidor = 1) {
 
 			if (*this->cantidad_elementos == 0) {
 				(*this->cantidad_consumidores_esperando)++;
-				this->ids_consumidores_esperando[id_consumidor - 1] = 1;
+				this->ids_consumidores_esperando [id_consumidor - 1] = 1;
 			} else {
-				this->semaforo_consumidores->signalize(id_consumidor - 1);
+				//this->semaforo_consumidores->signalize(id_consumidor - 1);
+				this->semaforo_consumidores->signalize(0);
 			}
 		} else if (!ya_me_desperto_el_cierre_de_checkin && *checkin_cerrado == 1) {
 			ya_me_desperto_el_cierre_de_checkin = true;
 			extrajo = true;
-			this->semaforo_consumidores->signalize(id_consumidor - 1);
+			//this->semaforo_consumidores->signalize(id_consumidor - 1);
+			this->semaforo_consumidores->signalize(0);
 		}
 
-		mutex->signalize(0);
+		//mutex->signalize(0);
+		memoria_compartida->unlock();
 	}
 	return elemento;
 }
 
-template<typename T>
+template <typename T>
 bool CintaCarga<T>::checkin_ya_cerro() {
 	return ya_me_desperto_el_cierre_de_checkin;
 }
 
-template<typename T>
+template <typename T>
 int CintaCarga<T>::cantidad_valijas_totales() {
 	int cantidad;
 	if (ya_me_desperto_el_cierre_de_checkin) {
-		mutex->wait_on(0);
+		//mutex->wait_on(0);
+		memoria_compartida->lock();
 		cantidad = *numero_de_valijas_totales;
-		mutex->signalize(0);
+		//mutex->signalize(0);
+		memoria_compartida->unlock();
 	} else {
 		cantidad = -1;
 	}
 	return cantidad;
 }
 
-template<typename T>
+template <typename T>
 void CintaCarga<T>::avisar_cierre_de_checkin(int cantidad_de_valijas) {
 
-	mutex->wait_on(0);
+	//mutex->wait_on(0);
+	memoria_compartida->lock();
 
 	*numero_de_valijas_totales = cantidad_de_valijas;
 	*checkin_cerrado = 1;
 	despertar_consumidores();
 
-	mutex->signalize(0);
-   Log::debug("Cerro el checkin, tengo que esperar %d valijas", cantidad_de_valijas);
+	//mutex->signalize(0);
+	memoria_compartida->unlock();
+	Log::debug("Cerro el checkin, tengo que esperar %d valijas", cantidad_de_valijas);
 
 }
 

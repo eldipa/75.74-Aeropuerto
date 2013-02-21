@@ -41,5 +41,7 @@
 
 #define GROUP_MSG_DATA_SIZE 256
 
+#define PATH_LOCAL_BROKER_LIST_FILE "/local_broker.list"
+
 
 #endif /* CONSTANTS_H_ */

@@ -1,3 +1,3 @@
-INCLUDE_PATHS = ../os ../ipc ../log ../db ../common ../external ../network ../local_broker ../external/iniparser
-LIBRARIES = ../clientes/libclientes.a ../external/iniparser/libiniparser.a
+INCLUDE_PATHS = ../os ../ipc ../log ../db ../common ../external ../network ../external/iniparser ../clientes ../local_broker
+LIBRARIES = ../external/iniparser/libiniparser.a 
 TARGET = libapi.a

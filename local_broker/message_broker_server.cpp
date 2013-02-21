@@ -61,7 +61,7 @@ void MessageBrokerServer::client_handler(Socket& sock) {
 
             MessageBrokerServer::sendall(sock, (char*)&response, sizeof(BrokerResponse));
                
-         } catch(std::exception error) {
+         } catch(std::exception & error) {
             Log::debug("MessageBrokerServer: error %s", error.what());
          }
          

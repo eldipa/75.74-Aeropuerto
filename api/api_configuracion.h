@@ -16,9 +16,9 @@ private:
 public:
    
    static yasper::ptr<IQueueManager> get_queue_manager(const char* directorio_de_trabajo, const char* config_file, bool create = false) {
-      config_file = config_file;
-      directorio_de_trabajo = directorio_de_trabajo;
-      create = create;
+      config_file = config_file + 1;
+      directorio_de_trabajo = directorio_de_trabajo + 1;
+      create = !!create;
 
       dictionary * ini = iniparser_load(config_file);
 

@@ -9,6 +9,7 @@
 #include "log.h"
 #include "local_broker.h"
 #include "daemon.h"
+#include "oserror.h"
 
 int main(int argc, char * argv [])
 try
@@ -17,9 +18,13 @@ try
 	argv = argv + 1 - 1;
 	ignore_signals();
 
-	LocalBroker server("./locks","./group_list.txt");
+	try {
+		LocalBroker server("./locks", "./locks/group_list.txt");
 
-	server.run();
+		server.run();
+	} catch (OSError & e) {
+		std::cerr << "Error puerto en uso" << std::endl;
+	}
 
 }
 catch (const std::exception & e) {

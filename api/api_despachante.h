@@ -17,9 +17,9 @@ class ZonasAsignadas;
 
 class ApiDespachante {
 private:
-   SemaphoreSet sem_set;
-   Mutex mutex_asignaciones;
-   SharedObject<ZonasAsignadas> asignaciones;
+   //SemaphoreSet sem_set;
+  // Mutex mutex_asignaciones;
+   //SharedObject<ZonasAsignadas> asignaciones;
 
 	CintaCentral cinta;
 	int numero_despachante;

@@ -11,6 +11,8 @@
 #include <cstdio>
 #include <cstring>
 #include "dir.h"
+#include "daemon.h"
+#include <csignal>
 
 static char directorio [FILENAME_MAX];
 static char nombre_app [MAX_NOMBRE_RECURSO];
@@ -21,38 +23,45 @@ static char tamanio_mem [10];
 static char * args_local_broker_comm [] = {
 	(char *)"local_broker_comm", directorio, nombre_app, brokers_file, grupo, id_ipc, tamanio_mem};
 
-MutexDistribuido::MutexDistribuido(const std::string & directorio_de_trabajo, const std::string & nombre_grupo, char id,
-	bool create)
+MutexDistribuido::MutexDistribuido(const std::string & directorio_de_trabajo, const std::string & nombre_app,
+	const std::string & nombre_grupo, char id, bool create)
 	: nombre_recurso(nombre_grupo)
 
 {
-
-	// Creo el archivo lck
-	int file;
-	struct stat buf;
-	char path [200];
-	strcpy(path, directorio_de_trabajo.c_str());
-	strcat(path, PREFIJO_RECURSO);
-	strcat(path, nombre_grupo.c_str());
-	strcat(path, POSTFIJO_LCK);
-	if (stat(path, &buf) != 0) {
-		file = open(path, O_CREAT | 0664);
-		if (file != -1) {
-			close(file);
-		} else {
-			//THROW OSERROR
-		}
-	}
-
 	if (create) {
+		// Creo el archivo lck
+		int file;
+		struct stat buf;
+		char path [200];
+		strcpy(path, directorio_de_trabajo.c_str());
+		strcat(path, PREFIJO_RECURSO);
+		strcat(path, nombre_grupo.c_str());
+		strcat(path, POSTFIJO_LCK);
+		if (stat(path, &buf) != 0) {
+			file = open(path, O_CREAT | 0664);
+			if (file != -1) {
+				close(file);
+			} else {
+				//THROW OSERROR
+			}
+		}
+
 		mutex =
 			new SemaphoreSet(std::vector<short unsigned int>(2, 0),
 				std::string(directorio_de_trabajo).append(PREFIJO_RECURSO).append(nombre_grupo).append(POSTFIJO_LCK).c_str(),
 				id, 0664);
 
 		control = ControlTokens::get_instance(directorio_de_trabajo, true);
-	}
+	} else {
+		mutex =
+			new SemaphoreSet(
+				std::string(directorio_de_trabajo).append(PREFIJO_RECURSO).append(nombre_grupo).append(POSTFIJO_LCK).c_str(),
+				id, 0);
 
+		control = ControlTokens::get_instance(directorio_de_trabajo);
+	}
+	lanzar_comunicacion(directorio_de_trabajo, nombre_app,
+		std::string(directorio_de_trabajo).append(PATH_LOCAL_BROKER_LIST_FILE).c_str(), nombre_grupo, id, 0);
 }
 
 MutexDistribuido::MutexDistribuido(const std::string & directorio_de_trabajo, const std::string & nombre_grupo, char id)
@@ -66,7 +75,40 @@ MutexDistribuido::MutexDistribuido(const std::string & directorio_de_trabajo, co
 	control = ControlTokens::get_instance(directorio_de_trabajo);
 }
 
+MutexDistribuido::MutexDistribuido(const std::string & directorio_de_trabajo, const std::string & nombre_app,
+	const std::string & file_key, char id, const std::string & nombre_grupo, bool create)
+	: nombre_recurso(nombre_grupo)
+
+{
+
+	// Creo el archivo lck
+	int file;
+	struct stat buf;
+	if (stat(file_key.c_str(), &buf) != 0) {
+		file = open(file_key.c_str(), O_CREAT | 0664);
+		if (file != -1) {
+			close(file);
+		} else {
+			//THROW OSERROR
+		}
+	}
+
+	if (create) {
+		mutex = new SemaphoreSet(std::vector<short unsigned int>(2, 0), file_key.c_str(), id, 0664);
+
+		control = ControlTokens::get_instance(directorio_de_trabajo, true);
+	}
+
+	lanzar_comunicacion(directorio_de_trabajo, nombre_app,
+		std::string(directorio_de_trabajo).append(PATH_LOCAL_BROKER_LIST_FILE).c_str(), nombre_grupo, id, 0);
+}
+
 MutexDistribuido::~MutexDistribuido() {
+	try {
+		handler->send_signal(SIGTERM, false);
+		handler->wait();
+	} catch (OSError & error) {
+	}
 	if (mutex)
 		delete mutex;
 	ControlTokens::destroy_instance();
@@ -88,6 +130,10 @@ void MutexDistribuido::entregar_token() {
 
 void MutexDistribuido::esperar_token() {
 	mutex->wait_on(1);
+}
+
+void MutexDistribuido::forwardear_token() {
+	mutex->signalize(1);
 }
 
 void MutexDistribuido::lanzar_comunicacion(const std::string & directorio_de_trabajo,
@@ -115,19 +161,20 @@ void MutexDistribuido::lanzar_comunicacion(const std::string & directorio_de_tra
 
 	locate_dir(launch_dir, current_working_dir, (char *)"clientes");
 
-	relativize_dir(directorio, directorio_de_trabajo.c_str(), launch_dir);
-	relativize_dir(brokers_file, directorio_de_trabajo.c_str(), local_brokers_file.c_str());
+	relativize_dir(directorio, directorio_de_trabajo.c_str(), launch_dir, current_working_dir);
+	relativize_dir(brokers_file, local_brokers_file.c_str(), launch_dir, current_working_dir);
+
+	ignore_childs();
 
 	if (chdir(launch_dir) != 0) {
 		throw GenericError("Cannot change working dir to %s", launch_dir);
 	}
 
-	Process("local_broker_comm", args_local_broker_comm);
+	handler = new Process("local_broker_comm", args_local_broker_comm);
 
 	if (chdir(current_working_dir) != 0) {
 		throw GenericError("Cannot change working dir to %s", current_working_dir);
 	}
-
 
 }
 
