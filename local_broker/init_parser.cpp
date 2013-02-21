@@ -78,7 +78,9 @@ int InitParser::parse_int_val(const char * val) {
 		return TAMANIO_MEMORIA_CINTA_CARGA;
 	} else if (cmp(val, "TAMANIO_MEMORIA_CINTA_CHECKIN")) {
 		return TAMANIO_MEMORIA_CINTA_CHECKIN;
-	} else if (cmp(val, "MAX_INTERCARGOS_ESPERANDO")) {
+	} else if (cmp(val, "TAMANIO_MEMORIA_ZONAS_ASIGNADAS")) {
+		return TAMANIO_MEMORIA_ZONAS_ASIGNADAS;
+	}else if (cmp(val, "MAX_INTERCARGOS_ESPERANDO")) {
 		return MAX_INTERCARGOS_ESPERANDO;
 	} else if (cmp(val, "CANT_MUTEX_CENTRAL")) {
 		return CANT_MUTEX_CENTRAL;
@@ -145,7 +147,9 @@ size_t InitParser::parse_size_t_val(const char * val) {
 		return TAMANIO_MEMORIA_CINTA_CARGA;
 	} else if (cmp(val, "TAMANIO_MEMORIA_CINTA_CHECKIN")) {
 		return TAMANIO_MEMORIA_CINTA_CHECKIN;
-	} else if (cmp(val, "MAX_SCANNERS")) {
+	} else if (cmp(val, "TAMANIO_MEMORIA_ZONAS_ASIGNADAS")) {
+		return TAMANIO_MEMORIA_ZONAS_ASIGNADAS;
+	}else if (cmp(val, "MAX_SCANNERS")) {
 		return MAX_SCANNERS;
 	} else if (cmp(val, "ZONAS_POR_ROBOT_DESPACHO")) {
 		return ZONAS_POR_ROBOT_DESPACHO;

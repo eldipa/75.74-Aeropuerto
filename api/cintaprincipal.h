@@ -141,8 +141,12 @@ template <typename T> CintaPrincipal<T>::CintaPrincipal(const char * app_name, c
 	valores.clear();
 	if (id_productor >= 0) { // soy productor
 		valores.push_back(id_productor);
+	} else if (id_productor == -2) {// caso especial intercargo
+		for(unsigned short i = 5;i<CANTIDAD_MAX_PRODUCTORES_CINTA_CENTRAL;i++){
+			valores.push_back(i);
+		}
 	} else { //soy consumidor
-		for (unsigned short i ; i < CANTIDAD_MAX_PRODUCTORES_CINTA_CENTRAL ; i++) {
+		for (unsigned short i = 0; i < CANTIDAD_MAX_PRODUCTORES_CINTA_CENTRAL ; i++) {
 			valores.push_back(i);
 		}
 	}

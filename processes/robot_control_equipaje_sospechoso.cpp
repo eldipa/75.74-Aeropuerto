@@ -27,7 +27,6 @@ try {
 	// strcpy(id_productor, argv[4]);
 
 
-
    static char* args_controlador_equipajes[] = { (char*) "control_equipaje_sospechoso", argv[1], argv[2], argv[3], argv[4], NULL };
 	Process control_equipajes("control_equipaje_sospechoso", args_controlador_equipajes);
 

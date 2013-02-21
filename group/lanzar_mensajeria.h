@@ -13,7 +13,9 @@
  *
  * Vease la documentacion de inbound.py.
  * */
-void lanzar_mensajeria(const char* absolute_path, char proj_id, char group_id, 
-      const char* localhost_name, const char* network_name);
+void lanzar_mensajeria(const char* absolute_path, char proj_id, char group_id, const char* localhost_name,
+	const char* network_name);
+
+void lanzar_beacon_svc(const char* localhost_name);
 
 #endif

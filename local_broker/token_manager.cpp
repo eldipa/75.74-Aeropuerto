@@ -80,7 +80,7 @@ void TokenManager::crear_grupos(const std::string & directorio_de_trabajo, const
 		grupos.insert(std::pair<std::string, Grupo *>(std::string(nombre_recurso), g));
 
 		//GroupCommManager manager(directorio_de_trabajo);
-		//manager.levantar_grupo(nombre_recurso, char(id_grupo));
+		//manager.levantar_grupo(nombre_recurso, char(id_grupo), valor);
 		if (valor == 1) {
 			// MAL LO TIENE QUE INICIALIZAR EL PROCESO "GROUP_RECEIVER" QUE ES EL QUE MANEJA AL LIDER
 			g->release_token(&clientes);
@@ -158,6 +158,10 @@ try
 	char id;
 
 	id = atoi(argv [2]);
+
+	if (chdir("local_broker") != 0) {
+		throw GenericError("Cannot change working dir to %s", "processes");
+	}
 
 	TokenManager manager(argv [1], id, argv [3]);
 

@@ -21,7 +21,7 @@ public:
 	GroupCommManager(const std::string & directorio_de_trabajo);
 	virtual ~GroupCommManager();
 
-	void levantar_grupo(const std::string & nombre_grupo, char numero_grupo);
+	void levantar_grupo(const std::string & nombre_grupo, char numero_grupo, int token);
 };
 
 #endif /* GROUPCOMMMANAGER_H_ */

@@ -5,7 +5,7 @@ using namespace std;
 #include "api_configuracion.h"
 
 ApiComunicacionTrasbordo::ApiComunicacionTrasbordo(const char * directorio_de_trabajo, const char* config_file) :
-   queue_manager( ApiConfiguracion::get_queue_manager(directorio_de_trabajo, config_file) ), 
+   queue_manager( ApiConfiguracion::get_queue_manager(directorio_de_trabajo, config_file) ),
 	cola_asignaciones(queue_manager->get_queue(PATH_COLA_ESCUCHA_ZONA_ASIGNADA, 0) ) {
 
 	semaforos = new SemaphoreSet(string(directorio_de_trabajo).append(PATH_IPC_ROBOTS_INTERCARGO).c_str(), 0, 0, 0);

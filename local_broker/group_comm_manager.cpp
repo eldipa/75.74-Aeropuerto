@@ -29,13 +29,13 @@ static char id [4];
 static char directorio_de_trabajo_relativo [FILENAME_MAX];
 static char nombre_del_grupo [MAX_NOMBRE_RECURSO];
 static char nombre_broker_local [MAX_NOMBRE_RECURSO];
+static char token [2];
 
-/*static char * group_sender_args [] = {
- (char*)"group_sender", directorio_de_trabajo_relativo, id, nombre_del_grupo, nombre_broker_local};
+static char * group_sender_args [] = {
+	(char*)"group_sender", directorio_de_trabajo_relativo, id, nombre_del_grupo, nombre_broker_local};
 
- static char * group_receiver_args [] = {
- (char*)"group_receiver", directorio_de_trabajo_relativo, id, nombre_del_grupo, nombre_broker_local};
- */
+static char * group_receiver_args [] = {
+	(char*)"group_receiver", directorio_de_trabajo_relativo, id, nombre_del_grupo, nombre_broker_local, token};
 
 GroupCommManager::GroupCommManager(const std::string & directorio_trabajo)
 	: directorio_de_trabajo(directorio_trabajo)
@@ -60,11 +60,12 @@ GroupCommManager::GroupCommManager(const std::string & directorio_trabajo)
 GroupCommManager::~GroupCommManager() {
 }
 
-void GroupCommManager::levantar_grupo(const std::string & nombre_grupo, char numero_grupo) {
+void GroupCommManager::levantar_grupo(const std::string & nombre_grupo, char numero_grupo, int crear_token) {
 
 	sprintf(numero_de_grupo, "%d", numero_grupo);
 	sprintf(id, "%d", numero_grupo - 1);
 	strncpy(nombre_del_grupo, nombre_grupo.c_str(), MAX_NOMBRE_RECURSO);
+	sprintf(token, "%d", crear_token);
 
 #ifdef __x86_64__
 	get_local_ip(ip_local, (char *)"wlan0");
@@ -93,6 +94,7 @@ void GroupCommManager::levantar_grupo(const std::string & nombre_grupo, char num
 	strcpy(file_key, current_working_dir);
 	strcat(file_key, "/");
 	strcat(file_key, path_key);
+	lanzar_beacon_svc(ip_local);
 	lanzar_mensajeria(file_key, numero_grupo - 1, numero_grupo, ip_local, ip_broadcast);
 
 	if (chdir(current_working_dir) != 0) {
@@ -110,8 +112,8 @@ void GroupCommManager::levantar_grupo(const std::string & nombre_grupo, char num
 		throw GenericError("Cannot change working dir to %s", launch_dir);
 	}
 
-	//Process("group_receiver", group_receiver_args);
-	//Process("group_sender", group_sender_args);
+	Process("group_receiver", group_receiver_args);
+	Process("group_sender", group_sender_args);
 
 	if (chdir(current_working_dir) != 0) {
 		throw GenericError("Cannot change working dir to %s", current_working_dir);

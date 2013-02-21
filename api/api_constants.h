@@ -51,8 +51,8 @@
 
 #define ZONAS_POR_ROBOT_DESPACHO 2
 #define MAX_ZONAS 10
-#define MAX_ROBOTS_INTERCARGO_ESPERANDO_POR_ZONAS 15
-#define MAX_INTERCARGOS_ESPERANDO 15 // cant max de robots de intercargo que esperan que se asigne una zona
+#define MAX_ROBOTS_INTERCARGO_ESPERANDO_POR_ZONAS 10
+#define MAX_INTERCARGOS_ESPERANDO 10 // cant max de robots de intercargo que esperan que se asigne una zona
 #define MAX_PATH_SIZE 300
 
 // Configuración cintas
@@ -77,5 +77,5 @@
 #define TAMANIO_MEMORIA_CONTROL_CINTA_SCANNER (sizeof(int) * 2 + sizeof(int) * MAX_SCANNERS * 2)
 #define TAMANIO_MEMORIA_CINTA_CARGA (10 * sizeof(int) + sizeof(int)* (CANTIDAD_MAX_PRODUCTORES_CINTA_CONTENEDOR + CANTIDAD_MAX_CONSUMIDORES_CINTA_CONTENEDOR)+ sizeof(Equipaje) *CAPACIDAD_CINTA_CONTENEDOR)
 #define TAMANIO_MEMORIA_CINTA_CHECKIN (8 * sizeof(int) + sizeof(int) *(CANTIDAD_MAX_PRODUCTORES_CINTA_CHECKIN +CANTIDAD_MAX_CONSUMIDORES_CINTA_CHECKIN) + CAPACIDAD_CINTA_CHECKIN * sizeof(Equipaje))
-
+#define TAMANIO_MEMORIA_ZONAS_ASIGNADAS (sizeof(int) * (MAX_ROBOTS_INTERCARGO_ESPERANDO_POR_ZONAS + MAX_ZONAS))
 #endif

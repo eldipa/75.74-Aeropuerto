@@ -58,7 +58,7 @@ void relativize_dir(char directorio_relativo [FILENAME_MAX], const char director
 			} else {
 				dir_base1 = current_dir;
 				dir_base2 = launch_dir;
-				while (*dir_base1 == *dir_base2) {
+				while (*dir_base1 == *dir_base2 && *dir_base1 != '\0') {
 					dir_base1++;
 					dir_base2++;
 				}

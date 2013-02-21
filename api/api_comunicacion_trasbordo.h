@@ -7,6 +7,9 @@
 #include "semaphoreset.h"
 #include "sharedmemory.h"
 #include "api_constants.h"
+#include "api_common.h"
+#include "memoria_distribuida.h"
+#include "semaphore_set_distribuido.h"
 
 #include "yasper.h"
 #include "imessagequeue.h"
@@ -17,6 +20,7 @@ class ApiComunicacionTrasbordo {
 private:
 	SemaphoreSet * semaforos;
 	SharedMemory * memoria_zonas;
+
    yasper::ptr<IQueueManager> queue_manager;
    yasper::ptr<IMessageQueue>  cola_asignaciones;
 	static const int cant_ipc = 3;

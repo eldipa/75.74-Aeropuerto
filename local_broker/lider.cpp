@@ -52,9 +52,6 @@ void Lider::run() {
 
 	send_msg();
 
-	do {
-
-	} while (mensaje.data.tipo != mensajes::GROUP_DISCOVER);
 
 	do {
 		try {

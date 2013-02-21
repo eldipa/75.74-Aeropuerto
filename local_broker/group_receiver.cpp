@@ -29,11 +29,11 @@ static char nombre_broker_local [MAX_NOMBRE_RECURSO];
 static char * args_lider [] = {(char*)"lider", directorio_trabajo, id, nombre_del_grupo, nombre_broker_local};
 
 GroupReceiver::GroupReceiver(const std::string & directorio_de_trabajo, const std::string & nombre_grupo, char id,
-	const std::string & nombre_broker_local)
+	const std::string & nombre_broker_local, bool lanzar_token)
 	: cola_token_manager(std::string(directorio_de_trabajo).append(PATH_COLA_TOKEN_MANAGER).c_str(), char(0)),
 		grupo_remoto(std::string(directorio_de_trabajo).append(PATH_COLAS_BROKERS).c_str(), id),
 		grupo(directorio_de_trabajo, nombre_grupo), directorio_de_trabajo(directorio_de_trabajo),
-		broker_local(nombre_broker_local), nombre_recurso(nombre_grupo), id_grupo(id)
+		broker_local(nombre_broker_local), nombre_recurso(nombre_grupo), id_grupo(id), crear_token(lanzar_token)
 {
 	size_t tamanio;
 	tamanio = grupo.get_mem_size();
@@ -45,6 +45,7 @@ GroupReceiver::GroupReceiver(const std::string & directorio_de_trabajo, const st
 		cantidad_de_bloques_por_token++;
 	}
 	leader = false;
+	memoria_inicializada = false;
 
 	numero_anterior = -1;
 	leader_q = NULL;
@@ -82,7 +83,9 @@ void GroupReceiver::inicializar() {
 						strcat(path, nombre_recurso.c_str());
 						strcat(path, POSTFIJO_INIT);
 						grupo.inicializar_memoria(path);
-						grupo.release_token(&cola_token_manager);
+						if (crear_token) {
+							grupo.release_token(&cola_token_manager);
+						}
 						token_inicializado = true;
 					}
 					inicializado = true;
@@ -124,7 +127,6 @@ void GroupReceiver::launch_lider() {
 size_t GroupReceiver::recv_token() {
 	bool mensaje_completo = false;
 	bool token_roto = false;
-   token_roto = token_roto;
 	do {
 		grupo_remoto.pull((char*)&mensaje, sizeof(mensajes::mensajes_local_broker_group_t));
 
@@ -152,11 +154,11 @@ size_t GroupReceiver::recv_token() {
 					tipo_mensaje_recibido = mensajes::TOKEN_DELIVER;
 					cantidad_recibida_token = 0;
 					numero_anterior = -1;
-					this->token_inicializado = true;
 				} else {
 					numero_anterior++;
 				}
 			}
+			this->token_inicializado = true;
 		} else if (mensaje.tipo == mensajes::GROUP_DISCOVER) {
 			memcpy(data_group + mensaje.numero_de_mensaje * DATA_SIZE, mensaje.data, DATA_SIZE);
 			cantidad_recibida_grupo += DATA_SIZE;
@@ -199,6 +201,7 @@ void GroupReceiver::procesar_mensaje() {
 		this->leader = true;
 		if (!this->token_inicializado) {
 			grupo.release_token(&cola_token_manager);
+			this->token_inicializado = true;
 		}
 		launch_lider();
 	} else if (mensaje.tipo == mensajes::TOKEN_RECOVER) {
@@ -213,6 +216,7 @@ void GroupReceiver::procesar_mensaje() {
 			if (*entero == this->numero_de_nodo) {
 				grupo.reenviar_token_al_cliente();
 				strcpy(mensaje.data, "OK");
+				grupo_remoto.push((char *)&mensaje, sizeof(mensajes::mensajes_local_broker_group_t));
 			}
 		}
 	}
@@ -253,14 +257,15 @@ int main(int argc, char * argv []) {
 
 //print_args(argc, argv);
 
-	if (argc < 5) {
-		std::cerr << "Falta el directorio de trabajo, el id, el nombre del recurso, el nombre_broker_local"
+	if (argc < 6) {
+		std::cerr
+			<< "Falta el directorio de trabajo, el id, el nombre del recurso, el nombre_broker_local, lanzar_token"
 			<< std::endl;
 		return -1;
 	}
 	id = atoi(argv [2]);
 
-	GroupReceiver handler(argv [1], argv [3], id, argv [4]);
+	GroupReceiver handler(argv [1], argv [3], id, argv [4], strcmp("1", argv [5]) == 0);
 
 	handler.run();
 

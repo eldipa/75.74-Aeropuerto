@@ -29,15 +29,17 @@ private:
 	std::string directorio_de_trabajo;
 	std::string broker_local;
 	std::string nombre_recurso;
+	char id_grupo;
+	bool crear_token;
 
 	size_t cantidad_recibida_token;
 	size_t cantidad_recibida_grupo;
 	mensajes::GROUP_MSG_T tipo_mensaje_recibido;
 
 	int numero_anterior;
-	char id_grupo;
 	bool leader;
 	bool token_inicializado;
+	bool memoria_inicializada;
 
 	int numero_de_nodo;
 
@@ -50,7 +52,7 @@ private:
 
 public:
 	GroupReceiver(const std::string & directorio_de_trabajo, const std::string & nombre_grupo, char id,
-		const std::string & nombre_broker_remoto);
+		const std::string & nombre_broker_remoto, bool lanzar_token);
 	virtual ~GroupReceiver();
 
 	void run();

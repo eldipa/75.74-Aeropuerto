@@ -24,3 +24,14 @@ void lanzar_mensajeria(const char* absolute_path, char proj_id, char group_id,
    system(cmd.str().c_str());
    std::cout << cmd.str() << std::endl;
 }
+
+void lanzar_beacon_svc(const char* localhost_name){
+	 std::ostringstream cmd;
+
+	   cmd << "python beacon_service.py" <<
+	      " " << localhost_name <<
+	      " " << "&";
+
+	   system(cmd.str().c_str());
+	   std::cout << cmd.str() << std::endl;
+}
