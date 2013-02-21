@@ -1,0 +1,7 @@
+INCLUDE_PATHS = ./../api ./../external ./../ipc ./../os ./../common ./../log ./../local_broker ../network ../external/iniparser
+
+LIBRARIES =  ../api/libapi.a ../rpc/libtorredecontrol.a ../clientes/libclientes.a ../local_broker/liblocal_broker.a ../ipc/libipc.a  ../db/libdb.a ../external/iniparser/libiniparser.a  ../network/libnetwork.a ../os/libos.a  ../log/liblog.a  ../db/libdb.a  ../common/libcommon.a
+EXTERNAL_LIBRARIES = dl sqlite3
+LINKER_FLAGS += -rdynamic
+
+TARGET =  libtorredecontrol.a torre_de_control_svc

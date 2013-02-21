@@ -1,16 +1,21 @@
 #include "api_despachante.h"
 #include "log.h"
+#include "api_configuracion.h"
+
+#include "genericerror.h"
+
 
 ApiDespachante::ApiDespachante(const char* directorio_de_trabajo, const char* config_file, int numero_despachante) :
-   sem_set(std::string(directorio_de_trabajo).append(PATH_ROBOT_DESPACHO).c_str(), numero_despachante*cant_ipcs, 1),
-   mutex_asignaciones(sem_set, 0),
-   asignaciones(std::string(directorio_de_trabajo).append(PATH_ROBOT_DESPACHO).c_str(), numero_despachante*cant_ipcs+1),
-   cinta(std::string(directorio_de_trabajo).append(PATH_CINTA_CENTRAL).c_str()) {
+   cinta(std::string(directorio_de_trabajo).append(PATH_CINTA_CENTRAL).c_str()),
+   clnt_torre_de_control( clnt_create(ApiConfiguracion::get_torre_ip(config_file).c_str(), TORREDECONTROLPROG, TORREDECONTROLVERS, "tcp") ) {
 
    config_file = config_file;
 	this->numero_despachante = numero_despachante;
 	this->saco_elemento = true;
 
+   if (clnt_torre_de_control == NULL) {
+      throw GenericError("Error al conectar con rpc_torre_de_control server");
+   }
 }
 
 ApiDespachante::~ApiDespachante() {
@@ -52,21 +57,43 @@ void ApiDespachante::avanzar_cinta() {
 
 void ApiDespachante::asignar_vuelo(int zona, int vuelo) {
    Log::info("asignando zona %d a vuelo %d", numero_despachante, zona, vuelo);
-   mutex_asignaciones.lock();
-   asignaciones->asignar_vuelo(zona, vuelo);
-   mutex_asignaciones.unlock();
+   
+   Operandos op;
+   op.num_zona = zona;
+   op.num_vuelo = vuelo;
+   void* result = asignar_vuelo_1(&op, clnt_torre_de_control);
+
+   if (result != NULL) {
+      Log::info("ApiDespachante obtuve resultado del rpc server: asignando zona %d a vuelo %d", zona, vuelo);
+   } else {
+      throw GenericError("ApiDespachante: Error al llamar al métdoo remoto asignar_vuelo_1 sobre el rpc server");
+   }
+   
 }
 
 void ApiDespachante::desasignar_vuelo(int num_vuelo) {
    Log::info(" desasignando vuelo %d", numero_despachante, num_vuelo);
-   mutex_asignaciones.lock();
-   asignaciones->desasignar_vuelo(num_vuelo);
-   mutex_asignaciones.unlock();
+   
+   void* result = desasignar_vuelo_1(&num_vuelo, clnt_torre_de_control);
+
+   if (result != NULL) {
+      Log::info("ApiDespachante obtuve resultado del rpc server: desasignando zona del vuelo %d", num_vuelo);
+   } else {
+      throw GenericError("ApiDespachante: Error al llamar al métdoo remoto desasignar _vuelo_1 sobre el rpc server");
+   }
+      
 }
 
 int ApiDespachante::get_zona(int num_vuelo) {
-   mutex_asignaciones.lock();
-   int zona = asignaciones->get_zona(num_vuelo);
-   mutex_asignaciones.unlock();
-   return zona;
+   
+   int* num_zona = get_zona_1(&num_vuelo, clnt_torre_de_control);
+
+   if (num_zona != NULL) {
+      Log::info("ApiDespachante obtuve resultado del rpc server: zona del vuelo %d es %d", num_vuelo, (*num_zona));
+   } else {
+      throw GenericError("ApiDespachante: Error al llamar al métdoo remoto desasignar _vuelo_1 sobre el rpc server");
+   }
+
+   return (*num_zona);;
+   
 }

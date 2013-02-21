@@ -6,9 +6,12 @@ fi
 
 cd processes
 
-pkill message_broker_
+#pkill message_broker_
 
 ./message_broker_launcher $CONFIG_FILE &
+sleep 2
+
+./torre_de_control_launcher $CONFIG_FILE &
 sleep 2
 
 ./main $CONFIG_FILE

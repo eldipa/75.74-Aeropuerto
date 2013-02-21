@@ -33,6 +33,20 @@ const int cantidad_robots_carga = 4;
 const int cantidad_puestos_checkin = 3;
 const int cantidad_robots_sospechosos = 1;
 
+
+// class RobotsDespacho {
+// public:
+// 	RobotsDespacho(int id_robot, char* path_robots_despacho) :
+// 			sem_set(std::vector<unsigned short>(1, 1), path_robots_despacho,
+// 					ApiDespachante::cant_ipcs * id_robot), asignaciones(ZonasAsignadas(),
+// 					path_robots_despacho, id_robot * ApiDespachante::cant_ipcs + 1) {
+// 	}
+// private:
+// 	SemaphoreSet sem_set;
+// 	SharedObject<ZonasAsignadas> asignaciones;
+// };
+
+
 class TorreDeControl {
 public:
 	TorreDeControl(const char *directorio_de_trabajo, const char* config_file, int cant_contenedores, int zona_desde,
@@ -76,7 +90,6 @@ private:
    yasper::ptr<IMessageQueue> queue_zonas;
    yasper::ptr<IMessageQueue> queue_puestos_checkin;
    yasper::ptr<IMessageQueue> queue_contenedores;
-
 };
 
 class PuestoCheckin {
@@ -107,18 +120,6 @@ private:
    yasper::ptr<IMessageQueue> queue_checkin;
 };
 
-class RobotsDespacho {
-public:
-	RobotsDespacho(int id_robot, char* path_robots_despacho) :
-			sem_set(std::vector<unsigned short>(1, 1), path_robots_despacho,
-					ApiDespachante::cant_ipcs * id_robot), asignaciones(ZonasAsignadas(),
-					path_robots_despacho, id_robot * ApiDespachante::cant_ipcs + 1) {
-	}
-private:
-	SemaphoreSet sem_set;
-	SharedObject<ZonasAsignadas> asignaciones;
-};
-
 /*
  * Clase para crear fácilmente todo lo que se necesite en el aeropuerto
  */
@@ -141,12 +142,14 @@ public:
 			puesto_checkin.push_back(new PuestoCheckin(path_lock, i + 1, 1, queue_manager));
 		}
 
+      /*
 		Log::info("Creando ipcs para Robots de despacho...%s%s", path_to_locks,
 				PATH_ROBOT_DESPACHO);
 		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_ROBOT_DESPACHO);
 		for (int i = 0; i < cantidad_robots_carga; i++) {
 			robots_despacho.push_back(new RobotsDespacho(i + 1, path_lock));
 		}
+      */
 
 		Log::info("Creando ipcs para Torre de control...%s%s", path_to_locks,
 				PATH_TORRE_DE_CONTROL);
@@ -219,7 +222,7 @@ public:
 private:
    yasper::ptr<IQueueManager> queue_manager;
 
-	std::vector<yasper::ptr<RobotsDespacho> > robots_despacho;
+	// std::vector<yasper::ptr<RobotsDespacho> > robots_despacho;
 	yasper::ptr<ControladorPuestoCheckin> controlador_puesto_checkin;
 	std::vector<yasper::ptr<PuestoCheckin> > puesto_checkin;
 	yasper::ptr<TorreDeControl> torre_de_control;

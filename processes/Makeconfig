@@ -1,6 +1,6 @@
 
-INCLUDE_PATHS = ../api ../log ./../db ../ipc ../os ../common ../external ../local_broker ../network ../clientes ../external/iniparser
-LIBRARIES =  ../api/libapi.a ../clientes/libclientes.a ../local_broker/liblocal_broker.a ../ipc/libipc.a  ../db/libdb.a ../external/iniparser/libiniparser.a  ../network/libnetwork.a ../os/libos.a ../log/liblog.a  ../db/libdb.a  ../common/libcommon.a 
+INCLUDE_PATHS = ../api ../log ./../db ../ipc ../os ../common ../external ../local_broker ../network ../clientes ../external/iniparser ../rpc
+LIBRARIES =  ../api/libapi.a ../rpc/libtorredecontrol.a ../clientes/libclientes.a ../local_broker/liblocal_broker.a ../ipc/libipc.a  ../db/libdb.a ../external/iniparser/libiniparser.a  ../network/libnetwork.a ../os/libos.a  ../log/liblog.a  ../db/libdb.a  ../common/libcommon.a
 EXTERNAL_LIBRARIES = dl sqlite3
 LINKER_FLAGS += -rdynamic
-TARGET = robot_scanner robot_control_equipaje_sospechoso robot_carga robot_despacho robot_checkin puesto_checkin main robot_intercargo  tractor avion generador_pasajeros control_carga_contenedores controlador_de_vuelo controlador_puesto_checkin generador_vuelos_trasbordo escucha_zonas_asignadas control_equipaje_sospechoso scheduler_aviones scheduler_vuelos debug message_broker_launcher
+TARGET = robot_scanner robot_control_equipaje_sospechoso robot_carga robot_despacho robot_checkin puesto_checkin main robot_intercargo  tractor avion generador_pasajeros control_carga_contenedores controlador_de_vuelo controlador_puesto_checkin generador_vuelos_trasbordo escucha_zonas_asignadas control_equipaje_sospechoso scheduler_aviones scheduler_vuelos debug message_broker_launcher torre_de_control_launcher
