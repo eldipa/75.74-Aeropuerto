@@ -24,23 +24,25 @@ try
 	id_robot = atoi(argv [3]); // de 1 a N
 	num_cinta_checkin = atoi(argv [4]);
 
-	CintaCheckin cinta_checkin(std::string("checkin").append(argv [4]).c_str(), argv [1], num_cinta_checkin);
+	//CintaCheckin cinta_checkin(std::string("checkin").append(argv [4]).c_str(), argv [1], num_cinta_checkin);
 
-	CintaScanner<Equipaje> cinta_scanner(std::string("robot_checkin").append(argv [3]).c_str(), argv [1],
-		atoi(argv [5]));
+	CintaScanner<Equipaje> cinta_scanner(std::string("robot_checkin").append(argv [3]).c_str(), argv [1], 1);
 
 	// cada robot de checkin distribuye entre n scanners
 	for (; ;) {
-		Log::info("va a sacar equipaje.");
+		/*Log::info("va a sacar equipaje.");
 
-		sleep(rand() % SLEEP_ROBOT_CHECKIN);
+		 sleep(rand() % SLEEP_ROBOT_CHECKIN);
 
-		Equipaje equipaje = cinta_checkin.sacar_equipaje(id_robot);
-		Log::info("sacó %s", equipaje.toString().c_str());
+		 Equipaje equipaje = cinta_checkin.sacar_equipaje(id_robot);
+		 Log::info("sacó %s", equipaje.toString().c_str());
 
-		sleep(rand() % SLEEP_ROBOT_CHECKIN);
+		 sleep(rand() % SLEEP_ROBOT_CHECKIN);
 
-		Log::info("pone %s en siguiente cinta", equipaje.toString().c_str());
+		 Log::info("pone %s en siguiente cinta", equipaje.toString().c_str());
+		 */
+		Equipaje equipaje(Rfid(id_robot++, num_cinta_checkin++));
+
 		cinta_scanner.poner_equipaje(equipaje);
 	}
 }

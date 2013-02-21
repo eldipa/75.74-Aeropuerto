@@ -138,7 +138,7 @@ void TokenManager::run() {
 			}
 			g = grupos.at(recurso);
 			//sleep(1);
-			usleep(200000);
+			usleep(500000);
 			g->pasar_token_a_proximo_cliente();
 		} catch (OSError & error) {
 			//std::cerr << error.what() << std::endl;

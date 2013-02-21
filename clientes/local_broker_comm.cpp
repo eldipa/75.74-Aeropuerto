@@ -154,6 +154,14 @@ void obtener_lista_de_brokers(std::vector<std::string> & brokers, std::vector<st
 	fclose(f);
 }
 
+void print_ints(int *p, int cant) {
+	std::cout << p [0];
+	for (int i = 0 ; i < cant ; i++) {
+		std::cout << " " << p [i];
+	}
+	std::cout << std::endl;
+}
+
 LocalBrokerComm * conectar_con_broker(const std::string & nombre_app, std::vector<std::string> & brokers,
 	std::vector<std::string> & servicios, size_t & conectado_con)
 {
@@ -166,7 +174,7 @@ LocalBrokerComm * conectar_con_broker(const std::string & nombre_app, std::vecto
 	do {
 
 		try {
-			std::cout << "conectando: " << brokers [i] << ":" << servicios [i] << std::endl;
+			//std::cout << "conectando: " << brokers [i] << ":" << servicios [i] << std::endl;
 			broker = new LocalBrokerComm(nombre_app, brokers [i], servicios [i]);
 			conecto = true;
 		} catch (CommError & error) {
@@ -349,7 +357,7 @@ try
 		while (reconectar) {
 			try {
 				broker = conectar_con_broker(argv [2], brokers, servicios, conectado_con);
-				std::cout << "Conectado" << std::endl;
+				//std::cout << "Conectado" << std::endl;
 				reconectar = false;
 				seguir = true;
 			} catch (CommError & error) {
@@ -362,23 +370,25 @@ try
 			while (seguir) {
 				// wait for token
 				try {
-					std::cout << "Esperando mutex socket" << std::endl;
+					//std::cout << "Esperando mutex socket" << std::endl;
 					broker->wait_mutex(memoria.memory_pointer());
-
+					if (strcmp(grupo,"cinta_escaner_control")==0) {
+						print_ints((int *)memoria.memory_pointer(), int(broker->get_mem_size()/ 4));
+					}
 					// la aplicacion necesita el token?
 					// si lo necesita, actualizo la memoria y habilito el semaforo
 					// si no, lo devuelvo
 					// espero que termine de procesar
-					std::cout << "Chequeando Aplicacion" << std::endl;
+					//std::cout << "Chequeando Aplicacion" << std::endl;
 					if (control->comparar_token(grupo)) {
-						std::cout << "Entregando Token Aplicacion" << std::endl;
+						//	std::cout << "Entregando Token Aplicacion" << std::endl;
 						memoria.entregar_token();
-						std::cout << "Esperando Token Aplicacion" << std::endl;
+						//	std::cout << "Esperando Token Aplicacion" << std::endl;
 						memoria.esperar_token();
 					}
 
 					// devuelvo el token al local_broker
-					std::cout << "Devolviendo Token socket" << std::endl;
+					//std::cout << "Devolviendo Token socket" << std::endl;
 					broker->free_mutex(memoria.memory_pointer());
 				} catch (CommError & error) {
 					reconectar = true;

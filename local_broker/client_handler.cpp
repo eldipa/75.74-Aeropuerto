@@ -160,9 +160,9 @@ void ClientHandler::loop_token_fork() {
 				if (recv_token() == 0) {
 					leave = true;
 				} else {
-					std::cout << " Recibo token " << nombre_grupo << " de " << nombre_cliente << std::endl;
+					//std::cout << " Recibo token " << nombre_grupo << " de " << nombre_cliente << std::endl;
 					grupo->release_token(&cola_token_manager);
-					std::cout << " Libero token " << nombre_grupo << std::endl;
+					//std::cout << " Libero token " << nombre_grupo << std::endl;
 				}
 			} catch (OSError & error) {
 				leave = true;
@@ -183,11 +183,11 @@ void ClientHandler::loop_token_fork() {
 		do {
 			try {
 				//std::cout << getpid() << " Hijo recibo token cola" << std::endl;
-				std::cout << " Espero token " << nombre_grupo << std::endl;
+				//std::cout << " Espero token " << nombre_grupo << std::endl;
 				grupo->lock_token();
 				tengo_token = true;
 				//std::cout << getpid() << " Hijo envio token socket" << std::endl;
-				std::cout << " Envio token " << nombre_grupo << " a " << nombre_cliente << std::endl;
+				//std::cout << " Envio token " << nombre_grupo << " a " << nombre_cliente << std::endl;
 				send_token();
 				tengo_token = false;
 			} catch (OSError & error) {
@@ -204,6 +204,14 @@ void ClientHandler::loop_token_fork() {
 	}
 }
 
+void print_ints(int *p, int cant) {
+	std::cout << p [0];
+	for (int i = 0 ; i < cant ; i++) {
+		std::cout << " " << p [i];
+	}
+	std::cout << std::endl;
+}
+
 void ClientHandler::loop_token() {
 	bool leave = false;
 	bool tengo_el_token = false;
@@ -218,6 +226,10 @@ void ClientHandler::loop_token() {
 				// espero el token
 				grupo->lock_token();
 				tengo_el_token = true;
+				if (nombre_grupo == "cinta_escaner_control") {
+					std::cout << "sent: ";
+					print_ints((int*)grupo->memory_pointer(), int(grupo->get_mem_size()/ 4));
+				}
 				/*std::cout << (char*)grupo->memory_pointer() << std::endl;
 				 sscanf((char*)grupo->memory_pointer(), "%[^:]:%d", data, &a);
 				 a++;
@@ -230,6 +242,10 @@ void ClientHandler::loop_token() {
 				// espero que devuelva el token
 				if (recv_token() == 0) {
 					leave = true;
+				}
+				if (nombre_grupo == "cinta_escaner_control") {
+					std::cout << "recv: ";
+					print_ints((int*)grupo->memory_pointer(), int(grupo->get_mem_size() / 4));
 				}
 			} catch (OSError & error) {
 				leave = true;
