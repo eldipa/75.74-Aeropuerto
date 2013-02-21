@@ -14,11 +14,14 @@
 #include "semaphoreset.h"
 #include "mutex.h"
 #include "grupo.h"
+#include "process.h"
+#include <vector>
 
 class LocalBroker {
 private:
 
 	Socket server_socket;
+	std::vector<Process *> hijos;
 
 public:
 

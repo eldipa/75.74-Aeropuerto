@@ -9,40 +9,40 @@
 
 using namespace std;
 
-ApiTrasbordo::ApiTrasbordo(const char* directorio_de_trabajo, const char* config_file) :
-   queue_manager(ApiConfiguracion::get_queue_manager(directorio_de_trabajo, config_file)),
-   cola_cargadores_equipaje(queue_manager->get_queue(PATH_COLA_ROBOTS_INTERCARGO, 0)) {
+ApiTrasbordo::ApiTrasbordo(const char* directorio_de_trabajo, const char* config_file)
+	: queue_manager(ApiConfiguracion::get_queue_manager(directorio_de_trabajo, config_file)),
+		cola_cargadores_equipaje(queue_manager->get_queue(PATH_COLA_ROBOTS_INTERCARGO, 0))
+{
 
-	semaforos = new SemaphoreSet(
-			string(directorio_de_trabajo).append(PATH_IPC_ROBOTS_INTERCARGO).c_str(), 0, 0, 0);
-	memoria_zonas = new SharedMemory(
-			string(directorio_de_trabajo).append(PATH_IPC_ROBOTS_INTERCARGO).c_str(), 1, 0, 0,
-			false, false);
-	cinta = new CintaCentral(string(directorio_de_trabajo).append(PATH_CINTA_CENTRAL).c_str());
+	semaforos = new SemaphoreSet(string(directorio_de_trabajo).append(PATH_IPC_ROBOTS_INTERCARGO).c_str(), 0, 0, 0);
+	memoria_zonas = new SharedMemory(string(directorio_de_trabajo).append(PATH_IPC_ROBOTS_INTERCARGO).c_str(), 1, 0, 0,
+		false, false);
+	cinta = new CintaCentral("NOMBRE_APLICACION", string(directorio_de_trabajo).append(PATH_CINTA_CENTRAL).c_str(),
+		5/*+id*/, -1);
 	id_productor = -1;
 
 	zonas_asignadas = static_cast<int *>(memoria_zonas->memory_pointer());
 	vuelos_esperando = zonas_asignadas + MAX_ZONAS;
 }
 
-ApiTrasbordo::ApiTrasbordo(const char* directorio_de_trabajo, const char* config_file, bool create) :
-   queue_manager(ApiConfiguracion::get_queue_manager(directorio_de_trabajo, config_file)),
-   cola_cargadores_equipaje(queue_manager->get_queue(PATH_COLA_ROBOTS_INTERCARGO, 0, true)) {
+ApiTrasbordo::ApiTrasbordo(const char* directorio_de_trabajo, const char* config_file, bool create)
+	: queue_manager(ApiConfiguracion::get_queue_manager(directorio_de_trabajo, config_file)),
+		cola_cargadores_equipaje(queue_manager->get_queue(PATH_COLA_ROBOTS_INTERCARGO, 0, true))
+{
 
 	std::vector<unsigned short> valores;
-	int i, tamanio;
+	int i,tamanio;
 
 	if (create) {
 		valores.push_back(1);
-		for (i = 0; i < MAX_ROBOTS_INTERCARGO_ESPERANDO_POR_ZONAS; i++) {
+		for (i = 0; i < MAX_ROBOTS_INTERCARGO_ESPERANDO_POR_ZONAS ; i++) {
 			valores.push_back(0);
 		}
-		semaforos = new SemaphoreSet(valores,
-				string(directorio_de_trabajo).append(PATH_IPC_ROBOTS_INTERCARGO).c_str(), 0, 0664);
+		semaforos = new SemaphoreSet(valores, string(directorio_de_trabajo).append(PATH_IPC_ROBOTS_INTERCARGO).c_str(),
+			0, 0664);
 		tamanio = sizeof(int) * (MAX_ROBOTS_INTERCARGO_ESPERANDO_POR_ZONAS + MAX_ZONAS);
-		memoria_zonas = new SharedMemory(
-				string(directorio_de_trabajo).append(PATH_IPC_ROBOTS_INTERCARGO).c_str(), 1,
-				tamanio, 0664, true, false);
+		memoria_zonas = new SharedMemory(string(directorio_de_trabajo).append(PATH_IPC_ROBOTS_INTERCARGO).c_str(), 1,
+			tamanio, 0664, true, false);
 		cinta = NULL;
 		id_productor = -1;
 	}
@@ -62,8 +62,7 @@ void ApiTrasbordo::poner_en_cinta_principal(const Equipaje& equipaje) {
 
 int ApiTrasbordo::esperar_vuelo_entrante(int numero_vuelo_destino) {
 	mensaje.mtype = 0;
-	cola_cargadores_equipaje->pull(&this->mensaje, sizeof(MENSAJE_VUELO_ENTRANTE),
-			numero_vuelo_destino);
+	cola_cargadores_equipaje->pull(&this->mensaje, sizeof(MENSAJE_VUELO_ENTRANTE), numero_vuelo_destino);
 	return mensaje.vuelo_entrante;
 }
 
@@ -74,17 +73,17 @@ int ApiTrasbordo::esperar_zona_asignada(int numero_vuelo) {
 	while (zona_asignada == -1) {
 		semaforos->wait_on(0);
 
-		for (i = 0; i < MAX_ZONAS; i++) {
-			if (zonas_asignadas[i] == numero_vuelo) {
+		for (i = 0; i < MAX_ZONAS ; i++) {
+			if (zonas_asignadas [i] == numero_vuelo) {
 				zona_asignada = i + 1;
 				break;
 			}
 		}
 
 		if (zona_asignada == -1) {
-			for (i = 0; i < MAX_ROBOTS_INTERCARGO_ESPERANDO_POR_ZONAS; i++) {
-				if (vuelos_esperando[i] == 0) {
-					vuelos_esperando[i] = numero_vuelo;
+			for (i = 0; i < MAX_ROBOTS_INTERCARGO_ESPERANDO_POR_ZONAS ; i++) {
+				if (vuelos_esperando [i] == 0) {
+					vuelos_esperando [i] = numero_vuelo;
 					semaforos->signalize(0);
 					semaforos->wait_on(i + 1);
 					break;

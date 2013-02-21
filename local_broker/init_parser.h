@@ -7,10 +7,13 @@
 
 #ifndef INITPARSER_H_
 #define INITPARSER_H_
+#include <cstring>
+#include <cstdio>
+#include <cstdlib>
 
 typedef enum {
 	T_INT
-}T_TYPE;
+} T_TYPE;
 
 class InitParser {
 private:
@@ -22,9 +25,8 @@ private:
 	int cant_vector;
 	T_TYPE tipo;
 
-	bool cmp(const char *, const char *);
+	static bool cmp(const char *, const char *);
 
-	int parse_int_val(const char *);
 	void parse_type(const char *);
 
 public:
@@ -32,7 +34,8 @@ public:
 	virtual ~InitParser();
 
 	void parse_line(const char * line);
-
+	static int parse_int_val(const char *);
+	static size_t parse_size_t_val(const char *);
 	bool is_vector();
 	int vector();
 	int int_val();

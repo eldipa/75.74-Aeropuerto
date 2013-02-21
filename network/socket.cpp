@@ -100,9 +100,13 @@ int Socket::listen_fd(int backlog) {
 
 ssize_t Socket::sendsome(const void *buf, size_t data_len) {
    ssize_t count = ::send(fd, buf, data_len, MSG_NOSIGNAL);
-   if(count == -1)
+   if(count == -1){
+#ifdef __x86_64__
+      throw OSError("The message length %lu cannot be sent.", data_len);
+#else
       throw OSError("The message length %i cannot be sent.", data_len);
-
+#endif
+   }
    return count;
 }
 

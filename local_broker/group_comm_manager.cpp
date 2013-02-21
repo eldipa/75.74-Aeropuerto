@@ -103,7 +103,8 @@ void GroupCommManager::levantar_grupo(const std::string & nombre_grupo, char num
 
 	//const char * p = directorio_de_trabajo.c_str();
 
-	relativize_dir(directorio_de_trabajo_relativo, directorio_de_trabajo.c_str(), (const char *)launch_dir);
+	relativize_dir(directorio_de_trabajo_relativo, directorio_de_trabajo.c_str(), (const char *)launch_dir,
+		current_working_dir);
 
 	if (chdir(launch_dir) != 0) {
 		throw GenericError("Cannot change working dir to %s", launch_dir);

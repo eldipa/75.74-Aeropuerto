@@ -17,12 +17,13 @@
 
 #include "yasper.h"
 #include "api_configuracion.h"
+#include "api_common.h"
 
 ApiCheckIn::ApiCheckIn(const char* directorio_de_trabajo, const char* config_file,int id_checkin) :
    path_to_locks(directorio_de_trabajo),
    id_checkin(id_checkin),
    vuelo_actual(std::string(directorio_de_trabajo).append(PATH_PUESTO_CHECKIN).c_str(), id_checkin*cant_ipcs+2),
-   cinta_checkin_out(std::string(directorio_de_trabajo).append(PATH_CINTA_CHECKIN).c_str(), vuelo_actual->id_cinta_checkin),
+   cinta_checkin_out(std::string("checkin").append(intToString(id_checkin)).c_str(),std::string(directorio_de_trabajo).c_str(), vuelo_actual->id_cinta_checkin),
    sem_set(std::string(directorio_de_trabajo).append(PATH_PUESTO_CHECKIN).c_str(), id_checkin*cant_ipcs, 1),
    mutex_checkin(sem_set, 0),
    queue_manager( ApiConfiguracion::get_queue_manager(directorio_de_trabajo, config_file ) ),

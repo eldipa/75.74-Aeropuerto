@@ -1,4 +1,4 @@
-/*Archivo Inicializacion Memoria Cinta Principal*/
+/*Archivo Inicializacion Memoria Cinta Scanner*/
 int CAPACIDAD_CINTA_SCANNER
 int 0
 int 0

@@ -27,7 +27,7 @@ GroupSender::GroupSender(const std::string & directorio_de_trabajo,
 
 	cantidad_de_bloques_por_token = (tamanio_memoria / DATA_SIZE);
 
-	if (tamanio_memoria % DATA_SIZE != 0 || tamanio_memoria == 0) {
+	if (tamanio_memoria % DATA_SIZE != 0 || tamanio_memoria == 0 || tamanio_memoria < DATA_SIZE) {
 		cantidad_de_bloques_por_token++;
 	}
 

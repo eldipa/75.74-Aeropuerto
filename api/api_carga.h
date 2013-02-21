@@ -12,6 +12,7 @@
 #include "cintas.h"
 #include <vector>
 #include <string>
+#include "api_common.h"
 
 #include "yasper.h"
 #include "iqueue_manager.h"
@@ -41,12 +42,12 @@ public:
 	 * El primer constructor crea los ipcs.Se llama solo una vez por cada controlador_de_carga.
 	 * recibe un path_carga y el id_robot_carga.Va a existir una ApiCarga por cada robot_carga.
 	 **/
-	ApiCarga(const char * directorio_de_trabajo, const char* config_file, int id_robot_carga, int num_cinta) :
+	ApiCarga(const char * app_name,const char * directorio_de_trabajo, const char* config_file, int id_robot_carga, int num_cinta) :
       id_robot_carga(id_robot_carga), 
       queue_manager( ApiConfiguracion::get_queue_manager(directorio_de_trabajo, config_file) ),
       cola_tractores( queue_manager->get_queue(PATH_COLA_ROBOTS_ZONA_TRACTORES, 0) ), 
       cola_aviso_carga( queue_manager->get_queue(PATH_COLA_CONTROL_CARGA_CHECKIN, id_robot_carga) ), 
-      cinta_contenedor(std::string(directorio_de_trabajo).append(PATH_CINTA_CONTENEDOR).c_str(), num_cinta) {
+      cinta_contenedor(app_name,std::string(directorio_de_trabajo).append(PATH_CINTA_CONTENEDOR).c_str(), num_cinta) {
 
 	}
 

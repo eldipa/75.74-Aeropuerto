@@ -19,6 +19,7 @@
 #include <cstring>
 #include "daemon.h"
 #include "group_comm_manager.h"
+#include "init_parser.h"
 
 TokenManager::TokenManager(const std::string & directorio, char id, const std::string & groups_file)
 	: clientes(std::string(directorio).append(PATH_COLA_TOKEN_MANAGER).c_str(), id, 0664, true),
@@ -43,9 +44,11 @@ void TokenManager::crear_grupos(const std::string & directorio_de_trabajo, const
 	FILE * f;
 	char nombre_recurso [MAX_NOMBRE_RECURSO];
 	char primera_linea [200];
-	int tamanio_memoria;
+	//int tamanio_memoria;
+	char tamanio_memoria_str [200];
 	int file;
 	int id_grupo;
+	int valor;
 
 	f = fopen(groups_file.c_str(), "rt");
 
@@ -55,7 +58,7 @@ void TokenManager::crear_grupos(const std::string & directorio_de_trabajo, const
 	// evito la primera linea
 	fscanf(f, "%s\n", primera_linea);
 
-	while (fscanf(f, "%[^:]:%d:%d\n", nombre_recurso, &tamanio_memoria, &id_grupo) != EOF) {
+	while (fscanf(f, "%[^:]:%[^:]:%d:%d\n", nombre_recurso, tamanio_memoria_str, &valor, &id_grupo) != EOF) {
 		// Crear Grupo
 		Grupo * g;
 		// Creo el archivo lck
@@ -73,13 +76,31 @@ void TokenManager::crear_grupos(const std::string & directorio_de_trabajo, const
 				//THROW OSERROR
 			}
 		}
-		g = new Grupo(directorio_de_trabajo, nombre_recurso, tamanio_memoria, true);
+		g = new Grupo(directorio_de_trabajo, nombre_recurso, InitParser::parse_int_val(tamanio_memoria_str), true);
 		grupos.insert(std::pair<std::string, Grupo *>(std::string(nombre_recurso), g));
 
-		GroupCommManager manager(directorio_de_trabajo);
-		manager.levantar_grupo(nombre_recurso, char(id_grupo));
+		//GroupCommManager manager(directorio_de_trabajo);
+		//manager.levantar_grupo(nombre_recurso, char(id_grupo));
+		if (valor == 1) {
+			// MAL LO TIENE QUE INICIALIZAR EL PROCESO "GROUP_RECEIVER" QUE ES EL QUE MANEJA AL LIDER
+			g->release_token(&clientes);
+		}
+		// DEBUG
+		if (InitParser::parse_int_val(tamanio_memoria_str)) {
+			int pos;
+			char path [FILENAME_MAX];
+			strcpy(path, directorio_de_trabajo.c_str());
+			strcat(path, "/");
+			strcat(path, nombre_recurso);
+			pos = strlen(path) - 1;
+			while (path [pos] <= '9' && path [pos] >= '0') {
+				path [pos--] = '\0';
+			}
+			strcat(path, POSTFIJO_INIT);
+			g->inicializar_memoria(path);
+		}
+		// DEBUG
 	}
-
 	fclose(f);
 }
 
@@ -116,7 +137,8 @@ void TokenManager::run() {
 				throw GenericError("Error Grupo %s no encontrado", mensaje.recurso);
 			}
 			g = grupos.at(recurso);
-			sleep(1);
+			//sleep(1);
+			usleep(200000);
 			g->pasar_token_a_proximo_cliente();
 		} catch (OSError & error) {
 			//std::cerr << error.what() << std::endl;

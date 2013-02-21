@@ -50,11 +50,11 @@ const int cantidad_robots_sospechosos = 1;
 class TorreDeControl {
 public:
 	TorreDeControl(const char *directorio_de_trabajo, const char* config_file, int cant_contenedores, int zona_desde,
-                  int zona_hasta, int puesto_checkin_desde, int puesto_checkin_hasta, 
+                  int zona_hasta, int puesto_checkin_desde, int puesto_checkin_hasta,
                   yasper::ptr<IQueueManager> queue_manager) :
 
       control(std::vector<short unsigned int>(CANT_MUTEX_CENTRAL, 1),
-              std::string(directorio_de_trabajo).append(PATH_TORRE_DE_CONTROL).c_str(),MTX_CENTRAL), 
+              std::string(directorio_de_trabajo).append(PATH_TORRE_DE_CONTROL).c_str(),MTX_CENTRAL),
 
       checkin( queue_manager->get_queue(PATH_TORRE_DE_CONTROL, Q_CHECKINS_HABILITADOS, true) ),
       trasbordo(queue_manager->get_queue(PATH_TORRE_DE_CONTROL, Q_TRASBORDO_LISTO, true) ),
@@ -66,11 +66,11 @@ public:
 		for (int i = 0; i < cant_contenedores; i++) {
 			api_torre.liberar_contenedor();
 		}
-      
+
 		for (int i = zona_desde; i <= zona_hasta; i++) {
 			api_torre.liberar_zona(i);
 		}
-      
+
 		for (int i = puesto_checkin_desde; i <= puesto_checkin_hasta; i++) {
 			api_torre.liberar_puesto_checkin(i);
 		}
@@ -95,7 +95,7 @@ private:
 class PuestoCheckin {
 public:
 	PuestoCheckin(char* path_puesto_checkin, int id_puesto_checkin, int id_cinta_checkin, yasper::ptr<IQueueManager> queue_manager) :
-			sem_checkin_realizado(std::vector<unsigned short>(1, 1), path_puesto_checkin,id_puesto_checkin * cant_ipcs), 
+			sem_checkin_realizado(std::vector<unsigned short>(1, 1), path_puesto_checkin,id_puesto_checkin * cant_ipcs),
          queue_pasajeros(queue_manager->get_queue(PATH_PUESTO_CHECKIN, id_puesto_checkin * cant_ipcs + 1, true)),
          vuelo_actual(tVueloEnCheckin(id_cinta_checkin), path_puesto_checkin,id_puesto_checkin * cant_ipcs + 2) {
 
@@ -159,34 +159,32 @@ public:
 
 		Log::info("Creando cintas...");
 
-		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_CINTA_CHECKIN);
+		/*snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_CINTA_CHECKIN);
 		for (int i = 0; i < cantidad_cintas_checkin; i++) {
 			cintas_checkin.push_back(
 					new CintaCheckin(path_lock, i + 1, CAPACIDAD_CINTA_CHECKIN,
 							CANTIDAD_MAX_PRODUCTORES_CINTA_CHECKIN,
 							CANTIDAD_MAX_CONSUMIDORES_CINTA_CHECKIN));
-		}
+		}*/
 
-		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_CINTA_SCANNER);
-		cintas_scanner = new CintaScanner<Equipaje>(path_lock, 1, CAPACIDAD_CINTA_SCANNER, true);
+		/*snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_CINTA_SCANNER);
+		cintas_scanner = new CintaScanner<Equipaje>(path_lock, 1, CAPACIDAD_CINTA_SCANNER, true);*/
 
-		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_CINTA_CENTRAL);
+		/*snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_CINTA_CENTRAL);
 
 		for (int i = 0; i < cantidad_cintas_centrales; i++) {
 
 			cintas_central.push_back(
-					new CintaCentral(path_lock, CAPACIDAD_CINTA_CENTRAL,
-							CANTIDAD_MAX_PRODUCTORES_CINTA_CENTRAL,
-							CANTIDAD_MAX_CONSUMIDORES_CINTA_CENTRAL));
-		}
+					new CintaCentral(path_lock, CAPACIDAD_CINTA_CENTRAL,true));
+		}*/
 
-		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_CINTA_CONTENEDOR);
+		/*snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_CINTA_CONTENEDOR);
 		for (int i = 0; i < cantidad_cintas_contenedor; i++) {
 			cintas_contenedor.push_back(
 					new CintaContenedor(path_lock, i + 1, CAPACIDAD_CINTA_CONTENEDOR,
 							CANTIDAD_MAX_PRODUCTORES_CINTA_CONTENEDOR,
 							CANTIDAD_MAX_CONSUMIDORES_CINTA_CONTENEDOR));
-		}
+		}*/
 
 		// snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_COLA_CONTROL_CARGA_CHECKIN);
 		for (int i = 0; i < cantidad_robots_carga; i++) {

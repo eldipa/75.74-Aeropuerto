@@ -90,12 +90,12 @@ def passage_inbound_messages(inbound_socket, userland_inbound_queue, userland_ou
             if type == 'LOOP':
                ttl = struct.unpack('>H', payload[:2])[0]
                
-               syslog.syslog(syslog.LOG_INFO, "LOOP packet recieved (TTL %i): %s" % (ttl, " ".join(map(lambda c: hex(ord(c)), payload[2:]))))
+               syslog.syslog(syslog.LOG_DEBUG, "LOOP packet recieved (TTL %i): %s [%s]" % (ttl, " ".join(map(lambda c: hex(ord(c)), payload[2:])), "".join([(c if ord('0') <= ord(c) <= ord('Z') else '.') for c in payload[2:]])))
                if ttl <= 0:
                   syslog.syslog(syslog.LOG_INFO, "LOOP packet (TTL %i) discarted." % ttl)
                   continue 
                
-               if driver.handle_loop_message(payload[2:]):
+               if driver.handle_loop_message(payload[2:], ttl):
                   syslog.syslog(syslog.LOG_INFO, "Moving LOOP packet to output queue.")
                   payload = struct.pack('>H', ttl - 1) + payload[2:]
                   userland_outbound_queue.push(message.pack(payload, ID_BY_TYPE[type]))
@@ -155,7 +155,7 @@ def passage_outbound_messages(outbound_socket, userland_outbound_queue, driver):
             assert len(type) == 4
             assert len(size) == 2
 
-            syslog.syslog(syslog.LOG_INFO, "Sending %s packet to the remote node %s: %s" % (type, str(peer), " ".join(map(lambda c: hex(ord(c)), type+size+payload))))
+            syslog.syslog(syslog.LOG_DEBUG, "Sending %s packet to the remote node %s: %s [%s]" % (type, str(peer), " ".join(map(lambda c: hex(ord(c)), type+size+payload)), "".join([(c if ord('0') <= ord(c) <= ord('Z') else '.') for c in type+size+payload]) ))
             _send(outbound_socket, type+size+payload, peer)
             ack = _recv(outbound_socket, 1, peer)
             if ack != "A":

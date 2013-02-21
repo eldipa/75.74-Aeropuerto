@@ -6,9 +6,6 @@
  */
 
 #include "init_parser.h"
-#include <cstring>
-#include <cstdio>
-#include <cstdlib>
 
 #include "local_broker_constants.h"
 
@@ -56,10 +53,79 @@ int InitParser::parse_int_val(const char * val) {
 		return CANTIDAD_MAX_PRODUCTORES_CINTA_CENTRAL;
 	} else if (cmp(val, "CANTIDAD_MAX_CONSUMIDORES_CINTA_CENTRAL")) {
 		return CANTIDAD_MAX_CONSUMIDORES_CINTA_CENTRAL;
-	} else if (cmp(val, "CANTIDAD_DE_CONSUMIDORES_PPAL")) {
-		return CANTIDAD_DE_CONSUMIDORES_PPAL;
+	//} else if (cmp(val, "CANTIDAD_DE_CONSUMIDORES_PPAL")) {
+	//	return CANTIDAD_DE_CONSUMIDORES_PPAL;
 	} else if (cmp(val, "CAPACIDAD_CINTA_CONTENEDOR")) {
 		return CAPACIDAD_CINTA_CONTENEDOR;
+	} else if (cmp(val, "MAX_SCANNERS")) {
+		return MAX_SCANNERS;
+	} else if (cmp(val, "ZONAS_POR_ROBOT_DESPACHO")) {
+		return ZONAS_POR_ROBOT_DESPACHO;
+	} else if (cmp(val, "MAX_ROBOTS_INTERCARGO_ESPERANDO_POR_ZONAS")) {
+		return MAX_ROBOTS_INTERCARGO_ESPERANDO_POR_ZONAS;
+	} else if (cmp(val, "MAX_CLIENTS")) {
+		return MAX_CLIENTS;
+	} else if (cmp(val, "TAMANIO_MEMORIA_CINTA_PRINCIPAL")) {
+		return TAMANIO_MEMORIA_CINTA_PRINCIPAL;
+	} else if (cmp(val, "MAX_INTERCARGOS_ESPERANDO")) {
+		return MAX_INTERCARGOS_ESPERANDO;
+	} else if (cmp(val, "CANT_MUTEX_CENTRAL")) {
+		return CANT_MUTEX_CENTRAL;
+	} else if (cmp(val, "Q_ZONAS")) {
+		return Q_ZONAS;
+	} else if (cmp(val, "Q_PUESTOS_CHECKIN")) {
+		return Q_PUESTOS_CHECKIN;
+	} else if (cmp(val, "Q_CONTENEDORES")) {
+		return Q_CONTENEDORES;
+	} else if (cmp(val, "Q_TRASBORDO_LISTO")) {
+		return Q_TRASBORDO_LISTO;
+	} else if (cmp(val, "Q_CHECKINS_CERRADO")) {
+		return Q_CHECKINS_CERRADO;
+	} else if (cmp(val, "Q_CHECKINS_HABILITADOS")) {
+		return Q_CHECKINS_HABILITADOS;
+	} else if (cmp(val, "MTX_CENTRAL")) {
+		return MTX_CENTRAL;
+	}
+	return 0;
+}
+
+size_t InitParser::parse_size_t_val(const char * val) {
+	int pos = 0;
+	int len = strlen(val);
+	while (val [pos] >= '0' && val [pos] <= '9' && val [pos] != '\0') {
+		pos++;
+	}
+	if (pos == len) {
+		return atoi(val);
+	}
+	if (cmp(val, "CAPACIDAD_CINTA_CHECKIN")) {
+		return CAPACIDAD_CINTA_CHECKIN;
+	} else if (cmp(val, "CAPACIDAD_CINTA_SCANNER")) {
+		return CAPACIDAD_CINTA_SCANNER;
+	} else if (cmp(val, "CAPACIDAD_CINTA_CENTRAL")) {
+		return CAPACIDAD_CINTA_CENTRAL;
+	} else if (cmp(val, "CANTIDAD_MAX_PRODUCTORES_CINTA_CHECKIN")) {
+		return CANTIDAD_MAX_PRODUCTORES_CINTA_CHECKIN;
+	} else if (cmp(val, "CANTIDAD_MAX_CONSUMIDORES_CINTA_CHECKIN")) {
+		return CANTIDAD_MAX_CONSUMIDORES_CINTA_CHECKIN;
+	} else if (cmp(val, "CANTIDAD_MAX_PRODUCTORES_CINTA_SCANNER")) {
+		return CANTIDAD_MAX_PRODUCTORES_CINTA_SCANNER;
+	} else if (cmp(val, "CANTIDAD_MAX_CONSUMIDORES_CINTA_SCANNER")) {
+		return CANTIDAD_MAX_CONSUMIDORES_CINTA_SCANNER;
+	} else if (cmp(val, "CANTIDAD_MAX_PRODUCTORES_CINTA_CONTENEDOR")) {
+		return CANTIDAD_MAX_PRODUCTORES_CINTA_CONTENEDOR;
+	} else if (cmp(val, "CANTIDAD_MAX_CONSUMIDORES_CINTA_CONTENEDOR")) {
+		return CANTIDAD_MAX_CONSUMIDORES_CINTA_CONTENEDOR;
+	} else if (cmp(val, "CANTIDAD_MAX_PRODUCTORES_CINTA_CENTRAL")) {
+		return CANTIDAD_MAX_PRODUCTORES_CINTA_CENTRAL;
+	} else if (cmp(val, "CANTIDAD_MAX_CONSUMIDORES_CINTA_CENTRAL")) {
+		return CANTIDAD_MAX_CONSUMIDORES_CINTA_CENTRAL;
+	//} else if (cmp(val, "CANTIDAD_DE_CONSUMIDORES_PPAL")) {
+	//	return CANTIDAD_DE_CONSUMIDORES_PPAL;
+	} else if (cmp(val, "CAPACIDAD_CINTA_CONTENEDOR")) {
+		return CAPACIDAD_CINTA_CONTENEDOR;
+	} else if (cmp(val, "TAMANIO_MEMORIA_CINTA_PRINCIPAL")) {
+		return TAMANIO_MEMORIA_CINTA_PRINCIPAL;
 	} else if (cmp(val, "MAX_SCANNERS")) {
 		return MAX_SCANNERS;
 	} else if (cmp(val, "ZONAS_POR_ROBOT_DESPACHO")) {

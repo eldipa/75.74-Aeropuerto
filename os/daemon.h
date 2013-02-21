@@ -60,4 +60,6 @@ void ignore_signals();
  * */
 void wait_signal();
 
+void ignore_childs();
+
 #endif

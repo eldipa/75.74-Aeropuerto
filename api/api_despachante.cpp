@@ -5,11 +5,13 @@
 #include "genericerror.h"
 
 
+#include "api_common.h"
+
 ApiDespachante::ApiDespachante(const char* directorio_de_trabajo, const char* config_file, int numero_despachante) :
-   cinta(std::string(directorio_de_trabajo).append(PATH_CINTA_CENTRAL).c_str()),
+   cinta(std::string("despachante").append(intToString(numero_despachante)).c_str(), directorio_de_trabajo,numero_despachante - 1, -1),
    clnt_torre_de_control( clnt_create(ApiConfiguracion::get_torre_ip(config_file).c_str(), TORREDECONTROLPROG, TORREDECONTROLVERS, "tcp") ) {
 
-   config_file = config_file;
+	config_file = config_file;
 	this->numero_despachante = numero_despachante;
 	this->saco_elemento = true;
 
