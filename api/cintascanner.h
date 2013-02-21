@@ -90,7 +90,7 @@ CintaScanner<T>::CintaScanner(const char * app_name, const char* directorio_de_t
 
 	if (create) {
 		//control = new SharedMemory(path_to_cinta_scanner, inicio_ids, tamanio_control, 0664, true, false);
-		control = new MemoriaDistribuida(directorio_de_trabajo, app_name, (char *)"control_cintas_scanner", 0,
+		control = new MemoriaDistribuida(directorio_de_trabajo, app_name, (char *)"cinta_escaner_control", 0,
 			TAMANIO_MEMORIA_CONTROL_CINTA_SCANNER);
 
 		for (i = 0; i < MAX_SCANNERS ; i++) {
@@ -119,7 +119,7 @@ CintaScanner<T>::CintaScanner(const char * app_name, const char* directorio_de_t
 	std::vector<short unsigned int> valores;
 	//int inicio_ids = (id_cinta - 1) * cant_ipc;
 	//control = new SharedMemory(path_to_cinta_scanner, inicio_ids, 0, 0, false, false);
-	control = new MemoriaDistribuida(directorio_de_trabajo, app_name, (char *)"csc_control", 0,
+	control = new MemoriaDistribuida(directorio_de_trabajo, app_name, (char *)"cinta_escaner_control", 0,
 		TAMANIO_MEMORIA_CONTROL_CINTA_SCANNER);
 	for (i = 0; i < MAX_SCANNERS ; i++) {
 		//cintas [i] = new SharedMemory(path_to_cinta_scanner, i + inicio_ids + 1, 0, 0, false, false);
@@ -154,7 +154,7 @@ CintaScanner<T>::CintaScanner(const char * app_name, const char* directorio_de_t
 		this->cintas [i] = NULL;
 	}
 
-	control = new MemoriaDistribuida(directorio_de_trabajo, app_name, (char *)"csc_control", 0,
+	control = new MemoriaDistribuida(directorio_de_trabajo, app_name, (char *)"cinta_escaner_control", 0,
 		TAMANIO_MEMORIA_CONTROL_CINTA_SCANNER);
 
 	//cintas [numero_escaner - 1] = new SharedMemory(path_to_cinta_scanner, numero_escaner + inicio_ids, 0, 0, false,
@@ -182,7 +182,8 @@ CintaScanner<T>::CintaScanner(const char * app_name, const char* directorio_de_t
 	control->lock();
 
 	if (ids_escaners_activos [this->numero_cinta] == numero_escaner) {
-		semaforos->signalize(0);
+		//semaforos->signalize(0);//modificar
+		control->unlock();
 		delete this->semaforos;
 		delete this->control;
 		delete this->cintas [this->numero_cinta];
@@ -194,7 +195,8 @@ CintaScanner<T>::CintaScanner(const char * app_name, const char* directorio_de_t
 		cinta_llena [numero_cinta] = 0;
 		if (*productor_esperando == 1) {
 			*productor_esperando = 0;
-			semaforos->signalize(MAX_SCANNERS + 1);
+			//semaforos->signalize(MAX_SCANNERS + 1); //modificar
+			semaforos->signalize(0);
 		}
 	}
 	//semaforos->signalize(0);

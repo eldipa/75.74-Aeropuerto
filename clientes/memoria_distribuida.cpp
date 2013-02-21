@@ -52,7 +52,7 @@ MemoriaDistribuida::MemoriaDistribuida(const std::string & directorio_de_trabajo
 		char(2 * id + 1), 0664);
 
 	control = ControlTokens::get_instance(directorio_de_trabajo, true);
-
+	//strcat(path, nombre_app.c_str());
 	lanzar_comunicacion(directorio_de_trabajo, nombre_app,
 		std::string(directorio_de_trabajo).append(PATH_LOCAL_BROKER_LIST_FILE).c_str(), nombre_grupo, id, tamanio);
 

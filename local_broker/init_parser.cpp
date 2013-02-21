@@ -25,6 +25,9 @@ bool InitParser::cmp(const char *a, const char *b) {
 int InitParser::parse_int_val(const char * val) {
 	int pos = 0;
 	int len = strlen(val);
+	if (val [pos] == '-') {
+		pos++;
+	}
 	while (val [pos] >= '0' && val [pos] <= '9' && val [pos] != '\0') {
 		pos++;
 	}
@@ -53,8 +56,8 @@ int InitParser::parse_int_val(const char * val) {
 		return CANTIDAD_MAX_PRODUCTORES_CINTA_CENTRAL;
 	} else if (cmp(val, "CANTIDAD_MAX_CONSUMIDORES_CINTA_CENTRAL")) {
 		return CANTIDAD_MAX_CONSUMIDORES_CINTA_CENTRAL;
-	//} else if (cmp(val, "CANTIDAD_DE_CONSUMIDORES_PPAL")) {
-	//	return CANTIDAD_DE_CONSUMIDORES_PPAL;
+		//} else if (cmp(val, "CANTIDAD_DE_CONSUMIDORES_PPAL")) {
+		//	return CANTIDAD_DE_CONSUMIDORES_PPAL;
 	} else if (cmp(val, "CAPACIDAD_CINTA_CONTENEDOR")) {
 		return CAPACIDAD_CINTA_CONTENEDOR;
 	} else if (cmp(val, "MAX_SCANNERS")) {
@@ -67,6 +70,14 @@ int InitParser::parse_int_val(const char * val) {
 		return MAX_CLIENTS;
 	} else if (cmp(val, "TAMANIO_MEMORIA_CINTA_PRINCIPAL")) {
 		return TAMANIO_MEMORIA_CINTA_PRINCIPAL;
+	} else if (cmp(val, "TAMANIO_MEMORIA_CINTA_SCANNER")) {
+		return TAMANIO_MEMORIA_CINTA_SCANNER;
+	} else if (cmp(val, "TAMANIO_MEMORIA_CONTROL_CINTA_SCANNER")) {
+		return TAMANIO_MEMORIA_CONTROL_CINTA_SCANNER;
+	} else if (cmp(val, "TAMANIO_MEMORIA_CINTA_CARGA")) {
+		return TAMANIO_MEMORIA_CINTA_CARGA;
+	} else if (cmp(val, "TAMANIO_MEMORIA_CINTA_CHECKIN")) {
+		return TAMANIO_MEMORIA_CINTA_CHECKIN;
 	} else if (cmp(val, "MAX_INTERCARGOS_ESPERANDO")) {
 		return MAX_INTERCARGOS_ESPERANDO;
 	} else if (cmp(val, "CANT_MUTEX_CENTRAL")) {
@@ -120,12 +131,20 @@ size_t InitParser::parse_size_t_val(const char * val) {
 		return CANTIDAD_MAX_PRODUCTORES_CINTA_CENTRAL;
 	} else if (cmp(val, "CANTIDAD_MAX_CONSUMIDORES_CINTA_CENTRAL")) {
 		return CANTIDAD_MAX_CONSUMIDORES_CINTA_CENTRAL;
-	//} else if (cmp(val, "CANTIDAD_DE_CONSUMIDORES_PPAL")) {
-	//	return CANTIDAD_DE_CONSUMIDORES_PPAL;
+		//} else if (cmp(val, "CANTIDAD_DE_CONSUMIDORES_PPAL")) {
+		//	return CANTIDAD_DE_CONSUMIDORES_PPAL;
 	} else if (cmp(val, "CAPACIDAD_CINTA_CONTENEDOR")) {
 		return CAPACIDAD_CINTA_CONTENEDOR;
 	} else if (cmp(val, "TAMANIO_MEMORIA_CINTA_PRINCIPAL")) {
 		return TAMANIO_MEMORIA_CINTA_PRINCIPAL;
+	} else if (cmp(val, "TAMANIO_MEMORIA_CINTA_SCANNER")) {
+		return TAMANIO_MEMORIA_CINTA_SCANNER;
+	} else if (cmp(val, "TAMANIO_MEMORIA_CONTROL_CINTA_SCANNER")) {
+		return TAMANIO_MEMORIA_CONTROL_CINTA_SCANNER;
+	} else if (cmp(val, "TAMANIO_MEMORIA_CINTA_CARGA")) {
+		return TAMANIO_MEMORIA_CINTA_CARGA;
+	} else if (cmp(val, "TAMANIO_MEMORIA_CINTA_CHECKIN")) {
+		return TAMANIO_MEMORIA_CINTA_CHECKIN;
 	} else if (cmp(val, "MAX_SCANNERS")) {
 		return MAX_SCANNERS;
 	} else if (cmp(val, "ZONAS_POR_ROBOT_DESPACHO")) {

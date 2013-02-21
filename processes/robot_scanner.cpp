@@ -11,7 +11,6 @@
 int main(int argc, char *argv [])
 try
 {
-	int id = 0,vuelo = 0; // DEBUG
 	int id_robot;
 	int id_cinta_scanner;
 	if (argc < 4) {
@@ -38,23 +37,17 @@ try
 	for (; ;) {
 		Log::info("Intentando tomar un nuevo equipaje de cinta de scanner\n");
 		Equipaje equipaje = cinta_scanner.sacar_equipaje();
-		/*
-		 Log::info("Escaneando equipaje %s\n", equipaje.toString().c_str());
-		 equipaje.set_sospechoso((rand() % CANT_SOSPECHOSOS) == 0);
 
-		 sleep(rand() % SLEEP_ROBOT_SCANNER);
+		Log::info("Escaneando equipaje %s\n", equipaje.toString().c_str());
+		equipaje.set_sospechoso((rand() % CANT_SOSPECHOSOS) == 0);
 
-		 if (equipaje.es_sospechoso()) {
-		 Log::info("se encontro sospechoso el equipaje %s\n", equipaje.toString().c_str());
-		 } else {
-		 Log::info("equipaje limpio: %s\n", equipaje.toString().c_str());
-		 }*/
+		sleep(rand() % SLEEP_ROBOT_SCANNER);
 
-		// DEBUG
-		Equipaje e(Rfid(id, vuelo));
-		id++;
-		vuelo += 10;
-		// DEBUG
+		if (equipaje.es_sospechoso()) {
+			Log::info("se encontro sospechoso el equipaje %s\n", equipaje.toString().c_str());
+		} else {
+			Log::info("equipaje limpio: %s\n", equipaje.toString().c_str());
+		}
 
 		Log::info("pasando equipaje a cinta central (%s)\n", argv [3]);
 		api_escaner_cinta_central.colocar_equipaje_en_cinta_principal(equipaje);
