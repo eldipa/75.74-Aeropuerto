@@ -16,6 +16,7 @@ import traceback
 import time
 
 import stop
+import os
 
 ALREADY_ADDR_USED_ATTEMPTS = 10
 ALREADY_ADDR_USED_SLEEP = 15
@@ -40,7 +41,7 @@ class Driver:
         self.path, self.char_id_out, self.group_id = path, char_id_out, group_id
         self.userland_inbound_queue = userland_inbound_queue
 
-    def handle_loop_message(self, loop_payload):
+    def handle_loop_message(self, loop_payload, ttl):
         '''This function will process the loop message and will determine if the message should be passed to the next stage (the next process)
            or it should be discarted. (Returning True or False).
            '''
@@ -52,8 +53,8 @@ class Driver:
             leader_name = struct.unpack('%is' % leader_name_len, loop_payload[2: leader_name_len+2])[0]
 
             if leader_name == self.localhost_name:
-                syslog.syslog(syslog.LOG_DEBUG, "I'am the new leader %s (previous %s)." % (str(self.localhost_name), str(self.leader_name)))
-                                #Stop the leader algorithm. 
+                syslog.syslog(syslog.LOG_DEBUG, "I'am the new leader %s (previous %s) of the group with %i members." % (str(self.localhost_name), str(self.leader_name), passage.TTL - ttl + 1))
+                #Stop the leader algorithm. 
                 #
                 # The inbound process MUST start sending its localname as leadername to the outbound queue.
                 # When that message come back to the outbound, then the algorithm finish and localname is the leadername
@@ -112,7 +113,7 @@ if __name__ == '__main__':
       print "Usage: inbound.py path char_id_in group_id localhost_name network_name"
       print "  - path: a full path to a file to be used as part of the key for the in/out queues."
       print "  - char_id_in: an integer or a character (converted in an int later) to be used as a part of the key of the inbound queue. The id used by the outbound queue will be that id+128."
-      print "  - group_id: the id of the group"
+      print "  - group_id: the id of the group (a no-negative)"
       print "  - localhost_name: the name of this host viewed by other nodes."
       print "  - network_name: the name of the network, which message addressed to network_name will be delivery to any node in that network (broadcast address)."
       sys.exit(1)
@@ -120,6 +121,8 @@ if __name__ == '__main__':
 
    path, char_id_in, group_id, localhost_name, network_name = sys.argv[1:]
    group_id = int(group_id)
+   assert group_id >= 0
+   assert ":" not in localhost_name
 
    # The 'char' id can be an integer or a letter.
    try:
@@ -134,12 +137,16 @@ if __name__ == '__main__':
    # Because the MessageQueue constructor expect a 'char', we do the translate
    char_id_in = chr(char_id_in)
    char_id_out = chr(char_id_out)
-   
-   syslog.openlog("inbound")
-   syslog.syslog(syslog.LOG_INFO, "Init 'inbound' process. Creating queues. Arguments: Path: %s Char_in_id: %s GroupId: %i Localhost: %s NetworkName: %s" % (
-      path, hex(ord(char_id_in)), group_id, localhost_name, network_name))
+
+   pid = str(os.getpid())
+
+   syslog.openlog("inbound[%s]" % pid)
+   syslog.syslog(syslog.LOG_INFO, "Init 'inbound' process. Creating queues. Arguments: Path: %s Char_in_id: %s GroupId: %i Localhost: %s NetworkName: %s PID: %s" % (
+      path, hex(ord(char_id_in)), group_id, localhost_name, network_name, pid))
    userland_inbound_queue = MessageQueue(path, char_id_in, 0644, True)
    userland_outbound_queue = MessageQueue(path, char_id_out, 0644, True)
+
+   localhost_name = ":".join([localhost_name, pid])
    
    driver = Driver(localhost_name, path, char_id_out, group_id, network_name, userland_inbound_queue)
    
