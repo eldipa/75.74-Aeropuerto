@@ -8,9 +8,13 @@
 #include <string>
 #include "log.h"
 
+#include <iostream>
+#include <fstream>
+
 class MessageBrokerServer : public Server {
 public:
-   MessageBrokerServer(yasper::ptr<IMessageBroker> broker, const char* service);
+   MessageBrokerServer(yasper::ptr<IMessageBroker> broker, const char* service, 
+                       const char* path_log_file, const char* path_persist_file, bool load_from_file );
    virtual void client_handler(Socket&);
    virtual ~MessageBrokerServer();
 
@@ -45,6 +49,10 @@ private:
    
    yasper::ptr<IMessageBroker> broker;
    std::string service;
+   
+   std::ofstream log_file;
+   std::ofstream persist_file;
+
 };
 
 #endif

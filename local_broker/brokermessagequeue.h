@@ -15,7 +15,7 @@ public:
       is_owner(create), broker(broker) {
 
       id =  queue_id;
-      id += proj_id;
+      id += (proj_id+1);
 
       if(is_owner)
          broker->create_queue(id.c_str());

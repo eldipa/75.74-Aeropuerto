@@ -13,6 +13,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <sstream>
 
 #define MAX_MSG_SIZE 16384
 
@@ -33,6 +34,49 @@ public:
    size_t max_size_txt;
    long type;
    char msg[MAX_MSG_SIZE];
+
+   friend std::ostream& operator<<(std::ostream& out,  BrokerRequest& request) {
+
+      switch( request.mtypebroker ) {
+      case BROKER_CREATE:
+         request.size_txt = 0;
+         out << "CREATE :";
+         break;
+      case BROKER_PUSH:
+         out << "PUSH   :";
+         break;
+      case BROKER_PULL:
+         request.size_txt = 0;
+         out << "PULL   :";
+         break;
+      case BROKER_DESTROY:
+         request.size_txt = 0;
+         out << "DESTROY:";
+         break;
+      }
+
+      std::string qname(request.queue_id, strlen(request.queue_id)-1);
+      char proj_id = request.queue_id[qname.length()];
+
+      out << " from " << request.sender_procname << " to " << qname << "("  << ((int)proj_id)-1 << ")";
+      out <<  " type:" << request.type;
+
+      out << " msg_size:" << request.size_txt;
+      // request.dump_data(std::cout, request.msg, request.size_txt);
+      // out << std::endl << "</msg>";
+
+      // std::cout << std::endl;
+
+      return out;
+   }
+
+   void dump_data(std::ostream& out, char* ptr, int buflen) {
+      out << "";
+      ptr = ptr;
+      buflen = buflen;
+   }
+
+
 };
 
 class BrokerResponse {
