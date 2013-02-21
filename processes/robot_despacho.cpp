@@ -47,17 +47,13 @@ try
 
 		Rfid rfid_equipaje = despachante_cinta_central.leer_proximo_equipaje();
 
-		//DEBUG
+
 		zona_desde++;
 		zona_hasta++;
-		std::cout << "rfid leido: " << rfid_equipaje.rfid << " vuelo " << rfid_equipaje.numero_de_vuelo_destino
-			<< std::endl;
-		Equipaje equipaje = despachante_cinta_central.extraer_equipaje();
-		std::cout << "equipaje recibido: " << equipaje.getRfid().rfid << std::endl;
-		despachante_cinta_central.avanzar_cinta();
-		//DEBUG
-		/*
+
+
 		 int num_zona = despachante_cinta_central.get_zona(rfid_equipaje.numero_de_vuelo_destino);
+
 
 		 Log::info("toma el equipaje %d con destino a zona (%d)",
 		 rfid_equipaje.rfid,  num_zona);
@@ -79,10 +75,9 @@ try
 		 Log::info("OK, es para mi.Equipaje %d limpio envio a robot_carga zona %d\n",
 		 rfid_equipaje.rfid, num_zona);
 		 Equipaje equipaje = despachante_cinta_central.extraer_equipaje();
-		 CintaContenedor cinta_contenedor(std::string(argv[1]).append(PATH_CINTA_CONTENEDOR).c_str(), num_zona);
+		 CintaContenedor cinta_contenedor(std::string("robot_despacho").append(argv [3]).c_str(),std::string(argv[1]).append(PATH_CINTA_CONTENEDOR).c_str(), num_zona);
 		 cinta_contenedor.poner_equipaje(equipaje, 1);
-		 despachante_cinta_central.avanzar_cinta();
-		 }*/
+		 }
 	}
 
 }

@@ -21,7 +21,7 @@
 #define POSTFIJO_INIT ".init"
 
 //#define MAX_NAME_SIZE 30
-#define MAX_CLIENTS 3
+#define MAX_CLIENTS 30
 #define TAMANIO_TABLA_CLIENTES (sizeof(int)+sizeof(size_t) + sizeof(char) * MAX_NOMBRE_RECURSO * MAX_CLIENTS)
 
 #endif /* LOCAL_BROKER_CONSTANTS_H_ */

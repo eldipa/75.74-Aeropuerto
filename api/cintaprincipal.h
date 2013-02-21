@@ -78,8 +78,7 @@ template <typename T> CintaPrincipal<T>::CintaPrincipal(const char * app_name, c
 			valores.push_back(1);
 		}
 		//semaforo_productores = new SemaphoreSet(valores, absolute_path, 2, 0664);
-		semaforo_productores = new SemaphoreSetDistribuido(valores, absolute_path, app_name, "cpp_sem_prod_",
-			true);
+		semaforo_productores = new SemaphoreSetDistribuido(valores, absolute_path, app_name, "cpp_sem_prod_", true);
 
 		valores.clear();
 		valores.push_back(1);
@@ -87,8 +86,7 @@ template <typename T> CintaPrincipal<T>::CintaPrincipal(const char * app_name, c
 			valores.push_back(0);
 		}
 		//semaforo_consumidores = new SemaphoreSetDistribuido(valores, absolute_path, 3, 0664);
-		semaforo_consumidores = new SemaphoreSetDistribuido(valores, absolute_path, app_name, "cpp_sem_cons_",
-			true);
+		semaforo_consumidores = new SemaphoreSetDistribuido(valores, absolute_path, app_name, "cpp_sem_cons_", true);
 	}
 	tamanio_de_vector = static_cast<int *>(memoria_compartida->memory_pointer());
 	tamanio_vector = const_cast<const int *>(tamanio_de_vector);
@@ -128,14 +126,18 @@ template <typename T> CintaPrincipal<T>::CintaPrincipal(const char * app_name, c
 	valores.clear();
 	if (id_consumidor == CANTIDAD_MAX_CONSUMIDORES_CINTA_CENTRAL - 1) { //soy el ultimo consumidor
 		valores.push_back(0);
-	} else if (id_consumidor >= 0 && id_consumidor < CANTIDAD_MAX_CONSUMIDORES_CINTA_CENTRAL - 1) {
+		valores.push_back(id_consumidor);
+	} else if (id_consumidor > 0 && id_consumidor < CANTIDAD_MAX_CONSUMIDORES_CINTA_CENTRAL - 1) {
 		valores.push_back(0); //soy consumidor
+		valores.push_back(id_consumidor);
 		valores.push_back(id_consumidor + 1);
+	} else if (id_consumidor == 0) {
+		valores.push_back(0); //soy el primer consumidor
+		valores.push_back(1);
 	} else { //soy productor
 		valores.push_back(0);
 	}
-	semaforo_consumidores = new SemaphoreSetDistribuido(valores, absolute_path, app_name, "semaforo_consumidores_",
-		true);
+	semaforo_consumidores = new SemaphoreSetDistribuido(valores, absolute_path, app_name, "cpp_sem_cons_", true);
 	valores.clear();
 	if (id_productor >= 0) { // soy productor
 		valores.push_back(id_productor);
@@ -144,7 +146,7 @@ template <typename T> CintaPrincipal<T>::CintaPrincipal(const char * app_name, c
 			valores.push_back(i);
 		}
 	}
-	semaforo_productores = new SemaphoreSetDistribuido(valores, absolute_path, app_name, "semaforo_productores_", true);
+	semaforo_productores = new SemaphoreSetDistribuido(valores, absolute_path, app_name, "cpp_sem_prod_", true);
 	//this->mutex = new SemaphoreSet(absolute_path, 1, 0, 0);
 
 	//this->semaforo_productores = new SemaphoreSet(absolute_path, 2, 0, 0);

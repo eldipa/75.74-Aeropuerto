@@ -11,7 +11,7 @@ ApiScanner::ApiScanner(const char* directorio_de_trabajo, const char* config_fil
 		cinta(std::string("escaner").append(intToString(numero_escaner)).c_str(), directorio_de_trabajo, -1,
 			numero_escaner - 1)
 {
-	config_file = config_file + 1;
+	config_file = config_file ;
 }
 
 ApiScanner::~ApiScanner() {

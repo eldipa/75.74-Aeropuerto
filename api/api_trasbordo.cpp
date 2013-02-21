@@ -17,8 +17,7 @@ ApiTrasbordo::ApiTrasbordo(const char* directorio_de_trabajo, const char* config
 	semaforos = new SemaphoreSet(string(directorio_de_trabajo).append(PATH_IPC_ROBOTS_INTERCARGO).c_str(), 0, 0, 0);
 	memoria_zonas = new SharedMemory(string(directorio_de_trabajo).append(PATH_IPC_ROBOTS_INTERCARGO).c_str(), 1, 0, 0,
 		false, false);
-	cinta = new CintaCentral("NOMBRE_APLICACION", string(directorio_de_trabajo).append(PATH_CINTA_CENTRAL).c_str(),
-		5/*+id*/, -1);
+	cinta = new CintaCentral("robot_intercargo", directorio_de_trabajo,5/*+id*/, -1);
 	id_productor = -1;
 
 	zonas_asignadas = static_cast<int *>(memoria_zonas->memory_pointer());

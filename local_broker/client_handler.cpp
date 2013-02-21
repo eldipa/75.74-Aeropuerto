@@ -226,10 +226,10 @@ void ClientHandler::loop_token() {
 				// espero el token
 				grupo->lock_token();
 				tengo_el_token = true;
-				if (nombre_grupo == "cinta_escaner_control") {
+				/*if (nombre_grupo == "cinta_escaner_control") {
 					std::cout << "sent: ";
 					print_ints((int*)grupo->memory_pointer(), int(grupo->get_mem_size()/ 4));
-				}
+				}*/
 				/*std::cout << (char*)grupo->memory_pointer() << std::endl;
 				 sscanf((char*)grupo->memory_pointer(), "%[^:]:%d", data, &a);
 				 a++;
@@ -243,10 +243,10 @@ void ClientHandler::loop_token() {
 				if (recv_token() == 0) {
 					leave = true;
 				}
-				if (nombre_grupo == "cinta_escaner_control") {
+				/*if (nombre_grupo == "cinta_escaner_control") {
 					std::cout << "recv: ";
 					print_ints((int*)grupo->memory_pointer(), int(grupo->get_mem_size() / 4));
-				}
+				}*/
 			} catch (OSError & error) {
 				leave = true;
 			}

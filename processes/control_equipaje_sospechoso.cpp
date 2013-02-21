@@ -14,7 +14,8 @@ int main(int argc, char* argv[]) try {
 		exit(1);
 	}
 
-	ApiControlEquipajes api_control_equipajes(argv[1], argv[2], atoi(argv[3]), atoi(argv[4]));
+	ApiControlEquipajes api_control_equipajes(argv[1], argv[2], CANTIDAD_MAX_CONSUMIDORES_CINTA_CENTRAL - 1,
+		CANTIDAD_MAX_PRODUCTORES_CINTA_CENTRAL - 1);//atoi(argv[3]), atoi(argv[4]));
 
 	Log::info("Iniciando ControlEquipajeSospechoso (pos=%s)\n", argv[3]);
 

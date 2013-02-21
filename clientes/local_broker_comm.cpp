@@ -372,9 +372,9 @@ try
 				try {
 					//std::cout << "Esperando mutex socket" << std::endl;
 					broker->wait_mutex(memoria.memory_pointer());
-					if (strcmp(grupo,"cinta_escaner_control")==0) {
+					/*if (strcmp(grupo,"cinta_escaner_control")==0) {
 						print_ints((int *)memoria.memory_pointer(), int(broker->get_mem_size()/ 4));
-					}
+					}*/
 					// la aplicacion necesita el token?
 					// si lo necesita, actualizo la memoria y habilito el semaforo
 					// si no, lo devuelvo

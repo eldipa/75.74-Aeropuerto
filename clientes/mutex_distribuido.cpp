@@ -143,6 +143,8 @@ void MutexDistribuido::lanzar_comunicacion(const std::string & directorio_de_tra
 	char current_working_dir [FILENAME_MAX];
 	char launch_dir [FILENAME_MAX];
 
+	ignore_signals();
+
 	snprintf(directorio, FILENAME_MAX, "%s", directorio_de_trabajo.c_str());
 	snprintf(nombre_app, MAX_NOMBRE_RECURSO, "%s", nombre_aplicacion.c_str());
 	snprintf(brokers_file, FILENAME_MAX, "%s", local_brokers_file.c_str());
