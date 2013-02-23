@@ -7,9 +7,12 @@ from invalid import *
 import traceback
 import socket
 
-KEEPALIVE_PROBE_COUNT = 8
-KEEPALIVE_IDLE_TIMEOUT = 1 * 60 # Value with a range of 1 to N (where N is tcp_keepidle divided by PR_SLOWHZ).
-KEEPALIVE_RETRY_SEND_PROBE = 10 # Value with a range of 1 to N (where N is tcp_keepintvl divided by PR_SLOWHZ).
+import config
+_c = config.Configuration("config.ini")
+
+KEEPALIVE_PROBE_COUNT = _c.getint("passage of messages", "keepalive probe count")
+KEEPALIVE_IDLE_TIMEOUT = _c.getint("passage of messages", "keepalive idle timeout") # Value with a range of 1 to N (where N is tcp_keepidle divided by PR_SLOWHZ).
+KEEPALIVE_RETRY_SEND_PROBE = _c.getint("passage of messages", "keepalive retry send probe") # Value with a range of 1 to N (where N is tcp_keepintvl divided by PR_SLOWHZ).
 
 MAX_PAYLOAD = 2**14
 
@@ -28,7 +31,7 @@ TYPE_BY_ID = dict(map(lambda type_id: (type_id[1], type_id[0]), ID_BY_TYPE.items
 
 assert len(ID_BY_TYPE) == len(TYPE_BY_ID)
 
-TTL = 255**2
+TTL = _c.getint("passage of messages", "initial time to live")
 
 def _recv(socket, length, peer):
    i = length
