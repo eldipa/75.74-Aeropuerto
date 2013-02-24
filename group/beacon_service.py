@@ -20,13 +20,16 @@ from socket import AF_INET, SOCK_DGRAM, SOL_SOCKET, SO_BROADCAST, getaddrinfo
 import stop
 import get_port
 
+import config
+_c = config.Configuration("config.ini")
+
 import signal
 def handler(signum, frame):
    raise KeyboardInterrupt("Interrupted by a TERM signal.")
 
 signal.signal(signal.SIGTERM, handler)
 
-DISCOVERY_TIME = 2
+DISCOVERY_TIME = _c.getint("beacon service", "discovery time")
 
 if __name__ == '__main__':
    if len(sys.argv[1:]) != 1:

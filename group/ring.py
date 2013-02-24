@@ -9,30 +9,23 @@ from invalid import *
 import traceback
 import get_port
 
-LISTEN_TIMEOUT = 30 
-LISTEN_QUEUE_LENGHT = 10
+import config
+_c = config.Configuration("config.ini")
 
+LISTEN_TIMEOUT = _c.getint("ring construction", "listen timeout")
+LISTEN_QUEUE_LENGHT = _c.getint("ring construction", "listen queue lenght")
 
-# Based (but not enforced) in the types of protocols used in an ARP request/reply. 
-# See RFC 826
-PROTOCOL_TYPES_BY_NAME = {
-      'IP' : 0x0800,
-      'FQDN' : 0x0801,
-      }
-
-PROTOCOL_TYPES = PROTOCOL_TYPES_BY_NAME.values()
-
-OWN_RING_CLOSE_TIMEWAIT = 1 * 60 # 1 minutes
-SELF_CLOSE_TIMEWAIT = 2 * 60 # 2 minutes
+OWN_RING_CLOSE_TIMEWAIT = _c.getint("ring construction", "own ring close timewait")
+SELF_CLOSE_TIMEWAIT = _c.getint("ring construction", "self close timewait")
 
 assert OWN_RING_CLOSE_TIMEWAIT < SELF_CLOSE_TIMEWAIT
 
-LISTEN_RETRIES = 10
+LISTEN_RETRIES = _c.getint("ring construction", "listen retries")
 assert LISTEN_RETRIES * LISTEN_TIMEOUT > SELF_CLOSE_TIMEWAIT 
 
-CLOSE_TIMEOUT = 30
-BEACON_BUF_MAX_SIZE = 1024 / 2
-DOS_SLEEP = 0.0001
+CLOSE_TIMEOUT = _c.getint("ring construction", "close timeout")
+BEACON_BUF_MAX_SIZE = _c.getint("ring construction", "beacon buf max size")
+DOS_SLEEP = _c.getfloat("ring construction", "dos sleep")
 
 def create_beacon(beacon_type, group_id, leader_name_len, localhost_name_len, service_name_len, leader_name, localhost_name, service_name, with_local_name=True):
    assert len(beacon_type) == 4

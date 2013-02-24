@@ -8,9 +8,11 @@
 #include <signal.h>
 
 static char working_dir[MAX_PATH_SIZE];
+static char log_path[MAX_PATH_SIZE];
+static char persist_path[MAX_PATH_SIZE];
 static char port[6];
 
-static char *args_message_broker[] = { (char*) "message_broker_server", working_dir, port, NULL };
+static char *args_message_broker[] = { (char*) "message_broker_server", working_dir, port, log_path, persist_path, NULL };
 
 
 int main(int argc, char** argv) {
@@ -35,6 +37,8 @@ int main(int argc, char** argv) {
 
       strcpy(working_dir, iniparser_getstring(ini, "MESSAGE_BROKER:working_dir", NULL));
       strcpy(port, iniparser_getstring(ini, "MESSAGE_BROKER:port", NULL));
+      strcpy(log_path, iniparser_getstring(ini, "MESSAGE_BROKER:log_path", NULL));
+      strcpy(persist_path, iniparser_getstring(ini, "MESSAGE_BROKER:persist_path", NULL));
 
       Process process_server("./../local_broker/message_broker_server", args_message_broker);
       

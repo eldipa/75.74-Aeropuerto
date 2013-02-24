@@ -19,8 +19,11 @@ import message
 import get_port
 import beacon_service
 
-LISTEN_TIMEOUT = 60
-LEADER_REELECTION_MINIMUN = 60 * 5 #5 minutes
+import config
+_c = config.Configuration("config.ini")
+
+LISTEN_TIMEOUT = _c.getint("leader", "listen timeout")
+LEADER_REELECTION_MINIMUN = _c.getint("leader", "leader reelection")
 
 assert LISTEN_TIMEOUT < LEADER_REELECTION_MINIMUN
 

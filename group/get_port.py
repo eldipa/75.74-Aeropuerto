@@ -1,13 +1,23 @@
-START_PORT = 9000
-END_PORT = 9900
 
-BEACON_SERVICE = 8083
+import socket as S
+
+import config
+_c = config.Configuration("config.ini")
+
+START_PORT = _c.getint("port pool", "start port pool")
+END_PORT = _c.getint("port pool", "end port pool")
+
+BEACON_SERVICE = _c.get("beacon service", "service")
+try:
+   BEACON_SERVICE = S.getservbyname(BEACON_SERVICE)
+except S.error:
+   BEACON_SERVICE = int(BEACON_SERVICE)
+
 
 assert END_PORT > START_PORT
 assert BEACON_SERVICE not in range(START_PORT, END_PORT+1)
 
 import random
-import socket as S
 from socket import AF_INET, SOCK_DGRAM, SOL_SOCKET, SO_BROADCAST, getaddrinfo
 import time
 

@@ -23,9 +23,9 @@ void MessageBrokerStub::create_queue(const char* queue_id) {
    BrokerResponse response;
 
    request.mtypebroker = BROKER_CREATE;
-   strcpy(request.queue_id, queue_id);   
+   strcpy(request.queue_id, queue_id);
    strcpy(request.sender_procname, get_proc_name().c_str() );
- 
+
    try {
       MessageBrokerServer::sendall(sock, (char*)&request, sizeof(BrokerRequest));
       MessageBrokerServer::receiveall(sock, (char*)&response, sizeof(BrokerResponse));
