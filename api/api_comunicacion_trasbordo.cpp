@@ -4,10 +4,37 @@ using namespace std;
 
 #include "api_configuracion.h"
 
-ApiComunicacionTrasbordo::ApiComunicacionTrasbordo(const char * directorio_de_trabajo, const char* config_file) :
-   queue_manager( ApiConfiguracion::get_queue_manager(directorio_de_trabajo, config_file) ),
-	cola_asignaciones(queue_manager->get_queue(PATH_COLA_ESCUCHA_ZONA_ASIGNADA, 0) ) {
+ApiComunicacionTrasbordo::ApiComunicacionTrasbordo(const char * directorio_de_trabajo, const char* config_file)
+	: queue_manager(ApiConfiguracion::get_queue_manager(directorio_de_trabajo, config_file)),
+		cola_asignaciones(queue_manager->get_queue(PATH_COLA_ESCUCHA_ZONA_ASIGNADA, 0, true))
+{
 
+	//semaforos = new SemaphoreSet(string(directorio_de_trabajo).append(PATH_IPC_ROBOTS_INTERCARGO).c_str(), 0, 0, 0);
+	//memoria_zonas = new SharedMemory(string(directorio_de_trabajo).append(PATH_IPC_ROBOTS_INTERCARGO).c_str(), 1, 0, 0, false, false);
+
+	std::vector<unsigned short> valores;
+	int i,tamanio;
+
+	valores.push_back(1);
+	for (i = 0; i < MAX_ROBOTS_INTERCARGO_ESPERANDO_POR_ZONAS ; i++) {
+		valores.push_back(0);
+	}
+	semaforos = new SemaphoreSet(valores, string(directorio_de_trabajo).append(PATH_IPC_ROBOTS_INTERCARGO).c_str(), 0,
+		0664);
+	tamanio = sizeof(int) * (MAX_ROBOTS_INTERCARGO_ESPERANDO_POR_ZONAS + MAX_ZONAS);
+	memoria_zonas = new SharedMemory(string(directorio_de_trabajo).append(PATH_IPC_ROBOTS_INTERCARGO).c_str(), 1,
+		tamanio, 0664, true, false);
+
+	zonas_asignadas = static_cast<int *>(memoria_zonas->memory_pointer());
+	vuelos_esperando = zonas_asignadas + MAX_ZONAS;
+
+}
+
+ApiComunicacionTrasbordo::ApiComunicacionTrasbordo(const char * directorio_de_trabajo, const char* config_file, bool test)
+	: queue_manager(ApiConfiguracion::get_queue_manager(directorio_de_trabajo, config_file)),
+		cola_asignaciones(queue_manager->get_queue(PATH_COLA_ESCUCHA_ZONA_ASIGNADA, 0))
+{
+	test = ! test;
 	semaforos = new SemaphoreSet(string(directorio_de_trabajo).append(PATH_IPC_ROBOTS_INTERCARGO).c_str(), 0, 0, 0);
 	memoria_zonas = new SharedMemory(string(directorio_de_trabajo).append(PATH_IPC_ROBOTS_INTERCARGO).c_str(), 1, 0, 0, false, false);
 
@@ -20,17 +47,16 @@ ApiComunicacionTrasbordo::~ApiComunicacionTrasbordo() {
 	// TODO Auto-generated destructor stub
 }
 
-void ApiComunicacionTrasbordo::notificar_asignacion_de_zona(int numero_de_zona,
-		int numero_de_vuelo) {
+void ApiComunicacionTrasbordo::notificar_asignacion_de_zona(int numero_de_zona, int numero_de_vuelo) {
 	int i;
 
 	semaforos->wait_on(0);
 
-	zonas_asignadas[numero_de_zona - 1] = numero_de_vuelo;
+	zonas_asignadas [numero_de_zona - 1] = numero_de_vuelo;
 
-	for (i = 0; i < MAX_ROBOTS_INTERCARGO_ESPERANDO_POR_ZONAS; i++) {
-		if (vuelos_esperando[i] == numero_de_vuelo) {
-			vuelos_esperando[i] = 0;
+	for (i = 0; i < MAX_ROBOTS_INTERCARGO_ESPERANDO_POR_ZONAS ; i++) {
+		if (vuelos_esperando [i] == numero_de_vuelo) {
+			vuelos_esperando [i] = 0;
 			semaforos->signalize(i + 1);
 		}
 	}

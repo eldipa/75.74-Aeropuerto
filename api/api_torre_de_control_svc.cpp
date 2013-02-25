@@ -25,7 +25,7 @@ ApiTorreDeControlSvc::ApiTorreDeControlSvc(const char* directorio_de_trabajo, co
    mutex_asignaciones(sem_set, 0),
    asignaciones(std::string(directorio_de_trabajo).append(PATH_TORRE_DE_CONTROL_SVC).c_str(), 1) {
 
-   config_file = config_file;
+   config_file = config_file + 1 - 1;
 }
 
 void ApiTorreDeControlSvc::asignar_vuelo(int zona, int vuelo) {

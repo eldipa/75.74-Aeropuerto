@@ -24,28 +24,6 @@ ApiTrasbordo::ApiTrasbordo(const char* directorio_de_trabajo, const char* config
 	vuelos_esperando = zonas_asignadas + MAX_ZONAS;
 }
 
-ApiTrasbordo::ApiTrasbordo(const char* directorio_de_trabajo, const char* config_file, bool create)
-	: queue_manager(ApiConfiguracion::get_queue_manager(directorio_de_trabajo, config_file)),
-		cola_cargadores_equipaje(queue_manager->get_queue(PATH_COLA_ROBOTS_INTERCARGO, 0, true))
-{
-
-	std::vector<unsigned short> valores;
-	int i,tamanio;
-
-	if (create) {
-		valores.push_back(1);
-		for (i = 0; i < MAX_ROBOTS_INTERCARGO_ESPERANDO_POR_ZONAS ; i++) {
-			valores.push_back(0);
-		}
-		semaforos = new SemaphoreSet(valores, string(directorio_de_trabajo).append(PATH_IPC_ROBOTS_INTERCARGO).c_str(),
-			0, 0664);
-		tamanio = sizeof(int) * (MAX_ROBOTS_INTERCARGO_ESPERANDO_POR_ZONAS + MAX_ZONAS);
-		memoria_zonas = new SharedMemory(string(directorio_de_trabajo).append(PATH_IPC_ROBOTS_INTERCARGO).c_str(), 1,
-			tamanio, 0664, true, false);
-		cinta = NULL;
-		id_productor = -1;
-	}
-}
 
 ApiTrasbordo::~ApiTrasbordo() {
 	delete semaforos;

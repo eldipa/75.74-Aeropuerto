@@ -174,7 +174,7 @@ LocalBrokerComm * conectar_con_broker(const std::string & nombre_app, std::vecto
 	do {
 
 		try {
-			//std::cout << "conectando: " << brokers [i] << ":" << servicios [i] << std::endl;
+			std::cout << "conectando: " << brokers [i] << ":" << servicios [i] << std::endl;
 			broker = new LocalBrokerComm(nombre_app, brokers [i], servicios [i]);
 			conecto = true;
 		} catch (CommError & error) {
@@ -410,7 +410,7 @@ catch (CommError & e) {
 	std::cerr << e.what() << std::endl;
 }
 catch (OSError & e) {
-//	std::cerr << e.what() << std::endl;
+	std::cerr << e.what() << std::endl;
 	//std::cerr << "Unable to connect to local_brokers" << std::endl;
 }
 catch (std::exception & e) {

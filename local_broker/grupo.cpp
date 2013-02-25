@@ -189,10 +189,10 @@ void Grupo::pasar_token_a_proximo_cliente() {
 		mensaje.mtype = cliente_actual + 1;
 	}
 
-	if (this->nombre_recurso == "cinta_principal" || this->nombre_recurso.substr(0, 4) == "cpp_") {
+	//if (this->nombre_recurso == "cinta_principal" || this->nombre_recurso.substr(0, 4) == "cpp_") {
 		std::cout << "Passing Token from " << this->nombre_recurso << " to: " << client_names [cliente_actual] << "("
 			<< cliente_actual << ")" << std::endl;
-	}
+	//}
 
 	cola.push(&mensaje, sizeof(traspaso_token_t) - sizeof(long));
 	mutex.signalize(0);

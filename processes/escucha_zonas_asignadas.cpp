@@ -2,17 +2,31 @@
 #include <cstdlib>
 #include "constants.h"
 #include "log.h"
+#include <iostream>
 
 #include "api_comunicacion_trasbordo.h"
 
+void print_args(int argc, char * argv []){
+	int i;
+	std::cout << "argc=" << argc << std::endl;
+	std::cout << argv[0];
+	for(i=1;i<argc;i++){
+		std::cout << " " << argv[i];
+	}
+	std::cout << std::endl;
+}
+
 int main(int argc, char* argv[])
 try {
+	//chdir("processes");
+
 
 	if (argc < 3) {
 		Log::crit(
 				"Insuficientes parametros para Escucha Zonas Asignadas, se esperaba (directorio_de_trabajo, config_file)\n");
 		exit(1);
 	}
+	print_args(argc,argv);
 
 	ApiComunicacionTrasbordo trasbordo(argv[1], argv[2]);
 

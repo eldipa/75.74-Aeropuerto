@@ -11,6 +11,7 @@
 #include "memoria_distribuida.h"
 #include "mutex_distribuido.h"
 #include "semaphore_set_distribuido.h"
+#include "api_comunicacion_trasbordo.h"
 
 static char directorio_de_trabajo [200];
 static char app_name [200];
@@ -51,6 +52,21 @@ int test_semaphore_set(int argc, char *argv []) {
 	return 0;
 }
 
+void test_zona_asignada(int argc, char * argv []) {
+	if (argc < 3) {
+		std::cerr << "Faltan argumentos " << argv [0] << std::endl;
+		return;
+	}
+	MENSAJE_ZONA_ASIGNADA mensaje;
+
+
+	MessageQueue cola_asignaciones(std::string(argv[1]).append(PATH_COLA_ESCUCHA_ZONA_ASIGNADA).c_str(),0);
+		 mensaje.zona_asignada = 1;
+	mensaje.numero_de_vuelo = 1;
+	mensaje.mtype = 1;
+	cola_asignaciones.push(&mensaje, sizeof(MENSAJE_ZONA_ASIGNADA) - sizeof(long));
+}
+
 int main(int argc, char * argv [])
 try
 {
@@ -67,12 +83,17 @@ try
 	sprintf(tamanio, "%d", 256);
 
 	/*if (!getcwd(current_working_dir, sizeof(current_working_dir)))
-		throw GenericError("Unable to get current working dir");
-	current_working_dir [sizeof(current_working_dir) - 1] = '\0';
-	strcat(current_working_dir, "/processes");
-	chdir(current_working_dir);*/
+	 throw GenericError("Unable to get current working dir");
+	 current_working_dir [sizeof(current_working_dir) - 1] = '\0';
+	 strcat(current_working_dir, "/processes");
+	 chdir(current_working_dir);*/
 
-	test_semaphore_set(argc, argv);
+	if (chdir("processes") != 0) {
+				throw GenericError("Cannot change working dir to %s", "local_broker");
+			}
+
+	//test_semaphore_set(argc, argv);
+	test_zona_asignada(argc, argv);
 
 	/*if (strncmp(argv [1], "escaner1", MAX_NOMBRE_RECURSO) == 0) {
 	 //snprintf(directorio_de_trabajo, 200, "%s", "/home/gonzalo/workspaces/git/75.74-Aeropuerto/clientes/locks");

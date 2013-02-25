@@ -210,7 +210,7 @@ public:
 		// cola_escucha_vuelos_entrantes = new MessageQueue(path_lock, 0, 0664, true);
       cola_escucha_vuelos_entrantes = queue_manager->get_queue(PATH_COLA_ESCUCHA_ZONA_ASIGNADA, 0, true);
 
-		trasbordo = new ApiTrasbordo(path_to_locks, config_file, true);
+		//trasbordo = new ApiTrasbordo(path_to_locks, config_file, true);
 
 	};
 

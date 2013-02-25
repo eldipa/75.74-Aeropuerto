@@ -41,6 +41,7 @@ public:
 	int get_vuelo_destino();
 
 	ApiComunicacionTrasbordo(const char * directorio_de_trabajo, const char* config_file);
+	ApiComunicacionTrasbordo(const char * directorio_de_trabajo, const char* config_file,bool);
 	virtual ~ApiComunicacionTrasbordo();
 
 };
