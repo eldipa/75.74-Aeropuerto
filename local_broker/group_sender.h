@@ -17,7 +17,7 @@
 class GroupSender {
 private:
 
-	GroupInterface grupo_remoto;
+	GroupInterface * grupo_remoto;
 	Grupo grupo;
 	std::string broker_local;
 	mensajes::mensajes_local_broker_group_t mensaje;

@@ -23,7 +23,7 @@
 
 TokenManager::TokenManager(const std::string & directorio, char id, const std::string & groups_file)
 	: clientes(std::string(directorio).append(PATH_COLA_TOKEN_MANAGER).c_str(), id, 0664, true),
-		directorio_de_trabajo(directorio)
+		directorio_de_trabajo(directorio),manager(directorio_de_trabajo)
 {
 	id = id + 1 - 1;
 
@@ -38,6 +38,7 @@ TokenManager::~TokenManager() {
 		g = i->second;
 		delete g;
 	}
+	manager.bajar_servicio();
 }
 
 void TokenManager::crear_grupos(const std::string & directorio_de_trabajo, const std::string & groups_file) {
@@ -57,6 +58,8 @@ void TokenManager::crear_grupos(const std::string & directorio_de_trabajo, const
 	}
 	// evito la primera linea
 	fscanf(f, "%s\n", primera_linea);
+
+	manager.levantar_servicio();
 
 	while (fscanf(f, "%[^:]:%[^:]:%d:%d\n", nombre_recurso, tamanio_memoria_str, &valor, &id_grupo) != EOF) {
 		// Crear Grupo
@@ -79,14 +82,14 @@ void TokenManager::crear_grupos(const std::string & directorio_de_trabajo, const
 		g = new Grupo(directorio_de_trabajo, nombre_recurso, InitParser::parse_int_val(tamanio_memoria_str), true);
 		grupos.insert(std::pair<std::string, Grupo *>(std::string(nombre_recurso), g));
 
-		//GroupCommManager manager(directorio_de_trabajo);
-		//manager.levantar_grupo(nombre_recurso, char(id_grupo), valor);
+
+		manager.levantar_grupo(nombre_recurso, char(id_grupo), valor);
 		if (valor == 1) {
 			// MAL LO TIENE QUE INICIALIZAR EL PROCESO "GROUP_RECEIVER" QUE ES EL QUE MANEJA AL LIDER
-			g->release_token(&clientes);
+			//g->release_token(&clientes);
 		}
 		// DEBUG
-		if (InitParser::parse_int_val(tamanio_memoria_str)) {
+		/*if (InitParser::parse_int_val(tamanio_memoria_str)) {
 			int pos;
 			char path [FILENAME_MAX];
 			strcpy(path, directorio_de_trabajo.c_str());
@@ -98,7 +101,7 @@ void TokenManager::crear_grupos(const std::string & directorio_de_trabajo, const
 			}
 			strcat(path, POSTFIJO_INIT);
 			g->inicializar_memoria(path);
-		}
+		}*/
 		// DEBUG
 	}
 	fclose(f);
@@ -122,6 +125,7 @@ void TokenManager::run() {
 	 }
 	 ((char *)g->memory_pointer()) [1023] = '\0';
 	 std::cout << (char *)g->memory_pointer() << std::endl;*/
+
 
 	ignore_signals();
 	//char data [30];
@@ -159,6 +163,8 @@ try
 
 	id = atoi(argv [2]);
 
+
+	chdir("local_broker");
 	/*if (chdir("local_broker") != 0) {
 		throw GenericError("Cannot change working dir to %s", "local_broker");
 	}*/

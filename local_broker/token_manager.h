@@ -10,6 +10,7 @@
 
 #include "grupo.h"
 #include "messagequeue.h"
+#include "group_comm_manager.h"
 #include <vector>
 #include <map>
 
@@ -18,10 +19,13 @@ private:
 	MessageQueue clientes;
 	std::map<std::string, Grupo *> grupos;
 	std::string directorio_de_trabajo;
+	GroupCommManager manager;
 
-	void crear_grupos(const std::string & directorio_de_trabajo, const std::string & groups_file);
+	void crear_grupos(const std::string & directorio_de_trabajo,
+			const std::string & groups_file);
 public:
-	TokenManager(const std::string & directorio_de_trabajo, char id, const std::string & groups_file);
+	TokenManager(const std::string & directorio_de_trabajo, char id,
+			const std::string & groups_file);
 	virtual ~TokenManager();
 
 	void run();

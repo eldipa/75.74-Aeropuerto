@@ -19,7 +19,7 @@ class GroupReceiver {
 private:
 	MessageQueue cola_token_manager;
 	MessageQueue * leader_q;
-	GroupInterface grupo_remoto;
+	GroupInterface * grupo_remoto;
 	Grupo grupo;
 	//std::string broker_local;
 	mensajes::mensajes_local_broker_group_t mensaje;
@@ -42,6 +42,8 @@ private:
 	bool memoria_inicializada;
 
 	int numero_de_nodo;
+
+	void inicializar_grupo();
 
 	void inicializar();
 	void loop_token();

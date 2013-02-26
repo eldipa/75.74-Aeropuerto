@@ -35,3 +35,13 @@ void lanzar_beacon_svc(const char* localhost_name){
 	   system(cmd.str().c_str());
 	   std::cout << cmd.str() << std::endl;
 }
+
+void bajar_grupos(){
+	 std::ostringstream cmd;
+
+	   cmd << "pkill python &";
+
+	   system(cmd.str().c_str());
+	   std::cout << cmd.str() << std::endl;
+}
+

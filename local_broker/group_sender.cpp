@@ -19,16 +19,30 @@
 GroupSender::GroupSender(const std::string & directorio_de_trabajo,
 		const std::string & nombre_grupo, char id,
 		const std::string & nombre_broker_local) :
-		grupo_remoto(
-				std::string(directorio_de_trabajo).append(PATH_COLAS_BROKERS).c_str(),
-				id), grupo(directorio_de_trabajo, nombre_grupo), broker_local(
+		grupo_remoto(NULL), grupo(directorio_de_trabajo, nombre_grupo), broker_local(
 				nombre_broker_local) {
+
+	for (int i = 0; i < 3; i++) {
+		try {
+			grupo_remoto = new GroupInterface(
+					std::string(directorio_de_trabajo).append(
+							PATH_COLAS_BROKERS).c_str(), id);
+			break;
+		} catch (OSError & error) {
+			sleep(1);
+			if (i == 3) {
+				throw error;
+			}
+		}
+	}
+
 	tamanio_memoria = grupo.get_mem_size();
 
 	cantidad_de_bloques_por_token = (tamanio_memoria / DATA_SIZE);
 
-	if (tamanio_memoria % DATA_SIZE != 0 || tamanio_memoria == 0 || tamanio_memoria < DATA_SIZE) {
-		cantidad_de_bloques_por_token++;
+	if (tamanio_memoria % DATA_SIZE
+			!= 0|| tamanio_memoria == 0 || tamanio_memoria < DATA_SIZE) {cantidad_de_bloques_por_token
+		++;
 	}
 
 	mensaje.tipo = mensajes::TOKEN_DELIVER;
@@ -38,7 +52,9 @@ GroupSender::GroupSender(const std::string & directorio_de_trabajo,
 }
 
 GroupSender::~GroupSender() {
-
+	if (grupo_remoto) {
+		delete grupo_remoto;
+	}
 }
 
 void GroupSender::send_token() {
@@ -48,8 +64,8 @@ void GroupSender::send_token() {
 		mensaje.numero_de_mensaje = i;
 		memcpy(mensaje.data, (char*) grupo.memory_pointer() + i * DATA_SIZE,
 				DATA_SIZE);
-		sprintf(mensaje.data,"%d",i);
-		grupo_remoto.push((char*) &mensaje,
+		sprintf(mensaje.data, "%d", i);
+		grupo_remoto->push((char*) &mensaje,
 				sizeof(mensajes::mensajes_local_broker_group_t));
 	}
 
@@ -62,13 +78,13 @@ void GroupSender::loop_token() {
 
 	// DEBUG MENSAJERIA 1
 	/*mensaje.numero_de_mensaje = 0;
-	mensaje.cantidad_bytes_total = DATA_SIZE;
-	strcpy(mensaje.data,"Prueba LOOP 1 Nodo");
-	mensaje.tipo = mensajes::GROUP_DISCOVER;
-	grupo_remoto.push((char*) &mensaje,
-			sizeof(mensajes::mensajes_local_broker_group_t));
+	 mensaje.cantidad_bytes_total = DATA_SIZE;
+	 strcpy(mensaje.data,"Prueba LOOP 1 Nodo");
+	 mensaje.tipo = mensajes::GROUP_DISCOVER;
+	 grupo_remoto->push((char*) &mensaje,
+	 sizeof(mensajes::mensajes_local_broker_group_t));
 
-	mensaje.tipo = mensajes::TOKEN_DELIVER;*/
+	 mensaje.tipo = mensajes::TOKEN_DELIVER;*/
 
 	do {
 		try {
@@ -80,8 +96,9 @@ void GroupSender::loop_token() {
 			 snprintf((char*)grupo->memory_pointer(), DATA_SIZE, "%s:%d", "client_handler", a);
 			 std::cout << (char*)grupo->memory_pointer() << std::endl;*/
 
-			// envio el token al cliente
+			// envio el token al client
 			send_token();
+			std::cout << "Token Enviado" << std::endl;
 
 		} catch (OSError & error) {
 			leave = true;
@@ -97,11 +114,11 @@ void GroupSender::run() {
 	loop_token();
 }
 
-void print_args(int argc, char * argv []){
+void print_args(int argc, char * argv[]) {
 	int i;
 	std::cout << "argc=" << argc << std::endl;
 	std::cout << argv[0];
-	for(i=1;i<argc;i++){
+	for (i = 1; i < argc; i++) {
 		std::cout << " " << argv[i];
 	}
 	std::cout << std::endl;
@@ -110,7 +127,7 @@ void print_args(int argc, char * argv []){
 int main(int argc, char * argv[]) {
 	char id;
 
-	//print_args(argc,argv);
+	print_args(argc, argv);
 
 	if (argc < 5) {
 		std::cerr
@@ -131,7 +148,7 @@ int main(int argc, char * argv[]) {
 
 	 for (int i = 0 ; i < 10 ; i++) {
 
-	 //grupo_remoto.pull(data, sizeof(data));
+	 //grupo_remoto->pull(data, sizeof(data));
 
 	 std::cout << "recibido: " << data << std::endl;
 

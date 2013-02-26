@@ -22,6 +22,8 @@ public:
 	virtual ~GroupCommManager();
 
 	void levantar_grupo(const std::string & nombre_grupo, char numero_grupo, int token);
+	void levantar_servicio();
+	void bajar_servicio();
 };
 
 #endif /* GROUPCOMMMANAGER_H_ */

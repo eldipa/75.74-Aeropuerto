@@ -18,4 +18,6 @@ void lanzar_mensajeria(const char* absolute_path, char proj_id, char group_id, c
 
 void lanzar_beacon_svc(const char* localhost_name);
 
+void bajar_grupos();
+
 #endif
