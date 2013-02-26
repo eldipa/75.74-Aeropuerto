@@ -34,7 +34,7 @@ public:
 	int esperar_zona_asignada(int numero_vuelo);
 	int esperar_vuelo_entrante(int numero_vuelo_destino);
 
-	ApiTrasbordo(const char* directorio_de_trabajo, const char* config_file);
+	ApiTrasbordo(const char* directorio_de_trabajo, const char* config_file, int numero_de_vuelo);
 	virtual ~ApiTrasbordo();
 
 };

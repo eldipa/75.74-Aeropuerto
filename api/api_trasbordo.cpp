@@ -4,12 +4,13 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
+#include "api_common.h"
 
 #include "api_configuracion.h"
 
 using namespace std;
 
-ApiTrasbordo::ApiTrasbordo(const char* directorio_de_trabajo, const char* config_file)
+ApiTrasbordo::ApiTrasbordo(const char* directorio_de_trabajo, const char* config_file, int numero_de_vuelo)
 	: queue_manager(ApiConfiguracion::get_queue_manager(directorio_de_trabajo, config_file)),
 		cola_cargadores_equipaje(queue_manager->get_queue(PATH_COLA_ROBOTS_INTERCARGO, 0))
 {
@@ -17,13 +18,13 @@ ApiTrasbordo::ApiTrasbordo(const char* directorio_de_trabajo, const char* config
 	semaforos = new SemaphoreSet(string(directorio_de_trabajo).append(PATH_IPC_ROBOTS_INTERCARGO).c_str(), 0, 0, 0);
 	memoria_zonas = new SharedMemory(string(directorio_de_trabajo).append(PATH_IPC_ROBOTS_INTERCARGO).c_str(), 1, 0, 0,
 		false, false);
-	cinta = new CintaCentral("robot_intercargo", directorio_de_trabajo,-1, -2);
+	cinta = new CintaCentral(std::string("robot_intercargo").append(intToString(numero_de_vuelo)).c_str(),
+		directorio_de_trabajo, -1, -2);
 	id_productor = -1;
 
 	zonas_asignadas = static_cast<int *>(memoria_zonas->memory_pointer());
 	vuelos_esperando = zonas_asignadas + MAX_ZONAS;
 }
-
 
 ApiTrasbordo::~ApiTrasbordo() {
 	delete semaforos;

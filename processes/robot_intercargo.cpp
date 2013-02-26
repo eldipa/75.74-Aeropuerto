@@ -67,7 +67,7 @@ try
 
 	numero_vuelo_destino = atoi(argv [3]);
 
-	ApiTrasbordo api_trasbordo(argv [1], argv [2]);
+	ApiTrasbordo api_trasbordo(argv [1], argv [2],numero_vuelo_destino);
 
 	std::multimap<int, Equipaje> equipajes_a_cargar;
 

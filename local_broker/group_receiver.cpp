@@ -22,30 +22,25 @@
 #include <sys/stat.h>
 #include "mensajes_de_red.h"
 
-static char id[4];
-static char directorio_trabajo[FILENAME_MAX];
-static char nombre_del_grupo[MAX_NOMBRE_RECURSO];
-static char nombre_broker_local[MAX_NOMBRE_RECURSO];
+static char id [4];
+static char directorio_trabajo [FILENAME_MAX];
+static char nombre_del_grupo [MAX_NOMBRE_RECURSO];
+static char nombre_broker_local [MAX_NOMBRE_RECURSO];
 
-static char * args_lider[] = { (char*) "lider", directorio_trabajo, id,
-		nombre_del_grupo, nombre_broker_local };
+static char * args_lider [] = {(char*)"lider", directorio_trabajo, id, nombre_del_grupo, nombre_broker_local};
 
-GroupReceiver::GroupReceiver(const std::string & directorio_de_trabajo,
-		const std::string & nombre_grupo, char id,
-		const std::string & nombre_broker_local, bool lanzar_token) :
-		cola_token_manager(
-				std::string(directorio_de_trabajo).append(
-						PATH_COLA_TOKEN_MANAGER).c_str(), char(0)), grupo_remoto(
-				NULL), grupo(directorio_de_trabajo, nombre_grupo), directorio_de_trabajo(
-				directorio_de_trabajo), broker_local(nombre_broker_local), nombre_recurso(
-				nombre_grupo), id_grupo(id), crear_token(lanzar_token) {
+GroupReceiver::GroupReceiver(const std::string & directorio_de_trabajo, const std::string & nombre_grupo, char id,
+	const std::string & nombre_broker_local, bool lanzar_token)
+	: cola_token_manager(std::string(directorio_de_trabajo).append(PATH_COLA_TOKEN_MANAGER).c_str(), char(0)),
+		grupo_remoto(NULL), grupo(directorio_de_trabajo, nombre_grupo), directorio_de_trabajo(directorio_de_trabajo),
+		broker_local(nombre_broker_local), nombre_recurso(nombre_grupo), id_grupo(id), crear_token(lanzar_token)
+{
 	size_t tamanio;
 
-	for (int i = 0; i < 3; i++) {
+	for (int i = 0 ; i < 3 ; i++) {
 		try {
-			grupo_remoto = new GroupInterface(
-					std::string(directorio_de_trabajo).append(
-							PATH_COLAS_BROKERS).c_str(), id);
+			grupo_remoto = new GroupInterface(std::string(directorio_de_trabajo).append(PATH_COLAS_BROKERS).c_str(),
+				id);
 			break;
 		} catch (OSError & error) {
 			sleep(1);
@@ -55,13 +50,13 @@ GroupReceiver::GroupReceiver(const std::string & directorio_de_trabajo,
 		}
 	}
 	tamanio = grupo.get_mem_size();
-	data_token = new char[tamanio];
+	data_token = new char [tamanio];
 	cantidad_recibida_token = 0;
 	cantidad_recibida_grupo = 0;
 	cantidad_de_bloques_por_token = (grupo.get_mem_size() / DATA_SIZE);
-	if (grupo.get_mem_size() % DATA_SIZE
-			!= 0|| grupo.get_mem_size() == 0 || grupo.get_mem_size() < DATA_SIZE) {cantidad_de_bloques_por_token++;
-}
+	if (grupo.get_mem_size() % DATA_SIZE != 0 || grupo.get_mem_size() == 0 || grupo.get_mem_size() < DATA_SIZE) {
+		cantidad_de_bloques_por_token++;
+	}
 	leader = false;
 	memoria_inicializada = false;
 
@@ -70,7 +65,7 @@ GroupReceiver::GroupReceiver(const std::string & directorio_de_trabajo,
 }
 
 GroupReceiver::~GroupReceiver() {
-	delete[] data_token;
+	delete [] data_token;
 	if (leader_q != NULL) {
 		delete leader_q;
 	}
@@ -86,12 +81,10 @@ void GroupReceiver::inicializar() {
 	strcpy(mensaje.data, this->broker_local.c_str());
 	mensaje.numero_de_mensaje = 0;
 
-	grupo_remoto->push((char *) &mensaje,
-			sizeof(mensajes::mensajes_local_broker_group_t));
+	grupo_remoto->push((char *)&mensaje, sizeof(mensajes::mensajes_local_broker_group_t));
 	token_inicializado = false;
 	while (!inicializado) {
-		grupo_remoto->pull((char*) &mensaje,
-				sizeof(mensajes::mensajes_local_broker_group_t));
+		grupo_remoto->pull((char*)&mensaje, sizeof(mensajes::mensajes_local_broker_group_t));
 
 		if (mensaje.tipo == mensajes::LEADER) { // soy el lider
 			leader = true;
@@ -112,19 +105,17 @@ void GroupReceiver::inicializar() {
 					token_inicializado = true;
 				}
 			} else {
-				grupo_remoto->push((char *) &mensaje,
-						sizeof(mensajes::mensajes_local_broker_group_t));
+				grupo_remoto->push((char *)&mensaje, sizeof(mensajes::mensajes_local_broker_group_t));
 			}
 		} else {
-			grupo_remoto->push((char *) &mensaje,
-					sizeof(mensajes::mensajes_local_broker_group_t));
+			grupo_remoto->push((char *)&mensaje, sizeof(mensajes::mensajes_local_broker_group_t));
 		}
 	}
 }
 
 void GroupReceiver::launch_lider() {
 	struct stat buf;
-	char path[200];
+	char path [200];
 	strcpy(path, directorio_de_trabajo.c_str());
 	strcat(path, PATH_COLA_LEADER);
 	int file;
@@ -148,12 +139,10 @@ size_t GroupReceiver::recv_token() {
 	bool mensaje_completo = false;
 	bool token_roto = false;
 	do {
-		grupo_remoto->pull((char*) &mensaje,
-				sizeof(mensajes::mensajes_local_broker_group_t));
+		grupo_remoto->pull((char*)&mensaje, sizeof(mensajes::mensajes_local_broker_group_t));
 
 		if (mensaje.tipo == mensajes::TOKEN_DELIVER) {
-			std::cout << "Recibiendo Token " << mensaje.numero_de_mensaje
-					<< std::endl;
+			std::cout << "Recibiendo Token " << mensaje.numero_de_mensaje << std::endl;
 			// Chequeo que no se haya perdido la primera parte de un token
 			if (mensaje.numero_de_mensaje == 0) {
 				numero_anterior = -1;
@@ -162,32 +151,28 @@ size_t GroupReceiver::recv_token() {
 			if (mensaje.numero_de_mensaje != numero_anterior + 1) {
 				mensaje.tipo = mensajes::TOKEN_LOST;
 				int * entero;
-				entero = (int *) &mensaje.data;
+				entero = (int *)&mensaje.data;
 				*entero = this->numero_de_nodo;
 				//strncpy(mensaje.data, this->broker_local.c_str(), MAX_NOMBRE_RECURSO);
-				grupo_remoto->push((char *) &mensaje,
-						sizeof(mensajes::mensajes_local_broker_group_t));
+				grupo_remoto->push((char *)&mensaje, sizeof(mensajes::mensajes_local_broker_group_t));
 				token_roto = true;
 				cantidad_recibida_token += DATA_SIZE;
 			} else {
-				memcpy((data_token + mensaje.numero_de_mensaje * DATA_SIZE),
-						mensaje.data,
-						std::min(
-								grupo.get_mem_size() - mensaje.numero_de_mensaje * DATA_SIZE, size_t(DATA_SIZE)));
-								cantidad_recibida_token += DATA_SIZE;
-								if (cantidad_recibida_token >= mensaje.cantidad_bytes_total) {
-									mensaje_completo = true;
-									tipo_mensaje_recibido = mensajes::TOKEN_DELIVER;
-									cantidad_recibida_token = 0;
-									numero_anterior = -1;
-								} else {
-									numero_anterior++;
-								}
-							}
+				memcpy((data_token + mensaje.numero_de_mensaje * DATA_SIZE), mensaje.data,
+					std::min(grupo.get_mem_size() - mensaje.numero_de_mensaje * DATA_SIZE, size_t(DATA_SIZE)));
+				cantidad_recibida_token += DATA_SIZE;
+				if (cantidad_recibida_token >= mensaje.cantidad_bytes_total) {
+					mensaje_completo = true;
+					tipo_mensaje_recibido = mensajes::TOKEN_DELIVER;
+					cantidad_recibida_token = 0;
+					numero_anterior = -1;
+				} else {
+					numero_anterior++;
+				}
+			}
 			this->token_inicializado = true;
 		} else if (mensaje.tipo == mensajes::GROUP_DISCOVER) {
-			memcpy(data_group + mensaje.numero_de_mensaje * DATA_SIZE,
-					mensaje.data, DATA_SIZE);
+			memcpy(data_group, mensaje.data, DATA_SIZE);
 			cantidad_recibida_grupo += DATA_SIZE;
 			if (cantidad_recibida_grupo >= mensaje.cantidad_bytes_total) {
 				mensaje_completo = true;
@@ -203,7 +188,7 @@ size_t GroupReceiver::recv_token() {
 }
 
 void GroupReceiver::inicializar_grupo() {
-	char path[FILENAME_MAX];
+	char path [FILENAME_MAX];
 	strcpy(path, directorio_de_trabajo.c_str());
 	strcat(path, "/");
 	strcat(path, nombre_recurso.c_str());
@@ -222,23 +207,19 @@ void GroupReceiver::procesar_mensaje() {
 		if (leader) {
 			mensajes::mensajes_local_broker_lider_t msg;
 			msg.mtype = 1;
-			memcpy(&msg.data, &mensaje,
-					sizeof(mensajes::mensajes_local_broker_group_t));
-			leader_q->push((char *) &mensaje,
-					sizeof(mensajes::mensajes_local_broker_group_t));
+			memcpy(&msg.data, &mensaje, sizeof(mensajes::mensajes_local_broker_group_t));
+			leader_q->push((char *)&mensaje, sizeof(mensajes::mensajes_local_broker_group_t));
 			std::cout << "Msg to Leader: GROUP_DISCOVER" << std::endl;
 		} else {
 			int * entero;
-			entero = (int *) &mensaje.data;
+			entero = (int *)&mensaje.data;
 			(*entero)++;
 			this->numero_de_nodo = *entero;
-			grupo_remoto->push((char *) &mensaje,
-					sizeof(mensajes::mensajes_local_broker_group_t));
+			grupo_remoto->push((char *)&mensaje, sizeof(mensajes::mensajes_local_broker_group_t));
 		}
 	} else if (mensaje.tipo == mensajes::INITALIZATION) {
 		mensaje.numero_de_mensaje++;
-		grupo_remoto->push((char *) &mensaje,
-				sizeof(mensajes::mensajes_local_broker_group_t));
+		grupo_remoto->push((char *)&mensaje, sizeof(mensajes::mensajes_local_broker_group_t));
 	} else if (mensaje.tipo == mensajes::LEADER && !this->leader) {
 		this->leader = true;
 		std::cout << "LEADER" << std::endl;
@@ -255,18 +236,15 @@ void GroupReceiver::procesar_mensaje() {
 		if (leader) {
 			mensajes::mensajes_local_broker_lider_t msg;
 			msg.mtype = 1;
-			memcpy(&msg.data, &mensaje,
-					sizeof(mensajes::mensajes_local_broker_group_t));
-			leader_q->push((char *) &mensaje,
-					sizeof(mensajes::mensajes_local_broker_group_t));
+			memcpy(&msg.data, &mensaje, sizeof(mensajes::mensajes_local_broker_group_t));
+			leader_q->push((char *)&mensaje, sizeof(mensajes::mensajes_local_broker_group_t));
 		} else if (strcmp(mensaje.data, "OK") != 0) {
 			int * entero;
-			entero = (int *) &mensaje.data;
+			entero = (int *)&mensaje.data;
 			if (*entero == this->numero_de_nodo) {
 				grupo.reenviar_token_al_cliente();
 				strcpy(mensaje.data, "OK");
-				grupo_remoto->push((char *) &mensaje,
-						sizeof(mensajes::mensajes_local_broker_group_t));
+				grupo_remoto->push((char *)&mensaje, sizeof(mensajes::mensajes_local_broker_group_t));
 			}
 		}
 	}
@@ -292,17 +270,17 @@ void GroupReceiver::run() {
 	loop_token();
 }
 
-void print_args(int argc, char * argv[]) {
+void print_args(int argc, char * argv []) {
 	int i;
 	std::cout << "argc=" << argc << std::endl;
-	std::cout << argv[0];
-	for (i = 1; i < argc; i++) {
-		std::cout << " " << argv[i];
+	std::cout << argv [0];
+	for (i = 1; i < argc ; i++) {
+		std::cout << " " << argv [i];
 	}
 	std::cout << std::endl;
 }
 
-int main(int argc, char * argv[]) {
+int main(int argc, char * argv []) {
 	char id;
 
 	print_args(argc, argv);
@@ -311,14 +289,13 @@ int main(int argc, char * argv[]) {
 
 	if (argc < 6) {
 		std::cerr
-				<< "Falta el directorio de trabajo, el id, el nombre del recurso, el nombre_broker_local, lanzar_token"
-				<< std::endl;
+			<< "Falta el directorio de trabajo, el id, el nombre del recurso, el nombre_broker_local, lanzar_token"
+			<< std::endl;
 		return -1;
 	}
-	id = atoi(argv[2]);
+	id = atoi(argv [2]);
 
-	GroupReceiver handler(argv[1], argv[3], id, argv[4],
-			strcmp("1", argv[5]) == 0);
+	GroupReceiver handler(argv [1], argv [3], id, argv [4], strcmp("1", argv [5]) == 0);
 
 	handler.run();
 

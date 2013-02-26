@@ -75,6 +75,8 @@ void LocalBroker::run() {
 			handler = new Process("client_handler", args_client_handler);
 
 			hijos.push_back(handler);
+
+			close(new_socket);
 			//exit = true;
 		} catch (OSError & error) {
 			exit = 1;
