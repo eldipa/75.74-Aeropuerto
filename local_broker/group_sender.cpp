@@ -57,8 +57,13 @@ GroupSender::~GroupSender() {
 	}
 }
 
-void GroupSender::send_token() {
+void GroupSender::send_token(int tipo) {
 	int i;
+	if(tipo == 1){
+		mensaje.tipo = mensajes::TOKEN_DELIVER;
+	}else if(tipo==2){
+		mensaje.tipo = mensajes::MEMORY_UPDATE;
+	}
 
 	for (i = 0; i < cantidad_de_bloques_por_token; i++) {
 		mensaje.numero_de_mensaje = i;
@@ -68,7 +73,7 @@ void GroupSender::send_token() {
 		grupo_remoto->push((char*) &mensaje,
 				sizeof(mensajes::mensajes_local_broker_group_t));
 	}
-
+	grupo.el_token_se_envio();
 }
 
 void GroupSender::loop_token() {
@@ -85,11 +90,11 @@ void GroupSender::loop_token() {
 	 sizeof(mensajes::mensajes_local_broker_group_t));
 
 	 mensaje.tipo = mensajes::TOKEN_DELIVER;*/
-
+	int tipo;
 	do {
 		try {
 			// espero el token
-			grupo.lock_token();
+			tipo = grupo.lock_token();
 			/*std::cout << (char*)grupo->memory_pointer() << std::endl;
 			 sscanf((char*)grupo->memory_pointer(), "%[^:]:%d", data, &a);
 			 a++;
@@ -97,7 +102,7 @@ void GroupSender::loop_token() {
 			 std::cout << (char*)grupo->memory_pointer() << std::endl;*/
 
 			// envio el token al client
-			send_token();
+			send_token(tipo);
 			std::cout << "Token Enviado" << std::endl;
 
 		} catch (OSError & error) {

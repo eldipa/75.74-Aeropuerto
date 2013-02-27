@@ -44,4 +44,6 @@ typedef key_t Key;
  * */
 Key get_key(const char *absolute_path, char proj_id);
 
+void create_if_not_exists(const char * absolute_path);
+
 #endif

@@ -27,7 +27,7 @@ private:
 
 	void loop_token();
 
-	void send_token();
+	void send_token(int tipo);
 
 public:
 	GroupSender(const std::string & directorio_de_trabajo, const std::string & nombre_grupo, char id,

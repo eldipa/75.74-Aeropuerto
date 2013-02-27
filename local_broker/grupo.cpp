@@ -25,13 +25,18 @@ Grupo::Grupo(const std::string & directorio_de_trabajo, std::string nombre_recur
 		cola(std::string(directorio_de_trabajo).append(PREFIJO_RECURSO).append(nombre_recurso).append(".lck").c_str(),
 			char(2)), nombre_recurso(nombre_recurso)
 {
+	mensaje.tipo = 1;
 	cant_clientes = static_cast<int *>(memoria.memory_pointer());
 	mem_size = reinterpret_cast<size_t *>(cant_clientes + 1);
 	client_names [0] = reinterpret_cast<char *>(mem_size + 1);
 	for (int i = 1 ; i < MAX_CLIENTS ; i++) {
 		client_names [i] = client_names [i - 1] + MAX_NOMBRE_RECURSO * sizeof(char);
 	}
-	memoria_compartida = reinterpret_cast<void *>(client_names [0] + MAX_CLIENTS * MAX_NOMBRE_RECURSO * sizeof(char));
+	tengo_token = reinterpret_cast<int *>(client_names [0] + MAX_CLIENTS * MAX_NOMBRE_RECURSO * sizeof(char));
+	token_enviado = tengo_token + 1;
+	memoria_compartida = reinterpret_cast<void *>(token_enviado + 1);
+	*tengo_token = 0;
+	*token_enviado = 1;
 }
 
 Grupo::Grupo(const std::string & directorio_de_trabajo, std::string nombre_recurso, size_t tamanio_memoria, bool create)
@@ -45,6 +50,7 @@ Grupo::Grupo(const std::string & directorio_de_trabajo, std::string nombre_recur
 		cola(std::string(directorio_de_trabajo).append(PREFIJO_RECURSO).append(nombre_recurso).append(".lck").c_str(),
 			char(2), 0664, true), nombre_recurso(nombre_recurso)
 {
+	mensaje.tipo = 1;
 	if (create) {
 		cant_clientes = static_cast<int *>(memoria.memory_pointer());
 		mem_size = reinterpret_cast<size_t *>(cant_clientes + 1);
@@ -53,8 +59,10 @@ Grupo::Grupo(const std::string & directorio_de_trabajo, std::string nombre_recur
 			client_names [i] = client_names [i - 1] + MAX_NOMBRE_RECURSO * sizeof(char);
 			(*client_names) [i] = '\0';
 		}
-		memoria_compartida =
-			reinterpret_cast<void *>(client_names [0] + MAX_CLIENTS * MAX_NOMBRE_RECURSO * sizeof(char));
+		tengo_token = reinterpret_cast<int *>(client_names [0] + MAX_CLIENTS * MAX_NOMBRE_RECURSO * sizeof(char));
+
+		token_enviado = tengo_token + 1;
+		memoria_compartida = reinterpret_cast<void *>(token_enviado + 1);
 
 		*cant_clientes = 0;
 		*mem_size = tamanio_memoria;
@@ -65,8 +73,10 @@ Grupo::Grupo(const std::string & directorio_de_trabajo, std::string nombre_recur
 		strncpy(mensaje.recurso, nombre_recurso.c_str(), MAX_NOMBRE_RECURSO);
 		//cola.push(&mensaje, sizeof(traspaso_token_t) - sizeof(long));
 	}
+	*tengo_token = 0;
 	cliente_actual = 0;
 	token_owner = -1;
+	*token_enviado = 1;
 }
 
 Grupo::~Grupo() {
@@ -147,6 +157,7 @@ unsigned short Grupo::obtener_numero_cola_de_cliente(const char nombre [MAX_NOMB
 
 unsigned short Grupo::obtener_proximo_cliente() {
 	mutex.wait_on(0);
+	mensaje.tipo = 1;
 
 	if (*cant_clientes == 0) {
 		mutex.signalize(0);
@@ -172,6 +183,7 @@ unsigned short Grupo::obtener_proximo_cliente() {
 void Grupo::pasar_token_a_proximo_cliente() {
 	int i;
 	mutex.wait_on(0);
+	mensaje.tipo = 1;
 
 	if (*cant_clientes == 0) {
 		mensaje.mtype = 1;
@@ -189,9 +201,16 @@ void Grupo::pasar_token_a_proximo_cliente() {
 		mensaje.mtype = cliente_actual + 1;
 	}
 
+	if (strncmp(client_names [cliente_actual], "localbroker", strlen("localbroker")) == 0) {
+		*tengo_token = 0;
+		*token_enviado = 0;
+	} else {
+		*tengo_token = 1;
+	}
+
 	//if (this->nombre_recurso == "cinta_principal" || this->nombre_recurso.substr(0, 4) == "cpp_") {
-		std::cout << "Passing Token from " << this->nombre_recurso << " to: " << client_names [cliente_actual] << "("
-			<< cliente_actual << ")" << std::endl;
+	std::cout << "Passing Token from " << this->nombre_recurso << " to: " << client_names [cliente_actual] << "("
+		<< cliente_actual << ")" << std::endl;
 	//}
 
 	cola.push(&mensaje, sizeof(traspaso_token_t) - sizeof(long));
@@ -204,6 +223,7 @@ void Grupo::reenviar_token_al_cliente() {
 
 	mensaje.mtype = cliente_actual + 1;
 
+	mensaje.tipo = 1;
 	std::cout << "Resending Token from " << this->nombre_recurso << " to: " << client_names [cliente_actual] << "("
 		<< cliente_actual << ")" << std::endl;
 
@@ -211,13 +231,15 @@ void Grupo::reenviar_token_al_cliente() {
 	mutex.signalize(0);
 }
 
-void Grupo::lock_token() {
+int Grupo::lock_token() {
 
 	cola.pull(&mensaje, sizeof(traspaso_token_t) - sizeof(long), this->numero_cola_asignada);
+	return mensaje.tipo;
 }
 
 void Grupo::release_token(MessageQueue * cola_token_mgr) {
 	mensaje.mtype = 1;
+	mensaje.tipo = 1;
 	strncpy(mensaje.recurso, this->nombre_recurso.c_str(), sizeof(mensaje.recurso));
 
 	cola_token_mgr->push(&mensaje, sizeof(traspaso_token_t) - sizeof(long));
@@ -272,3 +294,57 @@ void Grupo::inicializar_memoria(const std::string & init_file) {
 
 	fclose(file);
 }
+
+bool Grupo::tengo_el_token() {
+	bool result;
+	mutex.wait_on(0);
+	result = (*tengo_token) == 1;
+	mutex.signalize(0);
+	return result;
+}
+
+void Grupo::replicar_brokers() {
+	mutex.wait_on(0);
+	int j;
+	bool encontrado = false;
+
+	if (*cant_clientes > 0) {
+		mensaje.mtype = 1;
+		mensaje.tipo = 2;
+
+		for (j = 0; j < MAX_CLIENTS ; j++) {
+			if (strncmp("localbroker", client_names [j], strlen("localbroker")) == 0) {
+				encontrado = true;
+				break;
+			}
+		}
+
+		mensaje.mtype = j + 1;
+
+		if (encontrado) {
+			//if (this->nombre_recurso == "cinta_principal" || this->nombre_recurso.substr(0, 4) == "cpp_") {
+			std::cout << "Replicating " << this->nombre_recurso << " to: " << client_names [j] << "(" << cliente_actual
+				<< ")" << std::endl;
+			//}
+
+			cola.push(&mensaje, sizeof(traspaso_token_t) - sizeof(long));
+		}
+	}
+
+	mutex.signalize(0);
+}
+
+bool Grupo::enviando_token() {
+	bool result;
+	mutex.wait_on(0);
+	result = (*token_enviado) == 0;
+	mutex.signalize(0);
+	return result;
+}
+
+void Grupo::el_token_se_envio() {
+	mutex.wait_on(0);
+	(*token_enviado) = 1;
+	mutex.signalize(0);
+}
+
