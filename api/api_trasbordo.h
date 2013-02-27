@@ -19,6 +19,7 @@ private:
 
    yasper::ptr<IQueueManager> queue_manager;
    yasper::ptr<IMessageQueue> cola_cargadores_equipaje;
+   yasper::ptr<IMessageQueue> cola_asignaciones;
 	CintaCentral * cinta;
 
 	int id_productor;

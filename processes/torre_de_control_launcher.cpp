@@ -10,16 +10,17 @@
 #include <string.h>
 static char working_dir[MAX_PATH_SIZE];
 
-static char *args_torre_de_control[] = { (char*) "message_broker_server", working_dir, NULL };
+static char *args_torre_de_control[] = { (char*) "torre_de_control_svc", working_dir, NULL };
 
 
 int main(int argc, char** argv) {
    try {
       std::string config_file( (argc>1)?argv[1]:DEFAULT_CONFIG_FILE );
       
-      getcwd(working_dir, MAX_PATH_SIZE);
-      strcpy(working_dir+strlen(working_dir), "/");
-      strcpy(working_dir+strlen(working_dir), config_file.c_str());
+      // getcwd(working_dir, MAX_PATH_SIZE);
+      // strcpy(working_dir+strlen(working_dir), "/");
+      // strcpy(working_dir+strlen(working_dir), config_file.c_str());
+      strcpy(working_dir, config_file.c_str());
 
       Process process_server("./../rpc/torre_de_control_svc", args_torre_de_control);
       

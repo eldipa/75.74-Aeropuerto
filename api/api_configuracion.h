@@ -88,7 +88,7 @@ public:
             throw GenericError("cannot parse the config file %s", config_file);
          }
 
-         ApiConfiguracion::wkdir = iniparser_getstring(ini, "TORRE_DE_CONTROL:working_dir", NULL);
+         ApiConfiguracion::torre_wkdir = iniparser_getstring(ini, "TORRE_DE_CONTROL:working_dir", NULL);
          Log::info("ApiConfiguracion: ok al leer TORRE_DE_CONTROL:working_dir %s", ApiConfiguracion::torre_wkdir.c_str());
          iniparser_freedict(ini);
       }
