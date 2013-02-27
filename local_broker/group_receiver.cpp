@@ -138,6 +138,7 @@ void GroupReceiver::launch_lider() {
 size_t GroupReceiver::recv_token() {
 	bool mensaje_completo = false;
 	bool token_roto = false;
+   token_roto = token_roto;
 	do {
 		grupo_remoto->pull((char*)&mensaje, sizeof(mensajes::mensajes_local_broker_group_t));
 
