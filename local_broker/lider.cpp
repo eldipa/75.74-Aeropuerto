@@ -9,6 +9,8 @@
 #include "oserror.h"
 #include <iostream>
 #include <cstdlib>
+#include <cstring>
+#include <cstdio>
 
 Lider::Lider(const std::string directorio_de_trabajo, const std::string & nombre_grupo, char id_grupo,
 	const std::string & nombre_broker)
@@ -47,6 +49,7 @@ void Lider::run() {
 
 	mensaje_envio.cantidad_bytes_total = 1;
 	*entero_envio = 1;
+	sprintf(mensaje_envio.data,"%d",1);
 	mensaje_envio.numero_de_mensaje = 1;
 	mensaje_envio.tipo = mensajes::GROUP_DISCOVER;
 
@@ -76,6 +79,8 @@ void Lider::run() {
 						grupo.release_token(&cola_token_manager);
 					}
 				} while (!token_recuperado);
+			} else if(mensaje.data.tipo == mensajes::INITIALIZATION){
+				mensaje_envio.numero_de_mensaje = 1;
 			}
 
 		} catch (OSError & error) {

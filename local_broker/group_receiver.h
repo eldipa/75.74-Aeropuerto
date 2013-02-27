@@ -21,31 +21,40 @@ private:
 	MessageQueue * leader_q;
 	GroupInterface * grupo_remoto;
 	Grupo grupo;
-	//std::string broker_local;
+
 	mensajes::mensajes_local_broker_group_t mensaje;
 	char data_group [DATA_SIZE];
 	char * data_token;
+	char * data_replica;
+
 	size_t cantidad_de_bloques_por_token;
 	std::string directorio_de_trabajo;
 	std::string broker_local;
 	std::string nombre_recurso;
 	char id_grupo;
-	bool crear_token;
 
 	size_t cantidad_recibida_token;
 	size_t cantidad_recibida_grupo;
+	size_t cantidad_recibida_replica;
 	mensajes::GROUP_MSG_T tipo_mensaje_recibido;
 
 	int numero_anterior;
+	int numero_anterior_replica;
+
 	bool leader;
+	bool crear_token;
 	bool token_inicializado;
 	bool memoria_inicializada;
+	bool replica_ok;
 
 	int numero_de_nodo;
 
 	void inicializar_grupo();
-
-	void inicializar();
+	void forward_mensaje();
+	void entregar_token_a_aplicacion();
+	void reenviar_mensaje_a_lider();
+	void actualizar_numero_de_nodo();
+	void inicializando();
 	void loop_token();
 	void launch_lider();
 

@@ -36,7 +36,17 @@ typedef struct {
 } mensajes_local_broker_token_t;
 
 typedef enum {
-	LEADER = 0, TOKEN_DELIVER = 1, GROUP_DISCOVER = 2, TOKEN_LOST = 3, INITALIZATION = 4, TOKEN_RECOVER = 5
+	LEADER = 0,
+	TOKEN_DELIVER = 1,
+	GROUP_DISCOVER = 2,
+	TOKEN_LOST = 3,
+	INITIALIZATION = 4,
+	TOKEN_RECOVER = 5,
+	LEADER_ELECTED = 6,
+	MEMORY_UPDATE = 7,
+	TOKEN_DISCOVER = 8,
+	TOKEN_OK = 9,
+	TOKEN_IN_TRANSIT = 9
 } GROUP_MSG_T;
 
 typedef struct {

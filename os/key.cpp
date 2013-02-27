@@ -1,4 +1,3 @@
-
 /*************************************************************************
  *                                                                       *
  *                        This work is licensed under a                  *
@@ -25,16 +24,32 @@
  *                                                                             *
  *******************************************************************************/
 
-
 #include "key.h"
 #include "oserror.h"
 #include <sys/ipc.h>
 
 Key get_key(const char *absolute_path, char proj_id) {
-    Key key = ftok(absolute_path, proj_id);
-    if(key == -1) {
-        throw OSError("The key generator 'ftok' is failing using the path '%s' and the magic character '%c'", 
-                      absolute_path, proj_id);
-    }
-    return key;
+	Key key = ftok(absolute_path, proj_id);
+	if (key == -1) {
+		throw OSError("The key generator 'ftok' is failing using the path '%s' and the magic character '%c'",
+			absolute_path, proj_id);
+	}
+	return key;
+}
+
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/stat.h>
+
+void create_if_not_exists(const char * absolute_path) {
+	struct stat buf;
+	int file;
+	if (stat(absolute_path, &buf) != 0) {
+		file = open(absolute_path, O_CREAT | 0664);
+		if (file != -1) {
+			close(file);
+		} else {
+			throw OSError("Unable to create file '%s'", absolute_path);
+		}
+	}
 }

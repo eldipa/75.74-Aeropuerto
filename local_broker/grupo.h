@@ -28,6 +28,8 @@ private:
 	size_t * mem_size;
 	char * client_names [MAX_CLIENTS];
 	unsigned short * colas_asignadas;
+	int * tengo_token;
+	int * token_enviado;
 	int * id;
 
 	long token_owner;
@@ -57,7 +59,7 @@ public:
 	void pasar_token_a_proximo_cliente();
 	void reenviar_token_al_cliente();
 
-	void lock_token();
+	int lock_token();
 	void release_token(MessageQueue *);
 
 	size_t get_mem_size();
@@ -65,6 +67,11 @@ public:
 	std::string get_nombre_recurso();
 
 	void inicializar_memoria(const std::string & init_file);
+
+	bool tengo_el_token();
+	bool enviando_token();
+	void el_token_se_envio();
+	void replicar_brokers();
 
 };
 
