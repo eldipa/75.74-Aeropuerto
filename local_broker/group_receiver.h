@@ -40,12 +40,14 @@ private:
 
 	int numero_anterior;
 	int numero_anterior_replica;
+	bool mutex;
 
 	bool leader;
 	bool crear_token;
 	bool token_inicializado;
 	bool memoria_inicializada;
 	bool replica_ok;
+	bool avisar_llegada_token;
 
 	int numero_de_nodo;
 

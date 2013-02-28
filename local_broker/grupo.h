@@ -30,6 +30,7 @@ private:
 	unsigned short * colas_asignadas;
 	int * tengo_token;
 	int * token_enviado;
+	int * avisar_envio;
 	int * id;
 
 	long token_owner;
@@ -69,8 +70,10 @@ public:
 	void inicializar_memoria(const std::string & init_file);
 
 	bool tengo_el_token();
-	bool enviando_token();
+	bool esta_enviando_token();
 	void el_token_se_envio();
+	void avisar_si_se_esta_enviando_token();
+	bool tengo_que_avisar_envio();
 	void replicar_brokers();
 
 };

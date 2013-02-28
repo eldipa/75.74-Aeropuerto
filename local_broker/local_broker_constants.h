@@ -24,4 +24,6 @@
 #define MAX_CLIENTS 30
 #define TAMANIO_TABLA_CLIENTES (sizeof(int)+sizeof(size_t) + sizeof(char) * MAX_NOMBRE_RECURSO * MAX_CLIENTS)
 
+#define TIMEOUT_LIDER 10
+
 #endif /* LOCAL_BROKER_CONSTANTS_H_ */

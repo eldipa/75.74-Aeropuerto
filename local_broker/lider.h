@@ -13,14 +13,18 @@
 #include "group_interface.h"
 #include "mensajes_de_red.h"
 #include "local_broker_constants.h"
+#include "eventhandler.h"
+#include "signalhandler.h"
 
-class Lider {
+class Lider : public EventHandler{
 private:
 	MessageQueue cola_token_manager;
 	MessageQueue cola_lider;
 	GroupInterface grupo_remoto;
 	Grupo grupo;
-
+	sig_atomic_t alarma;
+	sig_atomic_t esperando_mensaje;
+	sig_atomic_t error_en_conexion;
 	std::string broker_local;
 	int cant_nodos;
 
@@ -36,6 +40,7 @@ public:
 		const std::string & nombre_broker);
 	virtual ~Lider();
 
+	virtual void handleSignal(int signum);
 	void run();
 };
 

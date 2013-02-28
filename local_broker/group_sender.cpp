@@ -73,6 +73,11 @@ void GroupSender::send_token(int tipo) {
 		grupo_remoto->push((char*) &mensaje,
 				sizeof(mensajes::mensajes_local_broker_group_t));
 	}
+	if(grupo.tengo_que_avisar_envio()){
+		mensaje.tipo = mensajes::TOKEN_IN_TRANSIT;
+		mensaje.numero_de_mensaje = 0;
+		strncpy(mensaje.data,this->broker_local.c_str(),this->broker_local.size());
+	}
 	grupo.el_token_se_envio();
 }
 
