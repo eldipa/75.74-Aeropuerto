@@ -11,7 +11,7 @@
 #include "memoria_distribuida.h"
 #include "mutex_distribuido.h"
 #include "semaphore_set_distribuido.h"
-#include "api_comunicacion_trasbordo.h"
+#include "mensajes.h"
 
 static char directorio_de_trabajo [200];
 static char app_name [200];

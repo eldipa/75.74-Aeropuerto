@@ -21,7 +21,7 @@ void ApiControladorDeVuelo::iniciar_checkin(int num_puesto_checkin, int num_zona
    enviar_mensaje_to_checkin(num_puesto_checkin, num_zona, true);
 
    MENSAJE_ZONA_ASIGNADA msg_trasbordo;
-   msg_trasbordo.mtype = 1;
+   msg_trasbordo.mtype = this->num_vuelo;
    msg_trasbordo.numero_de_vuelo = this->num_vuelo;
    msg_trasbordo.zona_asignada = num_zona;
    
