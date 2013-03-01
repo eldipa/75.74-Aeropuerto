@@ -36,7 +36,7 @@ public:
    /*
     * Envía un equipaje al robot_intercargo del aeropuerto pasado en el constructor.
     **/
-   void enviar_equipaje_intercargo(Equipaje&, int id_aeropuerto);
+   void enviar_equipaje_intercargo(const Equipaje&, int id_aeropuerto);
 
    /*
     * Obtiene el próximo equipaje de intercargo para el aeropuerto pasado en el constructor.

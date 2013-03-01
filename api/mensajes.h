@@ -5,6 +5,8 @@
  *      Author: gonzalo
  */
 
+#include "equipaje.h"
+
 #ifndef MENSAJES_H_
 #define MENSAJES_H_
 
@@ -25,5 +27,10 @@ typedef struct {
 	int numero_de_vuelo;
 	int zona_asignada;
 }MENSAJE_ZONA_ASIGNADA;
+
+typedef struct {
+   long mtype;
+   Equipaje equipaje_intercargo;
+}MENSAJE_EQUIPAJE_INTERCARGO;
 
 #endif /* MENSAJES_H_ */

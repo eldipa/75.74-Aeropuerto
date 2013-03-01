@@ -22,7 +22,7 @@ char directorio_de_trabajo_relativo [FILENAME_MAX];
 char config_file_relativo [FILENAME_MAX];
 
 static char *args_robot_intercargo [] = {
-	(char*)"robot_intercargo", directorio_de_trabajo_relativo, config_file_relativo, (char*)id_vuelo_destino, NULL};
+	(char*)"controlador_equipaje_intercargo", directorio_de_trabajo_relativo, config_file_relativo, (char*)id_vuelo_destino, NULL};
 
 static char *args_escucha_zonas [] = {
 	(char*)"escucha_zonas_asignadas", directorio_de_trabajo_relativo, config_file_relativo, NULL};

@@ -44,7 +44,7 @@
 #define PATH_TORRE_DE_CONTROL_SVC "/torre_de_control_svc.lck"
 #define PATH_MESSAGE_BROKER_QUEUES "/message_broker_queues.lck"
 #define PATH_MESSAGE_BROKER "/message_broker.lck"
-
+#define PATH_COLA_INTERCARGO "/intercargo.lck"
 //CINTA CENTRAL
 
 #define ID_ESCUCHA_TRACTOR 1
