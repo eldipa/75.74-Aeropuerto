@@ -21,7 +21,7 @@ private:
    int num_vuelo;
 
    yasper::ptr<IQueueManager> queue_manager;
-   yasper::ptr<IMessageQueue> queue_trasbordo;
+   // yasper::ptr<IMessageQueue> queue_trasbordo;
    yasper::ptr<IMessageQueue> queue_checkin;
 };
 

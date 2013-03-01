@@ -21,6 +21,7 @@ typedef struct {
 
 typedef struct {
 	long mtype;
+   int id_aeropuerto;
 	int numero_de_vuelo;
 	int zona_asignada;
 }MENSAJE_ZONA_ASIGNADA;

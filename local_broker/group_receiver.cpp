@@ -150,6 +150,7 @@ size_t GroupReceiver::recv_token() {
 	bool mensaje_completo = false;
 	bool token_roto = false;
 	bool estoy_recibiendo_token = false;
+   estoy_recibiendo_token = estoy_recibiendo_token;
 	do {
 		grupo_remoto->pull((char*) &mensaje,
 				sizeof(mensajes::mensajes_local_broker_group_t));

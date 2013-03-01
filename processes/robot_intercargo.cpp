@@ -6,7 +6,7 @@
 #include "cintas.h"
 
 #include "api_trasbordo.h"
-
+#include "api_comunicacion_aeropuerto.h"
 #include "contenedor.h"
 #include "constants.h"
 #include "log.h"
@@ -53,7 +53,7 @@ try
 {
 
 	//chdir("processes") != 0;
-	int zona_asignada;
+	int id_aeropuerto;
 	int numero_vuelo_destino;
 	int numero_vuelo_entrante;
 	std::multimap<int, Equipaje>::iterator it;
@@ -68,6 +68,7 @@ try
 	numero_vuelo_destino = atoi(argv [3]);
 
 	ApiTrasbordo api_trasbordo(argv [1], argv [2],numero_vuelo_destino);
+   ApiComunicacionAeropuerto api_comm_aeropuerto(argv[1], argv[2]);
 
 	std::multimap<int, Equipaje> equipajes_a_cargar;
 
@@ -75,9 +76,9 @@ try
 
 	Log::info("Esperando que se asigne la zona para vuelo %d", numero_vuelo_destino);
 
-	zona_asignada = api_trasbordo.esperar_zona_asignada(numero_vuelo_destino);
+	id_aeropuerto = api_comm_aeropuerto.esperar_zona_asignada(numero_vuelo_destino);
 
-	Log::info("Se asigna la zona %d al vuelo %d", zona_asignada, numero_vuelo_destino);
+	Log::info("Se asigna el vuelo %d a zona en aeropuerto %d", numero_vuelo_destino, id_aeropuerto);
 
 	while (!equipajes_a_cargar.empty()) {
 		Log::info("Esperando vuelos entrantes con equipaje destino a %d", numero_vuelo_destino);

@@ -12,8 +12,8 @@ using namespace std;
 
 ApiTrasbordo::ApiTrasbordo(const char* directorio_de_trabajo, const char* config_file, int numero_de_vuelo) :
    queue_manager(ApiConfiguracion::get_queue_manager(directorio_de_trabajo, config_file)),
-   cola_cargadores_equipaje(queue_manager->get_queue(PATH_COLA_ROBOTS_INTERCARGO, 0)),
-   cola_asignaciones( queue_manager->get_queue(PATH_COLA_ESCUCHA_ZONA_ASIGNADA, 0) ) {
+   cola_cargadores_equipaje(queue_manager->get_queue(PATH_COLA_ROBOTS_INTERCARGO, 0)) {
+   // cola_asignaciones( queue_manager->get_queue(PATH_COLA_ESCUCHA_ZONA_ASIGNADA, 0) ) {
 
 	semaforos = new SemaphoreSet(string(directorio_de_trabajo).append(PATH_IPC_ROBOTS_INTERCARGO).c_str(), 0, 0, 0);
 	memoria_zonas = new SharedMemory(string(directorio_de_trabajo).append(PATH_IPC_ROBOTS_INTERCARGO).c_str(), 1, 0, 0,
@@ -44,12 +44,12 @@ int ApiTrasbordo::esperar_vuelo_entrante(int numero_vuelo_destino) {
 	return mensaje.vuelo_entrante;
 }
 
-int ApiTrasbordo::esperar_zona_asignada(int numero_vuelo) {
-   MENSAJE_ZONA_ASIGNADA mensaje;
-	cola_asignaciones->pull(&mensaje, sizeof(MENSAJE_ZONA_ASIGNADA) - sizeof(long), numero_vuelo);
-   id_productor = mensaje.zona_asignada + MAX_SCANNERS + 1;
+// int ApiTrasbordo::esperar_zona_asignada(int numero_vuelo) {
+//    MENSAJE_ZONA_ASIGNADA mensaje;
+// 	cola_asignaciones->pull(&mensaje, sizeof(MENSAJE_ZONA_ASIGNADA) - sizeof(long), numero_vuelo);
+//    id_productor = mensaje.zona_asignada + MAX_SCANNERS + 1;
 
-   Log::debug("Refactor: llego mensaje zona %d asignada a vuelo %d", mensaje.zona_asignada, numero_vuelo);
-	return mensaje.zona_asignada;
-}
+//    Log::debug("Refactor: llego mensaje zona %d asignada a vuelo %d", mensaje.zona_asignada, numero_vuelo);
+// 	return mensaje.zona_asignada;
+// }
 
