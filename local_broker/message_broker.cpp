@@ -55,6 +55,13 @@ void MessageBroker::destroy_queue(const char* queue_id) {
 }
 
 void MessageBroker::push(const char* queue_id, const void *msg, size_t size_txt) {
+   sem_set.wait_on(0);
+   if(!exist_queue(queue_id)) {
+      Log::debug("No existe cola %s, para hacer push pero la creo", queue_id);
+      create_queue(queue_id);
+   }
+   sem_set.signalize(0);
+
    try {
       char proj_id = get_proj_id(queue_id);
       // Log::info( "broker_push queue_id='%s' local_proj_id='%c' (%d)", queue_id, proj_id, (int)proj_id);
@@ -67,6 +74,13 @@ void MessageBroker::push(const char* queue_id, const void *msg, size_t size_txt)
 
 ssize_t MessageBroker::pull(const char* queue_id, void *msg, size_t max_size_txt, long type) {
    ssize_t result = -1;
+
+   sem_set.wait_on(0);
+   if(!exist_queue(queue_id)) {
+      Log::debug("No existe cola %s, para hacer pull pero la creo", queue_id);
+      create_queue(queue_id);
+   }
+   sem_set.signalize(0);
 
    try {
       char proj_id = get_proj_id(queue_id);
@@ -132,6 +146,19 @@ char MessageBroker::get_proj_id(std::string queue_id) {
       Log::info("No existe queue en el broker con id %s", queue_id.c_str());
 
    return (char)proj_id;
+}
+
+bool MessageBroker::exist_queue(std::string queue_id) {
+   int proj_id = -1;
+   int pos = 0;
+   
+   while( (proj_id==-1) && (pos<255) ) {
+      if( strcmp(queue_ids->proj_id_to_queue_id[pos], queue_id.c_str()) == 0 )
+         proj_id = pos;
+      pos++;
+   }
+
+   return (proj_id!=-1);
 }
 
 

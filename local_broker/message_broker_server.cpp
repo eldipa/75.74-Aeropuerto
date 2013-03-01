@@ -54,25 +54,29 @@ void MessageBrokerServer::client_handler(Socket& sock) {
 
          try {
 
-            if(response.mtypebroker == BROKER_OK) {
-               switch( request.mtypebroker ) {
-               case BROKER_CREATE:
-                  Log::debug("CREATE: %s --> %s", request.sender_procname, request.queue_id);
-                  broker->create_queue(request.queue_id);
-                  break;
-               case BROKER_PUSH:
-                  Log::debug("PUSH: %s --> %s", request.sender_procname, request.queue_id);
-                  broker->push(request.queue_id, request.msg, request.size_txt);
-                  break;
-               case BROKER_PULL:
-                  Log::debug("PULL: %s <-- %s", request.sender_procname, request.queue_id);
-                  broker->pull(request.queue_id, response.msg, request.max_size_txt, request.type);
-                  break;
-               case BROKER_DESTROY:
-                  Log::debug("DESTROY: %s -->X %s", request.sender_procname, request.queue_id);
-                  broker->destroy_queue(request.queue_id);
-                  break;
+            try {
+               if(response.mtypebroker == BROKER_OK) {
+                  switch( request.mtypebroker ) {
+                  case BROKER_CREATE:
+                     Log::debug("CREATE: %s --> %s", request.sender_procname, request.queue_id);
+                     broker->create_queue(request.queue_id);
+                     break;
+                  case BROKER_PUSH:
+                     Log::debug("PUSH: %s --> %s", request.sender_procname, request.queue_id);
+                     broker->push(request.queue_id, request.msg, request.size_txt);
+                     break;
+                  case BROKER_PULL:
+                     Log::debug("PULL: %s <-- %s", request.sender_procname, request.queue_id);
+                     broker->pull(request.queue_id, response.msg, request.max_size_txt, request.type);
+                     break;
+                  case BROKER_DESTROY:
+                     Log::debug("DESTROY: %s -->X %s", request.sender_procname, request.queue_id);
+                     broker->destroy_queue(request.queue_id);
+                     break;
+                  }
                }
+            } catch(MessageBrokerError err) {
+               response.mtypebroker = BROKER_ERROR;
             }
 
             if(persist_file.is_open())

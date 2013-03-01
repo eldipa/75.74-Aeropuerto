@@ -57,8 +57,8 @@ static char working_dir_tractor3 [MAX_PATH_SIZE] = "/tmp/wd_tractor3";
 
 static char id_productor_cinta_central [10];
 
-static char *args_puesto_checkin1 [] = {
-	(char*)"puesto_checkin_1", working_dir_puesto_checkin1, config_file, (char*)"1", NULL};
+/*static char *args_puesto_checkin1 [] = {
+	(char*)"puesto_checkin_1", working_dir_puesto_checkin1, config_file, (char*)"1", NULL};*/
 //static char *args_puesto_checkin2 [] = {(char*)"puesto_checkin_2", directorio_de_trabajo, config_file, (char*)"2", NULL};
 //static char *args_puesto_checkin3 [] = {(char*)"puesto_checkin_3", directorio_de_trabajo, config_file, (char*)"3", NULL};
 
@@ -321,6 +321,10 @@ void copy_files() {
 
 }
 
+static char *args_intermediate_broker [] = {(char*)"intermediate_broker_launcher", NULL};
+static char *args_message_broker [] = {(char*)"message_broker_launcher", NULL};
+static char *args_torre_de_control [] = {(char*)"torre_de_control_launcher", NULL};
+
 int main(int argc, char** argv)
 
 try
@@ -352,7 +356,12 @@ try
 
 		chdir("../processes");
 
-		processes.push_back(Process("puesto_checkin", args_puesto_checkin1));
+		processes.push_back(Process("intermediate_broker_launcher", args_intermediate_broker));
+		processes.push_back(Process("message_broker_launcher", args_message_broker));
+		sleep(2);
+		processes.push_back(Process("torre_de_control_launcher", args_torre_de_control));
+
+		//processes.push_back(Process("puesto_checkin", args_puesto_checkin1));
 		//processes.push_back(Process("puesto_checkin", args_puesto_checkin2));
 		//processes.push_back(Process("puesto_checkin", args_puesto_checkin3));
 

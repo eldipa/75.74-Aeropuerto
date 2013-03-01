@@ -14,9 +14,6 @@
 class ApiTrasbordo {
 
 private:
-	SemaphoreSet * semaforos;
-	SharedMemory * memoria_zonas;
-
    yasper::ptr<IQueueManager> queue_manager;
    yasper::ptr<IMessageQueue> cola_cargadores_equipaje;
    // yasper::ptr<IMessageQueue> cola_asignaciones;
@@ -25,9 +22,6 @@ private:
 	int id_productor;
 	MENSAJE_VUELO_ENTRANTE mensaje;
 	static const int cant_ipc = 3;
-
-	int * vuelos_esperando; //MAX 30 vuelos esperando
-	int * zonas_asignadas; // MAX_ZONAS
 
 public:
 

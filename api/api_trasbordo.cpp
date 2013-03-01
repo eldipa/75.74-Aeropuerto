@@ -15,23 +15,14 @@ ApiTrasbordo::ApiTrasbordo(const char* directorio_de_trabajo, const char* config
    cola_cargadores_equipaje(queue_manager->get_queue(PATH_COLA_ROBOTS_INTERCARGO, 0)) {
    // cola_asignaciones( queue_manager->get_queue(PATH_COLA_ESCUCHA_ZONA_ASIGNADA, 0) ) {
 
-	semaforos = new SemaphoreSet(string(directorio_de_trabajo).append(PATH_IPC_ROBOTS_INTERCARGO).c_str(), 0, 0, 0);
-	memoria_zonas = new SharedMemory(string(directorio_de_trabajo).append(PATH_IPC_ROBOTS_INTERCARGO).c_str(), 1, 0, 0,
-		false, false);
 	cinta = new CintaCentral(std::string("robot_intercargo").append(intToString(numero_de_vuelo)).c_str(),
 		directorio_de_trabajo, -1, -2);
-	id_productor = -1;
 
-	zonas_asignadas = static_cast<int *>(memoria_zonas->memory_pointer());
-	vuelos_esperando = zonas_asignadas + MAX_ZONAS;
+	id_productor = 1 + MAX_SCANNERS + 1;
+
 }
 
 ApiTrasbordo::~ApiTrasbordo() {
-	delete semaforos;
-	delete memoria_zonas;
-	if (cinta) {
-		delete cinta;
-	}
 }
 
 void ApiTrasbordo::poner_en_cinta_principal(const Equipaje& equipaje) {

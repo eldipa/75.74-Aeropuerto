@@ -38,7 +38,7 @@
 #define PATH_ROBOT_DESPACHO "/robot_despacho.lck"
 #define PATH_COLA_ROBOTS_INTERCARGO "/cola_escucha_robots_intercargo.lck"
 #define PATH_COLA_ESCUCHA_ZONA_ASIGNADA "/cola_escucha_zona_asignada.lck"
-#define PATH_IPC_ROBOTS_INTERCARGO "/ipc_robots_intercargo.lck"
+// #define PATH_IPC_ROBOTS_INTERCARGO "/ipc_robots_intercargo.lck"
 #define PATH_CONTROL_SOSPECHOSOS "/control_sospechosos.lck"
 
 #define PATH_TORRE_DE_CONTROL_SVC "/torre_de_control_svc.lck"
