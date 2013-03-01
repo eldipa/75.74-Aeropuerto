@@ -373,6 +373,13 @@ void do_loop_memoria(ControlTokens * control, const std::string & directorio_de_
 	}
 }
 
+void test_local_broker_comm() {
+
+	LocalBrokerComm broker("debug", "localbroker1.sitio1.aeropuerto1", "1234");
+
+	broker.join("cinta_principal", mensajes::JOIN);
+}
+
 int main(int argc, char * argv [])
 try
 {
@@ -383,6 +390,8 @@ try
 	std::string service;
 	std::vector<std::string> brokers;
 	std::vector<std::string> servicios;
+
+
 
 	// maneja la comunicacion con el broker del lado del cliente
 	if (argc < 4) {

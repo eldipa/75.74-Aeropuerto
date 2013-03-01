@@ -59,14 +59,22 @@ void test_zona_asignada(int argc, char * argv []) {
 	}
 	MENSAJE_ZONA_ASIGNADA mensaje;
 
-
-	MessageQueue cola_asignaciones(std::string(argv[1]).append(PATH_COLA_ESCUCHA_ZONA_ASIGNADA).c_str(),0);
-		 mensaje.zona_asignada = 1;
+	MessageQueue cola_asignaciones(std::string(argv [1]).append(PATH_COLA_ESCUCHA_ZONA_ASIGNADA).c_str(), 0);
+	mensaje.zona_asignada = 1;
 	mensaje.numero_de_vuelo = 1;
 	mensaje.mtype = 1;
 	cola_asignaciones.push(&mensaje, sizeof(MENSAJE_ZONA_ASIGNADA) - sizeof(long));
 }
+/*
+void test_local_broker_comm(int argc, char * argv []) {
 
+	argc = argc + 1 - 1;
+	argv = argv + 1 - 1;
+	LocalBrokerComm broker("debug", "localbroker1.sitio1.aeropuerto1", "1234");
+
+	broker.join("cinta_principal", mensajes::JOIN);
+}
+*/
 int main(int argc, char * argv [])
 try
 {
@@ -89,11 +97,12 @@ try
 	 chdir(current_working_dir);*/
 
 	if (chdir("processes") != 0) {
-				throw GenericError("Cannot change working dir to %s", "local_broker");
-			}
+		throw GenericError("Cannot change working dir to %s", "local_broker");
+	}
 
 	//test_semaphore_set(argc, argv);
-	test_zona_asignada(argc, argv);
+	//test_zona_asignada(argc, argv);
+	//test_local_broker_comm(argc, argv);
 
 	/*if (strncmp(argv [1], "escaner1", MAX_NOMBRE_RECURSO) == 0) {
 	 //snprintf(directorio_de_trabajo, 200, "%s", "/home/gonzalo/workspaces/git/75.74-Aeropuerto/clientes/locks");

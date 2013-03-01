@@ -76,6 +76,7 @@ public:
 	bool tengo_que_avisar_envio();
 	void replicar_brokers();
 
+
 };
 
 #endif /* TABLACLIENTES_H_ */

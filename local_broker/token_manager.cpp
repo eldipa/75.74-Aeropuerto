@@ -21,13 +21,29 @@
 #include "group_comm_manager.h"
 #include "init_parser.h"
 
-TokenManager::TokenManager(const std::string & directorio, char id, const std::string & groups_file)
-	: clientes(std::string(directorio).append(PATH_COLA_TOKEN_MANAGER).c_str(), id, 0664, true),
-		directorio_de_trabajo(directorio), manager(directorio_de_trabajo)
+TokenManager::TokenManager(const std::string & directorio, const std::string & groups_file)
+	: clientes(std::string(directorio).append(PATH_COLA_TOKEN_MANAGER).c_str(), char(0), 0664, true),
+		memoria_grupos(std::string(directorio).append(PATH_COLA_TOKEN_MANAGER).c_str(), char(1),
+			TAMANIO_TABLA_GRUPOS_CREADOS, 0664, true, false),
+		semaforo_grupos(std::vector<short unsigned int>(2, 1),
+			std::string(directorio).append(PATH_COLA_TOKEN_MANAGER).c_str(), char(2), 0664),
+		directorio_de_trabajo(directorio), groups_file(groups_file), manager(directorio_de_trabajo)
 {
-	id = id + 1 - 1;
+	//crear_grupos(directorio_de_trabajo, groups_file);
 
-	crear_grupos(directorio_de_trabajo, groups_file);
+	cantidad_clientes_esperando = static_cast<int *>(memoria_grupos.memory_pointer());
+
+	grupos_creados [0] = reinterpret_cast<char *>(cantidad_clientes_esperando + 1);
+
+	for (int i = 1 ; i < MAX_GRUPOS ; i++) {
+		grupos_creados [i] = grupos_creados [i - 1] + sizeof(char) * MAX_NOMBRE_RECURSO;
+		*grupos_creados [i] = '\0';
+	}
+
+	// ajusto el valor del semaforo 1
+	semaforo_grupos.wait_on(1);
+
+	manager.levantar_servicio();
 }
 
 TokenManager::~TokenManager() {
@@ -41,7 +57,29 @@ TokenManager::~TokenManager() {
 	manager.bajar_servicio();
 }
 
-void TokenManager::crear_grupos(const std::string & directorio_de_trabajo, const std::string & groups_file) {
+void TokenManager::agregar_grupo_a_tabla_creados(const char nombre_grupo [MAX_NOMBRE_RECURSO]) {
+	bool creado = false;
+	semaforo_grupos.wait_on(0);
+	for (int i = 0 ; i < MAX_GRUPOS ; i++) {
+		if (*grupos_creados [i] != '\0' && strncmp(nombre_grupo, grupos_creados [i], MAX_NOMBRE_RECURSO) == 0) {
+			creado = true;
+			break;
+		}
+		if (!creado && *grupos_creados [i] == '\0') {
+			strncpy(grupos_creados [i], nombre_grupo, MAX_NOMBRE_RECURSO);
+			break;
+		}
+	}
+	for (int i = 0 ; i < *cantidad_clientes_esperando ; i++) {
+		semaforo_grupos.signalize(1);
+	}
+	*cantidad_clientes_esperando = 0;
+	semaforo_grupos.signalize(0);
+}
+
+void TokenManager::crear_grupo(const std::string & directorio_de_trabajo, const std::string & groups_file,
+	const std::string & group_name)
+{
 	FILE * f;
 	char nombre_recurso [MAX_NOMBRE_RECURSO];
 	char primera_linea [200];
@@ -61,34 +99,40 @@ void TokenManager::crear_grupos(const std::string & directorio_de_trabajo, const
 	//manager.levantar_servicio();
 
 	while (fscanf(f, "%[^:]:%[^:]:%d:%d\n", nombre_recurso, tamanio_memoria_str, &valor, &id_grupo) != EOF) {
-		// Crear Grupo
-		Grupo * g;
-		// Creo el archivo lck
-		create_if_not_exists(
-			std::string(directorio_de_trabajo).append(PREFIJO_RECURSO).append(nombre_recurso).append(POSTFIJO_LCK).c_str());
-		g = new Grupo(directorio_de_trabajo, nombre_recurso, InitParser::parse_int_val(tamanio_memoria_str), true);
-		grupos.insert(std::pair<std::string, Grupo *>(std::string(nombre_recurso), g));
+		if (group_name == nombre_recurso) {
+			// Crear Grupo
+			Grupo * g;
+			// Creo el archivo lck
+			create_if_not_exists(
+				std::string(directorio_de_trabajo).append(PREFIJO_RECURSO).append(nombre_recurso).append(POSTFIJO_LCK).c_str());
+			g = new Grupo(directorio_de_trabajo, nombre_recurso, InitParser::parse_int_val(tamanio_memoria_str), true);
+			grupos.insert(std::pair<std::string, Grupo *>(std::string(nombre_recurso), g));
+			agregar_grupo_a_tabla_creados(group_name.c_str());
 
-		//manager.levantar_grupo(nombre_recurso, char(id_grupo), valor);
-		if (valor == 1) {
-			// MAL LO TIENE QUE INICIALIZAR EL PROCESO "GROUP_RECEIVER" QUE ES EL QUE MANEJA AL LIDER
-			//g->release_token(&clientes);
+			//manager.levantar_grupo(nombre_recurso, char(id_grupo), valor);
+			break;
+
+			// DEBUG
+			if (valor == 1) {
+				// MAL LO TIENE QUE INICIALIZAR EL PROCESO "GROUP_RECEIVER" QUE ES EL QUE MANEJA AL LIDER
+				//g->release_token(&clientes);
+			}
+
+			/*if (InitParser::parse_int_val(tamanio_memoria_str)) {
+			 int pos;
+			 char path [FILENAME_MAX];
+			 strcpy(path, directorio_de_trabajo.c_str());
+			 strcat(path, "/");
+			 strcat(path, nombre_recurso);
+			 pos = strlen(path) - 1;
+			 while (path [pos] <= '9' && path [pos] >= '0') {
+			 path [pos--] = '\0';
+			 }
+			 strcat(path, POSTFIJO_INIT);
+			 g->inicializar_memoria(path);
+			 }*/
+			// DEBUG
 		}
-		// DEBUG
-		/*if (InitParser::parse_int_val(tamanio_memoria_str)) {
-		 int pos;
-		 char path [FILENAME_MAX];
-		 strcpy(path, directorio_de_trabajo.c_str());
-		 strcat(path, "/");
-		 strcat(path, nombre_recurso);
-		 pos = strlen(path) - 1;
-		 while (path [pos] <= '9' && path [pos] >= '0') {
-		 path [pos--] = '\0';
-		 }
-		 strcat(path, POSTFIJO_INIT);
-		 g->inicializar_memoria(path);
-		 }*/
-		// DEBUG
 	}
 	fclose(f);
 }
@@ -122,14 +166,19 @@ void TokenManager::run() {
 			clientes.pull(&mensaje, sizeof(traspaso_token_t) - sizeof(long), 0);
 			//Me fijo que token me dieron
 			recurso.assign(mensaje.recurso);
-			if (grupos.count(recurso) < 1) {
-				throw GenericError("Error Grupo %s no encontrado", mensaje.recurso);
+			if (mensaje.tipo == 3) {
+				this->crear_grupo(this->directorio_de_trabajo, this->groups_file, recurso);
+			} else {
+				if (grupos.count(recurso) < 1) {
+					throw GenericError("Error Grupo %s no encontrado", mensaje.recurso);
+				}
+				g = grupos.at(recurso);
+				//sleep(1);
+
+				g->replicar_brokers();
+				g->pasar_token_a_proximo_cliente();
 			}
-			g = grupos.at(recurso);
-			//sleep(1);
 			usleep(300000);
-			g->replicar_brokers();
-			g->pasar_token_a_proximo_cliente();
 		} catch (OSError & error) {
 			//std::cerr << error.what() << std::endl;
 			salir = true;
@@ -156,7 +205,7 @@ try
 
 	create_if_not_exists(std::string(argv [1]).append(PATH_COLA_TOKEN_MANAGER).c_str());
 
-	TokenManager manager(argv [1], id, argv [3]);
+	TokenManager manager(argv [1], /*id,*/argv [3]);
 
 	manager.run();
 

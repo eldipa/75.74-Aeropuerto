@@ -19,6 +19,8 @@ private:
 	Socket socket;
 	std::string directorio_de_trabajo;
 	MessageQueue cola_token_manager;
+	SharedMemory memoria_grupos;
+	SemaphoreSet semaforo_grupos;
 	Grupo * grupo;
 	std::string nombre_cliente;
 	std::string nombre_grupo;
@@ -28,6 +30,10 @@ private:
 	size_t tamanio_memoria;
 	mensajes::peticiones_t tipo_join;
 
+	int * cantidad_clientes_esperando;
+	char * grupos_creados [MAX_GRUPOS];
+
+	void esperar_creacion_grupo(const std::string & nombre_grupo);
 	void registrar_cliente(const std::string & nombre_cliente);
 	void join_group(const std::string & grupo);
 	void leave_group();
@@ -38,7 +44,7 @@ private:
 	size_t recv_token();
 
 public:
-	ClientHandler(const std::string & directorio_de_trabajo, char id, int fd);
+	ClientHandler(const std::string & directorio_de_trabajo, /*char id,*/int fd);
 	virtual ~ClientHandler();
 
 	void run();

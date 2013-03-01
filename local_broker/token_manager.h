@@ -17,14 +17,22 @@
 class TokenManager {
 private:
 	MessageQueue clientes;
+	SharedMemory memoria_grupos;
+	SemaphoreSet semaforo_grupos;
 	std::map<std::string, Grupo *> grupos;
 	std::string directorio_de_trabajo;
+	std::string groups_file;
 	GroupCommManager manager;
 
-	void crear_grupos(const std::string & directorio_de_trabajo,
-			const std::string & groups_file);
+	int * cantidad_clientes_esperando;
+	char * grupos_creados [MAX_GRUPOS];
+
+	void agregar_grupo_a_tabla_creados(const char nombre_grupo [MAX_NOMBRE_RECURSO]);
+
+	void crear_grupo(const std::string & directorio_de_trabajo,
+			const std::string & groups_file, const std::string & nombre_grupo);
 public:
-	TokenManager(const std::string & directorio_de_trabajo, char id,
+	TokenManager(const std::string & directorio_de_trabajo,
 			const std::string & groups_file);
 	virtual ~TokenManager();
 

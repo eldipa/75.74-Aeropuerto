@@ -12,7 +12,7 @@
 
 typedef struct {
 	long mtype;
-	long tipo; // 1 traspaso token, 2 replicacion memoria
+	long tipo; // 1 traspaso token, 2 replicacion memoria // 3 join grupo
 	char recurso [MAX_NOMBRE_RECURSO];
 } traspaso_token_t;
 

@@ -23,6 +23,8 @@
 //#define MAX_NAME_SIZE 30
 #define MAX_CLIENTS 30
 #define TAMANIO_TABLA_CLIENTES (sizeof(int)+sizeof(size_t) + sizeof(char) * MAX_NOMBRE_RECURSO * MAX_CLIENTS)
+#define MAX_GRUPOS 128
+#define TAMANIO_TABLA_GRUPOS_CREADOS (sizeof(int) + sizeof(char) * MAX_NOMBRE_RECURSO * MAX_GRUPOS)
 
 #define TIMEOUT_LIDER 10
 
