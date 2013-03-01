@@ -181,7 +181,7 @@ CintaScanner<T>::CintaScanner(const char * app_name, const char* directorio_de_t
 	this->numero_cinta = numero_escaner - 1;
 
 	//semaforos->wait_on(0);
-	control->lock();
+	/*control->lock();
 
 	if (ids_escaners_activos [this->numero_cinta] == numero_escaner) {
 		//semaforos->signalize(0);//modificar
@@ -202,7 +202,7 @@ CintaScanner<T>::CintaScanner(const char * app_name, const char* directorio_de_t
 		}
 	}
 	//semaforos->signalize(0);
-	control->unlock();
+	control->unlock();*/
 }
 
 template <typename T>

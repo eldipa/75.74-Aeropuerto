@@ -37,7 +37,6 @@ ClientHandler::ClientHandler(const std::string & directorio_de_trabajo, /*char i
 
 	for (int i = 1 ; i < MAX_GRUPOS ; i++) {
 		grupos_creados [i] = grupos_creados [i - 1] + sizeof(char) * MAX_NOMBRE_RECURSO;
-		*grupos_creados [i] = '\0';
 	}
 }
 

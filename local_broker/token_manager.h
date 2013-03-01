@@ -28,7 +28,7 @@ private:
 	char * grupos_creados [MAX_GRUPOS];
 
 	void agregar_grupo_a_tabla_creados(const char nombre_grupo [MAX_NOMBRE_RECURSO]);
-
+	bool existe_grupo(const char nombre_grupo [MAX_NOMBRE_RECURSO]);
 	void crear_grupo(const std::string & directorio_de_trabajo,
 			const std::string & groups_file, const std::string & nombre_grupo);
 public:

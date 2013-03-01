@@ -57,6 +57,21 @@ TokenManager::~TokenManager() {
 	manager.bajar_servicio();
 }
 
+bool TokenManager::existe_grupo(const char nombre_grupo [MAX_NOMBRE_RECURSO]) {
+	bool existe = false;
+	semaforo_grupos.wait_on(0);
+
+	for (int i = 0 ; i < MAX_GRUPOS ; i++) {
+		if (*grupos_creados [i] != '\0' && strncmp(nombre_grupo, grupos_creados [i], MAX_NOMBRE_RECURSO) == 0) {
+			existe = true;
+			break;
+		}
+	}
+
+	semaforo_grupos.signalize(0);
+	return existe;
+}
+
 void TokenManager::agregar_grupo_a_tabla_creados(const char nombre_grupo [MAX_NOMBRE_RECURSO]) {
 	bool creado = false;
 	semaforo_grupos.wait_on(0);
@@ -167,7 +182,9 @@ void TokenManager::run() {
 			//Me fijo que token me dieron
 			recurso.assign(mensaje.recurso);
 			if (mensaje.tipo == 3) {
-				this->crear_grupo(this->directorio_de_trabajo, this->groups_file, recurso);
+				if (!existe_grupo(recurso.c_str())) {
+					this->crear_grupo(this->directorio_de_trabajo, this->groups_file, recurso);
+				}
 			} else {
 				if (grupos.count(recurso) < 1) {
 					throw GenericError("Error Grupo %s no encontrado", mensaje.recurso);
@@ -180,7 +197,7 @@ void TokenManager::run() {
 			}
 			usleep(300000);
 		} catch (OSError & error) {
-			//std::cerr << error.what() << std::endl;
+			std::cerr << error.what() << std::endl;
 			salir = true;
 		}
 	} while (!salir);
