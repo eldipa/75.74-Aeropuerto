@@ -325,6 +325,10 @@ void copy_files() {
 
 }
 
+static char *args_intermediate_broker [] = {	(char*)"intermediate_broker_launcher", NULL};
+static char *args_message_broker [] = {	(char*)"message_broker_launcher", NULL};
+static char *args_torre_de_control [] = {	(char*)"torre_de_control_launcher", NULL};
+
 int main(int argc, char** argv)
 
 try
@@ -355,6 +359,11 @@ try
 		processes.push_back(Process("local_broker_launcher",args_local_broker1));
 
 		chdir("../processes");
+
+		processes.push_back(Process("intermediate_broker_launcher", args_intermediate_broker));
+		processes.push_back(Process("message_broker_launcher", args_message_broker));
+      sleep(2);
+		processes.push_back(Process("torre_de_control_launcher", args_torre_de_control));
 
 		//processes.push_back(Process("puesto_checkin", args_puesto_checkin1));
 		//processes.push_back(Process("puesto_checkin", args_puesto_checkin2));

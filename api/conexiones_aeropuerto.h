@@ -269,7 +269,7 @@ private:
 		crear_archivo_lck(path_to_locks, PATH_COLA_CONTROL_CHECKIN);
 		crear_archivo_lck(path_to_locks, PATH_ROBOT_DESPACHO);
 		crear_archivo_lck(path_to_locks, PATH_CONTROL_SOSPECHOSOS);
-		crear_archivo_lck(path_to_locks, PATH_IPC_ROBOTS_INTERCARGO);
+		// crear_archivo_lck(path_to_locks, PATH_IPC_ROBOTS_INTERCARGO);
 		crear_archivo_lck(path_to_locks, PATH_COLA_ESCUCHA_ZONA_ASIGNADA);
 		crear_archivo_lck(path_to_locks, PATH_COLA_ROBOTS_INTERCARGO);
 		crear_archivo_lck(path_to_locks, PATH_MESSAGE_BROKER);

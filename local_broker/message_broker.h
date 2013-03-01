@@ -39,7 +39,7 @@ private:
    char allocate_queue_id(std::string queue_id);
    void deallocate_queue_id(std::string queue_id);
    char get_proj_id(std::string queue_id);
-
+   bool exist_queue(std::string queue_id);
 };
 
 
