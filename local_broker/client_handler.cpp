@@ -343,14 +343,14 @@ try
 	id = atoi(argv [3]);
 
 	///// SOCKET ESCUCHA SOLO PARA DEBUG
-	int new_socket;
+	/*int new_socket;
 	 std::string puerto("1234");
 	 Socket * server_socket = new Socket(true);
 	 server_socket->source(puerto);
 	 new_socket = server_socket->listen_fd(10);
 	 fd = new_socket;
 	 server_socket->disassociate();
-	 delete server_socket;
+	 delete server_socket;*/
 
 	ClientHandler handler(argv [1], /*id,*/fd);
 
