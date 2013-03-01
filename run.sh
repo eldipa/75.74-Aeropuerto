@@ -7,7 +7,7 @@ fi
 cd processes
 
 #pkill message_broker_
-
+./intermediate_broker_launcher $CONFIG_FILE &
 ./message_broker_launcher $CONFIG_FILE &
 sleep 2
 

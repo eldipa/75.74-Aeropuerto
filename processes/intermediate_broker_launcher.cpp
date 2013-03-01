@@ -35,10 +35,10 @@ int main(int argc, char** argv) {
 
       Log::notice("Launch message_broker_server, read configuration from %s", config_file.c_str());
 
-      strcpy(working_dir, iniparser_getstring(ini, "MESSAGE_BROKER:working_dir", NULL));
-      strcpy(port, iniparser_getstring(ini, "MESSAGE_BROKER:port", NULL));
-      strcpy(log_path, iniparser_getstring(ini, "MESSAGE_BROKER:log_path", NULL));
-      strcpy(persist_path, iniparser_getstring(ini, "MESSAGE_BROKER:persist_path", NULL));
+      strcpy(working_dir, iniparser_getstring(ini, "INTERMEDIATE_BROKER:working_dir", NULL));
+      strcpy(port, iniparser_getstring(ini, "INTERMEDIATE_BROKER:port", NULL));
+      strcpy(log_path, iniparser_getstring(ini, "INTERMEDIATE_BROKER:log_path", NULL));
+      strcpy(persist_path, iniparser_getstring(ini, "INTERMEDIATE_BROKER:persist_path", NULL));
 
       Process process_server("./../local_broker/message_broker_server", args_message_broker);
       

@@ -24,32 +24,32 @@ char config_file_relativo [FILENAME_MAX];
 static char *args_robot_intercargo [] = {
 	(char*)"controlador_equipaje_intercargo", directorio_de_trabajo_relativo, config_file_relativo, (char*)id_vuelo_destino, NULL};
 
-static char *args_escucha_zonas [] = {
-	(char*)"escucha_zonas_asignadas", directorio_de_trabajo_relativo, config_file_relativo, NULL};
+// static char *args_escucha_zonas [] = {
+// 	(char*)"escucha_zonas_asignadas", directorio_de_trabajo_relativo, config_file_relativo, NULL};
 
-void lanzar_escucha_zonas() {
-	char current_working_dir [FILENAME_MAX];
-	char launch_dir [FILENAME_MAX];
+// void lanzar_escucha_zonas() {
+// 	char current_working_dir [FILENAME_MAX];
+// 	char launch_dir [FILENAME_MAX];
 
-	if (!getcwd(current_working_dir, sizeof(current_working_dir)))
-		throw GenericError("Unable to get current working dir");
-	current_working_dir [sizeof(current_working_dir) - 1] = '\0'; /* not really required */
+// 	if (!getcwd(current_working_dir, sizeof(current_working_dir)))
+// 		throw GenericError("Unable to get current working dir");
+// 	current_working_dir [sizeof(current_working_dir) - 1] = '\0'; /* not really required */
 
-	locate_dir(launch_dir, current_working_dir, (char *)"processes");
-	relativize_dir(directorio_de_trabajo_relativo, directorio_de_trabajo, (const char *)launch_dir,
-		current_working_dir);
-	relativize_dir(config_file_relativo, config_file, (const char *)launch_dir, current_working_dir);
+// 	locate_dir(launch_dir, current_working_dir, (char *)"processes");
+// 	relativize_dir(directorio_de_trabajo_relativo, directorio_de_trabajo, (const char *)launch_dir,
+// 		current_working_dir);
+// 	relativize_dir(config_file_relativo, config_file, (const char *)launch_dir, current_working_dir);
 
-	if (chdir(launch_dir) != 0) {
-		throw GenericError("Cannot change working dir to %s", launch_dir);
-	}
+// 	if (chdir(launch_dir) != 0) {
+// 		throw GenericError("Cannot change working dir to %s", launch_dir);
+// 	}
 
-	Process cargador("escucha_zonas_asignadas", args_escucha_zonas);
+// 	Process cargador("escucha_zonas_asignadas", args_escucha_zonas);
 
-	if (chdir(current_working_dir) != 0) {
-		throw GenericError("Cannot change working dir to %s", current_working_dir);
-	}
-}
+// 	if (chdir(current_working_dir) != 0) {
+// 		throw GenericError("Cannot change working dir to %s", current_working_dir);
+// 	}
+// }
 
 void lanzar_cargador(int vuelo_destino) {
 	char current_working_dir [FILENAME_MAX];
@@ -98,7 +98,7 @@ try
 	strncpy(config_file, argv [2], MAX_PATH_SIZE);
 
 	ApiComunicacionIntercargo api_comunicacion(directorio_de_trabajo, config_file);
-	lanzar_escucha_zonas();
+	// lanzar_escucha_zonas();
 
 	std::map<int, int> vuelos_lanzados;
 	std::multimap<int, int> vuelos_interconexion;
