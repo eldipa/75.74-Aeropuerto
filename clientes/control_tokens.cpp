@@ -71,19 +71,8 @@ void ControlTokens::test_and_clear_if_esperando_token(const char nombre [MAX_NOM
 
 ControlTokens * ControlTokens::get_instance(const std::string & directorio_de_trabajo) {
 	if (ControlTokens::instance == NULL) {
-		int file;
-		struct stat buf;
-		char path [200];
-		strcpy(path, directorio_de_trabajo.c_str());
-		strcat(path, PATH_CONTROL_TOKENS);
-		if (stat(path, &buf) != 0) {
-			file = open(path, O_CREAT | 0664);
-			if (file != -1) {
-				close(file);
-			} else {
-				//THROW OSERROR
-			}
-		}
+		create_if_not_exists(std::string(directorio_de_trabajo).append(PATH_CONTROL_TOKENS).c_str());
+
 		ControlTokens::instance = new ControlTokens(directorio_de_trabajo);
 	}
 	return ControlTokens::instance;
@@ -91,6 +80,7 @@ ControlTokens * ControlTokens::get_instance(const std::string & directorio_de_tr
 
 ControlTokens * ControlTokens::get_instance(const std::string & directorio_de_trabajo, bool create) {
 	if (ControlTokens::instance == NULL) {
+		create_if_not_exists(std::string(directorio_de_trabajo).append(PATH_CONTROL_TOKENS).c_str());
 		ControlTokens::instance = new ControlTokens(directorio_de_trabajo, create);
 	}
 	return ControlTokens::instance;

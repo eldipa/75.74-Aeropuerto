@@ -23,7 +23,7 @@
 
 TokenManager::TokenManager(const std::string & directorio, char id, const std::string & groups_file)
 	: clientes(std::string(directorio).append(PATH_COLA_TOKEN_MANAGER).c_str(), id, 0664, true),
-		directorio_de_trabajo(directorio),manager(directorio_de_trabajo)
+		directorio_de_trabajo(directorio), manager(directorio_de_trabajo)
 {
 	id = id + 1 - 1;
 
@@ -47,7 +47,6 @@ void TokenManager::crear_grupos(const std::string & directorio_de_trabajo, const
 	char primera_linea [200];
 	//int tamanio_memoria;
 	char tamanio_memoria_str [200];
-	int file;
 	int id_grupo;
 	int valor;
 
@@ -59,49 +58,36 @@ void TokenManager::crear_grupos(const std::string & directorio_de_trabajo, const
 	// evito la primera linea
 	fscanf(f, "%s\n", primera_linea);
 
-	manager.levantar_servicio();
+	//manager.levantar_servicio();
 
 	while (fscanf(f, "%[^:]:%[^:]:%d:%d\n", nombre_recurso, tamanio_memoria_str, &valor, &id_grupo) != EOF) {
 		// Crear Grupo
 		Grupo * g;
 		// Creo el archivo lck
-		struct stat buf;
-		char path [200];
-		strcpy(path, directorio_de_trabajo.c_str());
-		strcat(path, PREFIJO_RECURSO);
-		strcat(path, nombre_recurso);
-		strcat(path, ".lck");
-		if (stat(path, &buf) != 0) {
-			file = open(path, O_CREAT | 0664);
-			if (file != -1) {
-				close(file);
-			} else {
-				//THROW OSERROR
-			}
-		}
+		create_if_not_exists(
+			std::string(directorio_de_trabajo).append(PREFIJO_RECURSO).append(nombre_recurso).append(POSTFIJO_LCK).c_str());
 		g = new Grupo(directorio_de_trabajo, nombre_recurso, InitParser::parse_int_val(tamanio_memoria_str), true);
 		grupos.insert(std::pair<std::string, Grupo *>(std::string(nombre_recurso), g));
 
-
-		manager.levantar_grupo(nombre_recurso, char(id_grupo), valor);
+		//manager.levantar_grupo(nombre_recurso, char(id_grupo), valor);
 		if (valor == 1) {
 			// MAL LO TIENE QUE INICIALIZAR EL PROCESO "GROUP_RECEIVER" QUE ES EL QUE MANEJA AL LIDER
 			//g->release_token(&clientes);
 		}
 		// DEBUG
 		/*if (InitParser::parse_int_val(tamanio_memoria_str)) {
-			int pos;
-			char path [FILENAME_MAX];
-			strcpy(path, directorio_de_trabajo.c_str());
-			strcat(path, "/");
-			strcat(path, nombre_recurso);
-			pos = strlen(path) - 1;
-			while (path [pos] <= '9' && path [pos] >= '0') {
-				path [pos--] = '\0';
-			}
-			strcat(path, POSTFIJO_INIT);
-			g->inicializar_memoria(path);
-		}*/
+		 int pos;
+		 char path [FILENAME_MAX];
+		 strcpy(path, directorio_de_trabajo.c_str());
+		 strcat(path, "/");
+		 strcat(path, nombre_recurso);
+		 pos = strlen(path) - 1;
+		 while (path [pos] <= '9' && path [pos] >= '0') {
+		 path [pos--] = '\0';
+		 }
+		 strcat(path, POSTFIJO_INIT);
+		 g->inicializar_memoria(path);
+		 }*/
 		// DEBUG
 	}
 	fclose(f);
@@ -125,7 +111,6 @@ void TokenManager::run() {
 	 }
 	 ((char *)g->memory_pointer()) [1023] = '\0';
 	 std::cout << (char *)g->memory_pointer() << std::endl;*/
-
 
 	ignore_signals();
 	//char data [30];
@@ -166,8 +151,10 @@ try
 
 	chdir("local_broker");
 	/*if (chdir("local_broker") != 0) {
-		throw GenericError("Cannot change working dir to %s", "local_broker");
-	}*/
+	 throw GenericError("Cannot change working dir to %s", "local_broker");
+	 }*/
+
+	create_if_not_exists(std::string(argv [1]).append(PATH_COLA_TOKEN_MANAGER).c_str());
 
 	TokenManager manager(argv [1], id, argv [3]);
 

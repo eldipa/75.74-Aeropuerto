@@ -154,6 +154,8 @@ CintaScanner<T>::CintaScanner(const char * app_name, const char* directorio_de_t
 		this->cintas [i] = NULL;
 	}
 
+
+
 	control = new MemoriaDistribuida(directorio_de_trabajo, app_name, (char *)"cinta_escaner_control", 0,
 		TAMANIO_MEMORIA_CONTROL_CINTA_SCANNER);
 

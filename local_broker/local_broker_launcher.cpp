@@ -14,12 +14,18 @@
 int main(int argc, char * argv [])
 try
 {
-	argc = argc + 1 - 1;
-	argv = argv + 1 - 1;
+	char groups [MAX_PATH_SIZE];
+	if(argc < 3){
+		std::cout << "Faltan Argumentos (directorio de trabajo, puerto)" << std::endl;
+	}
+
+	strcpy(groups,argv[1]);
+	strcat(groups,"/group_list.txt");
+
 	ignore_signals();
 
 	try {
-		LocalBroker server("./locks", "./locks/group_list.txt");
+		LocalBroker server(argv[1], groups,argv[2]);
 
 		server.run();
 	} catch (OSError & e) {

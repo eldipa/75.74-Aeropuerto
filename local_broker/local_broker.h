@@ -25,7 +25,7 @@ private:
 
 public:
 
-	LocalBroker(const std::string & directorio_de_trabajo, const std::string & groups_file);
+	LocalBroker(const std::string & directorio_de_trabajo, const std::string & groups_file,const std::string & servicio);
 	virtual ~LocalBroker();
 
 	void run();

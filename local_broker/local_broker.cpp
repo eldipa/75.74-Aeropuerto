@@ -27,14 +27,13 @@ static char * args_client_handler [] = {
 	(char*)"client_handler", directorio_de_trabajo, num_socket, id_cola_token_manager, NULL};
 
 static char * args_token_manager [] = {
-	(char*)"client_handler", directorio_de_trabajo, id_cola_token_manager, groups_file, NULL};
+	(char*)"token_manager", directorio_de_trabajo, id_cola_token_manager, groups_file, NULL};
 
-LocalBroker::LocalBroker(const std::string & directorio, const std::string & groups)
+LocalBroker::LocalBroker(const std::string & directorio, const std::string & groups,const std::string & servicio)
 	: server_socket(true)
 {
-	std::string puerto("1234");
 
-	server_socket.source(puerto);
+	server_socket.source(servicio);
 
 	strncpy(directorio_de_trabajo, directorio.c_str(), 200);
 	strncpy(groups_file, groups.c_str(), 200);

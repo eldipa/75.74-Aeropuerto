@@ -172,7 +172,10 @@ void ClientHandler::loop_token_fork() {
 			if (leave) {
 				int status = -1;
 				leave_group();
-				socket.disassociate();
+				try {
+					socket.disassociate();
+				} catch (OSError & error) {
+				}
 				waitpid(pid_hijo, &status, 0);
 				//std::cout << "padre leave" << std::endl;
 			}
@@ -227,9 +230,9 @@ void ClientHandler::loop_token() {
 				grupo->lock_token();
 				tengo_el_token = true;
 				/*if (nombre_grupo == "cinta_escaner_control") {
-					std::cout << "sent: ";
-					print_ints((int*)grupo->memory_pointer(), int(grupo->get_mem_size()/ 4));
-				}*/
+				 std::cout << "sent: ";
+				 print_ints((int*)grupo->memory_pointer(), int(grupo->get_mem_size()/ 4));
+				 }*/
 				/*std::cout << (char*)grupo->memory_pointer() << std::endl;
 				 sscanf((char*)grupo->memory_pointer(), "%[^:]:%d", data, &a);
 				 a++;
@@ -244,9 +247,9 @@ void ClientHandler::loop_token() {
 					leave = true;
 				}
 				/*if (nombre_grupo == "cinta_escaner_control") {
-					std::cout << "recv: ";
-					print_ints((int*)grupo->memory_pointer(), int(grupo->get_mem_size() / 4));
-				}*/
+				 std::cout << "recv: ";
+				 print_ints((int*)grupo->memory_pointer(), int(grupo->get_mem_size() / 4));
+				 }*/
 			} catch (OSError & error) {
 				leave = true;
 			}
@@ -267,18 +270,22 @@ void ClientHandler::run() {
 	mensajes::mensajes_local_broker_t mensaje;
 
 	do {
+		try {
 
-		if (socket.receivesome(&mensaje, sizeof(mensajes::mensajes_local_broker_t)) == 0) {
+			if (socket.receivesome(&mensaje, sizeof(mensajes::mensajes_local_broker_t)) == 0) {
+				mensaje.peticion = mensajes::LEAVE;
+			}
+			this->procesar_peticion(mensaje);
+		} catch (OSError & error) {
 			mensaje.peticion = mensajes::LEAVE;
 		}
-
-		this->procesar_peticion(mensaje);
 
 	} while (mensaje.peticion != mensajes::LEAVE && mensaje.peticion != mensajes::JOIN
 		&& mensaje.peticion != mensajes::JOIN_FORK);
 
-	loop_token();
-
+	if (mensaje.peticion != mensajes::LEAVE) {
+		loop_token();
+	}
 }
 
 int main(int argc, char * argv [])

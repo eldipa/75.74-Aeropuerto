@@ -19,28 +19,28 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-static char numero_de_grupo[100];
-static char path_key[FILENAME_MAX];
-static char file_key[FILENAME_MAX];
-static char ip_local[INET_ADDRSTRLEN];
-static char ip_broadcast[INET_ADDRSTRLEN];
+static char numero_de_grupo [100];
+static char path_key [FILENAME_MAX];
+static char file_key [FILENAME_MAX];
+static char ip_local [INET_ADDRSTRLEN];
+static char ip_broadcast [INET_ADDRSTRLEN];
 
-static char id[4];
-static char directorio_de_trabajo_relativo[FILENAME_MAX];
-static char nombre_del_grupo[MAX_NOMBRE_RECURSO];
-static char nombre_broker_local[MAX_NOMBRE_RECURSO];
-static char token[2];
+static char id [4];
+static char directorio_de_trabajo_relativo [FILENAME_MAX];
+static char nombre_del_grupo [MAX_NOMBRE_RECURSO];
+static char nombre_broker_local [MAX_NOMBRE_RECURSO];
+static char token [2];
 
-static char * group_sender_args[] = { (char*) "group_sender",
-		directorio_de_trabajo_relativo, id, nombre_del_grupo,
-		nombre_broker_local };
+static char * group_sender_args [] = {
+	(char*)"group_sender", directorio_de_trabajo_relativo, id, nombre_del_grupo, nombre_broker_local};
 
-/*static char * group_receiver_args[] = { (char*) "group_receiver",
-		directorio_de_trabajo_relativo, id, nombre_del_grupo,
-		nombre_broker_local, token };*/
+static char * group_receiver_args[] = { (char*) "group_receiver",
+ directorio_de_trabajo_relativo, id, nombre_del_grupo,
+ nombre_broker_local, token };
 
-GroupCommManager::GroupCommManager(const std::string & directorio_trabajo) :
-		directorio_de_trabajo(directorio_trabajo) {
+GroupCommManager::GroupCommManager(const std::string & directorio_trabajo)
+	: directorio_de_trabajo(directorio_trabajo)
+{
 
 	strcpy(directorio_de_trabajo_relativo, directorio_trabajo.c_str());
 	strcpy(path_key, directorio_trabajo.c_str());
@@ -61,8 +61,7 @@ GroupCommManager::GroupCommManager(const std::string & directorio_trabajo) :
 GroupCommManager::~GroupCommManager() {
 }
 
-void GroupCommManager::levantar_grupo(const std::string & nombre_grupo,
-		char numero_grupo, int crear_token) {
+void GroupCommManager::levantar_grupo(const std::string & nombre_grupo, char numero_grupo, int crear_token) {
 
 	sprintf(numero_de_grupo, "%d", numero_grupo);
 	sprintf(id, "%d", numero_grupo - 1);
@@ -80,51 +79,50 @@ void GroupCommManager::levantar_grupo(const std::string & nombre_grupo,
 
 	*strchr(nombre_broker_local, '.') = '\0';
 
-	char current_working_dir[FILENAME_MAX];
-	char launch_dir[FILENAME_MAX];
+	char current_working_dir [FILENAME_MAX];
+	char launch_dir [FILENAME_MAX];
 
 	if (!getcwd(current_working_dir, sizeof(current_working_dir)))
 		throw GenericError("Unable to get current working dir");
-	current_working_dir[sizeof(current_working_dir) - 1] = '\0'; /* not really required */
+	current_working_dir [sizeof(current_working_dir) - 1] = '\0'; /* not really required */
 
-	locate_dir(launch_dir, current_working_dir, (char *) "group");
+	locate_dir(launch_dir, current_working_dir, (char *)"group");
 
 	if (chdir(launch_dir) != 0) {
 		throw GenericError("Cannot change working dir to %s", launch_dir);
 	}
 
-	strcpy(file_key, current_working_dir);
-	strcat(file_key, "/");
-	strcat(file_key, path_key);
-
+	if (path_key [0] != '/') {
+		strcpy(file_key, current_working_dir);
+		strcat(file_key, "/");
+		strcat(file_key, path_key);
+	} else {
+		strcpy(file_key, path_key);
+	}
 	//lanzar_beacon_svc(ip_local);
 
-	lanzar_mensajeria(file_key, numero_grupo - 1, numero_grupo, ip_local,
-			ip_broadcast);
+	lanzar_mensajeria(file_key, numero_grupo - 1, numero_grupo, ip_local, ip_broadcast);
 
 	if (chdir(current_working_dir) != 0) {
-		throw GenericError("Cannot change working dir to %s",
-				current_working_dir);
+		throw GenericError("Cannot change working dir to %s", current_working_dir);
 	}
 
-	locate_dir(launch_dir, current_working_dir, (char *) "local_broker");
+	locate_dir(launch_dir, current_working_dir, (char *)"local_broker");
 
 	//const char * p = directorio_de_trabajo.c_str();
 
-	relativize_dir(directorio_de_trabajo_relativo,
-			directorio_de_trabajo.c_str(), (const char *) launch_dir,
-			current_working_dir);
+	relativize_dir(directorio_de_trabajo_relativo, directorio_de_trabajo.c_str(), (const char *)launch_dir,
+		current_working_dir);
 
 	if (chdir(launch_dir) != 0) {
 		throw GenericError("Cannot change working dir to %s", launch_dir);
 	}
 
-	//Process("group_receiver", group_receiver_args);
+	Process("group_receiver", group_receiver_args);
 	Process("group_sender", group_sender_args);
 
 	if (chdir(current_working_dir) != 0) {
-		throw GenericError("Cannot change working dir to %s",
-				current_working_dir);
+		throw GenericError("Cannot change working dir to %s", current_working_dir);
 	}
 
 }
@@ -138,14 +136,13 @@ void GroupCommManager::levantar_servicio() {
 	get_bcast_ip(ip_broadcast, (char *) "eth0");
 #endif
 	get_hostname(nombre_broker_local, ip_local);
-	char current_working_dir[FILENAME_MAX];
-	char launch_dir[FILENAME_MAX];
+	char current_working_dir [FILENAME_MAX];
+	char launch_dir [FILENAME_MAX];
 
-	if (!getcwd(current_working_dir, sizeof(current_working_dir)))
+	if (!getcwd(current_working_dir, sizeof(current_working_dir))) {
 		throw GenericError("Unable to get current working dir");
-	current_working_dir[sizeof(current_working_dir) - 1] = '\0'; /* not really required */
-
-	locate_dir(launch_dir, current_working_dir, (char *) "group");
+	}
+	locate_dir(launch_dir, current_working_dir, (char *)"group");
 
 	if (chdir(launch_dir) != 0) {
 		throw GenericError("Cannot change working dir to %s", launch_dir);
@@ -153,15 +150,12 @@ void GroupCommManager::levantar_servicio() {
 
 	lanzar_beacon_svc(ip_local);
 
-
 	if (chdir(current_working_dir) != 0) {
-		throw GenericError("Cannot change working dir to %s",
-				current_working_dir);
+		throw GenericError("Cannot change working dir to %s", current_working_dir);
 	}
 
 }
 
-
-void GroupCommManager::bajar_servicio(){
+void GroupCommManager::bajar_servicio() {
 	bajar_grupos();
 }

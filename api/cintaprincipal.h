@@ -186,6 +186,8 @@ template <typename T> CintaPrincipal<T>::~CintaPrincipal() {
 		delete this->semaforo_productores;
 		this->semaforo_productores = NULL;
 	}
+
+
 }
 
 template <typename T>
