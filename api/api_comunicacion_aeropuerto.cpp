@@ -12,25 +12,15 @@
 
 ApiComunicacionAeropuerto::ApiComunicacionAeropuerto(const char* directorio_de_trabajo, const char* config_file) :
    queue_manager(ApiConfiguracion::get_intermediate_queue_manager(directorio_de_trabajo, config_file)),
-   queue_zona_asignada(queue_manager->get_queue(PATH_COLA_ESCUCHA_ZONA_ASIGNADA, 0)),
-   id_aeropuerto(-1) {
+   queue_zona_asignada(queue_manager->get_queue(PATH_COLA_ESCUCHA_ZONA_ASIGNADA, 0)) {
 }
                        
 ApiComunicacionAeropuerto::ApiComunicacionAeropuerto(const char* directorio_de_trabajo, const char* config_file, bool create) :
    queue_manager(ApiConfiguracion::get_intermediate_queue_manager(directorio_de_trabajo, config_file)),
-   queue_zona_asignada(queue_manager->get_queue(PATH_COLA_ESCUCHA_ZONA_ASIGNADA, 0, true)),
-   id_aeropuerto(-1) {
+   queue_zona_asignada(queue_manager->get_queue(PATH_COLA_ESCUCHA_ZONA_ASIGNADA, 0, true)) {
 
    create = create;
 }
-
-ApiComunicacionAeropuerto::ApiComunicacionAeropuerto(const char* directorio_de_trabajo, const char* config_file, int id_aeropuerto) :
-   queue_manager(ApiConfiguracion::get_intermediate_queue_manager(directorio_de_trabajo, config_file)),
-   queue_zona_asignada(queue_manager->get_queue(PATH_COLA_ESCUCHA_ZONA_ASIGNADA, 0, true)),
-   id_aeropuerto(id_aeropuerto) {
-}
-
-
 
 int ApiComunicacionAeropuerto::esperar_zona_asignada(int numero_vuelo) {
 
@@ -42,13 +32,13 @@ int ApiComunicacionAeropuerto::esperar_zona_asignada(int numero_vuelo) {
  	return mensaje.id_aeropuerto;
 }
 
-void ApiComunicacionAeropuerto::zona_asignada(int num_vuelo, int num_zona) {
+void ApiComunicacionAeropuerto::zona_asignada(int num_vuelo, int num_zona, int id_aeropuerto) {
    if(id_aeropuerto==-1)
       throw GenericError("Llamada inválida a zona_asignada sin id_aeropuerto");
 
    MENSAJE_ZONA_ASIGNADA msg_trasbordo;
    msg_trasbordo.mtype = num_vuelo;
-   msg_trasbordo.id_aeropuerto = this->id_aeropuerto;
+   msg_trasbordo.id_aeropuerto = id_aeropuerto;
    msg_trasbordo.numero_de_vuelo = num_vuelo;
    msg_trasbordo.zona_asignada = num_zona;
    
