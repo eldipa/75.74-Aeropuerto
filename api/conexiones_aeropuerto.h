@@ -111,14 +111,14 @@ private:
 // 	SharedObject<tVueloEnCheckin> vuelo_actual;
 // };
 
-class ControladorPuestoCheckin {
-public:
-	ControladorPuestoCheckin(yasper::ptr<IQueueManager> queue_manager) :
-      queue_checkin(queue_manager->get_queue(PATH_COLA_CONTROL_CHECKIN, 0, true)) {
-	}
-private:
-   yasper::ptr<IMessageQueue> queue_checkin;
-};
+// class ControladorPuestoCheckin {
+// public:
+// 	ControladorPuestoCheckin(yasper::ptr<IQueueManager> queue_manager) :
+//       queue_checkin(queue_manager->get_queue(PATH_COLA_CONTROL_CHECKIN, 0, true)) {
+// 	}
+// private:
+//    yasper::ptr<IMessageQueue> queue_checkin;
+// };
 
 /*
  * Clase para crear fácilmente todo lo que se necesite en el aeropuerto
@@ -133,10 +133,10 @@ public:
 
       // queue_pasajeros = queue_manager->get_queue(PATH_PUESTO_CHECKIN, 0, true);
 
-		Log::info("Creando ipcs para Controlador de puestos de checkin...%s%s", path_to_locks,
-				PATH_COLA_CONTROL_CHECKIN);
-		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_COLA_CONTROL_CHECKIN);
-		controlador_puesto_checkin = new ControladorPuestoCheckin(queue_manager);
+		// Log::info("Creando ipcs para Controlador de puestos de checkin...%s%s", path_to_locks,
+		// 		PATH_COLA_CONTROL_CHECKIN);
+		// snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_COLA_CONTROL_CHECKIN);
+		// controlador_puesto_checkin = new ControladorPuestoCheckin(queue_manager);
 
 		// Log::info("Creando ipcs para Puesto de checkin...%s%s", path_to_locks, PATH_PUESTO_CHECKIN);
 		// snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_PUESTO_CHECKIN);
@@ -222,8 +222,8 @@ public:
 private:
    yasper::ptr<IQueueManager> queue_manager;
 
-	// std::vector<yasper::ptr<RobotsDespacho> > robots_despacho;
-	yasper::ptr<ControladorPuestoCheckin> controlador_puesto_checkin;
+	std::vector<yasper::ptr<RobotsDespacho> > robots_despacho;
+	// yasper::ptr<ControladorPuestoCheckin> controlador_puesto_checkin;
 	// std::vector<yasper::ptr<PuestoCheckin> > puesto_checkin;
 	yasper::ptr<TorreDeControl> torre_de_control;
 	std::vector<yasper::ptr<CintaCheckin> > cintas_checkin;

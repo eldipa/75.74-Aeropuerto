@@ -29,7 +29,8 @@ ApiCheckIn::ApiCheckIn(const char* directorio_de_trabajo, const char* config_fil
    sem_set(std::string(directorio_de_trabajo).append(PATH_PUESTO_CHECKIN).c_str(), id_checkin*cant_ipcs, 1),
    mutex_checkin(sem_set, 0),
    queue_manager( ApiConfiguracion::get_queue_manager(directorio_de_trabajo, config_file ) ),
-   queue_pasajeros( queue_manager->get_queue(PATH_PUESTO_CHECKIN, 0) ) {
+   queue_pasajeros( queue_manager->get_queue(PATH_PUESTO_CHECKIN, 0) ),
+   queue_controlador(queue_manager->get_queue(PATH_COLA_CONTROL_CHECKIN, 0, true)) {
    
 }
 
@@ -41,7 +42,8 @@ ApiCheckIn::ApiCheckIn(const char* directorio_de_trabajo, const char* config_fil
    sem_set(std::vector<unsigned short>(1, 1), std::string(directorio_de_trabajo).append(PATH_PUESTO_CHECKIN).c_str(),id_puesto_checkin * cant_ipcs),
    mutex_checkin(sem_set, 0),
    queue_manager( ApiConfiguracion::get_queue_manager(directorio_de_trabajo, config_file ) ),
-   queue_pasajeros( queue_manager->get_queue(PATH_PUESTO_CHECKIN, 0, true) ) {
+   queue_pasajeros( queue_manager->get_queue(PATH_PUESTO_CHECKIN, 0, true) ),
+   queue_controlador(queue_manager->get_queue(PATH_COLA_CONTROL_CHECKIN, 0, true)) {
 
    create = create;
    ApiTorreDeControl api_torre(directorio_de_trabajo, config_file);
@@ -121,8 +123,7 @@ void ApiCheckIn::recibir_pasajero_para_checkin(int& id_pasajero, std::vector<Equ
 void ApiCheckIn::recibir_mensaje_controlador_checkin(tMeansajeCheckin& msg_checkin) {
    Log::debug("recibir_mensaje_controlador_checkin");
    //MessageQueue queue_checkin(std::string(path_to_locks).append(PATH_COLA_CONTROL_CHECKIN).c_str(), 0);
-   yasper::ptr<IMessageQueue> queue_checkin = queue_manager->get_queue(PATH_COLA_CONTROL_CHECKIN, 0);
-   queue_checkin->pull(&msg_checkin, sizeof(tMeansajeCheckin)-sizeof(long), id_checkin);
+   queue_controlador->pull(&msg_checkin, sizeof(tMeansajeCheckin)-sizeof(long), id_checkin);
 }
 
 int ApiCheckIn::get_cinta_checkin() {

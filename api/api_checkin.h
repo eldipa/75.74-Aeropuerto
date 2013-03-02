@@ -119,6 +119,7 @@ private:
    Mutex mutex_checkin;
    yasper::ptr<IQueueManager> queue_manager;
    yasper::ptr<IMessageQueue> queue_pasajeros;
+   yasper::ptr<IMessageQueue> queue_controlador;
 
 
 };
