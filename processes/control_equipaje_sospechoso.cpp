@@ -7,23 +7,24 @@
 #include "equipaje.h"
 #include "api_control_equipajes.h"
 
-int main(int argc, char* argv[]) try {
+int main(int argc, char* argv [])
+try
+{
 
 	if (argc < 5) {
-		Log::crit("Insuf parametros para controlador_equipajes_sospechosos,se esperaba (directorio_de_trabajo, config_file pos_consumidor_cinta_central,pos_productor_cinta_central)\n");
+		Log::crit(
+			"Insuf parametros para controlador_equipajes_sospechosos,se esperaba (directorio_de_trabajo, config_file pos_consumidor_cinta_central,pos_productor_cinta_central)\n");
 		exit(1);
 	}
 
-																// Ultimo Consumidor
-	ApiControlEquipajes api_control_equipajes(argv[1], argv[2], CANTIDAD_MAX_CONSUMIDORES_CINTA_CENTRAL - 1,
-		MAX_SCANNERS + 1);//atoi(argv[3]), atoi(argv[4]));
+	// soy productor
+	ApiControlEquipajes api_control_equipajes(argv [1], argv [2], -1, MAX_SCANNERS + 1); //atoi(argv[3]), atoi(argv[4]));
 
-	Log::info("Iniciando ControlEquipajeSospechoso (pos=%s)\n", argv[3]);
+	Log::info("Iniciando ControlEquipajeSospechoso (pos=%s)\n", argv [3]);
 
-	for (;;) {
-      Equipaje equipaje = api_control_equipajes.get_equipaje_a_controlar();
-      Log::info("Recibo equipaje %d, limpio y vuelve a cinta central\n",
-                equipaje.getRfid().rfid);
+	for (; ;) {
+		Equipaje equipaje = api_control_equipajes.get_equipaje_a_controlar();
+		Log::info("Recibo equipaje %d, limpio y vuelve a cinta central\n", equipaje.getRfid().rfid);
 
 		// por ahora, limpia el equipaje y lo vuelve a poner al comienzo de la cinta central
 		equipaje.set_sospechoso(false);
@@ -31,8 +32,10 @@ int main(int argc, char* argv[]) try {
 
 	}
 
- } catch(const std::exception &e) {
-   Log::crit("%s", e.what());
- } catch(...) {
-   Log::crit("Critical error. Unknow exception at the end of the 'main' function.");
- }
+}
+catch (const std::exception &e) {
+	Log::crit("%s", e.what());
+}
+catch (...) {
+	Log::crit("Critical error. Unknow exception at the end of the 'main' function.");
+}

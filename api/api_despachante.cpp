@@ -7,8 +7,8 @@
 
 #include "api_common.h"
 
-ApiDespachante::ApiDespachante(const char* directorio_de_trabajo, const char* config_file, int numero_despachante) :
-   cinta(std::string("despachante").append(intToString(numero_despachante)).c_str(), directorio_de_trabajo,numero_despachante - 1, -1),
+ApiDespachante::ApiDespachante(const char* directorio_de_trabajo, const char* config_file,const char * nombre_app, int numero_despachante) :
+   cinta(std::string(nombre_app).append(intToString(numero_despachante)).c_str(), directorio_de_trabajo,numero_despachante - 1, -1),
    clnt_torre_de_control( clnt_create(ApiConfiguracion::get_torre_ip(config_file).c_str(), TORREDECONTROLPROG, TORREDECONTROLVERS, "tcp") ) {
 
 	config_file = config_file + 1 - 1;

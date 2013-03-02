@@ -210,7 +210,7 @@ try
 	char id;
 
 	id = atoi(argv [2]);
-   id = id;
+
 	chdir("local_broker");
 	/*if (chdir("local_broker") != 0) {
 	 throw GenericError("Cannot change working dir to %s", "local_broker");
@@ -221,11 +221,6 @@ try
 	TokenManager manager(argv [1], /*id,*/argv [3]);
 
 	manager.run();
-
-	/*socket.receivesome(debug, 200);
-	 std::cout << "Recibido: " << debug << std::endl;
-	 snprintf(debug, 200, "%s", "RECIBIDO!");
-	 socket.sendsome(debug, strlen(debug));*/
 
 }
 catch (OSError & error) {

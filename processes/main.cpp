@@ -27,6 +27,8 @@ static char config_file [MAX_PATH_SIZE];
 // Defino los espacios de trabajo de los procesos
 
 static char working_dir_puesto_checkin1 [MAX_PATH_SIZE] = "/tmp/wd_puesto_checkin1";
+static char working_dir_puesto_checkin2 [MAX_PATH_SIZE] = "/tmp/wd_puesto_checkin2";
+static char working_dir_puesto_checkin3 [MAX_PATH_SIZE] = "/tmp/wd_puesto_checkin2";
 static char working_dir_robot_checkin [MAX_PATH_SIZE] = "/tmp/wd_robot_checkin";
 static char working_dir_robot_carga1 [MAX_PATH_SIZE] = "/tmp/wd_robot_carga1";
 static char working_dir_robot_carga2 [MAX_PATH_SIZE] = "/tmp/wd_robot_carga2";
@@ -58,8 +60,8 @@ static char id_productor_cinta_central [10];
 
 static char *args_puesto_checkin1 [] = {
 	(char*)"puesto_checkin_1", working_dir_puesto_checkin1, config_file, (char*)"1", (char*) "1", NULL};
-static char *args_puesto_checkin2 [] = {(char*)"puesto_checkin_2", directorio_de_trabajo, config_file, (char*)"2", (char*) "1", NULL};
-static char *args_puesto_checkin3 [] = {(char*)"puesto_checkin_3", directorio_de_trabajo, config_file, (char*)"3", (char*) "1", NULL};
+static char *args_puesto_checkin2 [] = {(char*)"puesto_checkin_2", working_dir_puesto_checkin2, config_file, (char*)"2", (char*) "1", NULL};
+static char *args_puesto_checkin3 [] = {(char*)"puesto_checkin_3", working_dir_puesto_checkin3, config_file, (char*)"3", (char*) "1", NULL};
 
 static char *args_robot_checkin [] = {
 	(char*)"robot_checkin", working_dir_robot_checkin, config_file, (char*)"1", (char*)"1", (char*)"1", NULL};
@@ -118,6 +120,8 @@ static char *args_scheduler_vuelos [] = {(char*)"scheduler_vuelos", directorio_d
 
 void mkdirs() {
 	mkdir(working_dir_puesto_checkin1, 0770);
+	mkdir(working_dir_puesto_checkin2, 0770);
+	mkdir(working_dir_puesto_checkin3, 0770);
 	mkdir(working_dir_robot_carga1, 0770);
 	mkdir(working_dir_robot_carga2, 0770);
 	mkdir(working_dir_robot_carga3, 0770);
@@ -221,6 +225,8 @@ void copy_files() {
 	strcpy(file_dest, "/simulacion.ini");
 	strcpy(file_src, "./config/simulacion.ini");
 	cp(std::string(working_dir_puesto_checkin1).append(file_dest).c_str(), file_src);
+	cp(std::string(working_dir_puesto_checkin2).append(file_dest).c_str(), file_src);
+	cp(std::string(working_dir_puesto_checkin3).append(file_dest).c_str(), file_src);
 	cp(std::string(working_dir_robot_carga1).append(file_dest).c_str(), file_src);
 	cp(std::string(working_dir_robot_carga2).append(file_dest).c_str(), file_src);
 	cp(std::string(working_dir_robot_carga3).append(file_dest).c_str(), file_src);
@@ -249,6 +255,8 @@ void copy_files() {
 	strcpy(file_dest, "/local_broker.list");
 	strcpy(file_src, "./locks/local_broker.list");
 	cp(std::string(working_dir_puesto_checkin1).append(file_dest).c_str(), file_src);
+	cp(std::string(working_dir_puesto_checkin2).append(file_dest).c_str(), file_src);
+	cp(std::string(working_dir_puesto_checkin3).append(file_dest).c_str(), file_src);
 	cp(std::string(working_dir_robot_carga1).append(file_dest).c_str(), file_src);
 	cp(std::string(working_dir_robot_carga2).append(file_dest).c_str(), file_src);
 	cp(std::string(working_dir_robot_carga3).append(file_dest).c_str(), file_src);
@@ -374,7 +382,7 @@ try
 		processes.push_back(Process("robot_carga", args_robot_carga3));
 		processes.push_back(Process("robot_carga", args_robot_carga4));
 		processes.push_back(Process("robot_control_equipaje_sospechoso", args_robot_sospechosos));
-		processes.push_back(Process("control_equipaje_sospechoso", args_robot_sospechosos));
+		//processes.push_back(Process("control_equipaje_sospechoso", args_robot_sospechosos));
 		processes.push_back(Process("generador_vuelos_trasbordo", args_generador_vuelos_trasbordo));
 		// processes.push_back(Process("escucha_zonas_asignadas", args_escucha_zonas_asignadas));
 //		processes.push_back(Process("torre_de_control", args_torre_de_control));

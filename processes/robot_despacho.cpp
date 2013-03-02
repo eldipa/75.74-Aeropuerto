@@ -37,7 +37,7 @@ try
 	int zona_desde = atoi(argv [4]);
 	int zona_hasta = atoi(argv [5]);
 
-	ApiDespachante despachante_cinta_central(argv [1], argv [2], id_robot);
+	ApiDespachante despachante_cinta_central(argv [1], argv [2],"robot_despachante", id_robot);
 
 	for (; ;) {
 

@@ -22,7 +22,7 @@ private:
    CLIENT *clnt_torre_de_control;
 
 public:
-	ApiDespachante(const char* directorio_de_trabajo, const char* config_file, int numero_despachante);
+	ApiDespachante(const char* directorio_de_trabajo, const char* config_file,const char * nombre_app, int numero_despachante);
 	virtual ~ApiDespachante();
 
 	Rfid leer_proximo_equipaje();

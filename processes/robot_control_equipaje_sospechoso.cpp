@@ -21,7 +21,8 @@ try {
 		exit(1);
 	}
 
-	ApiControlEquipajes api_control_equipajes(argv[1], argv[2], atoi(argv[3]), atoi(argv[4]));
+	// soy consumidor de la cinta
+	ApiControlEquipajes api_control_equipajes(argv[1], argv[2], CANTIDAD_MAX_CONSUMIDORES_CINTA_CENTRAL - 1, -1);
 
 	// strcpy(id_consumidor, argv[3]);
 	// strcpy(id_productor, argv[4]);

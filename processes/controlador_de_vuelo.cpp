@@ -106,6 +106,6 @@ int tomar_zona(int num_vuelo) {
 }
 
 void registrar_zona_en_uso(const char * directorio_de_trabajo, const char* config_file, int num_vuelo, int num_zona) {
-   ApiDespachante despachante(directorio_de_trabajo, config_file, (num_zona+1)/ZONAS_POR_ROBOT_DESPACHO);
+   ApiDespachante despachante(directorio_de_trabajo, config_file,"controlador_de_vuelo", (num_zona+1)/ZONAS_POR_ROBOT_DESPACHO);
    despachante.asignar_vuelo(num_zona, num_vuelo);
 }

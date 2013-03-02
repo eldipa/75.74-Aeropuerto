@@ -178,7 +178,6 @@ void ClientHandler::loop_token_fork() {
 			}
 			if (leave) {
 				int status = -1;
-            status = status;
 				leave_group();
 				try {
 					socket.disassociate();
@@ -282,8 +281,9 @@ void ClientHandler::run() {
 
 			if (socket.receivesome(&mensaje, sizeof(mensajes::mensajes_local_broker_t)) == 0) {
 				mensaje.peticion = mensajes::LEAVE;
+			} else {
+				this->procesar_peticion(mensaje);
 			}
-			this->procesar_peticion(mensaje);
 		} catch (OSError & error) {
 			mensaje.peticion = mensajes::LEAVE;
 			std::cerr << error.what() << std::endl;
@@ -310,7 +310,6 @@ try
 
 	fd = atoi(argv [2]);
 	id = atoi(argv [3]);
-   id = id;
 	///// SOCKET ESCUCHA SOLO PARA DEBUG
 	/*int new_socket;
 	std::string puerto("1234");

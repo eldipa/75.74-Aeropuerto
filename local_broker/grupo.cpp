@@ -46,7 +46,7 @@ Grupo::Grupo(const std::string & directorio_de_trabajo, std::string nombre_recur
 		}
 	}
 
-	asignar_punteros(memorias_base [posicion_grupo]);
+	asignar_punteros(static_cast<char *>(memoria.memory_pointer()) + offsets [posicion_grupo]);
 	mutex_asignado = posicion_grupo + 2;
 
 }
@@ -87,11 +87,10 @@ Grupo::Grupo(const std::string & directorio_de_trabajo, std::string nombre_recur
 		*cantidad_clientes_esperando = 0;
 
 		if (posicion_grupo < MAX_GRUPOS) {
-			memorias_base [posicion_grupo + 1] = memorias_base [posicion_grupo] + tamanio_memoria;
+			offsets [posicion_grupo + 1] = offsets [posicion_grupo] + tamanio_memoria + TAMANIO_TABLA_CLIENTES;
 		}
 
-
-		asignar_punteros(memorias_base [posicion_grupo]);
+		asignar_punteros(static_cast<char *>(memoria.memory_pointer()) + offsets [posicion_grupo]);
 
 		mutex_asignado = posicion_grupo + 2;
 
@@ -132,7 +131,7 @@ Grupo::Grupo(const std::string & directorio_de_trabajo, size_t tamanio_total, si
 	for (int i = 1 ; i < MAX_GRUPOS ; i++) {
 		*grupos_creados [i] = '\0';
 	}
-	memorias_base [0] = static_cast<char *>(memoria.memory_pointer()) + TAMANIO_TABLA_GRUPOS_CREADOS;
+	offsets [0] = TAMANIO_TABLA_GRUPOS_CREADOS;
 	semaforos.wait_on(1); // ajusto el valor del semaforo
 }
 
@@ -162,7 +161,7 @@ void Grupo::asignar_punteros_control() {
 		grupos_creados [i] = grupos_creados [i - 1] + sizeof(char) * MAX_NOMBRE_RECURSO;
 	}
 
-	memorias_base = reinterpret_cast<char **>(grupos_creados [MAX_GRUPOS - 1] + sizeof(char) * MAX_NOMBRE_RECURSO);
+	offsets = reinterpret_cast<size_t *>(grupos_creados [MAX_GRUPOS - 1] + sizeof(char) * MAX_NOMBRE_RECURSO);
 }
 
 void Grupo::join(const char nombre [MAX_NOMBRE_RECURSO]) {
@@ -174,7 +173,7 @@ void Grupo::join(const char nombre [MAX_NOMBRE_RECURSO]) {
 	}
 	if (locked_ya_esta_cliente(nombre)) {
 		semaforos.signalize(mutex_asignado);
-		throw GenericError("El cliente %d ya está registrado", nombre);
+		throw GenericError("El cliente %s ya está registrado en %s", nombre, this->nombre_recurso.c_str());
 	}
 	for (int i = 0 ; i < MAX_CLIENTS ; i++) {
 		if (*(client_names [i]) == '\0') {

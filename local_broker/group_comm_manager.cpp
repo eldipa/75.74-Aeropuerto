@@ -75,7 +75,8 @@ void GroupCommManager::levantar_grupo(const std::string & nombre_grupo, char num
 	get_local_ip(ip_local, (char *) "eth0");
 	get_bcast_ip(ip_broadcast, (char *) "eth0");
 #endif
-	get_hostname(nombre_broker_local, ip_local);
+	//get_hostname(nombre_broker_local, ip_local);
+	strcpy(nombre_broker_local,"localbroker1");
 
 	*strchr(nombre_broker_local, '.') = '\0';
 
@@ -135,7 +136,8 @@ void GroupCommManager::levantar_servicio() {
 	get_local_ip(ip_local, (char *) "eth0");
 	get_bcast_ip(ip_broadcast, (char *) "eth0");
 #endif
-	get_hostname(nombre_broker_local, ip_local);
+	//get_hostname(nombre_broker_local, ip_local);
+	strcpy(nombre_broker_local,"localbroker1");
 	char current_working_dir [FILENAME_MAX];
 	char launch_dir [FILENAME_MAX];
 

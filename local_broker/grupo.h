@@ -40,7 +40,7 @@ private:
 	char * memoria_base;
 	int * cantidad_clientes_esperando;
 	char * grupos_creados [MAX_GRUPOS];
-	char ** memorias_base;
+	size_t * offsets;
 
 	int mutex_asignado;
 

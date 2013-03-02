@@ -26,8 +26,12 @@ static char groups_file [200];
 static char * args_client_handler [] = {
 	(char*)"client_handler", directorio_de_trabajo, num_socket, id_cola_token_manager, NULL};
 
-/*static char * args_token_manager [] = {
-	(char*)"token_manager", directorio_de_trabajo, id_cola_token_manager, groups_file, NULL};*/
+#define LANZAR_TOKEN_MANAGER 1
+
+#if LANZAR_TOKEN_MANAGER == 1
+static char * args_token_manager [] = {
+	(char*)"token_manager", directorio_de_trabajo, id_cola_token_manager, groups_file, NULL};
+#endif
 
 LocalBroker::LocalBroker(const std::string & directorio, const std::string & groups,const std::string & servicio)
 	: server_socket(true)
@@ -54,8 +58,10 @@ void LocalBroker::run() {
 	int new_socket;
 	bool exit = 0;
 	Process * handler;
-	//Process * p = new Process("token_manager",args_token_manager);
-	//hijos.push_back(p);
+#if LANZAR_TOKEN_MANAGER == 1
+	Process * p = new Process("token_manager",args_token_manager);
+	hijos.push_back(p);
+#endif
 	do {
 		try {
 			new_socket = server_socket.listen_fd(10);
