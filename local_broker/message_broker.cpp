@@ -55,12 +55,12 @@ void MessageBroker::destroy_queue(const char* queue_id) {
 }
 
 void MessageBroker::push(const char* queue_id, const void *msg, size_t size_txt) {
-   sem_set.wait_on(0);
-   if(!exist_queue(queue_id)) {
-      Log::debug("No existe cola %s, para hacer push pero la creo", queue_id);
-      create_queue(queue_id);
-   }
-   sem_set.signalize(0);
+   // sem_set.wait_on(0);
+   // if(!exist_queue(queue_id)) {
+   //    Log::debug("No existe cola %s, para hacer push pero la creo", queue_id);
+   //    create_queue(queue_id);
+   // }
+   // sem_set.signalize(0);
 
    try {
       char proj_id = get_proj_id(queue_id);
@@ -75,12 +75,12 @@ void MessageBroker::push(const char* queue_id, const void *msg, size_t size_txt)
 ssize_t MessageBroker::pull(const char* queue_id, void *msg, size_t max_size_txt, long type) {
    ssize_t result = -1;
 
-   sem_set.wait_on(0);
-   if(!exist_queue(queue_id)) {
-      Log::debug("No existe cola %s, para hacer pull pero la creo", queue_id);
-      create_queue(queue_id);
-   }
-   sem_set.signalize(0);
+   // sem_set.wait_on(0);
+   // if(!exist_queue(queue_id)) {
+   //    Log::debug("No existe cola %s, para hacer pull pero la creo", queue_id);
+   //    create_queue(queue_id);
+   // }
+   // sem_set.signalize(0);
 
    try {
       char proj_id = get_proj_id(queue_id);

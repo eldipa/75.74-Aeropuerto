@@ -126,7 +126,7 @@ private:
 class ConexionesAeropuerto {
 public:
 	ConexionesAeropuerto(const char *path_to_locks, const char* config_file) {
-		char path_lock[256];
+		// char path_lock[256];
 		crear_archivos_lck(path_to_locks);
 
       queue_manager = ApiConfiguracion::get_queue_manager(path_to_locks, config_file, true);
@@ -222,7 +222,7 @@ public:
 private:
    yasper::ptr<IQueueManager> queue_manager;
 
-	std::vector<yasper::ptr<RobotsDespacho> > robots_despacho;
+	// std::vector<yasper::ptr<RobotsDespacho> > robots_despacho;
 	// yasper::ptr<ControladorPuestoCheckin> controlador_puesto_checkin;
 	// std::vector<yasper::ptr<PuestoCheckin> > puesto_checkin;
 	yasper::ptr<TorreDeControl> torre_de_control;

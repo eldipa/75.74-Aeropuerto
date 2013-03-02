@@ -38,7 +38,7 @@ ApiCheckIn::ApiCheckIn(const char* directorio_de_trabajo, const char* config_fil
    path_to_locks(directorio_de_trabajo),
    id_checkin(id_puesto_checkin),
    vuelo_actual(tVueloEnCheckin(id_cinta_checkin),std::string(directorio_de_trabajo).append(PATH_PUESTO_CHECKIN).c_str(),id_puesto_checkin * cant_ipcs + 2),
-   cinta_checkin_out(std::string(directorio_de_trabajo).append(PATH_CINTA_CHECKIN).c_str(), id_cinta_checkin),
+   cinta_checkin_out(std::string("checkin").append(intToString(id_puesto_checkin)).c_str(),std::string(directorio_de_trabajo).c_str(), vuelo_actual->id_cinta_checkin),
    sem_set(std::vector<unsigned short>(1, 1), std::string(directorio_de_trabajo).append(PATH_PUESTO_CHECKIN).c_str(),id_puesto_checkin * cant_ipcs),
    mutex_checkin(sem_set, 0),
    queue_manager( ApiConfiguracion::get_queue_manager(directorio_de_trabajo, config_file ) ),
