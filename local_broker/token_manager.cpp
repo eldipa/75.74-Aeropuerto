@@ -197,7 +197,7 @@ void TokenManager::run() {
 			}
 			usleep(300000);
 		} catch (OSError & error) {
-			std::cerr << error.what() << std::endl;
+			//std::cerr << error.what() << std::endl;
 			salir = true;
 		}
 	} while (!salir);

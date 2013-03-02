@@ -17,6 +17,7 @@ try
 	char groups [MAX_PATH_SIZE];
 	if(argc < 3){
 		std::cout << "Faltan Argumentos (directorio de trabajo, puerto)" << std::endl;
+		return 1;
 	}
 
 	strcpy(groups,argv[1]);
