@@ -28,7 +28,7 @@ static char config_file [MAX_PATH_SIZE];
 
 static char working_dir_puesto_checkin1 [MAX_PATH_SIZE] = "/tmp/wd_puesto_checkin1";
 static char working_dir_puesto_checkin2 [MAX_PATH_SIZE] = "/tmp/wd_puesto_checkin2";
-static char working_dir_puesto_checkin3 [MAX_PATH_SIZE] = "/tmp/wd_puesto_checkin2";
+static char working_dir_puesto_checkin3 [MAX_PATH_SIZE] = "/tmp/wd_puesto_checkin3";
 static char working_dir_robot_checkin [MAX_PATH_SIZE] = "/tmp/wd_robot_checkin";
 static char working_dir_robot_carga1 [MAX_PATH_SIZE] = "/tmp/wd_robot_carga1";
 static char working_dir_robot_carga2 [MAX_PATH_SIZE] = "/tmp/wd_robot_carga2";
@@ -71,6 +71,7 @@ static char *args_robot_carga2 [] = {(char*)"robot_carga_2", working_dir_robot_c
 static char *args_robot_carga3 [] = {(char*)"robot_carga_3", working_dir_robot_carga3, config_file, (char*)"3", NULL};
 static char *args_robot_carga4 [] = {(char*)"robot_carga_4", working_dir_robot_carga4, config_file, (char*)"4", NULL};
 
+
 static char *args_scanner1 [] = {
 	(char*)"robot_scanner_1", working_dir_robot_escaner1, config_file, (char*)"1", (char*)"1", (char*)"1", NULL};
 
@@ -111,11 +112,11 @@ static char * args_generador_vuelos_trasbordo [] = {
 
 //static char *args_avion1 [] = {(char*)"avion1", working_dir_avion1, config_file, (char*)"1", NULL};
 
-//static char *args_tractor1 [] = {(char*)"tractor_1", working_dir_tractor1, config_file, (char*)"1", NULL};
+static char *args_tractor1 [] = {(char*)"tractor_1", working_dir_tractor1, config_file, (char*)"1", NULL};
 //static char *args_tractor2 [] = {(char*)"tractor_2", working_dir_tractor2, config_file, (char*)"2", NULL};
 //static char *args_tractor3 [] = {(char*)"tractor_3", working_dir_tractor3, config_file, (char*)"3", NULL};
 
-//static char *args_scheduler_aviones [] = {(char*)"scheduler_aviones", directorio_de_trabajo, config_file, NULL};
+static char *args_scheduler_aviones [] = {(char*)"scheduler_aviones", directorio_de_trabajo, config_file, NULL};
 static char *args_scheduler_vuelos [] = {(char*)"scheduler_vuelos", directorio_de_trabajo, config_file, NULL};
 
 void mkdirs() {
@@ -385,10 +386,10 @@ try
 		//processes.push_back(Process("control_equipaje_sospechoso", args_robot_sospechosos));
 		processes.push_back(Process("generador_vuelos_trasbordo", args_generador_vuelos_trasbordo));
 		// processes.push_back(Process("escucha_zonas_asignadas", args_escucha_zonas_asignadas));
-//		processes.push_back(Process("torre_de_control", args_torre_de_control));
-		//processes.push_back(Process("tractor", args_tractor1));
+//		ocesses.push_back(Process("torre_de_control", args_torre_de_control));
+		processes.push_back(Process("tractor", args_tractor1));
 		//processes.push_back(Process("tractor", args_tractor2));
-		//processes.push_back(Process("scheduler_aviones", args_scheduler_aviones));
+		processes.push_back(Process("scheduler_aviones", args_scheduler_aviones));
 		processes.push_back(Process("scheduler_vuelos", args_scheduler_vuelos));
 
 		// sin argumentos lanzo todos los vuelos posibles.

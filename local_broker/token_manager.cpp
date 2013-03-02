@@ -124,7 +124,7 @@ void TokenManager::crear_grupo(const std::string & directorio_de_trabajo, const 
 			//manager.levantar_grupo(nombre_recurso, char(id_grupo), valor);
 
 			// DEBUG AGREGO UN TOKEN
-			g->release_token(&clientes);
+			//g->release_token(&clientes);
 			break;
 
 			// DEBUG

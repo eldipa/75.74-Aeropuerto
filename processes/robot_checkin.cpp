@@ -24,7 +24,7 @@ try
 	id_robot = atoi(argv [3]); // de 1 a N
 	num_cinta_checkin = atoi(argv [4]);
 
-	CintaCheckin cinta_checkin(std::string("checkin").append(argv [4]).c_str(), argv [1], num_cinta_checkin);
+	CintaCheckin cinta_checkin(std::string("robot_checkin").append(argv [4]).c_str(), argv [1], num_cinta_checkin);
 
 	CintaScanner<Equipaje> cinta_scanner(std::string("robot_checkin").append(argv [3]).c_str(), argv [1],
 		1);
