@@ -57,23 +57,28 @@ public:
               std::string(directorio_de_trabajo).append(PATH_TORRE_DE_CONTROL).c_str(),MTX_CENTRAL),
 
       checkin( queue_manager->get_queue(PATH_TORRE_DE_CONTROL, Q_CHECKINS_HABILITADOS, true) ),
-      trasbordo(queue_manager->get_queue(PATH_TORRE_DE_CONTROL, Q_TRASBORDO_LISTO, true) ),
-      queue_zonas(queue_manager->get_queue(PATH_TORRE_DE_CONTROL, Q_ZONAS, true) ),
-      queue_puestos_checkin(queue_manager->get_queue(PATH_TORRE_DE_CONTROL, Q_PUESTOS_CHECKIN, true)),
-      queue_contenedores(queue_manager->get_queue(PATH_TORRE_DE_CONTROL, Q_CONTENEDORES, true)) {
+      trasbordo(queue_manager->get_queue(PATH_TORRE_DE_CONTROL, Q_TRASBORDO_LISTO, true) ) {
+      // queue_zonas(queue_manager->get_queue(PATH_TORRE_DE_CONTROL, Q_ZONAS, true) ),
+      // queue_contenedores(queue_manager->get_queue(PATH_TORRE_DE_CONTROL, Q_CONTENEDORES, true)) {
 
-		ApiTorreDeControl api_torre(directorio_de_trabajo, config_file);
-		for (int i = 0; i < cant_contenedores; i++) {
-			api_torre.liberar_contenedor();
-		}
+		// ApiTorreDeControl api_torre(directorio_de_trabajo, config_file);
+		// for (int i = 0; i < cant_contenedores; i++) {
+		// 	api_torre.liberar_contenedor();
+		// }
 
-		for (int i = zona_desde; i <= zona_hasta; i++) {
-			api_torre.liberar_zona(i);
-		}
+		// for (int i = zona_desde; i <= zona_hasta; i++) {
+		// 	api_torre.liberar_zona(i);
+		// }
 
-		for (int i = puesto_checkin_desde; i <= puesto_checkin_hasta; i++) {
-			api_torre.liberar_puesto_checkin(i);
-		}
+		// for (int i = puesto_checkin_desde; i <= puesto_checkin_hasta; i++) {
+		// 	api_torre.liberar_puesto_checkin(i);
+		// }
+
+      puesto_checkin_desde = puesto_checkin_desde;
+      puesto_checkin_hasta = puesto_checkin_hasta;
+      zona_hasta = zona_desde = zona_hasta;
+      cant_contenedores = cant_contenedores;
+      config_file = config_file;
 
 	}
 	;
@@ -87,38 +92,35 @@ private:
 
    yasper::ptr<IMessageQueue> checkin;
    yasper::ptr<IMessageQueue> trasbordo;
-   yasper::ptr<IMessageQueue> queue_zonas;
-   yasper::ptr<IMessageQueue> queue_puestos_checkin;
-   yasper::ptr<IMessageQueue> queue_contenedores;
+   // yasper::ptr<IMessageQueue> queue_zonas;
+   // yasper::ptr<IMessageQueue> queue_contenedores;
 };
 
-class PuestoCheckin {
-public:
-	PuestoCheckin(char* path_puesto_checkin, int id_puesto_checkin, int id_cinta_checkin, yasper::ptr<IQueueManager> queue_manager) :
-			sem_checkin_realizado(std::vector<unsigned short>(1, 1), path_puesto_checkin,id_puesto_checkin * cant_ipcs),
-         queue_pasajeros(queue_manager->get_queue(PATH_PUESTO_CHECKIN, id_puesto_checkin * cant_ipcs + 1, true)),
-         vuelo_actual(tVueloEnCheckin(id_cinta_checkin), path_puesto_checkin,id_puesto_checkin * cant_ipcs + 2) {
+// class PuestoCheckin {
+// public:
+// 	PuestoCheckin(char* path_puesto_checkin, int id_puesto_checkin, int id_cinta_checkin) :
+// 			sem_checkin_realizado(std::vector<unsigned short>(1, 1), path_puesto_checkin,id_puesto_checkin * cant_ipcs), 
+//          vuelo_actual(tVueloEnCheckin(id_cinta_checkin), path_puesto_checkin,id_puesto_checkin * cant_ipcs + 2) {
 
-		Log::info("creando puesto checkin id_cinta=%d", id_cinta_checkin);
-	}
-	virtual ~PuestoCheckin() {
-	}
-private:
-	static const int cant_ipcs = 3;
-	SemaphoreSet sem_checkin_realizado;
+// 		Log::info("creando puesto checkin id_cinta=%d", id_cinta_checkin);
+// 	}
+// 	virtual ~PuestoCheckin() {
+// 	}
+// private:
+// 	static const int cant_ipcs = 3;
+// 	SemaphoreSet sem_checkin_realizado;
 
-   yasper::ptr<IMessageQueue> queue_pasajeros;
-	SharedObject<tVueloEnCheckin> vuelo_actual;
-};
+// 	SharedObject<tVueloEnCheckin> vuelo_actual;
+// };
 
-class ControladorPuestoCheckin {
-public:
-	ControladorPuestoCheckin(yasper::ptr<IQueueManager> queue_manager) :
-      queue_checkin(queue_manager->get_queue(PATH_COLA_CONTROL_CHECKIN, 0, true)) {
-	}
-private:
-   yasper::ptr<IMessageQueue> queue_checkin;
-};
+// class ControladorPuestoCheckin {
+// public:
+// 	ControladorPuestoCheckin(yasper::ptr<IQueueManager> queue_manager) :
+//       queue_checkin(queue_manager->get_queue(PATH_COLA_CONTROL_CHECKIN, 0, true)) {
+// 	}
+// private:
+//    yasper::ptr<IMessageQueue> queue_checkin;
+// };
 
 /*
  * Clase para crear fácilmente todo lo que se necesite en el aeropuerto
@@ -126,21 +128,23 @@ private:
 class ConexionesAeropuerto {
 public:
 	ConexionesAeropuerto(const char *path_to_locks, const char* config_file) {
-		char path_lock[256];
+		// char path_lock[256];
 		crear_archivos_lck(path_to_locks);
 
       queue_manager = ApiConfiguracion::get_queue_manager(path_to_locks, config_file, true);
 
-		Log::info("Creando ipcs para Controlador de puestos de checkin...%s%s", path_to_locks,
-				PATH_COLA_CONTROL_CHECKIN);
-		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_COLA_CONTROL_CHECKIN);
-		controlador_puesto_checkin = new ControladorPuestoCheckin(queue_manager);
+      // queue_pasajeros = queue_manager->get_queue(PATH_PUESTO_CHECKIN, 0, true);
 
-		Log::info("Creando ipcs para Puesto de checkin...%s%s", path_to_locks, PATH_PUESTO_CHECKIN);
-		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_PUESTO_CHECKIN);
-		for (int i = 0; i < cantidad_puestos_checkin; i++) {
-			puesto_checkin.push_back(new PuestoCheckin(path_lock, i + 1, 1, queue_manager));
-		}
+		// Log::info("Creando ipcs para Controlador de puestos de checkin...%s%s", path_to_locks,
+		// 		PATH_COLA_CONTROL_CHECKIN);
+		// snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_COLA_CONTROL_CHECKIN);
+		// controlador_puesto_checkin = new ControladorPuestoCheckin(queue_manager);
+
+		// Log::info("Creando ipcs para Puesto de checkin...%s%s", path_to_locks, PATH_PUESTO_CHECKIN);
+		// snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_PUESTO_CHECKIN);
+		// for (int i = 0; i < cantidad_puestos_checkin; i++) {
+		// 	puesto_checkin.push_back(new PuestoCheckin(path_lock, i + 1, 1));
+		// }
 
       /*
 		Log::info("Creando ipcs para Robots de despacho...%s%s", path_to_locks,
@@ -208,7 +212,7 @@ public:
 		// INTERCARGO
 		// snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_COLA_ESCUCHA_ZONA_ASIGNADA);
 		// cola_escucha_vuelos_entrantes = new MessageQueue(path_lock, 0, 0664, true);
-      cola_escucha_vuelos_entrantes = queue_manager->get_queue(PATH_COLA_ESCUCHA_ZONA_ASIGNADA, 0, true);
+      // cola_escucha_vuelos_entrantes = queue_manager->get_queue(PATH_COLA_ESCUCHA_ZONA_ASIGNADA, 0, true);
 
 		//trasbordo = new ApiTrasbordo(path_to_locks, config_file, true);
 
@@ -221,8 +225,8 @@ private:
    yasper::ptr<IQueueManager> queue_manager;
 
 	// std::vector<yasper::ptr<RobotsDespacho> > robots_despacho;
-	yasper::ptr<ControladorPuestoCheckin> controlador_puesto_checkin;
-	std::vector<yasper::ptr<PuestoCheckin> > puesto_checkin;
+	// yasper::ptr<ControladorPuestoCheckin> controlador_puesto_checkin;
+	// std::vector<yasper::ptr<PuestoCheckin> > puesto_checkin;
 	yasper::ptr<TorreDeControl> torre_de_control;
 	std::vector<yasper::ptr<CintaCheckin> > cintas_checkin;
 	yasper::ptr<CintaScanner<Equipaje> > cintas_scanner;
@@ -233,6 +237,7 @@ private:
 	std::vector<yasper::ptr<IMessageQueue> > cola_control_carga_checkin;
 	std::vector<yasper::ptr<ApiControlEquipajes> > control_equipajes;
 	yasper::ptr<IMessageQueue> cola_escucha_vuelos_entrantes;
+	// yasper::ptr<IMessageQueue> queue_pasajeros;
 	yasper::ptr<ApiTrasbordo> trasbordo;
 
    yasper::ptr<MessageBroker> shm_broker;

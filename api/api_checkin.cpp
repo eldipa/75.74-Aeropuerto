@@ -17,7 +17,9 @@
 
 #include "yasper.h"
 #include "api_configuracion.h"
+
 #include "api_common.h"
+#include "api_torre_de_control.h"
 
 ApiCheckIn::ApiCheckIn(const char* directorio_de_trabajo, const char* config_file,int id_checkin) :
    path_to_locks(directorio_de_trabajo),
@@ -27,10 +29,27 @@ ApiCheckIn::ApiCheckIn(const char* directorio_de_trabajo, const char* config_fil
    sem_set(std::string(directorio_de_trabajo).append(PATH_PUESTO_CHECKIN).c_str(), id_checkin*cant_ipcs, 1),
    mutex_checkin(sem_set, 0),
    queue_manager( ApiConfiguracion::get_queue_manager(directorio_de_trabajo, config_file ) ),
-   queue_pasajeros( queue_manager->get_queue(PATH_PUESTO_CHECKIN, id_checkin*cant_ipcs+1) ) {
-   //   queue_pasajeros(std::string(directorio_de_trabajo).append(PATH_PUESTO_CHECKIN).c_str(), id_checkin*cant_ipcs+1) {
-
+   queue_pasajeros( queue_manager->get_queue(PATH_PUESTO_CHECKIN, 0) ),
+   queue_controlador(queue_manager->get_queue(PATH_COLA_CONTROL_CHECKIN, 0, true)) {
+   
 }
+
+ApiCheckIn::ApiCheckIn(const char* directorio_de_trabajo, const char* config_file, int id_puesto_checkin, int id_cinta_checkin, bool create ) :
+   path_to_locks(directorio_de_trabajo),
+   id_checkin(id_puesto_checkin),
+   vuelo_actual(tVueloEnCheckin(id_cinta_checkin),std::string(directorio_de_trabajo).append(PATH_PUESTO_CHECKIN).c_str(),id_puesto_checkin * cant_ipcs + 2),
+   cinta_checkin_out(std::string("checkin").append(intToString(id_puesto_checkin)).c_str(),std::string(directorio_de_trabajo).c_str(), vuelo_actual->id_cinta_checkin),
+   sem_set(std::vector<unsigned short>(1, 1), std::string(directorio_de_trabajo).append(PATH_PUESTO_CHECKIN).c_str(),id_puesto_checkin * cant_ipcs),
+   mutex_checkin(sem_set, 0),
+   queue_manager( ApiConfiguracion::get_queue_manager(directorio_de_trabajo, config_file ) ),
+   queue_pasajeros( queue_manager->get_queue(PATH_PUESTO_CHECKIN, 0, true) ),
+   queue_controlador(queue_manager->get_queue(PATH_COLA_CONTROL_CHECKIN, 0, true)) {
+
+   create = create;
+   ApiTorreDeControl api_torre(directorio_de_trabajo, config_file);
+   api_torre.liberar_puesto_checkin(id_puesto_checkin);
+}
+
 
 ApiCheckIn::~ApiCheckIn() {
 }
@@ -101,30 +120,10 @@ void ApiCheckIn::recibir_pasajero_para_checkin(int& id_pasajero, std::vector<Equ
 	}
 }
 
-void ApiCheckIn::llego_pasajero_para_checkin(int id_pasajero, const std::vector<Equipaje>& equipajes) {
-	tMensajePasajeroCheckin msg;
-	msg.mtype = (long) id_checkin;
-	msg.id_pasajero = id_pasajero;
-	msg.cant_equipajes = 0;
-
-	if (equipajes.size() > MAX_EQUIPAJES_POR_PERSONA)
-		throw std::runtime_error(
-				"llego_pasajero_para_checkin:intentando checkin con mas vliajs que MAX_EQUIPAJES_POR_PERSONA");
-
-	std::vector<Equipaje>::const_iterator it = equipajes.begin();
-	for (; it != equipajes.end(); it++) {
-		msg.equipajes[msg.cant_equipajes] = (*it);
-		msg.cant_equipajes++;
-	}
-
-	queue_pasajeros->push(&msg, sizeof(tMensajePasajeroCheckin)-sizeof(long));
-}
-
 void ApiCheckIn::recibir_mensaje_controlador_checkin(tMeansajeCheckin& msg_checkin) {
    Log::debug("recibir_mensaje_controlador_checkin");
    //MessageQueue queue_checkin(std::string(path_to_locks).append(PATH_COLA_CONTROL_CHECKIN).c_str(), 0);
-   yasper::ptr<IMessageQueue> queue_checkin = queue_manager->get_queue(PATH_COLA_CONTROL_CHECKIN, 0);
-   queue_checkin->pull(&msg_checkin, sizeof(tMeansajeCheckin)-sizeof(long), id_checkin);
+   queue_controlador->pull(&msg_checkin, sizeof(tMeansajeCheckin)-sizeof(long), id_checkin);
 }
 
 int ApiCheckIn::get_cinta_checkin() {

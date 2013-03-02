@@ -8,6 +8,9 @@
 #include <signal.h>
 #include <unistd.h>
 #include <string.h>
+#include "api_torre_de_control.h"
+#include "api_configuracion.h"
+
 static char working_dir[MAX_PATH_SIZE];
 
 static char *args_torre_de_control[] = { (char*) "torre_de_control_svc", working_dir, NULL };
@@ -16,11 +19,17 @@ static char *args_torre_de_control[] = { (char*) "torre_de_control_svc", working
 int main(int argc, char** argv) {
    try {
       std::string config_file( (argc>1)?argv[1]:DEFAULT_CONFIG_FILE );
-      
-      // getcwd(working_dir, MAX_PATH_SIZE);
-      // strcpy(working_dir+strlen(working_dir), "/");
-      // strcpy(working_dir+strlen(working_dir), config_file.c_str());
       strcpy(working_dir, config_file.c_str());
+
+      ApiTorreDeControl api_torre( ApiConfiguracion::get_wkdir(config_file.c_str()).c_str(), config_file.c_str(), true);
+
+      for (int i = 0; i < ApiConfiguracion::get_contenedores(config_file.c_str()); i++) {
+		 	api_torre.liberar_contenedor();
+      }
+
+      for (int i = 1; i <= ApiConfiguracion::get_zonas(config_file.c_str()); i++) {
+		 	api_torre.liberar_zona(i);
+      }
 
       Process process_server("./../rpc/torre_de_control_svc", args_torre_de_control);
       

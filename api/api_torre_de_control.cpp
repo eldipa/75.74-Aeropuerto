@@ -22,10 +22,6 @@
 void lanzar_notificadores_de_vuelos_de_intercargo(const char*, int);
 
 ApiTorreDeControl::ApiTorreDeControl(const char* directorio_de_trabajo, const char* config_file) :
-   // sem_set(std::string(directorio_de_trabajo).append(PATH_TORRE_DE_CONTROL_SVC).c_str(), 0, 1),
-   // mutex_asignaciones(sem_set, 0),
-   // asignaciones(std::string(directorio_de_trabajo).append(PATH_TORRE_DE_CONTROL_SVC).c_str(), 1),
-
    queue_manager( ApiConfiguracion::get_queue_manager(directorio_de_trabajo, config_file) ),
    queue_zonas( queue_manager->get_queue(PATH_TORRE_DE_CONTROL, Q_ZONAS) ),
    queue_puestos_checkin( queue_manager->get_queue(PATH_TORRE_DE_CONTROL, Q_PUESTOS_CHECKIN) ),
@@ -33,6 +29,17 @@ ApiTorreDeControl::ApiTorreDeControl(const char* directorio_de_trabajo, const ch
 
    path_torre_control = std::string(directorio_de_trabajo);
    path_torre_control.append(PATH_TORRE_DE_CONTROL);
+}
+
+ApiTorreDeControl::ApiTorreDeControl(const char* directorio_de_trabajo, const char* config_file, bool create) :
+   queue_manager( ApiConfiguracion::get_queue_manager(directorio_de_trabajo, config_file) ),
+   queue_zonas( queue_manager->get_queue(PATH_TORRE_DE_CONTROL, Q_ZONAS, true) ),
+   queue_puestos_checkin( queue_manager->get_queue(PATH_TORRE_DE_CONTROL, Q_PUESTOS_CHECKIN, true) ),
+   queue_contenedores( queue_manager->get_queue(PATH_TORRE_DE_CONTROL, Q_CONTENEDORES, true) ) {   
+
+   path_torre_control = std::string(directorio_de_trabajo);
+   path_torre_control.append(PATH_TORRE_DE_CONTROL);
+   create = create;
 }
 
 

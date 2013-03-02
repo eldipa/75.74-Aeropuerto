@@ -7,6 +7,9 @@
 #include "daemon.h"
 #include <signal.h>
 
+#include "api_configuracion.h"
+#include "api_comunicacion_aeropuerto.h"
+
 static char working_dir[MAX_PATH_SIZE];
 static char log_path[MAX_PATH_SIZE];
 static char persist_path[MAX_PATH_SIZE];
@@ -18,6 +21,7 @@ static char *args_message_broker[] = { (char*) "intermediate_broker_server", wor
 int main(int argc, char** argv) {
    try {
       std::string config_file( (argc>1)?argv[1]:DEFAULT_CONFIG_FILE );
+
 
       dictionary * ini = NULL;
 
@@ -41,7 +45,10 @@ int main(int argc, char** argv) {
       strcpy(persist_path, iniparser_getstring(ini, "INTERMEDIATE_BROKER:persist_path", NULL));
 
       Process process_server("./../local_broker/message_broker_server", args_message_broker);
-      
+      sleep(1);
+      ApiComunicacionAeropuerto api_comm( ApiConfiguracion::get_wkdir(config_file.c_str()).c_str(), config_file.c_str(), true);
+
+
       Log::notice("Done, waiting for a SIGINT or a SIGTERM signal.");
       wait_signal();
 
