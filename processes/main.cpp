@@ -21,7 +21,6 @@
 #include <list>
 
 // static char buffer_num_vuelo[20];
-
 static char directorio_de_trabajo [MAX_PATH_SIZE];
 static char config_file [MAX_PATH_SIZE];
 
@@ -58,9 +57,9 @@ static char working_dir_tractor3 [MAX_PATH_SIZE] = "/tmp/wd_tractor3";
 static char id_productor_cinta_central [10];
 
 /*static char *args_puesto_checkin1 [] = {
-	(char*)"puesto_checkin_1", working_dir_puesto_checkin1, config_file, (char*)"1", NULL};*/
-//static char *args_puesto_checkin2 [] = {(char*)"puesto_checkin_2", directorio_de_trabajo, config_file, (char*)"2", NULL};
-//static char *args_puesto_checkin3 [] = {(char*)"puesto_checkin_3", directorio_de_trabajo, config_file, (char*)"3", NULL};
+	(char*)"puesto_checkin_1", working_dir_puesto_checkin1, config_file, (char*)"1", (char*) "1", NULL};*/
+//static char *args_puesto_checkin2 [] = {(char*)"puesto_checkin_2", directorio_de_trabajo, config_file, (char*)"2", (char*) "1", NULL};
+//static char *args_puesto_checkin3 [] = {(char*)"puesto_checkin_3", directorio_de_trabajo, config_file, (char*)"3", (char*) "1", NULL};
 
 static char *args_robot_checkin [] = {
 	(char*)"robot_checkin", working_dir_robot_checkin, config_file, (char*)"1", (char*)"1", (char*)"1", NULL};

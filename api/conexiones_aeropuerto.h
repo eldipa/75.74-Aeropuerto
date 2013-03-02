@@ -71,9 +71,11 @@ public:
 			api_torre.liberar_zona(i);
 		}
 
-		for (int i = puesto_checkin_desde; i <= puesto_checkin_hasta; i++) {
-			api_torre.liberar_puesto_checkin(i);
-		}
+      puesto_checkin_desde = puesto_checkin_desde;
+      puesto_checkin_hasta = puesto_checkin_hasta;
+		// for (int i = puesto_checkin_desde; i <= puesto_checkin_hasta; i++) {
+		// 	api_torre.liberar_puesto_checkin(i);
+		// }
 
 	}
 	;
@@ -129,18 +131,18 @@ public:
 
       queue_manager = ApiConfiguracion::get_queue_manager(path_to_locks, config_file, true);
 
-      queue_pasajeros = queue_manager->get_queue(PATH_PUESTO_CHECKIN, 0, true);
+      // queue_pasajeros = queue_manager->get_queue(PATH_PUESTO_CHECKIN, 0, true);
 
 		Log::info("Creando ipcs para Controlador de puestos de checkin...%s%s", path_to_locks,
 				PATH_COLA_CONTROL_CHECKIN);
 		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_COLA_CONTROL_CHECKIN);
 		controlador_puesto_checkin = new ControladorPuestoCheckin(queue_manager);
 
-		Log::info("Creando ipcs para Puesto de checkin...%s%s", path_to_locks, PATH_PUESTO_CHECKIN);
-		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_PUESTO_CHECKIN);
-		for (int i = 0; i < cantidad_puestos_checkin; i++) {
-			puesto_checkin.push_back(new PuestoCheckin(path_lock, i + 1, 1));
-		}
+		// Log::info("Creando ipcs para Puesto de checkin...%s%s", path_to_locks, PATH_PUESTO_CHECKIN);
+		// snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_PUESTO_CHECKIN);
+		// for (int i = 0; i < cantidad_puestos_checkin; i++) {
+		// 	puesto_checkin.push_back(new PuestoCheckin(path_lock, i + 1, 1));
+		// }
 
       /*
 		Log::info("Creando ipcs para Robots de despacho...%s%s", path_to_locks,
@@ -222,7 +224,7 @@ private:
 
 	// std::vector<yasper::ptr<RobotsDespacho> > robots_despacho;
 	yasper::ptr<ControladorPuestoCheckin> controlador_puesto_checkin;
-	std::vector<yasper::ptr<PuestoCheckin> > puesto_checkin;
+	// std::vector<yasper::ptr<PuestoCheckin> > puesto_checkin;
 	yasper::ptr<TorreDeControl> torre_de_control;
 	std::vector<yasper::ptr<CintaCheckin> > cintas_checkin;
 	yasper::ptr<CintaScanner<Equipaje> > cintas_scanner;
@@ -233,7 +235,7 @@ private:
 	std::vector<yasper::ptr<IMessageQueue> > cola_control_carga_checkin;
 	std::vector<yasper::ptr<ApiControlEquipajes> > control_equipajes;
 	yasper::ptr<IMessageQueue> cola_escucha_vuelos_entrantes;
-	yasper::ptr<IMessageQueue> queue_pasajeros;
+	// yasper::ptr<IMessageQueue> queue_pasajeros;
 	yasper::ptr<ApiTrasbordo> trasbordo;
 
    yasper::ptr<MessageBroker> shm_broker;

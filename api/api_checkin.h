@@ -51,36 +51,38 @@ class ApiCheckIn {
 public:
 
    ApiCheckIn(const char* directorio_de_trabajo, const char* conig_file, int id_checkin );
+   ApiCheckIn(const char* directorio_de_trabajo, const char* config_file, int id_checkin, int id_cinta_checkin, bool create );
+
    virtual ~ApiCheckIn();
 
    /*
+    * puesto_checkin
     * Asigna un vuelo al puesto de checkin.
     **/
    void iniciar_checkin( int numero_vuelo );
 
    /*
+    * puesto_checkin
     * Cierra el checkin iniciado con #iniciar_checkin
     * El checkin debe haber sido abi
     **/
    int cerrar_checkin();
 
    /*
-    * Bloquea hasta que llegue un mensaje de iniciar_checkin
-    */
-   void esperar_inicio_checkin();
-
-   /*
+    * puesto_checkin
     * Bloquea hasta que llegue un mensaje de controlador_de_checkin
     */
    void recibir_mensaje_controlador_checkin(tMeansajeCheckin&);
 
    /*
+    * puesto_checkin
     *  Registra un equipaje que hace checkin.
     *  A partir de aca el avion no sale hasta que llega el equipaje
     **/
    void registrar_equipaje( Equipaje& );
 
    /*
+    * puesto_checkin
     * Retorna el numero_vuelo que esta haciendo checkin en ese momento.
     * Si no se esta haciendo checkin en ese momento lanza la excepcion
     * PuestoCheckinSinVueloAsignado
@@ -88,23 +90,26 @@ public:
    int get_vuelo_actual();
 
    /*
+    * puesto_checkin
     * Indica que hay un checkin de pasajero en curso.
     * hasta que se llame a fin_checkin_pasajero
     **/
    void comienza_checkin_pasajero();
 
    /*
+    * puesto_checkin
     * Llamar despues de registrar los equipajes de un pasajero
     *
     **/
    void fin_checkin_pasajero();
 
+   //puesto_checkin
    void recibir_pasajero_para_checkin(int& id_pasajero, std::vector<Equipaje>& equipajes);
 
    int get_cinta_checkin();
 
 private:
-   static const int cant_ipcs = 3;
+   static const int cant_ipcs = 2;
 
    std::string path_to_locks;
    int id_checkin;

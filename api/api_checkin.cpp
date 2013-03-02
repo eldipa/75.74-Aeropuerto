@@ -17,7 +17,9 @@
 
 #include "yasper.h"
 #include "api_configuracion.h"
+
 #include "api_common.h"
+#include "api_torre_de_control.h"
 
 ApiCheckIn::ApiCheckIn(const char* directorio_de_trabajo, const char* config_file,int id_checkin) :
    path_to_locks(directorio_de_trabajo),
@@ -28,8 +30,24 @@ ApiCheckIn::ApiCheckIn(const char* directorio_de_trabajo, const char* config_fil
    mutex_checkin(sem_set, 0),
    queue_manager( ApiConfiguracion::get_queue_manager(directorio_de_trabajo, config_file ) ),
    queue_pasajeros( queue_manager->get_queue(PATH_PUESTO_CHECKIN, 0) ) {
-
+   
 }
+
+ApiCheckIn::ApiCheckIn(const char* directorio_de_trabajo, const char* config_file, int id_puesto_checkin, int id_cinta_checkin, bool create ) :
+   path_to_locks(directorio_de_trabajo),
+   id_checkin(id_puesto_checkin),
+   vuelo_actual(tVueloEnCheckin(id_cinta_checkin),std::string(directorio_de_trabajo).append(PATH_PUESTO_CHECKIN).c_str(),id_puesto_checkin * cant_ipcs + 2),
+   cinta_checkin_out(std::string(directorio_de_trabajo).append(PATH_CINTA_CHECKIN).c_str(), id_cinta_checkin),
+   sem_set(std::vector<unsigned short>(1, 1), std::string(directorio_de_trabajo).append(PATH_PUESTO_CHECKIN).c_str(),id_puesto_checkin * cant_ipcs),
+   mutex_checkin(sem_set, 0),
+   queue_manager( ApiConfiguracion::get_queue_manager(directorio_de_trabajo, config_file ) ),
+   queue_pasajeros( queue_manager->get_queue(PATH_PUESTO_CHECKIN, 0, true) ) {
+
+   create = create;
+   ApiTorreDeControl api_torre(directorio_de_trabajo, config_file);
+   api_torre.liberar_puesto_checkin(id_puesto_checkin);
+}
+
 
 ApiCheckIn::~ApiCheckIn() {
 }
