@@ -15,7 +15,53 @@ private:
    static std::string torre_ip;
    static std::string torre_wkdir;
    static int id_aeropuerto;
+
+   static int zonas;
+   static int contenedores;
+
 public:
+
+   static int get_zonas(const char* config_file) {
+
+      if(ApiConfiguracion::zonas == -1) {
+         dictionary * ini = iniparser_load(config_file);
+
+         if (ini==NULL) {
+            Log::crit("cannot parse the config file: %s\n", config_file);
+            throw GenericError("cannot parse the config file %s", config_file);
+         }
+
+         ApiConfiguracion::zonas = iniparser_getint(ini, "AEROPUERTO:zonas", -1);
+
+         if(ApiConfiguracion::zonas==-1)
+            throw GenericError("cannot read AEROPUERTO:zonas from  the config file %s", config_file);
+
+         iniparser_freedict(ini);
+      }
+
+      return ApiConfiguracion::zonas;      
+   }
+
+   static int get_contenedores(const char* config_file) {
+
+      if(ApiConfiguracion::contenedores == -1) {
+         dictionary * ini = iniparser_load(config_file);
+
+         if (ini==NULL) {
+            Log::crit("cannot parse the config file: %s\n", config_file);
+            throw GenericError("cannot parse the config file %s", config_file);
+         }
+
+         ApiConfiguracion::contenedores = iniparser_getint(ini, "AEROPUERTO:contenedores", -1);
+
+         if(ApiConfiguracion::contenedores==-1)
+            throw GenericError("cannot read AEROPUERTO:contenedores from  the config file %s", config_file);
+
+         iniparser_freedict(ini);
+      }
+
+      return ApiConfiguracion::contenedores;      
+   }
    
    static int get_id_aeropuerto(const char* config_file) {
 

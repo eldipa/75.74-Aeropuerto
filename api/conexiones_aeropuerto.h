@@ -57,25 +57,28 @@ public:
               std::string(directorio_de_trabajo).append(PATH_TORRE_DE_CONTROL).c_str(),MTX_CENTRAL),
 
       checkin( queue_manager->get_queue(PATH_TORRE_DE_CONTROL, Q_CHECKINS_HABILITADOS, true) ),
-      trasbordo(queue_manager->get_queue(PATH_TORRE_DE_CONTROL, Q_TRASBORDO_LISTO, true) ),
-      queue_zonas(queue_manager->get_queue(PATH_TORRE_DE_CONTROL, Q_ZONAS, true) ),
-      queue_puestos_checkin(queue_manager->get_queue(PATH_TORRE_DE_CONTROL, Q_PUESTOS_CHECKIN, true)),
-      queue_contenedores(queue_manager->get_queue(PATH_TORRE_DE_CONTROL, Q_CONTENEDORES, true)) {
+      trasbordo(queue_manager->get_queue(PATH_TORRE_DE_CONTROL, Q_TRASBORDO_LISTO, true) ) {
+      // queue_zonas(queue_manager->get_queue(PATH_TORRE_DE_CONTROL, Q_ZONAS, true) ),
+      // queue_contenedores(queue_manager->get_queue(PATH_TORRE_DE_CONTROL, Q_CONTENEDORES, true)) {
 
-		ApiTorreDeControl api_torre(directorio_de_trabajo, config_file);
-		for (int i = 0; i < cant_contenedores; i++) {
-			api_torre.liberar_contenedor();
-		}
+		// ApiTorreDeControl api_torre(directorio_de_trabajo, config_file);
+		// for (int i = 0; i < cant_contenedores; i++) {
+		// 	api_torre.liberar_contenedor();
+		// }
 
-		for (int i = zona_desde; i <= zona_hasta; i++) {
-			api_torre.liberar_zona(i);
-		}
+		// for (int i = zona_desde; i <= zona_hasta; i++) {
+		// 	api_torre.liberar_zona(i);
+		// }
 
-      puesto_checkin_desde = puesto_checkin_desde;
-      puesto_checkin_hasta = puesto_checkin_hasta;
 		// for (int i = puesto_checkin_desde; i <= puesto_checkin_hasta; i++) {
 		// 	api_torre.liberar_puesto_checkin(i);
 		// }
+
+      puesto_checkin_desde = puesto_checkin_desde;
+      puesto_checkin_hasta = puesto_checkin_hasta;
+      zona_hasta = zona_desde = zona_hasta;
+      cant_contenedores = cant_contenedores;
+      config_file = config_file;
 
 	}
 	;
@@ -89,9 +92,8 @@ private:
 
    yasper::ptr<IMessageQueue> checkin;
    yasper::ptr<IMessageQueue> trasbordo;
-   yasper::ptr<IMessageQueue> queue_zonas;
-   yasper::ptr<IMessageQueue> queue_puestos_checkin;
-   yasper::ptr<IMessageQueue> queue_contenedores;
+   // yasper::ptr<IMessageQueue> queue_zonas;
+   // yasper::ptr<IMessageQueue> queue_contenedores;
 };
 
 // class PuestoCheckin {
@@ -210,7 +212,7 @@ public:
 		// INTERCARGO
 		// snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_COLA_ESCUCHA_ZONA_ASIGNADA);
 		// cola_escucha_vuelos_entrantes = new MessageQueue(path_lock, 0, 0664, true);
-      cola_escucha_vuelos_entrantes = queue_manager->get_queue(PATH_COLA_ESCUCHA_ZONA_ASIGNADA, 0, true);
+      // cola_escucha_vuelos_entrantes = queue_manager->get_queue(PATH_COLA_ESCUCHA_ZONA_ASIGNADA, 0, true);
 
 		//trasbordo = new ApiTrasbordo(path_to_locks, config_file, true);
 
