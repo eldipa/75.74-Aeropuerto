@@ -120,7 +120,11 @@ void TokenManager::crear_grupo(const std::string & directorio_de_trabajo, const 
 			grupos.insert(std::pair<std::string, Grupo *>(std::string(nombre_recurso), g));
 			//agregar_grupo_a_tabla_creados(group_name.c_str());
 
+
 			//manager.levantar_grupo(nombre_recurso, char(id_grupo), valor);
+
+			// DEBUG AGREGO UN TOKEN
+			g->release_token(&clientes);
 			break;
 
 			// DEBUG

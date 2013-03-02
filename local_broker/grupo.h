@@ -25,8 +25,8 @@ private:
 	SemaphoreSet semaforos;
 	MessageQueue cola;
 
+	long numero_base_cola_asignada;
 	long numero_cola_asignada;
-
 
 	int * cant_clientes;
 	size_t * mem_size;
@@ -37,7 +37,6 @@ private:
 	int * avisar_envio;
 	int * id;
 
-	char * memoria_base;
 	int * cantidad_clientes_esperando;
 	char * grupos_creados [MAX_GRUPOS];
 	size_t * offsets;

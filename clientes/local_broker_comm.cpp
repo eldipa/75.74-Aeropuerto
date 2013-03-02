@@ -380,6 +380,27 @@ void test_local_broker_comm() {
 	broker.join("cinta_principal", mensajes::JOIN);
 }
 
+void test_local_broker_comm2(int argc, char * argv []) {
+	char *mem = new char [10 * 1024];
+
+	if (argc < 3) {
+		std::cerr << "Faltan argumentos (nombre_app,grupo)" << std::endl;
+		return;
+	}
+
+	LocalBrokerComm broker(argv [1], "localbroker1.sitio1.aeropuerto1", "1234");
+
+	broker.join(argv [2], mensajes::JOIN);
+
+	for (int i = 0 ; i < 3 ; i++) {
+
+		broker.wait_mutex(mem);
+
+		broker.free_mutex(mem);
+	}
+	delete mem;
+}
+
 int main(int argc, char * argv [])
 try
 {
@@ -392,6 +413,7 @@ try
 	std::vector<std::string> servicios;
 
 	//test_local_broker_comm();
+	test_local_broker_comm2(argc, argv);
 
 	// maneja la comunicacion con el broker del lado del cliente
 	if (argc < 4) {

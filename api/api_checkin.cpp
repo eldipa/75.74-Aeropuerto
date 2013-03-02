@@ -45,7 +45,7 @@ ApiCheckIn::ApiCheckIn(const char* directorio_de_trabajo, const char* config_fil
    queue_pasajeros( queue_manager->get_queue(PATH_PUESTO_CHECKIN, 0, true) ),
    queue_controlador(queue_manager->get_queue(PATH_COLA_CONTROL_CHECKIN, 0, true)) {
 
-   create = create;
+	create = !! create;
    ApiTorreDeControl api_torre(directorio_de_trabajo, config_file);
    api_torre.liberar_puesto_checkin(id_puesto_checkin);
 }

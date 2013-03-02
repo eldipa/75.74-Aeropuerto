@@ -48,6 +48,7 @@ Grupo::Grupo(const std::string & directorio_de_trabajo, std::string nombre_recur
 
 	asignar_punteros(static_cast<char *>(memoria.memory_pointer()) + offsets [posicion_grupo]);
 	mutex_asignado = posicion_grupo + 2;
+	numero_base_cola_asignada = posicion_grupo * MAX_CLIENTS + 1;
 
 }
 
@@ -93,6 +94,7 @@ Grupo::Grupo(const std::string & directorio_de_trabajo, std::string nombre_recur
 		asignar_punteros(static_cast<char *>(memoria.memory_pointer()) + offsets [posicion_grupo]);
 
 		mutex_asignado = posicion_grupo + 2;
+		numero_base_cola_asignada = posicion_grupo * MAX_CLIENTS + 1;
 
 		for (int i = 1 ; i < MAX_CLIENTS ; i++) {
 			(*client_names) [i] = '\0';
@@ -101,12 +103,6 @@ Grupo::Grupo(const std::string & directorio_de_trabajo, std::string nombre_recur
 		*cant_clientes = 0;
 		*mem_size = tamanio_memoria;
 		*avisar_envio = 0;
-
-		// al primero le entrega el token
-		traspaso_token_t mensaje;
-		mensaje.mtype = 1; // el primero que entre al grupo se lleva el token
-		strncpy(mensaje.recurso, nombre_recurso.c_str(), MAX_NOMBRE_RECURSO);
-		//cola.push(&mensaje, sizeof(traspaso_token_t) - sizeof(long));
 
 		*tengo_token = 0;
 		cliente_actual = 0;
@@ -179,7 +175,7 @@ void Grupo::join(const char nombre [MAX_NOMBRE_RECURSO]) {
 		if (*(client_names [i]) == '\0') {
 			strncpy(client_names [i], nombre, MAX_NOMBRE_RECURSO);
 			(*cant_clientes)++;
-			numero_cola_asignada = i + 1;
+			numero_cola_asignada = i + numero_base_cola_asignada;
 			break;
 		}
 	}
@@ -238,19 +234,7 @@ bool Grupo::ya_esta_cliente(const char nombre [MAX_NOMBRE_RECURSO]) {
 	return value;
 }
 
-unsigned short Grupo::obtener_numero_cola_de_cliente(const char nombre [MAX_NOMBRE_RECURSO]) {
-	semaforos.wait_on(mutex_asignado);
 
-	for (unsigned short i = 0 ; i < MAX_CLIENTS ; i++) {
-		if (strncmp(client_names [i], nombre, MAX_NOMBRE_RECURSO) == 0) {
-			semaforos.signalize(mutex_asignado);
-			return i + 1;
-		}
-	}
-
-	semaforos.signalize(mutex_asignado);
-	return 0;
-}
 
 unsigned short Grupo::obtener_proximo_cliente() {
 	semaforos.wait_on(mutex_asignado);
@@ -283,7 +267,7 @@ void Grupo::pasar_token_a_proximo_cliente() {
 	mensaje.tipo = 1;
 
 	if (*cant_clientes == 0) {
-		mensaje.mtype = 1;
+		mensaje.mtype = numero_base_cola_asignada;
 		cliente_actual = 0;
 	} else {
 		i = (cliente_actual + 1) % MAX_CLIENTS;
@@ -295,7 +279,7 @@ void Grupo::pasar_token_a_proximo_cliente() {
 			i = (i + 1) % MAX_CLIENTS;
 		} while (cliente_actual != i);
 
-		mensaje.mtype = cliente_actual + 1;
+		mensaje.mtype = cliente_actual + numero_base_cola_asignada;
 	}
 
 	if (strncmp(client_names [cliente_actual], "localbroker", strlen("localbroker")) == 0) {
@@ -318,7 +302,7 @@ void Grupo::pasar_token_a_proximo_cliente() {
 void Grupo::reenviar_token_al_cliente() {
 	semaforos.wait_on(mutex_asignado);
 
-	mensaje.mtype = cliente_actual + 1;
+	mensaje.mtype = cliente_actual + numero_base_cola_asignada;
 
 	mensaje.tipo = 1;
 	std::cout << "Resending Token from " << this->nombre_recurso << " to: " << client_names [cliente_actual] << "("
@@ -415,7 +399,7 @@ void Grupo::replicar_brokers() {
 	bool encontrado = false;
 
 	if (*cant_clientes > 0) {
-		mensaje.mtype = 1;
+		mensaje.mtype = numero_base_cola_asignada;
 		mensaje.tipo = 2;
 
 		for (j = 0; j < MAX_CLIENTS ; j++) {
@@ -425,7 +409,7 @@ void Grupo::replicar_brokers() {
 			}
 		}
 
-		mensaje.mtype = j + 1;
+		mensaje.mtype = j + numero_base_cola_asignada;
 
 		if (encontrado) {
 			//if (this->nombre_recurso == "cinta_principal" || this->nombre_recurso.substr(0, 4) == "cpp_") {
