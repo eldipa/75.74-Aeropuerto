@@ -8,7 +8,7 @@
 #include "tupleiter.h"
 
 #include "constants.h"
-#include "api_checkin.h"
+#include "api_generador_pasajeros.h"
 #include "log.h"
 
 #include <string>
@@ -29,7 +29,7 @@ int main(int argc, char** argv) try {
 
 	int num_vuelo = atoi(argv[3]);
 	int num_puesto_checkin = atoi(argv[4]);
-	ApiCheckIn checkin(argv[1], argv[2], num_puesto_checkin);
+	ApiGeneradorPasajeros api_pasajeros(argv[1], argv[2]);
    std::vector<int> id_pasajeros;
 
    get_pasajeros(num_vuelo, id_pasajeros);
@@ -39,7 +39,7 @@ int main(int argc, char** argv) try {
    std::vector<int>::iterator it;
    for( it=id_pasajeros.begin(); it != id_pasajeros.end(); it++) {
       std::vector<Equipaje> equipajes;
-		checkin.llego_pasajero_para_checkin((*it), get_equipajes(num_vuelo, (*it), equipajes));
+		api_pasajeros.llego_pasajero_para_checkin((*it), num_puesto_checkin, get_equipajes(num_vuelo, (*it), equipajes));
 		Log::info("generando pasajero-checkin con equipaje: %s", print_equipaje(equipajes).c_str());
 		sleep(rand()%SLEEP_LLEGADA_PASAJEROS_A_CHECKIN);
    }

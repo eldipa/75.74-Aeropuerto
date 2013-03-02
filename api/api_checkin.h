@@ -101,8 +101,6 @@ public:
 
    void recibir_pasajero_para_checkin(int& id_pasajero, std::vector<Equipaje>& equipajes);
 
-   void llego_pasajero_para_checkin(int id_pasajero, const std::vector<Equipaje>& equipajes);
-
    int get_cinta_checkin();
 
 private:

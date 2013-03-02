@@ -92,24 +92,22 @@ private:
    yasper::ptr<IMessageQueue> queue_contenedores;
 };
 
-class PuestoCheckin {
-public:
-	PuestoCheckin(char* path_puesto_checkin, int id_puesto_checkin, int id_cinta_checkin, yasper::ptr<IQueueManager> queue_manager) :
-			sem_checkin_realizado(std::vector<unsigned short>(1, 1), path_puesto_checkin,id_puesto_checkin * cant_ipcs),
-         queue_pasajeros(queue_manager->get_queue(PATH_PUESTO_CHECKIN, id_puesto_checkin * cant_ipcs + 1, true)),
-         vuelo_actual(tVueloEnCheckin(id_cinta_checkin), path_puesto_checkin,id_puesto_checkin * cant_ipcs + 2) {
+// class PuestoCheckin {
+// public:
+// 	PuestoCheckin(char* path_puesto_checkin, int id_puesto_checkin, int id_cinta_checkin) :
+// 			sem_checkin_realizado(std::vector<unsigned short>(1, 1), path_puesto_checkin,id_puesto_checkin * cant_ipcs), 
+//          vuelo_actual(tVueloEnCheckin(id_cinta_checkin), path_puesto_checkin,id_puesto_checkin * cant_ipcs + 2) {
 
-		Log::info("creando puesto checkin id_cinta=%d", id_cinta_checkin);
-	}
-	virtual ~PuestoCheckin() {
-	}
-private:
-	static const int cant_ipcs = 3;
-	SemaphoreSet sem_checkin_realizado;
+// 		Log::info("creando puesto checkin id_cinta=%d", id_cinta_checkin);
+// 	}
+// 	virtual ~PuestoCheckin() {
+// 	}
+// private:
+// 	static const int cant_ipcs = 3;
+// 	SemaphoreSet sem_checkin_realizado;
 
-   yasper::ptr<IMessageQueue> queue_pasajeros;
-	SharedObject<tVueloEnCheckin> vuelo_actual;
-};
+// 	SharedObject<tVueloEnCheckin> vuelo_actual;
+// };
 
 class ControladorPuestoCheckin {
 public:
@@ -131,6 +129,8 @@ public:
 
       queue_manager = ApiConfiguracion::get_queue_manager(path_to_locks, config_file, true);
 
+      queue_pasajeros = queue_manager->get_queue(PATH_PUESTO_CHECKIN, 0, true);
+
 		Log::info("Creando ipcs para Controlador de puestos de checkin...%s%s", path_to_locks,
 				PATH_COLA_CONTROL_CHECKIN);
 		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_COLA_CONTROL_CHECKIN);
@@ -139,7 +139,7 @@ public:
 		Log::info("Creando ipcs para Puesto de checkin...%s%s", path_to_locks, PATH_PUESTO_CHECKIN);
 		snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_PUESTO_CHECKIN);
 		for (int i = 0; i < cantidad_puestos_checkin; i++) {
-			puesto_checkin.push_back(new PuestoCheckin(path_lock, i + 1, 1, queue_manager));
+			puesto_checkin.push_back(new PuestoCheckin(path_lock, i + 1, 1));
 		}
 
       /*
@@ -233,6 +233,7 @@ private:
 	std::vector<yasper::ptr<IMessageQueue> > cola_control_carga_checkin;
 	std::vector<yasper::ptr<ApiControlEquipajes> > control_equipajes;
 	yasper::ptr<IMessageQueue> cola_escucha_vuelos_entrantes;
+	yasper::ptr<IMessageQueue> queue_pasajeros;
 	yasper::ptr<ApiTrasbordo> trasbordo;
 
    yasper::ptr<MessageBroker> shm_broker;

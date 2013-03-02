@@ -27,8 +27,7 @@ ApiCheckIn::ApiCheckIn(const char* directorio_de_trabajo, const char* config_fil
    sem_set(std::string(directorio_de_trabajo).append(PATH_PUESTO_CHECKIN).c_str(), id_checkin*cant_ipcs, 1),
    mutex_checkin(sem_set, 0),
    queue_manager( ApiConfiguracion::get_queue_manager(directorio_de_trabajo, config_file ) ),
-   queue_pasajeros( queue_manager->get_queue(PATH_PUESTO_CHECKIN, id_checkin*cant_ipcs+1) ) {
-   //   queue_pasajeros(std::string(directorio_de_trabajo).append(PATH_PUESTO_CHECKIN).c_str(), id_checkin*cant_ipcs+1) {
+   queue_pasajeros( queue_manager->get_queue(PATH_PUESTO_CHECKIN, 0) ) {
 
 }
 
@@ -99,25 +98,6 @@ void ApiCheckIn::recibir_pasajero_para_checkin(int& id_pasajero, std::vector<Equ
 	for (int i = 0; i < msg.cant_equipajes; i++) {
 		equipajes.push_back(msg.equipajes[i]);
 	}
-}
-
-void ApiCheckIn::llego_pasajero_para_checkin(int id_pasajero, const std::vector<Equipaje>& equipajes) {
-	tMensajePasajeroCheckin msg;
-	msg.mtype = (long) id_checkin;
-	msg.id_pasajero = id_pasajero;
-	msg.cant_equipajes = 0;
-
-	if (equipajes.size() > MAX_EQUIPAJES_POR_PERSONA)
-		throw std::runtime_error(
-				"llego_pasajero_para_checkin:intentando checkin con mas vliajs que MAX_EQUIPAJES_POR_PERSONA");
-
-	std::vector<Equipaje>::const_iterator it = equipajes.begin();
-	for (; it != equipajes.end(); it++) {
-		msg.equipajes[msg.cant_equipajes] = (*it);
-		msg.cant_equipajes++;
-	}
-
-	queue_pasajeros->push(&msg, sizeof(tMensajePasajeroCheckin)-sizeof(long));
 }
 
 void ApiCheckIn::recibir_mensaje_controlador_checkin(tMeansajeCheckin& msg_checkin) {
