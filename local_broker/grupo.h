@@ -18,11 +18,15 @@
 class Grupo {
 private:
 
+	size_t memoria_total;
+	size_t base;
+
 	SharedMemory memoria;
-	SemaphoreSet mutex;
+	SemaphoreSet semaforos;
 	MessageQueue cola;
 
 	long numero_cola_asignada;
+
 
 	int * cant_clientes;
 	size_t * mem_size;
@@ -32,6 +36,13 @@ private:
 	int * token_enviado;
 	int * avisar_envio;
 	int * id;
+
+	char * memoria_base;
+	int * cantidad_clientes_esperando;
+	char * grupos_creados [MAX_GRUPOS];
+	char ** memorias_base;
+
+	int mutex_asignado;
 
 	long token_owner;
 
@@ -45,9 +56,18 @@ private:
 
 	bool locked_ya_esta_cliente(const char nombre [MAX_NOMBRE_RECURSO]);
 
+	void asignar_punteros_control();
+	void asignar_punteros(void * p);
+
 public:
+	//busca un grupo local
 	Grupo(const std::string & directorio_de_trabajo, std::string nombre_recurso);
+
+	// crea y asigna un grupo local
 	Grupo(const std::string & directorio_de_trabajo, std::string nombre_recurso, size_t tamanio_memoria, bool create);
+
+	// crea memoria entera de grupos
+	Grupo(const std::string & directorio_de_trabajo, size_t tamanio_total, size_t cantidad_de_grupos);
 	virtual ~Grupo();
 
 	void join(const char nombre [MAX_NOMBRE_RECURSO]);
@@ -75,7 +95,7 @@ public:
 	void avisar_si_se_esta_enviando_token();
 	bool tengo_que_avisar_envio();
 	void replicar_brokers();
-
+	bool existe_grupo(const char nombre_grupo [MAX_NOMBRE_RECURSO]);
 
 };
 

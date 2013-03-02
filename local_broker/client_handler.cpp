@@ -23,21 +23,11 @@
 
 ClientHandler::ClientHandler(const std::string & directorio_de_trabajo, /*char id,*/int fd)
 	: socket(fd), directorio_de_trabajo(directorio_de_trabajo),
-		cola_token_manager(std::string(directorio_de_trabajo).append(PATH_COLA_TOKEN_MANAGER).c_str(), char(0)),
-		memoria_grupos(std::string(directorio_de_trabajo).append(PATH_COLA_TOKEN_MANAGER).c_str(), char(1), 0, false,
-			false),
-		semaforo_grupos(std::string(directorio_de_trabajo).append(PATH_COLA_TOKEN_MANAGER).c_str(), char(2), 2)
+		cola_token_manager(std::string(directorio_de_trabajo).append(PATH_COLA_TOKEN_MANAGER).c_str(), char(0))
 {
 	mem_local = NULL;
 	tipo_join = mensajes::JOIN;
 
-	cantidad_clientes_esperando = static_cast<int *>(memoria_grupos.memory_pointer());
-
-	grupos_creados [0] = reinterpret_cast<char *>(cantidad_clientes_esperando + 1);
-
-	for (int i = 1 ; i < MAX_GRUPOS ; i++) {
-		grupos_creados [i] = grupos_creados [i - 1] + sizeof(char) * MAX_NOMBRE_RECURSO;
-	}
 }
 
 ClientHandler::~ClientHandler() {
@@ -46,7 +36,7 @@ ClientHandler::~ClientHandler() {
 	}
 }
 
-void ClientHandler::esperar_creacion_grupo(const std::string & nombre_grupo) {
+void ClientHandler::avisar_creacion_grupo(const std::string & nombre_grupo) {
 	traspaso_token_t mensaje;
 	// envio mensaje para que el token manager levante el grupo
 	mensaje.mtype = 1;
@@ -54,34 +44,13 @@ void ClientHandler::esperar_creacion_grupo(const std::string & nombre_grupo) {
 	strncpy(mensaje.recurso, nombre_grupo.c_str(), MAX_NOMBRE_RECURSO);
 	cola_token_manager.push(&mensaje, sizeof(traspaso_token_t) - sizeof(long));
 
-	//
-	bool creado = false;
-
-	while (!creado) {
-		semaforo_grupos.wait_on(0);
-		for (int i = 0 ; i < MAX_GRUPOS ; i++) {
-			if (*grupos_creados [i] != '\0'
-				&& strncmp(nombre_grupo.c_str(), grupos_creados [i], MAX_NOMBRE_RECURSO) == 0)
-			{
-				creado = true;
-				break;
-			}
-		}
-		if (creado) {
-			semaforo_grupos.signalize(0);
-		} else {
-			(*cantidad_clientes_esperando)++;
-			semaforo_grupos.signalize(0);
-			semaforo_grupos.wait_on(1);
-		}
-	}
 }
 
 void ClientHandler::join_group(const std::string & nombre_grupo) {
 	size_t tamanio;
 	this->nombre_grupo = nombre_grupo;
 
-	esperar_creacion_grupo(nombre_grupo);
+	avisar_creacion_grupo(nombre_grupo);
 	// Obtengo la memoria compartida del grupo
 	grupo = new Grupo(directorio_de_trabajo, nombre_grupo);
 	// Agrego el cliente y el numero de la cola
@@ -316,6 +285,7 @@ void ClientHandler::run() {
 			this->procesar_peticion(mensaje);
 		} catch (OSError & error) {
 			mensaje.peticion = mensajes::LEAVE;
+			std::cerr << error.what() << std::endl;
 		}
 
 	} while (mensaje.peticion != mensajes::LEAVE && mensaje.peticion != mensajes::JOIN
@@ -343,13 +313,13 @@ try
 
 	///// SOCKET ESCUCHA SOLO PARA DEBUG
 	/*int new_socket;
-	 std::string puerto("1234");
-	 Socket * server_socket = new Socket(true);
-	 server_socket->source(puerto);
-	 new_socket = server_socket->listen_fd(10);
-	 fd = new_socket;
-	 server_socket->disassociate();
-	 delete server_socket;*/
+	std::string puerto("1234");
+	Socket * server_socket = new Socket(true);
+	server_socket->source(puerto);
+	new_socket = server_socket->listen_fd(10);
+	fd = new_socket;
+	server_socket->disassociate();
+	delete server_socket;*/
 
 	ClientHandler handler(argv [1], /*id,*/fd);
 

@@ -391,7 +391,7 @@ try
 	std::vector<std::string> brokers;
 	std::vector<std::string> servicios;
 
-
+	//test_local_broker_comm();
 
 	// maneja la comunicacion con el broker del lado del cliente
 	if (argc < 4) {

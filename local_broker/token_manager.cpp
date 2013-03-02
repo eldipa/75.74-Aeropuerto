@@ -20,30 +20,23 @@
 #include "daemon.h"
 #include "group_comm_manager.h"
 #include "init_parser.h"
+#include <sys/shm.h>
 
 TokenManager::TokenManager(const std::string & directorio, const std::string & groups_file)
 	: clientes(std::string(directorio).append(PATH_COLA_TOKEN_MANAGER).c_str(), char(0), 0664, true),
-		memoria_grupos(std::string(directorio).append(PATH_COLA_TOKEN_MANAGER).c_str(), char(1),
-			TAMANIO_TABLA_GRUPOS_CREADOS, 0664, true, false),
-		semaforo_grupos(std::vector<short unsigned int>(2, 1),
-			std::string(directorio).append(PATH_COLA_TOKEN_MANAGER).c_str(), char(2), 0664),
 		directorio_de_trabajo(directorio), groups_file(groups_file), manager(directorio_de_trabajo)
 {
 	//crear_grupos(directorio_de_trabajo, groups_file);
 
-	cantidad_clientes_esperando = static_cast<int *>(memoria_grupos.memory_pointer());
-
-	grupos_creados [0] = reinterpret_cast<char *>(cantidad_clientes_esperando + 1);
-
-	for (int i = 1 ; i < MAX_GRUPOS ; i++) {
-		grupos_creados [i] = grupos_creados [i - 1] + sizeof(char) * MAX_NOMBRE_RECURSO;
-		*grupos_creados [i] = '\0';
-	}
-
-	// ajusto el valor del semaforo 1
-	semaforo_grupos.wait_on(1);
-
 	manager.levantar_servicio();
+
+	chequear_memoria_disponible();
+
+	create_if_not_exists(std::string(directorio).append(PATH_TABLA_GRUPOS).c_str());
+
+	grupo_maestro = new Grupo(directorio, memoria_total, cantidad_de_grupos);
+
+	//Grupo::alocar_memoria_grupo(directorio, memoria_total, cantidad_de_grupos);
 }
 
 TokenManager::~TokenManager() {
@@ -55,41 +48,44 @@ TokenManager::~TokenManager() {
 		delete g;
 	}
 	manager.bajar_servicio();
+	delete grupo_maestro;
 }
 
-bool TokenManager::existe_grupo(const char nombre_grupo [MAX_NOMBRE_RECURSO]) {
-	bool existe = false;
-	semaforo_grupos.wait_on(0);
+void TokenManager::chequear_memoria_disponible() {
+	FILE * f;
+	char nombre_recurso [MAX_NOMBRE_RECURSO];
+	//int tamanio_memoria;
+	char tamanio_memoria_str [200];
+	int id_grupo;
+	int valor;
+	memoria_total = 0;
+	cantidad_de_grupos = 0;
+	struct shminfo info_ipc;
+	int result;
 
-	for (int i = 0 ; i < MAX_GRUPOS ; i++) {
-		if (*grupos_creados [i] != '\0' && strncmp(nombre_grupo, grupos_creados [i], MAX_NOMBRE_RECURSO) == 0) {
-			existe = true;
-			break;
-		}
+	result = shmctl(0, IPC_INFO, (shmid_ds*)&info_ipc);
+	if (result == -1) {
+		throw OSError("No se pudo obtener la cantidad maxima de segmento de memoria: %s", groups_file.c_str());
 	}
 
-	semaforo_grupos.signalize(0);
-	return existe;
-}
+	f = fopen(groups_file.c_str(), "rt");
+	if (f == NULL) {
+		throw OSError("No se pudieron crear los grupos: %s", groups_file.c_str());
+	}
+	// evito la primera linea
+	fscanf(f, "%*s\n");
+	while (fscanf(f, "%[^:]:%[^:]:%d:%d\n", nombre_recurso, tamanio_memoria_str, &valor, &id_grupo) != EOF) {
+		memoria_total += InitParser::parse_int_val(tamanio_memoria_str);
+		cantidad_de_grupos++;
+	}
+	fclose(f);
 
-void TokenManager::agregar_grupo_a_tabla_creados(const char nombre_grupo [MAX_NOMBRE_RECURSO]) {
-	bool creado = false;
-	semaforo_grupos.wait_on(0);
-	for (int i = 0 ; i < MAX_GRUPOS ; i++) {
-		if (*grupos_creados [i] != '\0' && strncmp(nombre_grupo, grupos_creados [i], MAX_NOMBRE_RECURSO) == 0) {
-			creado = true;
-			break;
-		}
-		if (!creado && *grupos_creados [i] == '\0') {
-			strncpy(grupos_creados [i], nombre_grupo, MAX_NOMBRE_RECURSO);
-			break;
-		}
+	memoria_total += TAMANIO_TABLA_CLIENTES * cantidad_de_grupos;
+
+	if (memoria_total > info_ipc.shmmax || cantidad_de_grupos > 128) {
+		throw GenericError("No se pudo alocar a los grupos");
 	}
-	for (int i = 0 ; i < *cantidad_clientes_esperando ; i++) {
-		semaforo_grupos.signalize(1);
-	}
-	*cantidad_clientes_esperando = 0;
-	semaforo_grupos.signalize(0);
+
 }
 
 void TokenManager::crear_grupo(const std::string & directorio_de_trabajo, const std::string & groups_file,
@@ -122,7 +118,7 @@ void TokenManager::crear_grupo(const std::string & directorio_de_trabajo, const 
 				std::string(directorio_de_trabajo).append(PREFIJO_RECURSO).append(nombre_recurso).append(POSTFIJO_LCK).c_str());
 			g = new Grupo(directorio_de_trabajo, nombre_recurso, InitParser::parse_int_val(tamanio_memoria_str), true);
 			grupos.insert(std::pair<std::string, Grupo *>(std::string(nombre_recurso), g));
-			agregar_grupo_a_tabla_creados(group_name.c_str());
+			//agregar_grupo_a_tabla_creados(group_name.c_str());
 
 			//manager.levantar_grupo(nombre_recurso, char(id_grupo), valor);
 			break;
@@ -182,7 +178,7 @@ void TokenManager::run() {
 			//Me fijo que token me dieron
 			recurso.assign(mensaje.recurso);
 			if (mensaje.tipo == 3) {
-				if (!existe_grupo(recurso.c_str())) {
+				if (!grupo_maestro->existe_grupo(recurso.c_str())) {
 					this->crear_grupo(this->directorio_de_trabajo, this->groups_file, recurso);
 				}
 			} else {
