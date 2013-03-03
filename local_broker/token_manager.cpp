@@ -22,6 +22,8 @@
 #include "init_parser.h"
 #include <sys/shm.h>
 
+#define LANZAR_SERVICIO_DE_ANILLOS 0
+
 TokenManager::TokenManager(const std::string & directorio, const std::string & groups_file)
 	: clientes(std::string(directorio).append(PATH_COLA_TOKEN_MANAGER).c_str(), char(0), 0664, true),
 		directorio_de_trabajo(directorio), groups_file(groups_file), manager(directorio_de_trabajo)
@@ -34,8 +36,10 @@ TokenManager::TokenManager(const std::string & directorio, const std::string & g
 
 	grupo_maestro = new Grupo(directorio, memoria_total, cantidad_de_grupos);
 
+#if LANZAR_SERVICIO_DE_ANILLOS == 1
 	manager.levantar_servicio();
 	manager.levantar_multiplexor(1);
+#endif
 
 	//Grupo::alocar_memoria_grupo(directorio, memoria_total, cantidad_de_grupos);
 }
@@ -120,15 +124,29 @@ void TokenManager::crear_grupo(const std::string & directorio_de_trabajo, const 
 			g = new Grupo(directorio_de_trabajo, nombre_recurso, InitParser::parse_int_val(tamanio_memoria_str), true);
 			grupos.insert(std::pair<std::string, Grupo *>(std::string(nombre_recurso), g));
 			//agregar_grupo_a_tabla_creados(group_name.c_str());
-			Log::info("Grupo %s creado",nombre_recurso);
+			Log::info("Grupo %s creado", nombre_recurso);
+#if LANZAR_SERVICIO_DE_ANILLOS == 1
 			manager.levantar_grupo(nombre_recurso, valor);
-
+#else
 			// DEBUG
 			if (valor == 1) {
-				// MAL LO TIENE QUE INICIALIZAR EL PROCESO "GROUP_RECEIVER" QUE ES EL QUE MANEJA AL LIDER
 				// TEST CON 1 solo broker
-				//g->release_token(&clientes);
+				g->release_token(&clientes);
 			}
+			if (InitParser::parse_int_val(tamanio_memoria_str)) {
+				int pos;
+				char path [FILENAME_MAX];
+				strcpy(path, directorio_de_trabajo.c_str());
+				strcat(path, "/");
+				strcat(path, nombre_recurso);
+				pos = strlen(path) - 1;
+				while (path [pos] <= '9' && path [pos] >= '0') {
+					path [pos--] = '\0';
+				}
+				strcat(path, POSTFIJO_INIT);
+				g->inicializar_memoria(path);
+			}
+#endif
 			break;
 
 			/*if (InitParser::parse_int_val(tamanio_memoria_str)) {

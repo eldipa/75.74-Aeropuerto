@@ -23,6 +23,30 @@ static char tamanio [10];
  (char*)"localbroker1.sitio1.aeropuerto1:1234", nombre_grupo, id, tamanio, NULL};
  */
 
+int test_memoria_distribuida(int argc, char *argv []) {
+	std::vector<unsigned short> valores;
+	//char id_recurso;
+
+	if (argc < 2) {
+		std::cerr << "Faltan argumentos " << argv [0] << std::endl;
+		return -1;
+	}
+
+	//std::cout << valores.size() << std::endl;
+
+	snprintf(directorio_de_trabajo, 200, "%s", "./locks");
+	strncpy(app_name, argv [1], 200);
+	sprintf(nombre_grupo, "%s", "cinta_principal");
+
+	MemoriaDistribuida memoria(directorio_de_trabajo, app_name, nombre_grupo, char(0), 1024);
+	std::cout << "semaforos creados" << std::endl;
+	memoria.lock();
+
+	memoria.unlock();
+
+	return 0;
+}
+
 int test_semaphore_set(int argc, char *argv []) {
 	std::vector<unsigned short> valores;
 	//char id_recurso;
@@ -103,7 +127,8 @@ try
 		throw GenericError("Cannot change working dir to %s", "local_broker");
 	}
 
-	test_semaphore_set(argc, argv);
+	test_memoria_distribuida(argc, argv);
+	//test_semaphore_set(argc, argv);
 	//test_zona_asignada(argc, argv);
 	//test_local_broker_comm(argc, argv);
 

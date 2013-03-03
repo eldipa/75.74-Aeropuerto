@@ -186,7 +186,6 @@ void ClientHandler::loop_token_fork() {
 		} while (!leave);
 	} else {
 		bool tengo_token = false;
-		;
 		do {
 			try {
 				grupo->lock_token();

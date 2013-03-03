@@ -26,7 +26,7 @@ static char groups_file [200];
 static char * args_client_handler [] = {
 	(char*)"client_handler", directorio_de_trabajo, num_socket, id_cola_token_manager, NULL};
 
-#define LANZAR_TOKEN_MANAGER 0
+#define LANZAR_TOKEN_MANAGER 1
 
 #if LANZAR_TOKEN_MANAGER == 1
 static char * args_token_manager [] = {
