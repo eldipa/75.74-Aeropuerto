@@ -19,6 +19,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include "daemon.h"
+#include "log.h"
 
 LocalBrokerComm::LocalBrokerComm(const std::string & app_name, const std::string & broker_hostname,
 	const std::string & service)
@@ -175,34 +176,30 @@ LocalBrokerComm * conectar_con_broker(const std::string & nombre_app, std::vecto
 
 	LocalBrokerComm * broker;
 	bool conecto = false;
-	size_t i = 0;
-	conectado_con = 0;
+	size_t cant_brokers = brokers.size();
+	size_t i = conectado_con;
 
 	do {
-
 		try {
-			std::cout << "conectando: " << brokers [i] << ":" << servicios [i] << std::endl;
+			Log::info("Conectando: %s : %s\n", brokers [i].c_str(), servicios [i].c_str());
+			//std::cout << "conectando: " << brokers [i] << ":" << servicios [i] << std::endl;
 			broker = new LocalBrokerComm(nombre_app, brokers [i], servicios [i]);
 			conecto = true;
+			conectado_con = i;
 		} catch (CommError & error) {
-			//delete broker;
-			i++;
-			if (i == brokers.size()) {
+			i = (i + 1) % cant_brokers;
+			if (i == conectado_con) {
 				throw error;
 			}
 			conecto = false;
-
 		} catch (OSError & error) {
-			//delete broker;
-			i++;
-			if (i == brokers.size()) {
+			i = (i + 1) % cant_brokers;
+			if (i == conectado_con) {
 				throw error;
 			}
 			conecto = false;
-
 		}
-		conectado_con++;
-	} while (i < brokers.size() && !conecto);
+	} while (!conecto && i != conectado_con);
 
 	if (!conecto) {
 		throw CommError("Unable to connect to brokers");
@@ -217,12 +214,12 @@ void do_loop_mutex(ControlTokens * control, const std::string & directorio_de_tr
 	MutexDistribuido mutex(directorio_de_trabajo, nombre_grupo, id);
 
 	LocalBrokerComm * broker = NULL;
-	bool seguir;
-	bool reconectar;
+	bool seguir= true;
+	bool reconectar= true;
 	size_t conectado_con = 0;
-	seguir = true;
-	reconectar = true;
 	pid_t pid_hijo;
+
+	ignore_signals();
 
 	while (reconectar) {
 		try {
@@ -234,7 +231,6 @@ void do_loop_mutex(ControlTokens * control, const std::string & directorio_de_tr
 			seguir = false;
 		}
 		reconectar = false;
-		ignore_signals();
 		pid_hijo = fork();
 
 		if (pid_hijo) { // padre recibe token
@@ -315,22 +311,22 @@ void do_loop_semaforo(ControlTokens * control, const std::string & directorio_de
 	const std::string & nombre_app, const std::string & nombre_grupo, char id, int num_sem, int cant_sem,
 	std::vector<std::string> & brokers, std::vector<std::string> & servicios)
 {
+
+	LocalBrokerComm * broker = NULL;
+	bool seguir = true;
+	bool reconectar = true;
+	size_t conectado_con = 0;
 	size_t size;
 	std::string nombre(nombre_grupo);
+	pid_t pid_hijo;
+
 	size = nombre.size();
 	while (nombre [size - 1] >= '0' && nombre [size - 1] <= '9') {
 		nombre.erase(size - 1, 1);
 		size--;
 	}
-	SemaphoreSetDistribuido semaforos(directorio_de_trabajo, nombre, id, cant_sem);
 
-	LocalBrokerComm * broker = NULL;
-	bool seguir;
-	bool reconectar;
-	size_t conectado_con = 0;
-	seguir = true;
-	reconectar = true;
-	pid_t pid_hijo;
+	SemaphoreSetDistribuido semaforos(directorio_de_trabajo, nombre, id, cant_sem);
 
 	while (reconectar) {
 		try {
@@ -423,14 +419,12 @@ void do_loop_memoria(ControlTokens * control, const std::string & directorio_de_
 	const std::string & nombre_grupo, char id, std::vector<std::string> & brokers, std::vector<std::string> & servicios)
 {
 	LocalBrokerComm * broker = NULL;
+	bool seguir = true;
+	bool reconectar = true;
+	size_t conectado_con = 0;
 
 	MemoriaDistribuida memoria(directorio_de_trabajo, nombre_grupo, id);
 
-	bool seguir;
-	bool reconectar;
-	size_t conectado_con = 0;
-	seguir = true;
-	reconectar = true;
 	while (reconectar) {
 		try {
 			broker = conectar_con_broker(nombre_app, brokers, servicios, conectado_con);
@@ -510,12 +504,12 @@ void test_local_broker_comm2(int argc, char * argv []) {
 	delete mem;
 }
 
-void print_args(int argc, char * argv[]) {
+void print_args(int argc, char * argv []) {
 	int i;
 	std::cout << "argc=" << argc << std::endl;
-	std::cout << argv[0];
-	for (i = 1; i < argc; i++) {
-		std::cout << " " << argv[i];
+	std::cout << argv [0];
+	for (i = 1; i < argc ; i++) {
+		std::cout << " " << argv [i];
 	}
 	std::cout << std::endl;
 }
@@ -572,7 +566,6 @@ try
 
 	ControlTokens * control = ControlTokens::get_instance(argv [1]);
 
-	//"localbroker1.sitio1.aeropuerto1";
 	if (tamanio == 0) {
 		try {
 			if (strncmp(argv [7], "mutex", strlen("mutex")) == 0) {
@@ -583,23 +576,28 @@ try
 			}
 		} catch (OSError & error) {
 			std::cerr << error.what() << std::endl;
+			Log::crit(error.what());
 		}
 	} else {
 		try {
 			do_loop_memoria(control, argv [1], argv [2], argv [4], id, brokers, servicios);
 		} catch (OSError & error) {
+			Log::crit(error.what());
 		}
 	}
 	control->destroy_instance();
 }
 catch (CommError & e) {
-	std::cerr << e.what() << std::endl;
+	//std::cerr << e.what() << std::endl;
+	Log::crit(e.what());
 }
 catch (OSError & e) {
-	std::cerr << e.what() << std::endl;
+	//std::cerr << e.what() << std::endl;
 	//std::cerr << "Unable to connect to local_brokers" << std::endl;
+	Log::crit(e.what());
 }
 catch (std::exception & e) {
-	std::cerr << e.what() << std::endl;
+	//std::cerr << e.what() << std::endl;
+	Log::crit(e.what());
 }
 

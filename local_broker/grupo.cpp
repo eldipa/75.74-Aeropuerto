@@ -180,7 +180,8 @@ void Grupo::join(const char nombre [MAX_NOMBRE_RECURSO]) {
 		}
 	}
 
-	std::cout << "Join: " << nombre << " to " << this->nombre_recurso << std::endl;
+	Log::info("Join: %s to %s\n", nombre, this->nombre_recurso.c_str());
+	//std::cout << "Join: " << nombre << " to " << this->nombre_recurso << std::endl;
 
 	semaforos.signalize(mutex_asignado);
 }
@@ -233,8 +234,6 @@ bool Grupo::ya_esta_cliente(const char nombre [MAX_NOMBRE_RECURSO]) {
 	semaforos.signalize(mutex_asignado);
 	return value;
 }
-
-
 
 unsigned short Grupo::obtener_proximo_cliente() {
 	semaforos.wait_on(mutex_asignado);
@@ -290,8 +289,9 @@ void Grupo::pasar_token_a_proximo_cliente() {
 	}
 
 	//if (this->nombre_recurso == "cinta_principal" || this->nombre_recurso.substr(0, 4) == "cpp_") {
-	std::cout << "Passing Token from " << this->nombre_recurso << " to: " << client_names [cliente_actual] << "("
-		<< cliente_actual << ")" << std::endl;
+	Log::debug("Passing Token from %s to: %s (%d)\n", this->nombre_recurso.c_str(), client_names [cliente_actual],
+		cliente_actual);
+
 	//}
 
 	cola.push(&mensaje, sizeof(traspaso_token_t) - sizeof(long));
@@ -305,8 +305,8 @@ void Grupo::reenviar_token_al_cliente() {
 	mensaje.mtype = cliente_actual + numero_base_cola_asignada;
 
 	mensaje.tipo = 1;
-	std::cout << "Resending Token from " << this->nombre_recurso << " to: " << client_names [cliente_actual] << "("
-		<< cliente_actual << ")" << std::endl;
+	Log::debug("Resending Token from %s to: %s (%d)\n", this->nombre_recurso.c_str(), client_names [cliente_actual],
+		cliente_actual);
 
 	cola.push(&mensaje, sizeof(traspaso_token_t) - sizeof(long));
 	semaforos.signalize(mutex_asignado);
@@ -413,8 +413,7 @@ void Grupo::replicar_brokers() {
 
 		if (encontrado) {
 			//if (this->nombre_recurso == "cinta_principal" || this->nombre_recurso.substr(0, 4) == "cpp_") {
-			std::cout << "Replicating " << this->nombre_recurso << " to: " << client_names [j] << "(" << cliente_actual
-				<< ")" << std::endl;
+			Log::debug("Replicating %s to: %s (%d)\n", this->nombre_recurso.c_str(), client_names [j], cliente_actual);
 			//}
 
 			cola.push(&mensaje, sizeof(traspaso_token_t) - sizeof(long));
@@ -441,8 +440,9 @@ void Grupo::el_token_se_envio() {
 
 void Grupo::avisar_si_se_esta_enviando_token() {
 	semaforos.wait_on(mutex_asignado);
-	if (*tengo_token == 0 && *token_enviado == 0)
+	if (*tengo_token == 0 && *token_enviado == 0) {
 		(*avisar_envio) = 1;
+	}
 	semaforos.signalize(mutex_asignado);
 }
 

@@ -43,7 +43,6 @@ void ClientHandler::avisar_creacion_grupo(const std::string & nombre_grupo) {
 	mensaje.tipo = 3; // crear grupo
 	strncpy(mensaje.recurso, nombre_grupo.c_str(), MAX_NOMBRE_RECURSO);
 	cola_token_manager.push(&mensaje, sizeof(traspaso_token_t) - sizeof(long));
-
 }
 
 void ClientHandler::join_group(const std::string & nombre_grupo) {
@@ -167,9 +166,8 @@ void ClientHandler::loop_token_fork() {
 				if (recv_token() == 0) {
 					leave = true;
 				} else {
-					//std::cout << " Recibo token " << nombre_grupo << " de " << nombre_cliente << std::endl;
+					Log::debug("Recibo token %s de %s\n", nombre_grupo.c_str(), nombre_cliente.c_str());
 					grupo->release_token(&cola_token_manager);
-					//std::cout << " Libero token " << nombre_grupo << std::endl;
 				}
 			} catch (OSError & error) {
 				leave = true;
@@ -184,7 +182,6 @@ void ClientHandler::loop_token_fork() {
 				} catch (OSError & error) {
 				}
 				waitpid(pid_hijo, &status, 0);
-				//std::cout << "padre leave" << std::endl;
 			}
 		} while (!leave);
 	} else {
@@ -192,18 +189,13 @@ void ClientHandler::loop_token_fork() {
 		;
 		do {
 			try {
-				//std::cout << getpid() << " Hijo recibo token cola" << std::endl;
-				//std::cout << " Espero token " << nombre_grupo << std::endl;
 				grupo->lock_token();
 				tengo_token = true;
-				//std::cout << getpid() << " Hijo envio token socket" << std::endl;
-				//std::cout << " Envio token " << nombre_grupo << " a " << nombre_cliente << std::endl;
+				Log::debug("Envio token %s a %s\n", nombre_grupo.c_str(), nombre_cliente.c_str());
 				send_token();
 				tengo_token = false;
 			} catch (OSError & error) {
 				leave = true;
-				//kill(getppid(), SIGTERM);
-				//std::cout << "hijo leave" << std::endl;
 			} catch (CommError & error) {
 				leave = true;
 			}
@@ -310,16 +302,16 @@ try
 
 	fd = atoi(argv [2]);
 	id = atoi(argv [3]);
-   id = id;
+
 	///// SOCKET ESCUCHA SOLO PARA DEBUG
 	/*int new_socket;
-	std::string puerto("1234");
-	Socket * server_socket = new Socket(true);
-	server_socket->source(puerto);
-	new_socket = server_socket->listen_fd(10);
-	fd = new_socket;
-	server_socket->disassociate();
-	delete server_socket;*/
+	 std::string puerto("1234");
+	 Socket * server_socket = new Socket(true);
+	 server_socket->source(puerto);
+	 new_socket = server_socket->listen_fd(10);
+	 fd = new_socket;
+	 server_socket->disassociate();
+	 delete server_socket;*/
 
 	ClientHandler handler(argv [1], /*id,*/fd);
 
@@ -332,8 +324,8 @@ try
 
 }
 catch (const std::exception & e) {
-	std::cerr << "Error Broker Local" << std::endl;
-	std::cerr << e.what() << std::endl;
+	//std::cerr << "Error Broker Local" << std::endl;
+	//std::cerr << e.what() << std::endl;
 	Log::crit("%s", e.what());
 }
 catch (...) {

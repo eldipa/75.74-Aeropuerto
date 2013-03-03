@@ -11,7 +11,7 @@
 #include "local_broker_constants.h"
 #include "messagequeue.h"
 #include "grupo.h"
-#include "group_interface.h"
+#include "group_multiplexer.h"
 #include "mensajes_de_red.h"
 #include <string>
 
@@ -19,7 +19,7 @@ class GroupReceiver {
 private:
 	MessageQueue cola_token_manager;
 	MessageQueue * leader_q;
-	GroupInterface * grupo_remoto;
+	GroupMultiplexer * grupo_remoto;
 	Grupo grupo;
 
 	mensajes::mensajes_local_broker_group_t mensaje;
@@ -31,7 +31,7 @@ private:
 	std::string directorio_de_trabajo;
 	std::string broker_local;
 	std::string nombre_recurso;
-	char id_grupo;
+	char id_aeropuerto;
 
 	size_t cantidad_recibida_token;
 	size_t cantidad_recibida_grupo;
@@ -46,10 +46,14 @@ private:
 	bool crear_token;
 	bool token_inicializado;
 	bool memoria_inicializada;
+	bool token_ok;
 	bool replica_ok;
-	bool avisar_llegada_token;
 
 	int numero_de_nodo;
+
+	bool procesar_recepcion_token();
+
+	void procesar_memory_update();
 
 	void inicializar_grupo();
 	void forward_mensaje();

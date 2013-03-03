@@ -16,17 +16,17 @@
 #include "oserror.h"
 #include "genericerror.h"
 
-GroupSender::GroupSender(const std::string & directorio_de_trabajo,
-		const std::string & nombre_grupo, char id,
-		const std::string & nombre_broker_local) :
-		grupo_remoto(NULL), grupo(directorio_de_trabajo, nombre_grupo), broker_local(
-				nombre_broker_local) {
+GroupSender::GroupSender(const std::string & directorio_de_trabajo, const std::string & nombre_grupo,
+	const std::string & nombre_broker_local)
+	: grupo_remoto(NULL), grupo(directorio_de_trabajo, nombre_grupo), broker_local(nombre_broker_local)
+{
 
-	for (int i = 0; i < 3; i++) {
+	strncpy(mensaje.nombre_grupo, nombre_grupo.c_str(), MAX_NOMBRE_RECURSO);
+
+	for (int i = 0 ; i < 3 ; i++) {
 		try {
-			grupo_remoto = new GroupInterface(
-					std::string(directorio_de_trabajo).append(
-							PATH_COLAS_BROKERS).c_str(), id);
+			grupo_remoto = new GroupMultiplexer(std::string(directorio_de_trabajo).append(PATH_COLAS_BROKERS).c_str(),
+				nombre_grupo.c_str());
 			break;
 		} catch (OSError & error) {
 			sleep(1);
@@ -40,9 +40,8 @@ GroupSender::GroupSender(const std::string & directorio_de_trabajo,
 
 	cantidad_de_bloques_por_token = (tamanio_memoria / DATA_SIZE);
 
-	if (tamanio_memoria % DATA_SIZE
-			!= 0|| tamanio_memoria == 0 || tamanio_memoria < DATA_SIZE) {cantidad_de_bloques_por_token
-		++;
+	if (tamanio_memoria % DATA_SIZE != 0 || tamanio_memoria == 0 || tamanio_memoria < DATA_SIZE) {
+		cantidad_de_bloques_por_token++;
 	}
 
 	mensaje.tipo = mensajes::TOKEN_DELIVER;
@@ -59,24 +58,23 @@ GroupSender::~GroupSender() {
 
 void GroupSender::send_token(int tipo) {
 	int i;
-	if(tipo == 1){
+	if (tipo == 1) {
 		mensaje.tipo = mensajes::TOKEN_DELIVER;
-	}else if(tipo==2){
+	} else if (tipo == 2) {
 		mensaje.tipo = mensajes::MEMORY_UPDATE;
 	}
 
-	for (i = 0; i < cantidad_de_bloques_por_token; i++) {
+	for (i = 0; i < cantidad_de_bloques_por_token ; i++) {
 		mensaje.numero_de_mensaje = i;
-		memcpy(mensaje.data, (char*) grupo.memory_pointer() + i * DATA_SIZE,
-				DATA_SIZE);
+		memcpy(mensaje.data, (char*)grupo.memory_pointer() + i * DATA_SIZE, DATA_SIZE);
 		sprintf(mensaje.data, "%d", i);
-		grupo_remoto->push((char*) &mensaje,
-				sizeof(mensajes::mensajes_local_broker_group_t));
+		grupo_remoto->push(mensaje);
 	}
-	if(grupo.tengo_que_avisar_envio()){
+	if (grupo.tengo_que_avisar_envio()) {
 		mensaje.tipo = mensajes::TOKEN_IN_TRANSIT;
 		mensaje.numero_de_mensaje = 0;
-		strncpy(mensaje.data,this->broker_local.c_str(),this->broker_local.size());
+		strncpy(mensaje.data, this->broker_local.c_str(), this->broker_local.size());
+		grupo_remoto->push(mensaje);
 	}
 	grupo.el_token_se_envio();
 }
@@ -124,30 +122,28 @@ void GroupSender::run() {
 	loop_token();
 }
 
-void print_args(int argc, char * argv[]) {
+void print_args(int argc, char * argv []) {
 	int i;
 	std::cout << "argc=" << argc << std::endl;
-	std::cout << argv[0];
-	for (i = 1; i < argc; i++) {
-		std::cout << " " << argv[i];
+	std::cout << argv [0];
+	for (i = 1; i < argc ; i++) {
+		std::cout << " " << argv [i];
 	}
 	std::cout << std::endl;
 }
 
-int main(int argc, char * argv[]) {
+int main(int argc, char * argv []) {
 	char id;
 
 	print_args(argc, argv);
 
 	if (argc < 5) {
-		std::cerr
-				<< "Falta el directorio de trabajo, el id, el nombre del recurso, nombre_broker_local"
-				<< std::endl;
+		std::cerr << "Falta el directorio de trabajo, el id, el nombre del recurso, nombre_broker_local" << std::endl;
 		return -1;
 	}
-	id = atoi(argv[2]);
+	id = atoi(argv [2]);
 
-	GroupSender handler(argv[1], argv[3], id, argv[4]);
+	GroupSender handler(argv [1], argv [3],  argv [4]);
 
 	handler.run();
 

@@ -53,6 +53,7 @@ typedef struct {
 	GROUP_MSG_T tipo;
 	int numero_de_mensaje;
 	size_t cantidad_bytes_total;
+	char nombre_grupo [MAX_NOMBRE_RECURSO];
 	char data [DATA_SIZE];
 } mensajes_local_broker_group_t;
 

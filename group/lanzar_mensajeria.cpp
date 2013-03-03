@@ -22,7 +22,7 @@ void lanzar_mensajeria(const char* absolute_path, char proj_id, char group_id,
       " " << "&";
 
    system(cmd.str().c_str());
-   std::cout << cmd.str() << std::endl;
+  // std::cout << cmd.str() << std::endl;
 }
 
 void lanzar_beacon_svc(const char* localhost_name){
@@ -33,7 +33,7 @@ void lanzar_beacon_svc(const char* localhost_name){
 	      " " << "&";
 
 	   system(cmd.str().c_str());
-	   std::cout << cmd.str() << std::endl;
+	   //std::cout << cmd.str() << std::endl;
 }
 
 void bajar_grupos(){
@@ -42,6 +42,6 @@ void bajar_grupos(){
 	   cmd << "pkill python &";
 
 	   system(cmd.str().c_str());
-	   std::cout << cmd.str() << std::endl;
+	   //std::cout << cmd.str() << std::endl;
 }
 

@@ -11,13 +11,13 @@
 #include "mensajes_de_red.h"
 #include "messagequeue.h"
 #include "grupo.h"
-#include "group_interface.h"
+#include "group_multiplexer.h"
 #include <string>
 
 class GroupSender {
 private:
 
-	GroupInterface * grupo_remoto;
+	GroupMultiplexer * grupo_remoto;
 	Grupo grupo;
 	std::string broker_local;
 	mensajes::mensajes_local_broker_group_t mensaje;
@@ -30,7 +30,7 @@ private:
 	void send_token(int tipo);
 
 public:
-	GroupSender(const std::string & directorio_de_trabajo, const std::string & nombre_grupo, char id,
+	GroupSender(const std::string & directorio_de_trabajo, const std::string & nombre_grupo,
 		const std::string & nombre_broker_remoto);
 	virtual ~GroupSender();
 

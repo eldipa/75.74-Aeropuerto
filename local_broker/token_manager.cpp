@@ -28,13 +28,14 @@ TokenManager::TokenManager(const std::string & directorio, const std::string & g
 {
 	//crear_grupos(directorio_de_trabajo, groups_file);
 
-	manager.levantar_servicio();
-
 	chequear_memoria_disponible();
 
 	create_if_not_exists(std::string(directorio).append(PATH_TABLA_GRUPOS).c_str());
 
 	grupo_maestro = new Grupo(directorio, memoria_total, cantidad_de_grupos);
+
+	manager.levantar_servicio();
+	manager.levantar_multiplexor(1);
 
 	//Grupo::alocar_memoria_grupo(directorio, memoria_total, cantidad_de_grupos);
 }
@@ -119,19 +120,14 @@ void TokenManager::crear_grupo(const std::string & directorio_de_trabajo, const 
 			g = new Grupo(directorio_de_trabajo, nombre_recurso, InitParser::parse_int_val(tamanio_memoria_str), true);
 			grupos.insert(std::pair<std::string, Grupo *>(std::string(nombre_recurso), g));
 			//agregar_grupo_a_tabla_creados(group_name.c_str());
-
-
-			//manager.levantar_grupo(nombre_recurso, char(id_grupo), valor);
-
-			// DEBUG AGREGO UN TOKEN
-			//g->release_token(&clientes);
-
+			Log::info("Grupo %s creado",nombre_recurso);
+			manager.levantar_grupo(nombre_recurso, valor);
 
 			// DEBUG
 			if (valor == 1) {
 				// MAL LO TIENE QUE INICIALIZAR EL PROCESO "GROUP_RECEIVER" QUE ES EL QUE MANEJA AL LIDER
 				// TEST CON 1 solo broker
-				g->release_token(&clientes);
+				//g->release_token(&clientes);
 			}
 			break;
 
@@ -199,6 +195,7 @@ void TokenManager::run() {
 			}
 			usleep(300000);
 		} catch (OSError & error) {
+			Log::crit("%s", error.what());
 			//std::cerr << error.what() << std::endl;
 			salir = true;
 		}
@@ -229,16 +226,16 @@ try
 
 }
 catch (OSError & error) {
-	std::cerr << "Error Token Manager" << std::endl;
-	std::cerr << error.what() << std::endl;
+	//std::cerr << "Error Token Manager" << std::endl;
+	//std::cerr << error.what() << std::endl;
 	Log::crit("%s", error.what());
 }
 catch (const std::exception & e) {
-	std::cerr << "Error Token Manager" << std::endl;
-	std::cerr << e.what() << std::endl;
+	//std::cerr << "Error Token Manager" << std::endl;
+	//std::cerr << e.what() << std::endl;
 	Log::crit("%s", e.what());
 }
 catch (...) {
-	std::cerr << "Error Broker Local" << std::endl;
+	//std::cerr << "Error Broker Local" << std::endl;
 	Log::crit("Critical error. Unknow exception at the end of the 'main' function.");
 }

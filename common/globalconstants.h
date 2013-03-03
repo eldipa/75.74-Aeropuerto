@@ -37,7 +37,7 @@
 #define POSTFIJO_LCK ".lck"
 #define PATH_CONTROL_TOKENS "/control_tokens.lck"
 #define PATH_COLAS_GRUPO "/colas_grupo.lck"
-#define MAX_NOMBRE_RECURSO 128
+#define MAX_NOMBRE_RECURSO 64
 
 #define GROUP_MSG_DATA_SIZE 256
 
