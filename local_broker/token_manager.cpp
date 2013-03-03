@@ -125,13 +125,15 @@ void TokenManager::crear_grupo(const std::string & directorio_de_trabajo, const 
 
 			// DEBUG AGREGO UN TOKEN
 			//g->release_token(&clientes);
-			break;
+
 
 			// DEBUG
 			if (valor == 1) {
 				// MAL LO TIENE QUE INICIALIZAR EL PROCESO "GROUP_RECEIVER" QUE ES EL QUE MANEJA AL LIDER
-				//g->release_token(&clientes);
+				// TEST CON 1 solo broker
+				g->release_token(&clientes);
 			}
+			break;
 
 			/*if (InitParser::parse_int_val(tamanio_memoria_str)) {
 			 int pos;
@@ -214,7 +216,6 @@ try
 	char id;
 
 	id = atoi(argv [2]);
-   id = id;
 	chdir("local_broker");
 	/*if (chdir("local_broker") != 0) {
 	 throw GenericError("Cannot change working dir to %s", "local_broker");
