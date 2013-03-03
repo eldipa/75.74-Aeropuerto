@@ -39,9 +39,9 @@ private:
 	void despertar_productores();
 
 public:
-	Cinta(const char * app_name, const char * directorio_de_trabajo, int numero_cinta, int size, int cant_productores,
+	Cinta(const char * app_name, const char * directorio_de_trabajo, char numero_cinta, int size, int cant_productores,
 		int cant_consumidores);
-	Cinta(const char * app_name, const char * directorio_de_trabajo, int numero_cinta);
+	Cinta(const char * app_name, const char * directorio_de_trabajo, char numero_cinta);
 	virtual ~Cinta();
 
 	void poner_equipaje(const T & elemento, int id_productor);
@@ -122,7 +122,7 @@ public:
  }
  }*/
 
-template <typename T> Cinta<T>::Cinta(const char * app_name, const char * directorio_de_trabajo, int numero_cinta) {
+template <typename T> Cinta<T>::Cinta(const char * app_name, const char * directorio_de_trabajo, char numero_cinta) {
 
 	std::vector<unsigned short> valores;
 	/*this->memoria_compartida = new SharedMemory(absolute_path, cant_ipc * (numero_cinta - 1), 0, false, false);
@@ -131,21 +131,21 @@ template <typename T> Cinta<T>::Cinta(const char * app_name, const char * direct
 	 this->semaforo_productores = new SemaphoreSet(absolute_path, cant_ipc * (numero_cinta - 1) + 2, 0, 0);
 	 this->semaforo_consumidores = new SemaphoreSet(absolute_path, cant_ipc * (numero_cinta - 1) + 3, 0, 0);
 	 */
-	numero_cinta = numero_cinta + 1 - 1;
 	this->memoria_compartida = new MemoriaDistribuida(directorio_de_trabajo, app_name,
-		std::string("cinta_checkin")/*.append(intToString(numero_cinta))*/.c_str(), 0, TAMANIO_MEMORIA_CINTA_CHECKIN);
+		std::string("cinta_checkin")/*.append(intToString(numero_cinta))*/.c_str(), numero_cinta,
+		TAMANIO_MEMORIA_CINTA_CHECKIN);
 	valores.clear();
 	for (unsigned short i = 0 ; i < CANTIDAD_MAX_PRODUCTORES_CINTA_CHECKIN ; i++) {
 		valores.push_back(i);
 	}
 	this->semaforo_productores = new SemaphoreSetDistribuido(valores, directorio_de_trabajo, app_name,
-		std::string("chk_sem_prod_"), true);
+		std::string("chk_sem_prod_"), 0, CANTIDAD_MAX_PRODUCTORES_CINTA_CHECKIN);
 	valores.clear();
 	for (unsigned short i = 0 ; i < CANTIDAD_MAX_CONSUMIDORES_CINTA_CHECKIN ; i++) {
 		valores.push_back(i);
 	}
 	this->semaforo_consumidores = new SemaphoreSetDistribuido(valores, directorio_de_trabajo, app_name,
-		std::string("chk_sem_cons_"), true);
+		std::string("chk_sem_cons_"), 0, CANTIDAD_MAX_CONSUMIDORES_CINTA_CHECKIN);
 
 	tamanio_vector = static_cast<const int *>(memoria_compartida->memory_pointer());
 	posicion_libre = const_cast<int*>(tamanio_vector) + 1;

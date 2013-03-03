@@ -96,6 +96,6 @@ int ApiDespachante::get_zona(int num_vuelo) {
       throw GenericError("ApiDespachante: Error al llamar al métdoo remoto desasignar _vuelo_1 sobre el rpc server");
    }
 
-   return (*num_zona);;
+   return (*num_zona);
    
 }

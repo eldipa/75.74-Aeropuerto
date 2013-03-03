@@ -122,7 +122,7 @@ public:
       //    return new BrokerQueueManager( new MessageBroker(directorio_de_trabajo, create) );
       // else
       //    return new BrokerQueueManager( new MessageBroker(directorio_de_trabajo) );
-
+      return new IpcQueueManager(working_dir);
    }
 
    static yasper::ptr<IQueueManager> get_intermediate_queue_manager(const char* directorio_de_trabajo, const char* config_file, bool create = false) {
@@ -160,7 +160,7 @@ public:
       //    return new BrokerQueueManager( new MessageBroker(directorio_de_trabajo, create) );
       // else
       //    return new BrokerQueueManager( new MessageBroker(directorio_de_trabajo) );
-
+      return new IpcQueueManager(working_dir);
    }
    
     static std::string get_wkdir(const char* archivo_configuracion) {

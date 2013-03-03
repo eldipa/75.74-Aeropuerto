@@ -131,7 +131,8 @@ CintaScanner<T>::CintaScanner(const char * app_name, const char* directorio_de_t
 	for (unsigned short j = 0 ; j < MAX_SCANNERS ; j++) {
 		valores.push_back(j);
 	}
-	semaforos = new SemaphoreSetDistribuido(valores, directorio_de_trabajo, app_name, "csc_semaforos_", true);
+	semaforos = new SemaphoreSetDistribuido(valores, directorio_de_trabajo, app_name, "csc_semaforos_", char(0),
+		MAX_SCANNERS);
 
 	cantidad_de_escaners_activos = static_cast<int *>(control->memory_pointer());
 	ids_escaners_activos = cantidad_de_escaners_activos + 1;
@@ -154,8 +155,6 @@ CintaScanner<T>::CintaScanner(const char * app_name, const char* directorio_de_t
 		this->cintas [i] = NULL;
 	}
 
-
-
 	control = new MemoriaDistribuida(directorio_de_trabajo, app_name, (char *)"cinta_escaner_control", 0,
 		TAMANIO_MEMORIA_CONTROL_CINTA_SCANNER);
 
@@ -169,7 +168,8 @@ CintaScanner<T>::CintaScanner(const char * app_name, const char* directorio_de_t
 	valores.clear();
 	valores.push_back(0);
 	valores.push_back(numero_escaner);
-	semaforos = new SemaphoreSetDistribuido(valores, directorio_de_trabajo, app_name, "csc_semaforos_", true);
+	semaforos = new SemaphoreSetDistribuido(valores, directorio_de_trabajo, app_name, "csc_semaforos_", char(0),
+		MAX_SCANNERS);
 
 	asignar_punteros(cintas [numero_escaner - 1]->memory_pointer(), numero_escaner - 1);
 
@@ -183,26 +183,26 @@ CintaScanner<T>::CintaScanner(const char * app_name, const char* directorio_de_t
 	//semaforos->wait_on(0);
 	/*control->lock();
 
-	if (ids_escaners_activos [this->numero_cinta] == numero_escaner) {
-		//semaforos->signalize(0);//modificar
-		control->unlock();
-		delete this->semaforos;
-		delete this->control;
-		delete this->cintas [this->numero_cinta];
-		throw ValueError("El escaner %d ya estába trabajando", numero_escaner);
-	} else {
-		ids_escaners_activos [this->numero_cinta] = numero_escaner;
-		(*cantidad_de_escaners_activos)++;
+	 if (ids_escaners_activos [this->numero_cinta] == numero_escaner) {
+	 //semaforos->signalize(0);//modificar
+	 control->unlock();
+	 delete this->semaforos;
+	 delete this->control;
+	 delete this->cintas [this->numero_cinta];
+	 throw ValueError("El escaner %d ya estába trabajando", numero_escaner);
+	 } else {
+	 ids_escaners_activos [this->numero_cinta] = numero_escaner;
+	 (*cantidad_de_escaners_activos)++;
 
-		cinta_llena [numero_cinta] = 0;
-		if (*productor_esperando == 1) {
-			*productor_esperando = 0;
-			//semaforos->signalize(MAX_SCANNERS + 1); //modificar
-			semaforos->signalize(0);
-		}
-	}
-	//semaforos->signalize(0);
-	control->unlock();*/
+	 cinta_llena [numero_cinta] = 0;
+	 if (*productor_esperando == 1) {
+	 *productor_esperando = 0;
+	 //semaforos->signalize(MAX_SCANNERS + 1); //modificar
+	 semaforos->signalize(0);
+	 }
+	 }
+	 //semaforos->signalize(0);
+	 control->unlock();*/
 }
 
 template <typename T>
@@ -335,7 +335,7 @@ T CintaScanner<T>::sacar_equipaje() {
 		semaforos->wait_on(this->numero_cinta + 1);
 
 		//this->semaforos->wait_on(numero_cinta + 1);
-		cintas[numero_cinta]->lock();
+		cintas [numero_cinta]->lock();
 
 		if (*cantidad_elementos [numero_cinta] > 0) {
 			extrajo = true;
@@ -369,7 +369,7 @@ T CintaScanner<T>::sacar_equipaje() {
 		}
 
 		//this->semaforos->signalize(numero_cinta + 1);
-		cintas[numero_cinta]->unlock();
+		cintas [numero_cinta]->unlock();
 	}
 	return elemento;
 }

@@ -21,7 +21,7 @@ static char grupo [MAX_NOMBRE_RECURSO];
 static char id_ipc [4];
 static char tamanio_mem [10];
 static char * args_local_broker_comm [] = {
-	(char *)"local_broker_comm", directorio, nombre_app, brokers_file, grupo, id_ipc, tamanio_mem};
+	(char *)"local_broker_comm", directorio, nombre_app, brokers_file, grupo, id_ipc, tamanio_mem,(char*)"mutex",NULL};
 
 MutexDistribuido::MutexDistribuido(const std::string & directorio_de_trabajo, const std::string & nombre_app,
 	const std::string & nombre_grupo, char id, bool create)

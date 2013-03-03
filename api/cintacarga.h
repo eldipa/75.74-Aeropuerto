@@ -48,7 +48,7 @@ public:
 	virtual ~CintaCarga();
 
 	void poner_equipaje(const T & elemento, int id_productor);
-	T sacar_equipaje(int id_consumidor);
+	T sacar_equipaje();
 
 	bool checkin_ya_cerro();
 	int cantidad_valijas_totales();
@@ -76,7 +76,7 @@ template <typename T> CintaCarga<T>::CintaCarga(const char * app_name, const cha
 
 	tamanio_control = 10 * sizeof(int);
 	tamanio_id_productores = CANTIDAD_MAX_PRODUCTORES_CINTA_CONTENEDOR * sizeof(int);
-	tamanio_id_consumidores = CANTIDAD_MAX_CONSUMIDORES_CINTA_CONTENEDOR* sizeof(int);
+	tamanio_id_consumidores = CANTIDAD_MAX_CONSUMIDORES_CINTA_CONTENEDOR * sizeof(int);
 	tamanio_dato = sizeof(T);
 	tamanio_shared_memory = tamanio_control + tamanio_id_productores + tamanio_id_consumidores + size * tamanio_dato;
 	memoria_compartida = new SharedMemory(absolute_path, cant_ipc * (numero_cinta - 1), tamanio_shared_memory, 0664,
@@ -144,11 +144,11 @@ template <typename T> CintaCarga<T>::CintaCarga(const char * app_name, const cha
 
 	this->memoria_compartida = new MemoriaDistribuida(directorio_de_trabajo, app_name,
 		std::string("cinta_contenedor").append(intToString(numero_cinta)).c_str(), 0, TAMANIO_MEMORIA_CINTA_CARGA);
-
-	this->semaforo_productores = new SemaphoreSetDistribuido(valores, directorio_de_trabajo, app_name,
-		std::string("cco_sem_prod_").append(intToString(numero_cinta)), true);
-	this->semaforo_consumidores = new SemaphoreSetDistribuido(valores, directorio_de_trabajo, app_name,
-		std::string("cco_sem_cons_").append(intToString(numero_cinta)), true);
+	valores.push_back(0);
+	this->semaforo_productores = new SemaphoreSetDistribuido(valores, directorio_de_trabajo, app_name, "cco_sem_prod_",
+		char(0), CANTIDAD_MAX_PRODUCTORES_CINTA_CONTENEDOR);
+	this->semaforo_consumidores = new SemaphoreSetDistribuido(valores, directorio_de_trabajo, app_name, "cco_sem_cons_",
+		char(0), CANTIDAD_MAX_CONSUMIDORES_CINTA_CONTENEDOR);
 
 	tamanio_vector = static_cast<const int *>(memoria_compartida->memory_pointer());
 	posicion_libre = const_cast<int*>(tamanio_vector) + 1;
@@ -164,6 +164,7 @@ template <typename T> CintaCarga<T>::CintaCarga(const char * app_name, const cha
 	ids_consumidores_esperando = ids_productores_esperando + *cantidad_productores;
 	vector_elementos = reinterpret_cast<T *>(ids_consumidores_esperando + *cantidad_consumidores);
 	ya_me_desperto_el_cierre_de_checkin = false;
+
 }
 
 template <typename T> CintaCarga<T>::~CintaCarga() {
@@ -172,9 +173,9 @@ template <typename T> CintaCarga<T>::~CintaCarga() {
 		this->memoria_compartida = NULL;
 	}
 	/*if (this->mutex) {
-		delete this->mutex;
-		this->mutex = NULL;
-	}*/
+	 delete this->mutex;
+	 this->mutex = NULL;
+	 }*/
 	if (this->semaforo_consumidores) {
 		delete this->semaforo_consumidores;
 		this->semaforo_consumidores = NULL;
@@ -267,7 +268,7 @@ void CintaCarga<T>::comenzar_nueva_carga() {
 }
 
 template <typename T>
-T CintaCarga<T>::sacar_equipaje(int id_consumidor = 1) {
+T CintaCarga<T>::sacar_equipaje() {
 	T elemento;
 	bool extrajo = false;
 
@@ -294,7 +295,7 @@ T CintaCarga<T>::sacar_equipaje(int id_consumidor = 1) {
 
 			if (*this->cantidad_elementos == 0) {
 				(*this->cantidad_consumidores_esperando)++;
-				this->ids_consumidores_esperando [id_consumidor - 1] = 1;
+				this->ids_consumidores_esperando [0] = 1;
 			} else {
 				//this->semaforo_consumidores->signalize(id_consumidor - 1);
 				this->semaforo_consumidores->signalize(0);

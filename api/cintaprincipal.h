@@ -78,7 +78,8 @@ template <typename T> CintaPrincipal<T>::CintaPrincipal(const char * app_name, c
 			valores.push_back(1);
 		}
 		//semaforo_productores = new SemaphoreSet(valores, absolute_path, 2, 0664);
-		semaforo_productores = new SemaphoreSetDistribuido(valores, absolute_path, app_name, "cpp_sem_prod_", true);
+		semaforo_productores = new SemaphoreSetDistribuido(valores, absolute_path, app_name, "cpp_sem_prod_", char(0),
+			CANTIDAD_MAX_PRODUCTORES_CINTA_CENTRAL);
 
 		valores.clear();
 		valores.push_back(1);
@@ -86,7 +87,8 @@ template <typename T> CintaPrincipal<T>::CintaPrincipal(const char * app_name, c
 			valores.push_back(0);
 		}
 		//semaforo_consumidores = new SemaphoreSetDistribuido(valores, absolute_path, 3, 0664);
-		semaforo_consumidores = new SemaphoreSetDistribuido(valores, absolute_path, app_name, "cpp_sem_cons_", true);
+		semaforo_consumidores = new SemaphoreSetDistribuido(valores, absolute_path, app_name, "cpp_sem_cons_", char(0),
+			CANTIDAD_MAX_CONSUMIDORES_CINTA_CENTRAL);
 	}
 	tamanio_de_vector = static_cast<int *>(memoria_compartida->memory_pointer());
 	tamanio_vector = const_cast<const int *>(tamanio_de_vector);
@@ -137,20 +139,22 @@ template <typename T> CintaPrincipal<T>::CintaPrincipal(const char * app_name, c
 	} else { //soy productor
 		valores.push_back(0);
 	}
-	semaforo_consumidores = new SemaphoreSetDistribuido(valores, absolute_path, app_name, "cpp_sem_cons_", true);
+	semaforo_consumidores = new SemaphoreSetDistribuido(valores, absolute_path, app_name, "cpp_sem_cons_", char(0),
+		CANTIDAD_MAX_CONSUMIDORES_CINTA_CENTRAL);
 	valores.clear();
 	if (id_productor >= 0) { // soy productor
 		valores.push_back(id_productor);
-	} else if (id_productor == -2) {// caso especial intercargo
-		for(unsigned short i = 5;i<CANTIDAD_MAX_PRODUCTORES_CINTA_CENTRAL;i++){
+	} else if (id_productor == -2) { // caso especial intercargo
+		for (unsigned short i = 5 ; i < CANTIDAD_MAX_PRODUCTORES_CINTA_CENTRAL ; i++) {
 			valores.push_back(i);
 		}
 	} else { //soy consumidor
-		for (unsigned short i = 0; i < CANTIDAD_MAX_PRODUCTORES_CINTA_CENTRAL ; i++) {
+		for (unsigned short i = 0 ; i < CANTIDAD_MAX_PRODUCTORES_CINTA_CENTRAL ; i++) {
 			valores.push_back(i);
 		}
 	}
-	semaforo_productores = new SemaphoreSetDistribuido(valores, absolute_path, app_name, "cpp_sem_prod_", true);
+	semaforo_productores = new SemaphoreSetDistribuido(valores, absolute_path, app_name, "cpp_sem_prod_", char(0),
+		CANTIDAD_MAX_PRODUCTORES_CINTA_CENTRAL);
 	//this->mutex = new SemaphoreSet(absolute_path, 1, 0, 0);
 
 	//this->semaforo_productores = new SemaphoreSet(absolute_path, 2, 0, 0);
@@ -186,7 +190,6 @@ template <typename T> CintaPrincipal<T>::~CintaPrincipal() {
 		delete this->semaforo_productores;
 		this->semaforo_productores = NULL;
 	}
-
 
 }
 

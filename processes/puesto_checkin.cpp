@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) try {
    }
 
    //DEBUG
-   //chdir("processes");
+   chdir("processes");
 
    ApiCheckIn checkin(argv[1], argv[2], atoi(argv[3]), atoi(argv[4]), true);
    int vuelo_pasajero, id_pasajero;

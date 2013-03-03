@@ -24,7 +24,7 @@ static char tamanio [10];
  */
 
 int test_semaphore_set(int argc, char *argv []) {
-	std::vector<unsigned short> valores(2, 1);
+	std::vector<unsigned short> valores;
 	//char id_recurso;
 
 	if (argc < 2) {
@@ -32,13 +32,16 @@ int test_semaphore_set(int argc, char *argv []) {
 		return -1;
 	}
 
+	valores.push_back(0);
+	valores.push_back(1);
+
 	//std::cout << valores.size() << std::endl;
 
 	snprintf(directorio_de_trabajo, 200, "%s", "./locks");
 	strncpy(app_name, argv [1], 200);
-	sprintf(nombre_grupo, "%s", "sem_cinta_principal_");
+	sprintf(nombre_grupo, "%s", "cpp_sem_prod_");
 
-	SemaphoreSetDistribuido semaforos(valores, directorio_de_trabajo, app_name, nombre_grupo, true);
+	SemaphoreSetDistribuido semaforos(valores, directorio_de_trabajo, app_name, nombre_grupo, char(0), 2);
 	std::cout << "semaforos creados" << std::endl;
 	semaforos.wait_on(0);
 	std::cout << "Token1" << std::endl;
@@ -66,15 +69,15 @@ void test_zona_asignada(int argc, char * argv []) {
 	cola_asignaciones.push(&mensaje, sizeof(MENSAJE_ZONA_ASIGNADA) - sizeof(long));
 }
 /*
-void test_local_broker_comm(int argc, char * argv []) {
+ void test_local_broker_comm(int argc, char * argv []) {
 
-	argc = argc + 1 - 1;
-	argv = argv + 1 - 1;
-	LocalBrokerComm broker("debug", "localbroker1.sitio1.aeropuerto1", "1234");
+ argc = argc + 1 - 1;
+ argv = argv + 1 - 1;
+ LocalBrokerComm broker("debug", "localbroker1.sitio1.aeropuerto1", "1234");
 
-	broker.join("cinta_principal", mensajes::JOIN);
-}
-*/
+ broker.join("cinta_principal", mensajes::JOIN);
+ }
+ */
 int main(int argc, char * argv [])
 try
 {
@@ -100,7 +103,7 @@ try
 		throw GenericError("Cannot change working dir to %s", "local_broker");
 	}
 
-	//test_semaphore_set(argc, argv);
+	test_semaphore_set(argc, argv);
 	//test_zona_asignada(argc, argv);
 	//test_local_broker_comm(argc, argv);
 
