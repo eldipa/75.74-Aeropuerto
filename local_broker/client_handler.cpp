@@ -310,6 +310,7 @@ try
 
 	fd = atoi(argv [2]);
 	id = atoi(argv [3]);
+   id = id;
 	///// SOCKET ESCUCHA SOLO PARA DEBUG
 	/*int new_socket;
 	std::string puerto("1234");

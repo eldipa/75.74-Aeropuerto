@@ -29,11 +29,19 @@ public:
 
 	}
 
+	ApiTractor(const char * directorio_de_trabajo, const char* config_file, int id_tractor, bool create) :
+      id(id_tractor), 
+      queue_manager( ApiConfiguracion::get_queue_manager(directorio_de_trabajo, config_file) ),
+      cola_avion( queue_manager->get_queue(PATH_COLA_TRACTORES_AVIONES, 0, true) ),
+      cola_robot_zona( queue_manager->get_queue(PATH_COLA_ROBOTS_ZONA_TRACTORES, 0, true) ) {
+      create = create;
+	}
+
 	virtual ~ApiTractor() {
 
 	}
 
-	void obtener_contenedores_a_cargar(BloqueContenedores &contenedores) {
+ 	void obtener_contenedores_a_cargar(BloqueContenedores &contenedores) {
 		cola_robot_zona->pull((void *) &contenedores, sizeof(BloqueContenedores) - sizeof(long),
 				ID_ESCUCHA_TRACTOR);
 		Log::debug("Bloque Recibido: numero_vuelo=%d cantidad_total_contenedores=%d",
