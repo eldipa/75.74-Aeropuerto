@@ -10,6 +10,7 @@
 #include <string.h>
 #include "api_torre_de_control.h"
 #include "api_configuracion.h"
+#include "api_tractor.h"
 
 static char working_dir[MAX_PATH_SIZE];
 
@@ -22,6 +23,7 @@ int main(int argc, char** argv) {
       strcpy(working_dir, config_file.c_str());
 
       ApiTorreDeControl api_torre( ApiConfiguracion::get_wkdir(config_file.c_str()).c_str(), config_file.c_str(), true);
+      ApiTractor api_tractor( ApiConfiguracion::get_wkdir(config_file.c_str()).c_str(), config_file.c_str(), 1, true);
 
       for (int i = 0; i < ApiConfiguracion::get_contenedores(config_file.c_str()); i++) {
 		 	api_torre.liberar_contenedor();

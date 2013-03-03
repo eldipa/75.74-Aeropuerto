@@ -199,11 +199,11 @@ public:
 		Log::info("Creando colas...");
 		// snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_COLA_ROBOTS_ZONA_TRACTORES);
 		// cola_robot_zona_tractores = new MessageQueue(path_lock, 0, 0664, true);
-      cola_robot_zona_tractores = queue_manager->get_queue(PATH_COLA_ROBOTS_ZONA_TRACTORES, 0, true);
+      // cola_robot_zona_tractores = queue_manager->get_queue(PATH_COLA_ROBOTS_ZONA_TRACTORES, 0, true);
 
 		// snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_COLA_TRACTORES_AVIONES);
 		// cola_tractores_avion = new MessageQueue(path_lock, 0, 0664, true);
-      cola_tractores_avion = queue_manager->get_queue(PATH_COLA_TRACTORES_AVIONES, 0, true);
+      // cola_tractores_avion = queue_manager->get_queue(PATH_COLA_TRACTORES_AVIONES, 0, true);
 
 		for (int i = 0; i < cantidad_robots_sospechosos; i++) {
 			control_equipajes.push_back(new ApiControlEquipajes(path_to_locks, config_file, 3, 3, true));
@@ -233,7 +233,7 @@ private:
 	std::vector<yasper::ptr<CintaCentral> > cintas_central;
 	std::vector<yasper::ptr<CintaContenedor> > cintas_contenedor;
 	yasper::ptr<IMessageQueue> cola_robot_zona_tractores;
-	yasper::ptr<IMessageQueue> cola_tractores_avion;
+	// yasper::ptr<IMessageQueue> cola_tractores_avion;
 	std::vector<yasper::ptr<IMessageQueue> > cola_control_carga_checkin;
 	std::vector<yasper::ptr<ApiControlEquipajes> > control_equipajes;
 	yasper::ptr<IMessageQueue> cola_escucha_vuelos_entrantes;
