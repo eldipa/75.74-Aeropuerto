@@ -186,9 +186,10 @@ void ClientHandler::loop_token_fork() {
 				try {
 					socket.disassociate();
 				} catch (OSError & error) {
-					//Log::crit(error.what());
+					Log::crit(error.what());
 				}
-				waitpid(pid_hijo, &status, 0);
+				while(waitpid(pid_hijo, &status, 0) != -1){
+				}
 			}
 		} while (!leave);
 	} else {
@@ -259,6 +260,7 @@ void ClientHandler::loop_token() {
 				 print_ints((int*)grupo->memory_pointer(), int(grupo->get_mem_size() / 4));
 				 }*/
 			} catch (OSError & error) {
+				Log::crit(error.what());
 				leave = true;
 			}
 			if (leave) {
@@ -324,7 +326,6 @@ try
 	 delete server_socket;*/
 
 	ClientHandler handler(argv [1], /*id,*/fd);
-
 
 	handler.run();
 

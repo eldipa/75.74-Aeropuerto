@@ -90,13 +90,12 @@ MutexDistribuido::MutexDistribuido(const std::string & directorio_de_trabajo, co
 
 MutexDistribuido::~MutexDistribuido() {
 	int result;
-	do {
-		try {
-			handler->send_signal(SIGTERM, false);
-			result = handler->wait();
-		} catch (OSError & error) {
-		}
-	} while (result != -1);
+
+	try {
+		handler->send_signal(SIGTERM, false);
+		result = handler->wait();
+	} catch (OSError & error) {
+	}
 	if (mutex)
 		delete mutex;
 	ControlTokens::destroy_instance();

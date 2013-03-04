@@ -81,15 +81,15 @@ SemaphoreSetDistribuido::SemaphoreSetDistribuido(const std::string & directorio_
 SemaphoreSetDistribuido::~SemaphoreSetDistribuido() {
 	int result;
 	std::vector<Process *>::iterator i;
-	do {
-		try {
-			for (i = handlers.begin(); i != handlers.end() ; i++) {
-				(*i)->send_signal(SIGTERM, false);
-				result = (*i)->wait();
-			}
-		} catch (OSError & error) {
+
+	try {
+		for (i = handlers.begin(); i != handlers.end() ; i++) {
+			(*i)->send_signal(SIGTERM, false);
+			result = (*i)->wait();
 		}
-	} while (result != -1);
+	} catch (OSError & error) {
+	}
+
 	ControlTokens::destroy_instance();
 	delete semaforos;
 }
