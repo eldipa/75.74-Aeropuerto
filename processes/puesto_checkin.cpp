@@ -50,7 +50,7 @@ int main(int argc, char *argv[]) try {
       vuelo_pasajero = get_vuelo(id_pasajero);
 
       Log::info("Llego el pasajero %d con %d valijas para hacer checkin\n", id_pasajero, equipajes.size());
-      checkin.comienza_checkin_pasajero();
+      // checkin.comienza_checkin_pasajero();
 
       try {
          
@@ -71,7 +71,7 @@ int main(int argc, char *argv[]) try {
       } catch (PuestoCheckinSinVueloAsignado &) {
          Log::info("No hay checkin habilitado en este momento\n" );
       }
-      checkin.fin_checkin_pasajero();
+      // checkin.fin_checkin_pasajero();
    }
 } catch(const std::exception &e) {
    Log::crit("%s", e.what());
