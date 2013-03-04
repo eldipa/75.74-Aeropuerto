@@ -87,7 +87,7 @@ try
 		for (it = equipajes_a_cargar.equal_range(numero_vuelo_entrante).first;
 			it != equipajes_a_cargar.equal_range(numero_vuelo_entrante).second ; ++it)
 		{
-			Log::info("Colocando equipaje %d:%s", (*it).second.getRfid().rfid, (*it).second.get_descripcion());
+			Log::info("Enviando equipaje %d:%s al robot_intercargo del aeropuerto %d", (*it).second.getRfid().rfid, (*it).second.get_descripcion(), id_aeropuerto);
 			// api_trasbordo.poner_en_cinta_principal((*it).second);
          api_comm_aeropuerto.enviar_equipaje_intercargo((*it).second, id_aeropuerto);
 		}
