@@ -49,6 +49,7 @@ static char working_dir_robot_escaner4 [MAX_PATH_SIZE] = "/tmp/wd_robot_escaner4
 static char working_dir_robot_despacho1 [MAX_PATH_SIZE] = "/tmp/wd_robot_despacho1";
 static char working_dir_robot_despacho2 [MAX_PATH_SIZE] = "/tmp/wd_robot_despacho2";
 static char working_dir_robot_control_equipaje [MAX_PATH_SIZE] = "/tmp/wd_robot_control_equipaje";
+static char working_dir_robot_intercargo [MAX_PATH_SIZE] = "/tmp/wd_robot_intercargo";
 static char working_dir_control_equipaje_sospechoso [MAX_PATH_SIZE] = "/tmp/wd_control_equipaje_sospechoso";
 static char working_dir_control_carga_contenedores [MAX_PATH_SIZE] = "/tmp/control_carga_contenedores";
 
@@ -108,6 +109,9 @@ static char *args_robot_sospechosos [] = {
 	(char*)"robot_control_equipaje_sospechoso", working_dir_robot_control_equipaje, config_file, (char*)"3",
 	id_productor_cinta_central, NULL};
 
+static char *args_robot_intercargo [] = {
+	(char*)"robot_intercargo", working_dir_robot_intercargo, config_file, NULL};
+
 /*static char *args_control_sospechosos [] = {
  (char*)"robot_control_equipaje_sospechoso", working_dir_control_equipaje_sospechoso, config_file, (char*)"3",
  id_productor_cinta_central, NULL};*/
@@ -153,6 +157,7 @@ void load_all_dirs() {
 	all_dirs.push_back(working_dir_robot_despacho2);
 	all_dirs.push_back(working_dir_robot_control_equipaje);
 	all_dirs.push_back(working_dir_control_equipaje_sospechoso);
+	all_dirs.push_back(working_dir_robot_intercargo);
 	all_dirs.push_back(working_dir_control_carga_contenedores);
 	all_dirs.push_back(working_dir_local_broker1);
 	all_dirs.push_back(working_dir_local_broker2);
@@ -396,6 +401,7 @@ try
 		processes.push_back(Process("robot_carga", args_robot_carga3));
 		processes.push_back(Process("robot_carga", args_robot_carga4));
 		processes.push_back(Process("robot_control_equipaje_sospechoso", args_robot_sospechosos));
+		processes.push_back(Process("robot_intercargo", args_robot_intercargo));
 		//processes.push_back(Process("control_equipaje_sospechoso", args_robot_sospechosos));
 		processes.push_back(Process("generador_vuelos_trasbordo", args_generador_vuelos_trasbordo));
 		// processes.push_back(Process("escucha_zonas_asignadas", args_escucha_zonas_asignadas));
