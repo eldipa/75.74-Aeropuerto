@@ -131,7 +131,20 @@ void TokenManager::crear_grupo(const std::string & directorio_de_trabajo, const 
 			// DEBUG
 			if (valor == 1) {
 				// TEST CON 1 solo broker
-				g->release_token(&clientes);
+				bool seguir = true;
+				int i = 0;
+				while (seguir) {
+					try {
+						g->release_token(&clientes);
+						seguir = false;
+					} catch (OSError & error) {
+						i++;
+						if (i == 5) {
+							Log::crit("cant intentos 5");
+							throw error;
+						}
+					}
+				}
 			}
 			if (InitParser::parse_int_val(tamanio_memoria_str)) {
 				int pos;
@@ -203,7 +216,7 @@ void TokenManager::run() {
 				}
 			} else {
 				if (grupos.count(recurso) < 1) {
-					throw GenericError("Error Grupo %s no encontrado", mensaje.recurso);
+					throw GenericError("Error: Grupo %s no encontrado", mensaje.recurso);
 				}
 				g = grupos.at(recurso);
 				//sleep(1);

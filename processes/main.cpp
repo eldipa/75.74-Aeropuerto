@@ -18,7 +18,15 @@
 #include <unistd.h>
 #include <errno.h>
 
+#include <sys/stat.h>
+#include <unistd.h>
+#include <dirent.h>
+#include <sys/param.h>
+#include <sys/dir.h>
+#include <sys/types.h>
+#include "key.h"
 #include <list>
+#include <map>
 
 // static char buffer_num_vuelo[20];
 static char directorio_de_trabajo [MAX_PATH_SIZE];
@@ -56,12 +64,19 @@ static char working_dir_tractor1 [MAX_PATH_SIZE] = "/tmp/wd_tractor1";
 static char working_dir_tractor2 [MAX_PATH_SIZE] = "/tmp/wd_tractor2";
 static char working_dir_tractor3 [MAX_PATH_SIZE] = "/tmp/wd_tractor3";
 
+static char working_dir_1 [MAX_PATH_SIZE] = "/tmp/carpeta_keys_ftok";
+static char working_dir_2 [MAX_PATH_SIZE] = "/tmp/carpeta_keys_ftok_broker";
+static char working_dir_3 [MAX_PATH_SIZE] = "/tmp/carpeta_keys_ftok_intermediate_broker";
+static char working_dir_4 [MAX_PATH_SIZE] = "/tmp/carpeta_keys_ftok_torre";
+
 static char id_productor_cinta_central [10];
 
 static char *args_puesto_checkin1 [] = {
-	(char*)"puesto_checkin_1", working_dir_puesto_checkin1, config_file, (char*)"1", (char*) "1", NULL};
-static char *args_puesto_checkin2 [] = {(char*)"puesto_checkin_2", working_dir_puesto_checkin2, config_file, (char*)"2", (char*) "1", NULL};
-static char *args_puesto_checkin3 [] = {(char*)"puesto_checkin_3", working_dir_puesto_checkin3, config_file, (char*)"3", (char*) "1", NULL};
+	(char*)"puesto_checkin_1", working_dir_puesto_checkin1, config_file, (char*)"1", (char*)"1", NULL};
+static char *args_puesto_checkin2 [] = {
+	(char*)"puesto_checkin_2", working_dir_puesto_checkin2, config_file, (char*)"2", (char*)"1", NULL};
+static char *args_puesto_checkin3 [] = {
+	(char*)"puesto_checkin_3", working_dir_puesto_checkin3, config_file, (char*)"3", (char*)"1", NULL};
 
 static char *args_robot_checkin [] = {
 	(char*)"robot_checkin", working_dir_robot_checkin, config_file, (char*)"1", (char*)"1", (char*)"1", NULL};
@@ -70,7 +85,6 @@ static char *args_robot_carga1 [] = {(char*)"robot_carga_1", working_dir_robot_c
 static char *args_robot_carga2 [] = {(char*)"robot_carga_2", working_dir_robot_carga2, config_file, (char*)"2", NULL};
 static char *args_robot_carga3 [] = {(char*)"robot_carga_3", working_dir_robot_carga3, config_file, (char*)"3", NULL};
 static char *args_robot_carga4 [] = {(char*)"robot_carga_4", working_dir_robot_carga4, config_file, (char*)"4", NULL};
-
 
 static char *args_scanner1 [] = {
 	(char*)"robot_scanner_1", working_dir_robot_escaner1, config_file, (char*)"1", (char*)"1", (char*)"1", NULL};
@@ -105,7 +119,7 @@ static char *args_local_broker1 [] = {(char*)"localbroker1", working_dir_local_b
 //static char *args_local_broker3 [] = {(char*)"localbroker3", working_dir_local_broker3, "1236", NULL};
 
 //static char *args_local_broker4 [] = {(char*)"localbroker4", working_dir_local_broker4, "1237", NULL};
-/*
+
 static char * args_generador_vuelos_trasbordo [] = {
 	(char*)"generador_vuelos_trasbordo", working_dir_generador_vuelos_trasbordo, config_file,
 	(char*)"./entrada/vuelos_entrantes.csv", (char*)"./entrada/vuelos_interconexion.csv", NULL};
@@ -118,35 +132,49 @@ static char *args_tractor1 [] = {(char*)"tractor_1", working_dir_tractor1, confi
 
 static char *args_scheduler_aviones [] = {(char*)"scheduler_aviones", directorio_de_trabajo, config_file, NULL};
 static char *args_scheduler_vuelos [] = {(char*)"scheduler_vuelos", directorio_de_trabajo, config_file, NULL};
-*/
+
+static std::vector<char *> all_dirs;
+
+void load_all_dirs() {
+	all_dirs.push_back(working_dir_puesto_checkin1);
+	all_dirs.push_back(working_dir_puesto_checkin2);
+	all_dirs.push_back(working_dir_puesto_checkin3);
+	//all_dirs.push_back(working_dir_puesto_checkin4);
+	all_dirs.push_back(working_dir_robot_carga1);
+	all_dirs.push_back(working_dir_robot_carga2);
+	all_dirs.push_back(working_dir_robot_carga3);
+	all_dirs.push_back(working_dir_robot_carga4);
+	all_dirs.push_back(working_dir_robot_checkin);
+	all_dirs.push_back(working_dir_robot_escaner1);
+	all_dirs.push_back(working_dir_robot_escaner2);
+	all_dirs.push_back(working_dir_robot_escaner3);
+	all_dirs.push_back(working_dir_robot_escaner4);
+	all_dirs.push_back(working_dir_robot_despacho1);
+	all_dirs.push_back(working_dir_robot_despacho2);
+	all_dirs.push_back(working_dir_robot_control_equipaje);
+	all_dirs.push_back(working_dir_control_equipaje_sospechoso);
+	all_dirs.push_back(working_dir_control_carga_contenedores);
+	all_dirs.push_back(working_dir_local_broker1);
+	all_dirs.push_back(working_dir_local_broker2);
+	all_dirs.push_back(working_dir_local_broker3);
+	all_dirs.push_back(working_dir_local_broker4);
+	all_dirs.push_back(working_dir_generador_vuelos_trasbordo);
+	all_dirs.push_back(working_dir_avion1);
+	all_dirs.push_back(working_dir_avion2);
+	all_dirs.push_back(working_dir_tractor1);
+	all_dirs.push_back(working_dir_tractor2);
+	all_dirs.push_back(working_dir_tractor3);
+	all_dirs.push_back(working_dir_1);
+	all_dirs.push_back(working_dir_2);
+	all_dirs.push_back(working_dir_3);
+	all_dirs.push_back(working_dir_4);
+}
+
 void mkdirs() {
-	mkdir(working_dir_puesto_checkin1, 0770);
-	mkdir(working_dir_puesto_checkin2, 0770);
-	mkdir(working_dir_puesto_checkin3, 0770);
-	mkdir(working_dir_robot_carga1, 0770);
-	mkdir(working_dir_robot_carga2, 0770);
-	mkdir(working_dir_robot_carga3, 0770);
-	mkdir(working_dir_robot_carga4, 0770);
-	mkdir(working_dir_robot_checkin, 0770);
-	mkdir(working_dir_robot_escaner1, 0770);
-	mkdir(working_dir_robot_escaner2, 0770);
-	mkdir(working_dir_robot_escaner3, 0770);
-	mkdir(working_dir_robot_escaner4, 0770);
-	mkdir(working_dir_robot_despacho1, 0770);
-	mkdir(working_dir_robot_despacho2, 0770);
-	mkdir(working_dir_robot_control_equipaje, 0770);
-	mkdir(working_dir_control_equipaje_sospechoso, 0770);
-	mkdir(working_dir_control_carga_contenedores, 0770);
-	mkdir(working_dir_local_broker1, 0770);
-	mkdir(working_dir_local_broker2, 0770);
-	mkdir(working_dir_local_broker3, 0770);
-	mkdir(working_dir_local_broker4, 0770);
-	mkdir(working_dir_generador_vuelos_trasbordo, 0770);
-	mkdir(working_dir_avion1, 0770);
-	mkdir(working_dir_avion2, 0770);
-	mkdir(working_dir_tractor1, 0770);
-	mkdir(working_dir_tractor2, 0770);
-	mkdir(working_dir_tractor3, 0770);
+	std::vector<char *>::iterator i;
+	for (i = all_dirs.begin(); i != all_dirs.end() ; i++) {
+		mkdir(*i, 0770);
+	}
 }
 
 int cp(const char *to, const char *from) {
@@ -184,6 +212,7 @@ int cp(const char *to, const char *from) {
 }
 
 void copy_files() {
+	std::vector<char *>::iterator i;
 	char file_dest [MAX_PATH_SIZE];
 	char file_src [MAX_PATH_SIZE];
 	strcpy(file_dest, "/group_list.txt");
@@ -225,63 +254,15 @@ void copy_files() {
 
 	strcpy(file_dest, "/simulacion.ini");
 	strcpy(file_src, "./config/simulacion.ini");
-	cp(std::string(working_dir_puesto_checkin1).append(file_dest).c_str(), file_src);
-	cp(std::string(working_dir_puesto_checkin2).append(file_dest).c_str(), file_src);
-	cp(std::string(working_dir_puesto_checkin3).append(file_dest).c_str(), file_src);
-	cp(std::string(working_dir_robot_carga1).append(file_dest).c_str(), file_src);
-	cp(std::string(working_dir_robot_carga2).append(file_dest).c_str(), file_src);
-	cp(std::string(working_dir_robot_carga3).append(file_dest).c_str(), file_src);
-	cp(std::string(working_dir_robot_carga4).append(file_dest).c_str(), file_src);
-	cp(std::string(working_dir_robot_checkin).append(file_dest).c_str(), file_src);
-	cp(std::string(working_dir_robot_escaner1).append(file_dest).c_str(), file_src);
-	cp(std::string(working_dir_robot_escaner2).append(file_dest).c_str(), file_src);
-	cp(std::string(working_dir_robot_escaner3).append(file_dest).c_str(), file_src);
-	cp(std::string(working_dir_robot_escaner4).append(file_dest).c_str(), file_src);
-	cp(std::string(working_dir_robot_despacho1).append(file_dest).c_str(), file_src);
-	cp(std::string(working_dir_robot_despacho2).append(file_dest).c_str(), file_src);
-	cp(std::string(working_dir_robot_control_equipaje).append(file_dest).c_str(), file_src);
-	cp(std::string(working_dir_control_equipaje_sospechoso).append(file_dest).c_str(), file_src);
-	cp(std::string(working_dir_control_carga_contenedores).append(file_dest).c_str(), file_src);
-	cp(std::string(working_dir_local_broker1).append(file_dest).c_str(), file_src);
-	cp(std::string(working_dir_local_broker2).append(file_dest).c_str(), file_src);
-	cp(std::string(working_dir_local_broker3).append(file_dest).c_str(), file_src);
-	cp(std::string(working_dir_local_broker4).append(file_dest).c_str(), file_src);
-	cp(std::string(working_dir_generador_vuelos_trasbordo).append(file_dest).c_str(), file_src);
-	cp(std::string(working_dir_avion1).append(file_dest).c_str(), file_src);
-	cp(std::string(working_dir_avion2).append(file_dest).c_str(), file_src);
-	cp(std::string(working_dir_tractor1).append(file_dest).c_str(), file_src);
-	cp(std::string(working_dir_tractor2).append(file_dest).c_str(), file_src);
-	cp(std::string(working_dir_tractor3).append(file_dest).c_str(), file_src);
+	for (i = all_dirs.begin(); i != all_dirs.end() ; i++) {
+		cp(std::string(*i).append(file_dest).c_str(), file_src);
+	}
 
 	strcpy(file_dest, "/local_broker.list");
 	strcpy(file_src, "./locks/local_broker.list");
-	cp(std::string(working_dir_puesto_checkin1).append(file_dest).c_str(), file_src);
-	cp(std::string(working_dir_puesto_checkin2).append(file_dest).c_str(), file_src);
-	cp(std::string(working_dir_puesto_checkin3).append(file_dest).c_str(), file_src);
-	cp(std::string(working_dir_robot_carga1).append(file_dest).c_str(), file_src);
-	cp(std::string(working_dir_robot_carga2).append(file_dest).c_str(), file_src);
-	cp(std::string(working_dir_robot_carga3).append(file_dest).c_str(), file_src);
-	cp(std::string(working_dir_robot_carga4).append(file_dest).c_str(), file_src);
-	cp(std::string(working_dir_robot_checkin).append(file_dest).c_str(), file_src);
-	cp(std::string(working_dir_robot_escaner1).append(file_dest).c_str(), file_src);
-	cp(std::string(working_dir_robot_escaner2).append(file_dest).c_str(), file_src);
-	cp(std::string(working_dir_robot_escaner3).append(file_dest).c_str(), file_src);
-	cp(std::string(working_dir_robot_escaner4).append(file_dest).c_str(), file_src);
-	cp(std::string(working_dir_robot_despacho1).append(file_dest).c_str(), file_src);
-	cp(std::string(working_dir_robot_despacho2).append(file_dest).c_str(), file_src);
-	cp(std::string(working_dir_robot_control_equipaje).append(file_dest).c_str(), file_src);
-	cp(std::string(working_dir_control_equipaje_sospechoso).append(file_dest).c_str(), file_src);
-	cp(std::string(working_dir_control_carga_contenedores).append(file_dest).c_str(), file_src);
-	cp(std::string(working_dir_local_broker1).append(file_dest).c_str(), file_src);
-	cp(std::string(working_dir_local_broker2).append(file_dest).c_str(), file_src);
-	cp(std::string(working_dir_local_broker3).append(file_dest).c_str(), file_src);
-	cp(std::string(working_dir_local_broker4).append(file_dest).c_str(), file_src);
-	cp(std::string(working_dir_generador_vuelos_trasbordo).append(file_dest).c_str(), file_src);
-	cp(std::string(working_dir_avion1).append(file_dest).c_str(), file_src);
-	cp(std::string(working_dir_avion2).append(file_dest).c_str(), file_src);
-	cp(std::string(working_dir_tractor1).append(file_dest).c_str(), file_src);
-	cp(std::string(working_dir_tractor2).append(file_dest).c_str(), file_src);
-	cp(std::string(working_dir_tractor3).append(file_dest).c_str(), file_src);
+	for (i = all_dirs.begin(); i != all_dirs.end() ; i++) {
+		cp(std::string(*i).append(file_dest).c_str(), file_src);
+	}
 
 	strcpy(file_dest, "/aviones.csv");
 	strcpy(file_src, "./locks/aviones.csv");
@@ -333,6 +314,65 @@ static char *args_intermediate_broker [] = {(char*)"intermediate_broker_launcher
 static char *args_message_broker [] = {(char*)"message_broker_launcher", NULL};
 static char *args_torre_de_control [] = {(char*)"torre_de_control_launcher", NULL};
 
+static int selecc_arch(const struct dirent *entry) {
+	if ((strcmp(entry->d_name, ".") == 0) || (strcmp(entry->d_name, "..") == 0))
+		return 0;
+	else
+		return 1;
+}
+
+std::list<std::string> ls(const char * folder) {
+	std::list<std::string> lista;
+	std::string s;
+	//char cadena[80];
+	int contar,i;
+
+	struct dirent **archivos;
+	//chdir(folder.c_str()); // OK para moverte de directorios
+	//cout << getcwd(cadena,80) << endl; // Para saber en que directorio estas
+
+	// Devuelve una lista con los archivos en la carpeta
+	// si le pasas NULL(funcion comparar, te devuelve . y ..) si no queres eso
+	// usa la funcion select
+	contar = scandir(folder, &archivos, selecc_arch, alphasort);
+
+	/* Si no se encontraron archivos *//*Version Simple del comando ls*/
+	/*if (contar <= 0) {
+	 cout << "No hay archivos en este direntorio\n";
+	 exit(0);
+	 }*/
+	//cout << "Hay " << contar << " archivos.\n";
+	for (i = 0; i < contar ; ++i) {
+		//cout << archivos[i]->d_name << "\n";
+		lista.push_back(archivos [i]->d_name);
+		free(archivos [i]);
+	}
+	free(archivos);
+	//cout << "\n"; /* flush buffer */
+
+	return lista;
+}
+
+void chequear_si_hay_duplicados() {
+	std::vector<char *>::iterator i;
+	std::list<std::string>::iterator j;
+	std::map<Key, std::string> keys;
+	std::list<std::string> lista;
+	for (i = all_dirs.begin(); i != all_dirs.end() ; i++) {
+		lista = ls(*i);
+		for (j = lista.begin(); j != lista.end() ; j++) {
+			if ((*j).find(".lck", (*j).size() - 4) != std::string::npos) {
+				Key k = get_key(std::string(*i).append("/").append(*j).c_str(), 0);
+				if(keys.count(k)>0){
+					std::cout << "Colision " << std::string(*i).append("/").append(*j) << ":" << keys.at(k) << std::endl;
+				}else {
+					keys.insert(std::pair<Key,std::string>(k,std::string(*i).append("/").append(*j)));
+				}
+			}
+		}
+	}
+}
+
 int main(int argc, char** argv)
 
 try
@@ -347,6 +387,8 @@ try
 	Log::info("Creando aeropuerto...");
 	std::list<Process> processes;
 
+	load_all_dirs();
+	chequear_si_hay_duplicados();
 	mkdirs();
 	copy_files();
 
@@ -384,13 +426,13 @@ try
 		processes.push_back(Process("robot_carga", args_robot_carga4));
 		processes.push_back(Process("robot_control_equipaje_sospechoso", args_robot_sospechosos));
 		//processes.push_back(Process("control_equipaje_sospechoso", args_robot_sospechosos));
-		/*processes.push_back(Process("generador_vuelos_trasbordo", args_generador_vuelos_trasbordo));
+		processes.push_back(Process("generador_vuelos_trasbordo", args_generador_vuelos_trasbordo));
 		// processes.push_back(Process("escucha_zonas_asignadas", args_escucha_zonas_asignadas));
 //		Pocesses.push_back(Process("torre_de_control", args_torre_de_control));
 		processes.push_back(Process("tractor", args_tractor1));
 		//processes.push_back(Process("tractor", args_tractor2));
 		processes.push_back(Process("scheduler_aviones", args_scheduler_aviones));
-		processes.push_back(Process("scheduler_vuelos", args_scheduler_vuelos));*/
+		processes.push_back(Process("scheduler_vuelos", args_scheduler_vuelos));
 
 		// sin argumentos lanzo todos los vuelos posibles.
 		// if (argc == 1) {

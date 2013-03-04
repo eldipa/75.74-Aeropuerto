@@ -181,7 +181,7 @@ void Grupo::join(const char nombre [MAX_NOMBRE_RECURSO]) {
 	}
 
 	Log::info("Join: %s to %s\n", nombre, this->nombre_recurso.c_str());
-	//std::cout << "Join: " << nombre << " to " << this->nombre_recurso << std::endl;
+	std::cout << "Join: " << nombre << " to " << this->nombre_recurso << std::endl;
 
 	semaforos.signalize(mutex_asignado);
 }
@@ -211,7 +211,7 @@ void Grupo::leave(const char nombre [MAX_NOMBRE_RECURSO]) {
 			break;
 		}
 	}
-
+	Log::info("Leave: %s from %s\n", nombre, this->nombre_recurso.c_str());
 	std::cout << "Leave: " << nombre << " from " << this->nombre_recurso << std::endl;
 
 	semaforos.signalize(mutex_asignado);
@@ -289,6 +289,9 @@ void Grupo::pasar_token_a_proximo_cliente() {
 	}
 
 	//if (this->nombre_recurso == "cinta_principal" || this->nombre_recurso.substr(0, 4) == "cpp_") {
+	std::cout << "Passing Token from " << this->nombre_recurso.c_str() << " to: " << client_names [cliente_actual]
+		<< " (" << cliente_actual << ")\n";
+
 	Log::debug("Passing Token from %s to: %s (%d)\n", this->nombre_recurso.c_str(), client_names [cliente_actual],
 		cliente_actual);
 

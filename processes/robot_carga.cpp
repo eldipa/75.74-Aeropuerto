@@ -67,7 +67,7 @@ int main(int argc, char** argv) try {
 
 	std::map<std::string, Contenedor> contenedores_por_escala;
 
-	ApiCarga api_carga(std::string("robot_carga").append(argv[3]).c_str(),argv[1], argv[2], id_robot,  id_robot);
+	ApiCarga api_carga(std::string("robot_carga").append(argv[3]).c_str(),argv[1], argv[2], id_robot,  id_robot,true);
    ApiDespachante api_despachante(argv[1], argv[2],"robot_carga", id_robot);
    ApiTorreDeControl api_torre( argv[1], argv[2] );
 

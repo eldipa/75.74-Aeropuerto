@@ -23,7 +23,7 @@ static char * args_local_broker_comm [] = {
 	(char *)"local_broker_comm", directorio, nombre_app, brokers_file, grupo, id_ipc, tamanio_mem};
 
 MemoriaDistribuida::MemoriaDistribuida(const std::string & directorio_de_trabajo, const std::string & nombre_app,
-	const std::string & nombre_grupo, char id, size_t tamanio)
+	const std::string & nombre_grupo, char id, size_t tamanio, bool create)
 	: nombre_recurso(nombre_grupo), tamanio(tamanio)
 
 {
@@ -31,14 +31,25 @@ MemoriaDistribuida::MemoriaDistribuida(const std::string & directorio_de_trabajo
 	// Creo el archivo lck
 	create_if_not_exists(
 		std::string(directorio_de_trabajo).append(PREFIJO_RECURSO).append(nombre_grupo).append(POSTFIJO_LCK).c_str());
-
-	memoria = new SharedMemory(
-		std::string(directorio_de_trabajo).append(PREFIJO_RECURSO).append(nombre_grupo).append(POSTFIJO_LCK).c_str(),
-		char(2 * id), tamanio, 0664, true, false);
-	mutex = new SemaphoreSet(std::vector<short unsigned int>(2, 0),
-		std::string(directorio_de_trabajo).append(PREFIJO_RECURSO).append(nombre_grupo).append(POSTFIJO_LCK).c_str(),
-		char(2 * id + 1), 0664);
-
+	if (create) {
+		memoria =
+			new SharedMemory(
+				std::string(directorio_de_trabajo).append(PREFIJO_RECURSO).append(nombre_grupo).append(POSTFIJO_LCK).c_str(),
+				char(2 * id), tamanio, 0664, true, false);
+		mutex =
+			new SemaphoreSet(std::vector<short unsigned int>(2, 0),
+				std::string(directorio_de_trabajo).append(PREFIJO_RECURSO).append(nombre_grupo).append(POSTFIJO_LCK).c_str(),
+				char(2 * id + 1), 0664);
+	} else {
+		memoria =
+			new SharedMemory(
+				std::string(directorio_de_trabajo).append(PREFIJO_RECURSO).append(nombre_grupo).append(POSTFIJO_LCK).c_str(),
+				char(2 * id), 0, false, false);
+		mutex =
+			new SemaphoreSet(
+				std::string(directorio_de_trabajo).append(PREFIJO_RECURSO).append(nombre_grupo).append(POSTFIJO_LCK).c_str(),
+				char(2 * id + 1), 0);
+	}
 	control = ControlTokens::get_instance(directorio_de_trabajo, true);
 	//strcat(path, nombre_app.c_str());
 	lanzar_comunicacion(directorio_de_trabajo, nombre_app,

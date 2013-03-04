@@ -43,8 +43,7 @@ private:
 	void despertar_consumidores();
 	void despertar_productores();
 public:
-	CintaCarga(const char * app_name, const char * directorio_de_trabajo, int numero_cinta, int size);
-	CintaCarga(const char * app_name, const char * directorio_de_trabajo, int numero_cinta);
+	CintaCarga(const char * app_name, const char * directorio_de_trabajo, int numero_cinta, bool create);
 	virtual ~CintaCarga();
 
 	void poner_equipaje(const T & elemento, int id_productor);
@@ -59,81 +58,8 @@ public:
 
 };
 
-template <typename T> CintaCarga<T>::CintaCarga(const char * app_name, const char * absolute_path, int numero_cinta,
-	int size)
-{
-
-	int * tamanio_de_vector;
-	int tamanio_shared_memory;
-	int tamanio_control;
-	int tamanio_id_productores;
-	int tamanio_id_consumidores;
-	int tamanio_dato;
-
-	int i;
-
-	std::vector<unsigned short> valores;
-
-	tamanio_control = 10 * sizeof(int);
-	tamanio_id_productores = CANTIDAD_MAX_PRODUCTORES_CINTA_CONTENEDOR * sizeof(int);
-	tamanio_id_consumidores = CANTIDAD_MAX_CONSUMIDORES_CINTA_CONTENEDOR * sizeof(int);
-	tamanio_dato = sizeof(T);
-	tamanio_shared_memory = tamanio_control + tamanio_id_productores + tamanio_id_consumidores + size * tamanio_dato;
-	memoria_compartida = new SharedMemory(absolute_path, cant_ipc * (numero_cinta - 1), tamanio_shared_memory, 0664,
-		true, false);
-
-	//valores.push_back(1);
-	//mutex = new SemaphoreSet(valores, absolute_path, cant_ipc * (numero_cinta - 1) + 1, 0664);
-
-	valores.clear();
-	for (i = 0; i < CANTIDAD_MAX_PRODUCTORES_CINTA_CONTENEDOR ; i++) {
-		valores.push_back(1);
-	}
-	semaforo_productores = new SemaphoreSet(valores, absolute_path, cant_ipc * (numero_cinta - 1) + 2, 0664);
-
-	valores.clear();
-	for (i = 0; i < CANTIDAD_MAX_CONSUMIDORES_CINTA_CONTENEDOR ; i++) {
-		valores.push_back(1);
-	}
-	semaforo_consumidores = new SemaphoreSet(valores, absolute_path, cant_ipc * (numero_cinta - 1) + 3, 0664);
-
-	tamanio_de_vector = static_cast<int *>(memoria_compartida->memory_pointer());
-	tamanio_vector = const_cast<const int *>(tamanio_de_vector);
-	posicion_libre = tamanio_de_vector + 1;
-	posicion_ocupada = posicion_libre + 1;
-	cantidad_elementos = posicion_ocupada + 1;
-	cantidad_productores = cantidad_elementos + 1;
-	cantidad_consumidores = cantidad_productores + 1;
-	cantidad_productores_esperando = cantidad_consumidores + 1;
-	cantidad_consumidores_esperando = cantidad_productores_esperando + 1;
-	checkin_cerrado = cantidad_consumidores_esperando + 1;
-	numero_de_valijas_totales = checkin_cerrado + 1;
-	ids_productores_esperando = numero_de_valijas_totales + 1;
-	ids_consumidores_esperando = ids_productores_esperando + CANTIDAD_MAX_PRODUCTORES_CINTA_CONTENEDOR;
-	vector_elementos = reinterpret_cast<T *>(ids_consumidores_esperando + CANTIDAD_MAX_CONSUMIDORES_CINTA_CONTENEDOR);
-
-	// Inicializo el control de la memoria
-	*tamanio_de_vector = size;
-	*posicion_libre = 0;
-	*posicion_ocupada = 0;
-	*cantidad_elementos = 0;
-	*cantidad_productores = CANTIDAD_MAX_PRODUCTORES_CINTA_CONTENEDOR;
-	*cantidad_consumidores = CANTIDAD_MAX_CONSUMIDORES_CINTA_CONTENEDOR;
-	*cantidad_productores_esperando = 0;
-	*cantidad_consumidores_esperando = 0;
-	*checkin_cerrado = 0;
-	*numero_de_valijas_totales = 0;
-	for (i = 0; i < CANTIDAD_MAX_PRODUCTORES_CINTA_CONTENEDOR ; i++) {
-		ids_productores_esperando [i] = 0;
-	}
-	for (i = 0; i < CANTIDAD_MAX_CONSUMIDORES_CINTA_CONTENEDOR ; i++) {
-		ids_consumidores_esperando [i] = 0;
-	}
-	ya_me_desperto_el_cierre_de_checkin = false;
-}
-
 template <typename T> CintaCarga<T>::CintaCarga(const char * app_name, const char * directorio_de_trabajo,
-	int numero_cinta)
+	int numero_cinta, bool create)
 {
 	std::vector<short unsigned int> valores;
 	//this->memoria_compartida = new SharedMemory(absolute_path, cant_ipc * (numero_cinta - 1), 0, false, false);
@@ -143,12 +69,13 @@ template <typename T> CintaCarga<T>::CintaCarga(const char * app_name, const cha
 	//this->semaforo_consumidores = new SemaphoreSet(absolute_path, cant_ipc * (numero_cinta - 1) + 3, 0, 0);
 
 	this->memoria_compartida = new MemoriaDistribuida(directorio_de_trabajo, app_name,
-		std::string("cinta_contenedor").append(intToString(numero_cinta)).c_str(), 0, TAMANIO_MEMORIA_CINTA_CARGA);
-	valores.push_back(0);
+		std::string("cinta_contenedor").append(intToString(numero_cinta)).c_str(), 0, TAMANIO_MEMORIA_CINTA_CARGA,
+		create);
+	valores.push_back(numero_cinta - 1);
 	this->semaforo_productores = new SemaphoreSetDistribuido(valores, directorio_de_trabajo, app_name, "cco_sem_prod_",
-		char(0), CANTIDAD_MAX_PRODUCTORES_CINTA_CONTENEDOR);
+		char(0), CANTIDAD_MAX_PRODUCTORES_CINTA_CONTENEDOR, create);
 	this->semaforo_consumidores = new SemaphoreSetDistribuido(valores, directorio_de_trabajo, app_name, "cco_sem_cons_",
-		char(0), CANTIDAD_MAX_CONSUMIDORES_CINTA_CONTENEDOR);
+		char(0), CANTIDAD_MAX_CONSUMIDORES_CINTA_CONTENEDOR, create);
 
 	tamanio_vector = static_cast<const int *>(memoria_compartida->memory_pointer());
 	posicion_libre = const_cast<int*>(tamanio_vector) + 1;

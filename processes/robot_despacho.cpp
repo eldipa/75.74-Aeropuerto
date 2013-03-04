@@ -75,7 +75,7 @@ try
 		 Log::info("OK, es para mi.Equipaje %d limpio envio a robot_carga zona %d\n",
 		 rfid_equipaje.rfid, num_zona);
 		 Equipaje equipaje = despachante_cinta_central.extraer_equipaje();
-		 CintaContenedor cinta_contenedor(std::string("robot_despacho").append(argv [3]).c_str(),std::string(argv[1]).append(PATH_CINTA_CONTENEDOR).c_str(), num_zona);
+		 CintaContenedor cinta_contenedor(std::string("robot_despacho").append(argv [3]).c_str(),std::string(argv[1]).append(PATH_CINTA_CONTENEDOR).c_str(), num_zona, true);
 		 cinta_contenedor.poner_equipaje(equipaje, 1);
 		 }
 	}

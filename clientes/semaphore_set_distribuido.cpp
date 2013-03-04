@@ -30,7 +30,7 @@ static char * args_local_broker_comm [] = {
 
 SemaphoreSetDistribuido::SemaphoreSetDistribuido(std::vector<unsigned short> & numeros_de_semaforo,
 	const std::string & directorio_de_trabajo, const std::string & nombre_app, const std::string & nombre_grupo,
-	char id, int cantidad_sems)
+	char id, int cantidad_sems, bool create )
 	: nombre_recurso(nombre_grupo), cantidad_de_semaforos(cantidad_sems)
 {
 	std::string prefijo_archivo;
@@ -46,10 +46,13 @@ SemaphoreSetDistribuido::SemaphoreSetDistribuido(std::vector<unsigned short> & n
 
 	create_if_not_exists(std::string(prefijo_archivo).append(POSTFIJO_LCK).c_str());
 
-	semaforos = new SemaphoreSet(valores, std::string(prefijo_archivo).append(POSTFIJO_LCK).c_str(), id, 0664);
-
-	control = ControlTokens::get_instance(directorio_de_trabajo, true);
-
+	if (create) {
+		control = ControlTokens::get_instance(directorio_de_trabajo, true);
+		semaforos = new SemaphoreSet(valores, std::string(prefijo_archivo).append(POSTFIJO_LCK).c_str(), id, 0664);
+	} else {
+		control = ControlTokens::get_instance(directorio_de_trabajo);
+		semaforos = new SemaphoreSet(std::string(prefijo_archivo).append(POSTFIJO_LCK).c_str(), id, 0);
+	}
 	for (size_t i = 0 ; i < numeros_de_semaforo.size() ; i++) {
 
 		valor = numeros_de_semaforo [i];

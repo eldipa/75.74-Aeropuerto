@@ -29,14 +29,11 @@ ApiCheckIn::ApiCheckIn(const char* directorio_de_trabajo, const char* config_fil
 	vuelo_actual = new SharedObject<tVueloEnCheckin>(
 		std::string(directorio_de_trabajo).append(PATH_PUESTO_CHECKIN).c_str(), id_checkin * cant_ipcs + 2);
 
-	cinta_checkin_out = new CintaCheckin(std::string("checkin").append(intToString(id_checkin)).c_str(),
-		std::string(directorio_de_trabajo).c_str(), (*vuelo_actual)->id_cinta_checkin);
-
 	sem_set = new SemaphoreSet(std::string(directorio_de_trabajo).append(PATH_PUESTO_CHECKIN).c_str(), id_checkin * cant_ipcs, 1);
 	mutex_checkin = new Mutex(*sem_set, 0);
 	queue_manager=ApiConfiguracion::get_queue_manager(directorio_de_trabajo, config_file);
 	queue_pasajeros=queue_manager->get_queue(PATH_PUESTO_CHECKIN, 0);
-	queue_controlador=queue_manager->get_queue(PATH_COLA_CONTROL_CHECKIN, 0, true);
+	queue_controlador=queue_manager->get_queue(PATH_COLA_CONTROL_CHECKIN, 0);
 
 }
 
@@ -52,7 +49,7 @@ ApiCheckIn::ApiCheckIn(const char* directorio_de_trabajo, const char* config_fil
 		std::string(directorio_de_trabajo).append(PATH_PUESTO_CHECKIN).c_str(), id_puesto_checkin * cant_ipcs + 2);
 
 	cinta_checkin_out = new CintaCheckin(std::string("checkin").append(intToString(id_puesto_checkin)).c_str(),
-		std::string(directorio_de_trabajo).c_str(), (*vuelo_actual)->id_cinta_checkin);
+		std::string(directorio_de_trabajo).c_str(), id_puesto_checkin);
 
 	sem_set = new SemaphoreSet(std::vector<unsigned short>(1, 1),
 		std::string(directorio_de_trabajo).append(PATH_PUESTO_CHECKIN).c_str(), id_puesto_checkin * cant_ipcs);

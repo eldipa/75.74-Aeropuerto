@@ -29,7 +29,7 @@ private:
 public:
 	SemaphoreSetDistribuido(std::vector<unsigned short> & numeros_de_semaforo,
 		const std::string & directorio_de_trabajo, const std::string & nombre_app, const std::string & nombre_grupo,
-		char id, int cantidad_de_semaforos);
+		char id, int cantidad_de_semaforos, bool create = true);
 	SemaphoreSetDistribuido(const std::string & directorio_de_trabajo, const std::string & nombre_grupo, char id, int cantidad_de_semaforos);
 	virtual ~SemaphoreSetDistribuido();
 

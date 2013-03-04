@@ -33,7 +33,7 @@ private:
 
 public:
 	MemoriaDistribuida(const std::string & directorio_de_trabajo, const std::string & nombre_app,
-		const std::string & nombre_grupo, char id, size_t tamanio);
+		const std::string & nombre_grupo, char id, size_t tamanio, bool create = true);
 	MemoriaDistribuida(const std::string & directorio_de_trabajo, const std::string & nombre_grupo, char id);
 	virtual ~MemoriaDistribuida();
 

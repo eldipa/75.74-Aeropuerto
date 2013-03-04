@@ -575,7 +575,7 @@ try
 					servicios);
 			}
 		} catch (OSError & error) {
-			std::cerr << error.what() << std::endl;
+			//std::cerr << error.what() << std::endl;
 			Log::crit(error.what());
 		}
 	} else {

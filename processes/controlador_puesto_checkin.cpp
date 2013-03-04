@@ -55,7 +55,7 @@ int main(int argc, char *argv[]) try {
          Log::info("Cierro checkin, aviso a robot_carga que total_equipajes=%d(checkin) + %d(intercargo) = %d \n", 
                    cant_equipaje_checkin, cant_equipaje_intercargo, cant_equipaje_checkin+cant_equipaje_intercargo);
 
-         ApiCarga api_carga(std::string("controlador_puesto_checkin").append(argv[3]).c_str(),argv[1],argv[2], msg.num_zona,  msg.num_zona);
+         ApiCarga api_carga(std::string("controlador_puesto_checkin").append(argv[3]).c_str(),argv[1],argv[2], msg.num_zona,  msg.num_zona, false);
          api_carga.cargar_equipajes( cant_equipaje_checkin+cant_equipaje_intercargo );
       }
    }
