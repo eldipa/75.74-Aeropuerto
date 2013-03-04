@@ -31,7 +31,6 @@ ClientHandler::ClientHandler(const std::string & directorio_de_trabajo, /*char i
 }
 
 ClientHandler::~ClientHandler() {
-	leave_group();
 	if (mem_local) {
 		delete [] mem_local;
 	}
@@ -209,6 +208,7 @@ void ClientHandler::loop_token_fork() {
 				leave = true;
 			}
 		} while (!leave);
+		leave_group();
 		if (tengo_token) {
 			grupo->release_token(&cola_token_manager);
 		}
