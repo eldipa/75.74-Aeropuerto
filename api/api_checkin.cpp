@@ -56,8 +56,8 @@ ApiCheckIn::ApiCheckIn(const char* directorio_de_trabajo, const char* config_fil
 
 	mutex_checkin = new Mutex(*sem_set, 0);
 	queue_manager = ApiConfiguracion::get_queue_manager(directorio_de_trabajo, config_file);
-	queue_pasajeros = (queue_manager)->get_queue(PATH_PUESTO_CHECKIN, 0, true);
-	queue_controlador = (queue_manager)->get_queue(PATH_COLA_CONTROL_CHECKIN, 0, true);
+	queue_pasajeros = (queue_manager)->get_queue(PATH_PUESTO_CHECKIN, 0, create);
+	queue_controlador = (queue_manager)->get_queue(PATH_COLA_CONTROL_CHECKIN, 0, create);
 
 	create = !!create;
 	ApiTorreDeControl api_torre(directorio_de_trabajo, config_file);
@@ -124,7 +124,7 @@ void ApiCheckIn::registrar_equipaje(Equipaje& equipaje) {
 
    Log::debug("ApiCheckIn: Poniendo valija");
 	(*cinta_checkin_out).poner_equipaje(equipaje, id_checkin);
-   Log::debug("ApiCheckIn: ok Poniendo valija");
+   Log::debug("ApiCheckIn: ok Poniendo valija total:%d", (*vuelo_actual)->cant_equipajes);
 }
 
 int ApiCheckIn::get_vuelo_actual() {

@@ -33,9 +33,9 @@ ApiTorreDeControl::ApiTorreDeControl(const char* directorio_de_trabajo, const ch
 
 ApiTorreDeControl::ApiTorreDeControl(const char* directorio_de_trabajo, const char* config_file, bool create) :
    queue_manager( ApiConfiguracion::get_queue_manager(directorio_de_trabajo, config_file) ),
-   queue_zonas( queue_manager->get_queue(PATH_TORRE_DE_CONTROL, Q_ZONAS, true) ),
-   queue_puestos_checkin( queue_manager->get_queue(PATH_TORRE_DE_CONTROL, Q_PUESTOS_CHECKIN, true) ),
-   queue_contenedores( queue_manager->get_queue(PATH_TORRE_DE_CONTROL, Q_CONTENEDORES, true) ) {   
+   queue_zonas( queue_manager->get_queue(PATH_TORRE_DE_CONTROL, Q_ZONAS, create) ),
+   queue_puestos_checkin( queue_manager->get_queue(PATH_TORRE_DE_CONTROL, Q_PUESTOS_CHECKIN, create) ),
+   queue_contenedores( queue_manager->get_queue(PATH_TORRE_DE_CONTROL, Q_CONTENEDORES, create) ) {   
 
    path_torre_control = std::string(directorio_de_trabajo);
    path_torre_control.append(PATH_TORRE_DE_CONTROL);

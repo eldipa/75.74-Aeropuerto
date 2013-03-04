@@ -13,7 +13,7 @@ try
 {
 	int id_robot;
 	int id_cinta_scanner;
-	if (argc < 4) {
+	if (argc < 3) {
 		Log::crit(
 			"Insuficientes parametros para scanner, se esperaba (directorio_de_trabajo, config_file, id, id_cinta_scanner)\n");
 		return (1);
