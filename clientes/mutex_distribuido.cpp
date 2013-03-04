@@ -29,6 +29,9 @@ MutexDistribuido::MutexDistribuido(const std::string & directorio_de_trabajo, co
 
 {
 	if (create) {
+
+		control = ControlTokens::get_instance(directorio_de_trabajo, true);
+
 		// Creo el archivo lck
 		create_if_not_exists(
 			std::string(directorio_de_trabajo).append(PREFIJO_RECURSO).append(nombre_grupo).append(POSTFIJO_LCK).c_str());
@@ -38,7 +41,6 @@ MutexDistribuido::MutexDistribuido(const std::string & directorio_de_trabajo, co
 				std::string(directorio_de_trabajo).append(PREFIJO_RECURSO).append(nombre_grupo).append(POSTFIJO_LCK).c_str(),
 				id, 0664);
 
-		control = ControlTokens::get_instance(directorio_de_trabajo, true);
 	} else {
 		create_if_not_exists(
 			std::string(directorio_de_trabajo).append(PREFIJO_RECURSO).append(nombre_grupo).append(POSTFIJO_LCK).c_str());
@@ -59,11 +61,12 @@ MutexDistribuido::MutexDistribuido(const std::string & directorio_de_trabajo, co
 {
 	create_if_not_exists(
 		std::string(directorio_de_trabajo).append(PREFIJO_RECURSO).append(nombre_grupo).append(POSTFIJO_LCK).c_str());
+
+	control = ControlTokens::get_instance(directorio_de_trabajo);
 	mutex = new SemaphoreSet(
 		std::string(directorio_de_trabajo).append(PREFIJO_RECURSO).append(nombre_grupo).append(POSTFIJO_LCK).c_str(),
 		id, 0);
 
-	control = ControlTokens::get_instance(directorio_de_trabajo);
 }
 
 MutexDistribuido::MutexDistribuido(const std::string & directorio_de_trabajo, const std::string & nombre_app,

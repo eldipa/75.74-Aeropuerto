@@ -204,6 +204,8 @@ LocalBrokerComm * conectar_con_broker(const std::string & nombre_app, std::vecto
 	if (!conecto) {
 		throw CommError("Unable to connect to brokers");
 	}
+	conectado_con = (conectado_con + 1) % cant_brokers;
+
 	return broker;
 }
 
@@ -214,8 +216,8 @@ void do_loop_mutex(ControlTokens * control, const std::string & directorio_de_tr
 	MutexDistribuido mutex(directorio_de_trabajo, nombre_grupo, id);
 
 	LocalBrokerComm * broker = NULL;
-	bool seguir= true;
-	bool reconectar= true;
+	bool seguir = true;
+	bool reconectar = true;
 	size_t conectado_con = 0;
 	pid_t pid_hijo;
 
@@ -228,17 +230,19 @@ void do_loop_mutex(ControlTokens * control, const std::string & directorio_de_tr
 			broker->join(nombre_grupo, mensajes::JOIN_FORK);
 			seguir = true;
 		} catch (CommError & error) {
+			Log::crit("Unable to connect to local brokers");
 			seguir = false;
 		}
 		reconectar = false;
-		pid_hijo = fork();
 
+		pid_hijo = fork();
 		if (pid_hijo) { // padre recibe token
 			ignore_childs();
 			while (seguir) {
 				try {
 					// wait for token
 					//std::cout << getpid() << "Padre esperando token socket" << std::endl;
+					Log::debug("Esperando token %s (%s)",nombre_grupo.c_str(),nombre_app.c_str());
 					broker->wait_mutex(NULL);
 
 					// la aplicacion necesita el token?
@@ -247,6 +251,7 @@ void do_loop_mutex(ControlTokens * control, const std::string & directorio_de_tr
 					// espero que termine de procesar
 					//std::cout << getpid() << "Padre entregando token semaforo" << std::endl;
 					if (control->comparar_token(nombre_grupo.c_str())) {
+						Log::debug("Entregando Token Aplicacion %s (%s)",nombre_grupo.c_str(),nombre_app.c_str());
 						mutex.entregar_token();
 						//mutex.esperar_token();
 					} else {
@@ -281,6 +286,7 @@ void do_loop_mutex(ControlTokens * control, const std::string & directorio_de_tr
 						//std::cout << getpid() << "Hijo esperando token semaforo" << std::endl;
 						mutex.esperar_token();
 						//std::cout << getpid() << "Hijo enviando token socket" << std::endl;
+						Log::debug("Devolviendo token %s (%s)",nombre_grupo.c_str(),nombre_app.c_str());
 						broker->free_mutex(NULL);
 					} catch (OSError & error) {
 						//broker->leave();
@@ -335,6 +341,7 @@ void do_loop_semaforo(ControlTokens * control, const std::string & directorio_de
 			broker->join(nombre_grupo, mensajes::JOIN_FORK);
 			seguir = true;
 		} catch (CommError & error) {
+			Log::crit("Unable to connect to local brokers");
 			seguir = false;
 		}
 		reconectar = false;
@@ -347,6 +354,7 @@ void do_loop_semaforo(ControlTokens * control, const std::string & directorio_de
 				try {
 					// wait for token
 					//std::cout << getpid() << "Padre esperando token socket" << std::endl;
+					Log::debug("Esperando token %s (%s)",nombre_grupo.c_str(),nombre_app.c_str());
 					broker->wait_mutex(NULL);
 
 					// la aplicacion necesita el token?
@@ -355,6 +363,7 @@ void do_loop_semaforo(ControlTokens * control, const std::string & directorio_de
 					// espero que termine de procesar
 					//std::cout << getpid() << "Padre entregando token semaforo" << std::endl;
 					if (control->comparar_token(nombre_grupo.c_str())) {
+						Log::debug("Entregando Token Aplicacion %s (%s)",nombre_grupo.c_str(),nombre_app.c_str());
 						semaforos.entregar_token(num_sem);
 						//mutex.esperar_token();
 					} else {
@@ -389,6 +398,7 @@ void do_loop_semaforo(ControlTokens * control, const std::string & directorio_de
 						//std::cout << getpid() << "Hijo esperando token semaforo" << std::endl;
 						semaforos.esperar_token(num_sem);
 						//std::cout << getpid() << "Hijo enviando token socket" << std::endl;
+						Log::debug("Devolviendo token %s (%s)",nombre_grupo.c_str(),nombre_app.c_str());
 						broker->free_mutex(NULL);
 					} catch (OSError & error) {
 						//broker->leave();
@@ -432,16 +442,17 @@ void do_loop_memoria(ControlTokens * control, const std::string & directorio_de_
 			reconectar = false;
 			seguir = true;
 		} catch (CommError & error) {
-			reconectar = false;
+			Log::crit("Unable to connect to local brokers");
 			seguir = false;
 		}
 
+		reconectar = false;
 		broker->join(nombre_grupo, mensajes::JOIN);
 
 		while (seguir) {
 			// wait for token
 			try {
-				//std::cout << "Esperando mutex socket" << std::endl;
+				Log::debug("Esperando token %s (%s)",nombre_grupo.c_str(),nombre_app.c_str());
 				broker->wait_mutex(memoria.memory_pointer());
 				/*if (strcmp(grupo,"cinta_escaner_control")==0) {
 				 print_ints((int *)memoria.memory_pointer(), int(broker->get_mem_size()/ 4));
@@ -452,6 +463,7 @@ void do_loop_memoria(ControlTokens * control, const std::string & directorio_de_
 				// espero que termine de procesar
 				//std::cout << "Chequeando Aplicacion" << std::endl;
 				if (control->comparar_token(nombre_grupo.c_str())) {
+					Log::debug("Entregando Token Aplicacion %s (%s)",nombre_grupo.c_str(),nombre_app.c_str());
 					//	std::cout << "Entregando Token Aplicacion" << std::endl;
 					memoria.entregar_token();
 					//	std::cout << "Esperando Token Aplicacion" << std::endl;
@@ -460,6 +472,7 @@ void do_loop_memoria(ControlTokens * control, const std::string & directorio_de_
 
 				// devuelvo el token al local_broker
 				//std::cout << "Devolviendo Token socket" << std::endl;
+				Log::debug("Devolviendo Token %s (%s)",nombre_grupo.c_str(),nombre_app.c_str());
 				broker->free_mutex(memoria.memory_pointer());
 			} catch (CommError & error) {
 				reconectar = true;
@@ -564,28 +577,40 @@ try
 	sscanf(argv [6], "%u", &tamanio);
 #endif
 
-	ControlTokens * control = ControlTokens::get_instance(argv [1]);
+	bool seguir = true;
+	int i = 0;
+	ControlTokens * control;
+	do {
+		try {
+			control = ControlTokens::get_instance(argv [1]);
+			seguir = false;
+		} catch (OSError &) {
+			i++;
+		}
+	} while (seguir && i < 5);
 
-	if (tamanio == 0) {
-		try {
-			if (strncmp(argv [7], "mutex", strlen("mutex")) == 0) {
-				do_loop_mutex(control, argv [1], argv [2], argv [4], id, brokers, servicios);
-			} else if (strncmp(argv [7], "sem", strlen("sem")) == 0) {
-				do_loop_semaforo(control, argv [1], argv [2], argv [4], id, atoi(argv [8]), atoi(argv [9]), brokers,
-					servicios);
+	if (control != NULL) {
+		if (tamanio == 0) {
+			try {
+				if (strncmp(argv [7], "mutex", strlen("mutex")) == 0) {
+					do_loop_mutex(control, argv [1], argv [2], argv [4], id, brokers, servicios);
+				} else if (strncmp(argv [7], "sem", strlen("sem")) == 0) {
+					do_loop_semaforo(control, argv [1], argv [2], argv [4], id, atoi(argv [8]), atoi(argv [9]), brokers,
+						servicios);
+				}
+			} catch (OSError & error) {
+				std::cerr << error.what() << std::endl;
+				Log::crit(error.what());
 			}
-		} catch (OSError & error) {
-			//std::cerr << error.what() << std::endl;
-			Log::crit(error.what());
+		} else {
+			try {
+				do_loop_memoria(control, argv [1], argv [2], argv [4], id, brokers, servicios);
+			} catch (OSError & error) {
+				Log::crit(error.what());
+			}
 		}
-	} else {
-		try {
-			do_loop_memoria(control, argv [1], argv [2], argv [4], id, brokers, servicios);
-		} catch (OSError & error) {
-			Log::crit(error.what());
-		}
+		control->destroy_instance();
 	}
-	control->destroy_instance();
 }
 catch (CommError & e) {
 	//std::cerr << e.what() << std::endl;

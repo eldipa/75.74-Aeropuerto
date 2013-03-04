@@ -57,6 +57,8 @@ int main(int argc, char** argv) try {
 	int numero_de_vuelo;
 	int equipajes_por_cargar, equipajes_cargados;
 
+	chdir("processes");
+
 	if (argc < 4) {
 		Log::crit("Insuficientes parametros para robot de carga, se esperaba (directorio_de_trabajo, config_file id_robot)\n");
 		exit(1);
@@ -68,7 +70,7 @@ int main(int argc, char** argv) try {
 	std::map<std::string, Contenedor> contenedores_por_escala;
 
 	ApiCarga api_carga(std::string("robot_carga").append(argv[3]).c_str(),argv[1], argv[2], id_robot,  id_robot,true);
-   ApiDespachante api_despachante(argv[1], argv[2],"robot_carga", id_robot);
+   ApiDespachante api_despachante(argv[1], argv[2],"robot_carga", id_robot,false);
    ApiTorreDeControl api_torre( argv[1], argv[2] );
 
 	Log::info("Iniciando robot carga(%d)\n", id_robot);

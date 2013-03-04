@@ -39,7 +39,7 @@ ApiTorreDeControl::ApiTorreDeControl(const char* directorio_de_trabajo, const ch
 
    path_torre_control = std::string(directorio_de_trabajo);
    path_torre_control.append(PATH_TORRE_DE_CONTROL);
-   create = create;
+   create = !!create;
 }
 
 

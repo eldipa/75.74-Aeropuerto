@@ -18,6 +18,8 @@
 #include "iqueue_manager.h"
 #include "imessagequeue.h"
 #include "api_configuracion.h"
+#include <sys/stat.h>
+#include "dir.h"
 
 class ApiCarga {
 private:
@@ -43,14 +45,22 @@ public:
 	 * recibe un path_carga y el id_robot_carga.Va a existir una ApiCarga por cada robot_carga.
 	 **/
 	ApiCarga(const char * app_name, const char * directorio_de_trabajo, const char* config_file, int id_robot_carga,
-		int num_cinta, bool create)
+		int num_cinta, bool same_dir)
 		: id_robot_carga(id_robot_carga),
 			queue_manager(ApiConfiguracion::get_queue_manager(directorio_de_trabajo, config_file)),
 			cola_tractores(queue_manager->get_queue(PATH_COLA_ROBOTS_ZONA_TRACTORES, 0)),
 			cola_aviso_carga(queue_manager->get_queue(PATH_COLA_CONTROL_CARGA_CHECKIN, id_robot_carga))
 
 	{
-		cinta_contenedor = new CintaContenedor(app_name, directorio_de_trabajo, num_cinta, create);
+		if (same_dir) {
+			cinta_contenedor = new CintaContenedor(app_name, directorio_de_trabajo, num_cinta, true);
+		} else {
+			mkdir(std::string(directorio_de_trabajo).append("/other_dir").c_str(), 0770);
+			cp(std::string(directorio_de_trabajo).append("/other_dir").append(PATH_LOCAL_BROKER_LIST_FILE).c_str(),
+				std::string(directorio_de_trabajo).append(PATH_LOCAL_BROKER_LIST_FILE).c_str());
+			cinta_contenedor = new CintaContenedor(app_name,
+				std::string(directorio_de_trabajo).append("/other_dir").c_str(), num_cinta, true);
+		}
 	}
 
 	ApiCarga(const char * directorio_de_trabajo, const char* config_file, int id_robot_carga)
