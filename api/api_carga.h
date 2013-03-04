@@ -47,7 +47,7 @@ public:
 		: id_robot_carga(id_robot_carga),
 			queue_manager(ApiConfiguracion::get_queue_manager(directorio_de_trabajo, config_file)),
 			cola_tractores(queue_manager->get_queue(PATH_COLA_ROBOTS_ZONA_TRACTORES, 0)),
-			cola_aviso_carga(queue_manager->get_queue(PATH_COLA_CONTROL_CARGA_CHECKIN, id_robot_carga))
+        cola_aviso_carga(queue_manager->get_queue(PATH_COLA_CONTROL_CARGA_CHECKIN, id_robot_carga, create))
 
 	{
 		cinta_contenedor = new CintaContenedor(app_name, directorio_de_trabajo, num_cinta, create);
@@ -61,6 +61,7 @@ public:
 	{
 		//cinta_contenedor = new CintaContenedor(app_name, directorio_de_trabajo, num_cinta, false);
 	}
+
 
 	~ApiCarga() {
 	}

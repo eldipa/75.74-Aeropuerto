@@ -17,6 +17,9 @@
 #include "ipc_queue_manager.h"
 
 #include "api_configuracion.h"
+
+#include "api_constants.h"
+
 class ApiAvion {
 private:
 
@@ -30,6 +33,12 @@ public:
       queue_manager( ApiConfiguracion::get_queue_manager(directorio_de_trabajo, config_file) ),
       cola_tractor(queue_manager->get_queue(PATH_COLA_TRACTORES_AVIONES, 0)) {
 		this->numero_de_vuelo = numero_de_vuelo;
+	}
+
+	ApiAvion(const char * directorio_de_trabajo, const char* config_file,  bool create) :
+      queue_manager( ApiConfiguracion::get_queue_manager(directorio_de_trabajo, config_file) ),
+      cola_tractor(queue_manager->get_queue(PATH_COLA_TRACTORES_AVIONES, 0, create)) {
+		this->numero_de_vuelo = -1;
 	}
 
 	virtual ~ApiAvion() {
