@@ -125,7 +125,7 @@ void SemaphoreSetDistribuido::lanzar_comunicacion(const std::string & directorio
 	char current_working_dir [FILENAME_MAX];
 	char launch_dir [FILENAME_MAX];
 
-	ignore_signals();
+	//ignore_signals();
 
 	snprintf(directorio, FILENAME_MAX, "%s", directorio_de_trabajo.c_str());
 	snprintf(nombre_app, MAX_NOMBRE_RECURSO, "%s", nombre_aplicacion.c_str());
@@ -150,7 +150,7 @@ void SemaphoreSetDistribuido::lanzar_comunicacion(const std::string & directorio
 	relativize_dir(directorio, directorio_de_trabajo.c_str(), launch_dir, current_working_dir);
 	relativize_dir(brokers_file, local_brokers_file.c_str(), launch_dir, current_working_dir);
 
-	ignore_childs();
+	//ignore_childs();
 
 	if (chdir(launch_dir) != 0) {
 		throw GenericError("Cannot change working dir to %s", launch_dir);

@@ -129,7 +129,7 @@ void MemoriaDistribuida::lanzar_comunicacion(const std::string & directorio_de_t
 	char current_working_dir [FILENAME_MAX];
 	char launch_dir [FILENAME_MAX];
 
-	ignore_signals();
+	//ignore_signals();
 
 	snprintf(directorio, FILENAME_MAX, "%s", directorio_de_trabajo.c_str());
 	snprintf(nombre_app, MAX_NOMBRE_RECURSO, "%s", nombre_aplicacion.c_str());
