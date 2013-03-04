@@ -352,7 +352,7 @@ void do_loop_semaforo(ControlTokens * control, const std::string & directorio_de
 					//std::cout << getpid() << "Padre esperando token socket" << std::endl;
 					Log::debug("Esperando token %s (%s)", nombre_grupo.c_str(), nombre_app.c_str());
 					broker->wait_mutex(NULL);
-
+					Log::debug("Recibido token %s (%s)", nombre_grupo.c_str(), nombre_app.c_str());
 					// la aplicacion necesita el token?
 					// si lo necesita, actualizo la memoria y habilito el semaforo
 					// si no, lo devuelvo

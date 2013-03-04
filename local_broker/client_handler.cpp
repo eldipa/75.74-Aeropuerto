@@ -166,11 +166,11 @@ void ClientHandler::loop_token_fork() {
 		ignore_childs();
 		do {
 			try {
-
+				Log::debug("Padre: Esperando token %s de %s\n", nombre_grupo.c_str(), nombre_cliente.c_str());
 				if (recv_token() == 0) {
 					leave = true;
 				} else {
-					Log::debug("Recibo token %s de %s\n", nombre_grupo.c_str(), nombre_cliente.c_str());
+					Log::debug("Padre: Recibido token %s de %s\n", nombre_grupo.c_str(), nombre_cliente.c_str());
 					grupo->release_token(&cola_token_manager);
 				}
 			} catch (OSError & error) {
@@ -182,7 +182,7 @@ void ClientHandler::loop_token_fork() {
 			}
 			if (leave) {
 				int status = -1;
-				leave_group();
+				//leave_group();
 				try {
 					socket.disassociate();
 				} catch (OSError & error) {
@@ -198,7 +198,7 @@ void ClientHandler::loop_token_fork() {
 			try {
 				grupo->lock_token();
 				tengo_token = true;
-				Log::debug("Envio token %s a %s\n", nombre_grupo.c_str(), nombre_cliente.c_str());
+				Log::debug("Hijo: Enviando token %s a %s\n", nombre_grupo.c_str(), nombre_cliente.c_str());
 				send_token();
 				tengo_token = false;
 			} catch (OSError & error) {
