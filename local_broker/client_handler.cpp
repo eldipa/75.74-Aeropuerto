@@ -45,8 +45,8 @@ void ClientHandler::avisar_creacion_grupo(const std::string & nombre_grupo) {
 	strncpy(mensaje.recurso, nombre_grupo.c_str(), MAX_NOMBRE_RECURSO);
 	len = strlen(mensaje.recurso) + 1;
 	len += sizeof(long);
-	Log::info("Joining: %s to %s\n", this->nombre_cliente.c_str(), nombre_grupo.c_str());
-	std::cout << "Joining: " << this->nombre_cliente << " to " << nombre_grupo << std::endl;
+	//Log::info("Joining: %s to %s\n", this->nombre_cliente.c_str(), nombre_grupo.c_str());
+	//std::cout << "Joining: " << this->nombre_cliente << " to " << nombre_grupo << std::endl;
 	//cola_token_manager.push(&mensaje, sizeof(traspaso_token_t) - sizeof(long));
 	cola_token_manager.push(&mensaje, len);
 }
@@ -86,8 +86,8 @@ void ClientHandler::procesar_peticion(mensajes::mensajes_local_broker_t & mensaj
 
 	switch (mensaje.peticion) {
 		case mensajes::REGISTER:
-			Log::debug("Register %s", mensaje.datos);
-			std::cout << "Register: " << mensaje.datos << std::endl;
+			//Log::debug("Register %s", mensaje.datos);
+			//std::cout << "Register: " << mensaje.datos << std::endl;
 			nombre_cliente.assign(mensaje.datos);
 			break;
 		case mensajes::JOIN:
@@ -166,11 +166,11 @@ void ClientHandler::loop_token_fork() {
 		ignore_childs();
 		do {
 			try {
-				Log::debug("Padre: Esperando token %s de %s\n", nombre_grupo.c_str(), nombre_cliente.c_str());
+				//Log::debug("Padre: Esperando token %s de %s\n", nombre_grupo.c_str(), nombre_cliente.c_str());
 				if (recv_token() == 0) {
 					leave = true;
 				} else {
-					Log::debug("Padre: Recibido token %s de %s\n", nombre_grupo.c_str(), nombre_cliente.c_str());
+				//	Log::debug("Padre: Recibido token %s de %s\n", nombre_grupo.c_str(), nombre_cliente.c_str());
 					grupo->release_token(&cola_token_manager);
 				}
 			} catch (OSError & error) {
@@ -198,7 +198,7 @@ void ClientHandler::loop_token_fork() {
 			try {
 				grupo->lock_token();
 				tengo_token = true;
-				Log::debug("Hijo: Enviando token %s a %s\n", nombre_grupo.c_str(), nombre_cliente.c_str());
+			//	Log::debug("Hijo: Enviando token %s a %s\n", nombre_grupo.c_str(), nombre_cliente.c_str());
 				send_token();
 				tengo_token = false;
 			} catch (OSError & error) {

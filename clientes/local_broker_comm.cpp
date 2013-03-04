@@ -238,7 +238,7 @@ void do_loop_mutex(ControlTokens * control, const std::string & directorio_de_tr
 				try {
 					// wait for token
 					//std::cout << getpid() << "Padre esperando token socket" << std::endl;
-					Log::debug("Esperando token %s (%s)", nombre_grupo.c_str(), nombre_app.c_str());
+					//Log::debug("Esperando token %s (%s)", nombre_grupo.c_str(), nombre_app.c_str());
 					broker->wait_mutex(NULL);
 
 					// la aplicacion necesita el token?
@@ -247,7 +247,7 @@ void do_loop_mutex(ControlTokens * control, const std::string & directorio_de_tr
 					// espero que termine de procesar
 					//std::cout << getpid() << "Padre entregando token semaforo" << std::endl;
 					if (control->comparar_token(nombre_grupo.c_str())) {
-						Log::debug("Entregando Token Aplicacion %s (%s)", nombre_grupo.c_str(), nombre_app.c_str());
+					//	Log::debug("Entregando Token Aplicacion %s (%s)", nombre_grupo.c_str(), nombre_app.c_str());
 						mutex.entregar_token();
 						//mutex.esperar_token();
 					} else {
@@ -350,16 +350,16 @@ void do_loop_semaforo(ControlTokens * control, const std::string & directorio_de
 				try {
 					// wait for token
 					//std::cout << getpid() << "Padre esperando token socket" << std::endl;
-					Log::debug("Esperando token %s (%s)", nombre_grupo.c_str(), nombre_app.c_str());
+					//Log::debug("Esperando token %s (%s)", nombre_grupo.c_str(), nombre_app.c_str());
 					broker->wait_mutex(NULL);
-					Log::debug("Recibido token %s (%s)", nombre_grupo.c_str(), nombre_app.c_str());
+					//Log::debug("Recibido token %s (%s)", nombre_grupo.c_str(), nombre_app.c_str());
 					// la aplicacion necesita el token?
 					// si lo necesita, actualizo la memoria y habilito el semaforo
 					// si no, lo devuelvo
 					// espero que termine de procesar
 					//std::cout << getpid() << "Padre entregando token semaforo" << std::endl;
 					if (control->comparar_token(nombre_grupo.c_str())) {
-						Log::debug("Entregando Token Aplicacion %s (%s)", nombre_grupo.c_str(), nombre_app.c_str());
+						//Log::debug("Entregando Token Aplicacion %s (%s)", nombre_grupo.c_str(), nombre_app.c_str());
 						semaforos.entregar_token(num_sem);
 						//mutex.esperar_token();
 					} else {
@@ -394,7 +394,7 @@ void do_loop_semaforo(ControlTokens * control, const std::string & directorio_de
 						//std::cout << getpid() << "Hijo esperando token semaforo" << std::endl;
 						semaforos.esperar_token(num_sem);
 						//std::cout << getpid() << "Hijo enviando token socket" << std::endl;
-						Log::debug("Devolviendo token %s (%s)", nombre_grupo.c_str(), nombre_app.c_str());
+						//Log::debug("Devolviendo token %s (%s)", nombre_grupo.c_str(), nombre_app.c_str());
 						broker->free_mutex(NULL);
 					} catch (OSError & error) {
 						//broker->leave();
@@ -448,7 +448,7 @@ void do_loop_memoria(ControlTokens * control, const std::string & directorio_de_
 		while (seguir) {
 			// wait for token
 			try {
-				Log::debug("Esperando token %s (%s)", nombre_grupo.c_str(), nombre_app.c_str());
+				//Log::debug("Esperando token %s (%s)", nombre_grupo.c_str(), nombre_app.c_str());
 				broker->wait_mutex(memoria.memory_pointer());
 				/*if (strcmp(grupo,"cinta_escaner_control")==0) {
 				 print_ints((int *)memoria.memory_pointer(), int(broker->get_mem_size()/ 4));
@@ -459,7 +459,7 @@ void do_loop_memoria(ControlTokens * control, const std::string & directorio_de_
 				// espero que termine de procesar
 				//std::cout << "Chequeando Aplicacion" << std::endl;
 				if (control->comparar_token(nombre_grupo.c_str())) {
-					Log::debug("Entregando Token Aplicacion %s (%s)", nombre_grupo.c_str(), nombre_app.c_str());
+				//	Log::debug("Entregando Token Aplicacion %s (%s)", nombre_grupo.c_str(), nombre_app.c_str());
 					//	std::cout << "Entregando Token Aplicacion" << std::endl;
 					memoria.entregar_token();
 					//	std::cout << "Esperando Token Aplicacion" << std::endl;
@@ -468,7 +468,7 @@ void do_loop_memoria(ControlTokens * control, const std::string & directorio_de_
 
 				// devuelvo el token al local_broker
 				//std::cout << "Devolviendo Token socket" << std::endl;
-				Log::debug("Devolviendo Token %s (%s)", nombre_grupo.c_str(), nombre_app.c_str());
+				//Log::debug("Devolviendo Token %s (%s)", nombre_grupo.c_str(), nombre_app.c_str());
 				broker->free_mutex(memoria.memory_pointer());
 			} catch (CommError & error) {
 				reconectar = true;
