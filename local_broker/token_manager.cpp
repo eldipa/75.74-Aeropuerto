@@ -251,11 +251,8 @@ try
 		std::cerr << "Falta el directorio de trabajo, el id, el archivo con la lista de grupos" << std::endl;
 		return -1;
 	}
-	char id;
 
-	id = atoi(argv [2]);
 	chdir("local_broker");
-   id = id;
 	/*if (chdir("local_broker") != 0) {
 	 throw GenericError("Cannot change working dir to %s", "local_broker");
 	 }*/

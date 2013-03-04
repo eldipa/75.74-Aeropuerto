@@ -31,7 +31,6 @@ ClientHandler::ClientHandler(const std::string & directorio_de_trabajo, /*char i
 }
 
 ClientHandler::~ClientHandler() {
-	leave_group();
 	if (mem_local) {
 		delete [] mem_local;
 	}
@@ -158,7 +157,7 @@ size_t ClientHandler::recv_token() {
 
 void ClientHandler::loop_token_fork() {
 	pid_t pid_hijo;
-	bool leave;
+	bool leave = false;
 	ignore_signals();
 
 	pid_hijo = fork();
@@ -209,6 +208,7 @@ void ClientHandler::loop_token_fork() {
 				leave = true;
 			}
 		} while (!leave);
+		leave_group();
 		if (tengo_token) {
 			grupo->release_token(&cola_token_manager);
 		}
@@ -287,7 +287,8 @@ void ClientHandler::run() {
 			}
 		} catch (OSError & error) {
 			mensaje.peticion = mensajes::LEAVE;
-			std::cerr << error.what() << std::endl;
+			//std::cerr << error.what() << std::endl;
+			Log::crit(error.what());
 		}
 
 	} while (mensaje.peticion != mensajes::LEAVE && mensaje.peticion != mensajes::JOIN
@@ -306,12 +307,12 @@ try
 		return -1;
 	}
 	int fd;
-	char id;
+	//char id;
 	//std::cout << "client_handler " << argv [1] << " " << argv [2] << " " << argv [3] << std::endl;
 
 	fd = atoi(argv [2]);
-	id = atoi(argv [3]);
-   id = id;
+	//id = atoi(argv [3]);
+
 	///// SOCKET ESCUCHA SOLO PARA DEBUG
 	/*int new_socket;
 	 std::string puerto("1234");
@@ -323,6 +324,7 @@ try
 	 delete server_socket;*/
 
 	ClientHandler handler(argv [1], /*id,*/fd);
+
 
 	handler.run();
 
