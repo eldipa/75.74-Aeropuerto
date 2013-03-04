@@ -30,7 +30,7 @@ static char * args_local_broker_comm [] = {
 
 SemaphoreSetDistribuido::SemaphoreSetDistribuido(std::vector<unsigned short> & numeros_de_semaforo,
 	const std::string & directorio_de_trabajo, const std::string & nombre_app, const std::string & nombre_grupo,
-	char id, int cantidad_sems, bool create )
+	char id, int cantidad_sems, bool create)
 	: nombre_recurso(nombre_grupo), cantidad_de_semaforos(cantidad_sems)
 {
 	std::string prefijo_archivo;
@@ -79,14 +79,17 @@ SemaphoreSetDistribuido::SemaphoreSetDistribuido(const std::string & directorio_
 }
 
 SemaphoreSetDistribuido::~SemaphoreSetDistribuido() {
+	int result;
 	std::vector<Process *>::iterator i;
-	try {
-		for (i = handlers.begin(); i != handlers.end() ; i++) {
-			(*i)->send_signal(SIGTERM, false);
-			(*i)->wait();
+	do {
+		try {
+			for (i = handlers.begin(); i != handlers.end() ; i++) {
+				(*i)->send_signal(SIGTERM, false);
+				result = (*i)->wait();
+			}
+		} catch (OSError & error) {
 		}
-	} catch (OSError & error) {
-	}
+	} while (result != -1);
 	ControlTokens::destroy_instance();
 	delete semaforos;
 }

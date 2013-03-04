@@ -78,11 +78,14 @@ MemoriaDistribuida::MemoriaDistribuida(const std::string & directorio_de_trabajo
 }
 
 MemoriaDistribuida::~MemoriaDistribuida() {
-	if (p) {
-		p->send_signal(SIGTERM, false);
-		p->wait();
-		delete p;
-	}
+	int result;
+	do {
+		if (p) {
+			p->send_signal(SIGTERM, false);
+			result = p->wait();
+			delete p;
+		}
+	} while (result != -1);
 	if (memoria)
 		delete memoria;
 	if (mutex)
