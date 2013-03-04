@@ -255,7 +255,7 @@ try
 
 	id = atoi(argv [2]);
 	chdir("local_broker");
-
+   id = id;
 	/*if (chdir("local_broker") != 0) {
 	 throw GenericError("Cannot change working dir to %s", "local_broker");
 	 }*/
