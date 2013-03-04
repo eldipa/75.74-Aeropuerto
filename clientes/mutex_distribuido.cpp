@@ -94,6 +94,7 @@ MutexDistribuido::~MutexDistribuido() {
 	try {
 		handler->send_signal(SIGTERM, false);
 		result = handler->wait();
+      result = result -1+1;
 	} catch (OSError & error) {
 	}
 	if (mutex)
