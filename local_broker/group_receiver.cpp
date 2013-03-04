@@ -174,6 +174,7 @@ bool GroupReceiver::procesar_recepcion_token() {
 	bool mensaje_completo = false;
 	bool token_roto = false;
 	bool estoy_recibiendo_token = false;
+   estoy_recibiendo_token = estoy_recibiendo_token;
 
 	if (mensaje.numero_de_mensaje == 0) {
 		numero_anterior = -1;

@@ -142,7 +142,7 @@ int main(int argc, char * argv []) {
 		return -1;
 	}
 	id = atoi(argv [2]);
-
+   id = id;
 	GroupSender handler(argv [1], argv [3],  argv [4]);
 
 	handler.run();
