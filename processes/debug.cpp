@@ -56,14 +56,15 @@ int test_semaphore_set(int argc, char *argv []) {
 		return -1;
 	}
 
-	valores.push_back(0);
+	//valores.push_back(0);
 	valores.push_back(1);
+	valores.push_back(2);
 
 	//std::cout << valores.size() << std::endl;
 
-	snprintf(directorio_de_trabajo, 200, "%s", "./locks");
+	snprintf(directorio_de_trabajo, 200, "%s", argv[2]);
 	strncpy(app_name, argv [1], 200);
-	sprintf(nombre_grupo, "%s", "cpp_sem_prod_");
+	sprintf(nombre_grupo, "%s", "cco_sem_prod_");
 
 	SemaphoreSetDistribuido semaforos(valores, directorio_de_trabajo, app_name, nombre_grupo, char(0), 2);
 	std::cout << "semaforos creados" << std::endl;
@@ -71,6 +72,10 @@ int test_semaphore_set(int argc, char *argv []) {
 	std::cout << "Token1" << std::endl;
 	semaforos.wait_on(1);
 	std::cout << "Token2" << std::endl;
+	semaforos.wait_on(2);
+	std::cout << "Token3" << std::endl;
+	semaforos.signalize(2);
+	std::cout << "Token3" << std::endl;
 	semaforos.signalize(1);
 	std::cout << "Release Token2" << std::endl;
 	semaforos.signalize(0);
@@ -127,8 +132,8 @@ try
 		throw GenericError("Cannot change working dir to %s", "local_broker");
 	}
 
-	test_memoria_distribuida(argc, argv);
-	//test_semaphore_set(argc, argv);
+	//test_memoria_distribuida(argc, argv);
+	test_semaphore_set(argc, argv);
 	//test_zona_asignada(argc, argv);
 	//test_local_broker_comm(argc, argv);
 

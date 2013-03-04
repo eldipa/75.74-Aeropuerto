@@ -113,6 +113,8 @@ void TokenManager::crear_grupo(const std::string & directorio_de_trabajo, const 
 	// evito la primera linea
 	fscanf(f, "%s\n", primera_linea);
 
+	std::cout << "Creando grupo " << group_name << std::endl;
+	Log::debug("Creando grupo %s\n",group_name.c_str());
 	//manager.levantar_servicio();
 
 	while (fscanf(f, "%[^:]:%[^:]:%d:%d\n", nombre_recurso, tamanio_memoria_str, &valor, &id_grupo) != EOF) {
@@ -218,14 +220,13 @@ void TokenManager::run() {
 			//Me fijo que token me dieron
 			recurso.assign(mensaje.recurso);
 			if (mensaje.tipo == 3) {
-				std::cout << "Creando grupo " << mensaje.recurso << std::endl;
+				//
 				if (!grupo_maestro->existe_grupo(recurso.c_str())) {
 					this->crear_grupo(this->directorio_de_trabajo, this->groups_file, recurso);
-				} else {
-					std::cout << "El grupo " << mensaje.recurso << " ya existe" << std::endl;
 				}
 			} else {
 				if (grupos.count(recurso) < 1) {
+					Log::crit("Error: Grupo %s no encontrado", mensaje.recurso);
 					throw GenericError("Error: Grupo %s no encontrado", mensaje.recurso);
 				}
 				g = grupos.at(recurso);

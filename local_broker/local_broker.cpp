@@ -58,6 +58,7 @@ void LocalBroker::run() {
 	int new_socket;
 	bool exit = 0;
 	Process * handler;
+	long cantidad_de_clientes = 0;
 #if LANZAR_TOKEN_MANAGER == 1
 	Process * p = new Process("token_manager",args_token_manager);
 	hijos.push_back(p);
@@ -82,6 +83,8 @@ void LocalBroker::run() {
 			hijos.push_back(handler);
 
 			close(new_socket);
+
+			Log::info("Conectado cliente numero %d",cantidad_de_clientes++);
 			//exit = true;
 		} catch (OSError & error) {
 			exit = 1;
