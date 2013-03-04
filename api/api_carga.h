@@ -29,7 +29,7 @@ private:
 	yasper::ptr<IMessageQueue> cola_tractores;
 	yasper::ptr<IMessageQueue> cola_aviso_carga;
 
-	CintaContenedor cinta_contenedor;
+	yasper::ptr<CintaContenedor> cinta_contenedor;
 
 	int * cerro_el_checkin;
 	int * cant_equipaje_total;
@@ -47,25 +47,34 @@ public:
 		: id_robot_carga(id_robot_carga),
 			queue_manager(ApiConfiguracion::get_queue_manager(directorio_de_trabajo, config_file)),
 			cola_tractores(queue_manager->get_queue(PATH_COLA_ROBOTS_ZONA_TRACTORES, 0)),
-			cola_aviso_carga(queue_manager->get_queue(PATH_COLA_CONTROL_CARGA_CHECKIN, id_robot_carga)),
-			cinta_contenedor(app_name, directorio_de_trabajo, num_cinta, create)
-	{
+			cola_aviso_carga(queue_manager->get_queue(PATH_COLA_CONTROL_CARGA_CHECKIN, id_robot_carga))
 
+	{
+		cinta_contenedor = new CintaContenedor(app_name, directorio_de_trabajo, num_cinta, create);
+	}
+
+	ApiCarga(const char * directorio_de_trabajo, const char* config_file, int id_robot_carga)
+		: id_robot_carga(id_robot_carga),
+			queue_manager(ApiConfiguracion::get_queue_manager(directorio_de_trabajo, config_file)),
+			cola_tractores(queue_manager->get_queue(PATH_COLA_ROBOTS_ZONA_TRACTORES, 0)),
+			cola_aviso_carga(queue_manager->get_queue(PATH_COLA_CONTROL_CARGA_CHECKIN, id_robot_carga))
+	{
+		//cinta_contenedor = new CintaContenedor(app_name, directorio_de_trabajo, num_cinta, false);
 	}
 
 	~ApiCarga() {
 	}
 
 	bool checkin_cerrado() {
-		return cinta_contenedor.checkin_ya_cerro();
+		return cinta_contenedor->checkin_ya_cerro();
 	}
 
 	Equipaje sacar_equipaje() {
-		return cinta_contenedor.sacar_equipaje();
+		return cinta_contenedor->sacar_equipaje();
 	}
 
 	int obtener_cantidad_equipaje_total() {
-		return cinta_contenedor.cantidad_valijas_totales();
+		return cinta_contenedor->cantidad_valijas_totales();
 	}
 
 	/*
@@ -116,7 +125,7 @@ public:
 	 en los mismo contenedores.
 	 */
 	void comenzar_nueva_carga() {
-		cinta_contenedor.comenzar_nueva_carga();
+		cinta_contenedor->comenzar_nueva_carga();
 	}
 
 	void cargar_equipajes(int equipajes_por_cargar) {
@@ -135,7 +144,7 @@ public:
 	}
 
 	void avisar_cierre_de_checkin(int equipajes_por_cargar) {
-		cinta_contenedor.avisar_cierre_de_checkin(equipajes_por_cargar);
+		cinta_contenedor->avisar_cierre_de_checkin(equipajes_por_cargar);
 	}
 
 private:

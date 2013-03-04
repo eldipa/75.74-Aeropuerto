@@ -40,6 +40,7 @@ MemoriaDistribuida::MemoriaDistribuida(const std::string & directorio_de_trabajo
 			new SemaphoreSet(std::vector<short unsigned int>(2, 0),
 				std::string(directorio_de_trabajo).append(PREFIJO_RECURSO).append(nombre_grupo).append(POSTFIJO_LCK).c_str(),
 				char(2 * id + 1), 0664);
+		control = ControlTokens::get_instance(directorio_de_trabajo, true);
 	} else {
 		memoria =
 			new SharedMemory(
@@ -49,8 +50,8 @@ MemoriaDistribuida::MemoriaDistribuida(const std::string & directorio_de_trabajo
 			new SemaphoreSet(
 				std::string(directorio_de_trabajo).append(PREFIJO_RECURSO).append(nombre_grupo).append(POSTFIJO_LCK).c_str(),
 				char(2 * id + 1), 0);
+		control = ControlTokens::get_instance(directorio_de_trabajo);
 	}
-	control = ControlTokens::get_instance(directorio_de_trabajo, true);
 	//strcat(path, nombre_app.c_str());
 	lanzar_comunicacion(directorio_de_trabajo, nombre_app,
 		std::string(directorio_de_trabajo).append(PATH_LOCAL_BROKER_LIST_FILE).c_str(), nombre_grupo, id, tamanio);

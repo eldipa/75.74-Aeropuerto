@@ -22,7 +22,7 @@ try {
 	}
 
 	// soy consumidor de la cinta
-	ApiControlEquipajes api_control_equipajes(argv[1], argv[2], CANTIDAD_MAX_CONSUMIDORES_CINTA_CENTRAL - 1, -1);
+	ApiControlEquipajes api_control_equipajes(argv[1], argv[2], CANTIDAD_MAX_CONSUMIDORES_CINTA_CENTRAL - 1, -1,true);
 
 	// strcpy(id_consumidor, argv[3]);
 	// strcpy(id_productor, argv[4]);

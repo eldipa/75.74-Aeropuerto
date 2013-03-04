@@ -60,10 +60,17 @@ void lanzar_cargador(int vuelo_destino) {
 	current_working_dir [sizeof(current_working_dir) - 1] = '\0'; /* not really required */
 
 	locate_dir(launch_dir, current_working_dir, (char *)"processes");
+	if(directorio_de_trabajo[0]!='/'){
 	relativize_dir(directorio_de_trabajo_relativo, directorio_de_trabajo, (const char *)launch_dir,
 		current_working_dir);
+	}else	{
+		strcpy(directorio_de_trabajo_relativo, directorio_de_trabajo);
+	}
+	if(config_file[0]!='/'){
 	relativize_dir(config_file_relativo, config_file, (const char *)launch_dir, current_working_dir);
-
+	} else {
+		strcpy(config_file_relativo, config_file);
+	}
 	if (chdir(launch_dir) != 0) {
 		throw GenericError("Cannot change working dir to %s", launch_dir);
 	}
@@ -87,6 +94,8 @@ try
 	int sleep_time;
 	int numero_vuelo_entrante;
 	int numero_vuelo_destino;
+
+	chdir("processes");
 
 	if (argc < 5) {
 		Log::crit(

@@ -8,8 +8,8 @@ ApiControlEquipajes::ApiControlEquipajes(const char * directorio_de_trabajo, con
 	int pos_consumidor_cinta_central, int pos_productor_cinta_central, bool create)
 	: pos_consumidor_cinta_central(pos_consumidor_cinta_central),
 		pos_productor_cinta_central(pos_productor_cinta_central),
-		cinta_central("control_equipaje_sospechoso", std::string(directorio_de_trabajo).append(PATH_CINTA_CENTRAL).c_str(),
-			pos_consumidor_cinta_central-1, pos_productor_cinta_central-1),
+		cinta_central("robot_control_equipaje_sospechoso", std::string(directorio_de_trabajo).c_str(),
+			pos_consumidor_cinta_central-1, pos_productor_cinta_central-1,create),
 
 		queue_manager(ApiConfiguracion::get_queue_manager(directorio_de_trabajo, config_file)),
 		queue_to_control_sospechosos(queue_manager->get_queue(PATH_CONTROL_SOSPECHOSOS, 1, create))
@@ -23,7 +23,7 @@ ApiControlEquipajes::ApiControlEquipajes(const char * directorio_de_trabajo, con
 	: pos_consumidor_cinta_central(pos_consumidor_cinta_central),
 		pos_productor_cinta_central(pos_productor_cinta_central),
 		cinta_central("control_equipaje_sospechoso", std::string(directorio_de_trabajo).c_str(),
-			 pos_consumidor_cinta_central -1, pos_productor_cinta_central -1),
+			 pos_consumidor_cinta_central -1, pos_productor_cinta_central -1,false),
 
 		queue_manager(ApiConfiguracion::get_queue_manager(directorio_de_trabajo, config_file)),
 		queue_to_control_sospechosos(queue_manager->get_queue(PATH_CONTROL_SOSPECHOSOS, 1))
