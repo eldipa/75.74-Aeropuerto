@@ -18,8 +18,8 @@ ApiComunicacionAeropuerto::ApiComunicacionAeropuerto(const char* directorio_de_t
                        
 ApiComunicacionAeropuerto::ApiComunicacionAeropuerto(const char* directorio_de_trabajo, const char* config_file, bool create) :
    queue_manager(ApiConfiguracion::get_intermediate_queue_manager(directorio_de_trabajo, config_file)),
-   queue_zona_asignada(queue_manager->get_queue(PATH_COLA_ESCUCHA_ZONA_ASIGNADA, 0, true)),
-   queue_equipaje_to_aeropuerto(queue_manager->get_queue(PATH_COLA_INTERCARGO,0, true)) {
+   queue_zona_asignada(queue_manager->get_queue(PATH_COLA_ESCUCHA_ZONA_ASIGNADA, 0, create)),
+   queue_equipaje_to_aeropuerto(queue_manager->get_queue(PATH_COLA_INTERCARGO,0, create)) {
 	create = !! create;
 }
 

@@ -32,8 +32,8 @@ public:
 	ApiTractor(const char * directorio_de_trabajo, const char* config_file, int id_tractor, bool create) :
       id(id_tractor), 
       queue_manager( ApiConfiguracion::get_queue_manager(directorio_de_trabajo, config_file) ),
-      cola_avion( queue_manager->get_queue(PATH_COLA_TRACTORES_AVIONES, 0, true) ),
-      cola_robot_zona( queue_manager->get_queue(PATH_COLA_ROBOTS_ZONA_TRACTORES, 0, true) ) {
+      cola_avion( queue_manager->get_queue(PATH_COLA_TRACTORES_AVIONES, 0, create) ),
+      cola_robot_zona( queue_manager->get_queue(PATH_COLA_ROBOTS_ZONA_TRACTORES, 0, create) ) {
       create = create;
 	}
 
