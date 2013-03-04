@@ -23,7 +23,7 @@ MessageBrokerServer::MessageBrokerServer(yasper::ptr<IMessageBroker> broker, con
                                          const char* persist_file_path, bool load_from_file )
    : Server(service), broker(broker), service(service) {
 
-   load_from_file = load_from_file;
+   load_from_file = !!load_from_file;
    
    if(strlen(log_file_path)>0) {
       log_file.open(log_file_path, std::ios_base::app);

@@ -34,7 +34,7 @@ try {
 
 	Log::info("Iniciando controlador de carga para robot_carga %d\n", id_robot_carga);
 
-	ApiCarga api_carga(std::string("control_carga_contenedores").append(intToString(id_robot_carga)).c_str(),argv[1], argv[2], id_robot_carga,  id_robot_carga,false);
+	ApiCarga api_carga(std::string("control_carga_contenedores").append(intToString(id_robot_carga)).c_str(),argv[1], argv[2], id_robot_carga,  id_robot_carga,false,false);
 	//CintaContenedor cinta_contenedor_carga(std::string("controlador_puesto_checkin").append(argv[3]).c_str(),argv[1], id_robot_carga);
 
 	Log::info("Espero mensaje checkin cerrado\n");

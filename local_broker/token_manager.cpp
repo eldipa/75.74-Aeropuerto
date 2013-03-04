@@ -103,6 +103,7 @@ void TokenManager::crear_grupo(const std::string & directorio_de_trabajo, const 
 	char tamanio_memoria_str [200];
 	int id_grupo;
 	int valor;
+	bool existe = false;
 
 	f = fopen(groups_file.c_str(), "rt");
 
@@ -116,6 +117,7 @@ void TokenManager::crear_grupo(const std::string & directorio_de_trabajo, const 
 
 	while (fscanf(f, "%[^:]:%[^:]:%d:%d\n", nombre_recurso, tamanio_memoria_str, &valor, &id_grupo) != EOF) {
 		if (group_name == nombre_recurso) {
+			existe = true;
 			// Crear Grupo
 			Grupo * g;
 			// Creo el archivo lck
@@ -124,6 +126,7 @@ void TokenManager::crear_grupo(const std::string & directorio_de_trabajo, const 
 			g = new Grupo(directorio_de_trabajo, nombre_recurso, InitParser::parse_int_val(tamanio_memoria_str), true);
 			grupos.insert(std::pair<std::string, Grupo *>(std::string(nombre_recurso), g));
 			//agregar_grupo_a_tabla_creados(group_name.c_str());
+			std::cout << "Grupo " << nombre_recurso << " creado" << std::endl;
 			Log::info("Grupo %s creado", nombre_recurso);
 #if LANZAR_SERVICIO_DE_ANILLOS == 1
 			manager.levantar_grupo(nombre_recurso, valor);
@@ -179,6 +182,10 @@ void TokenManager::crear_grupo(const std::string & directorio_de_trabajo, const 
 		}
 	}
 	fclose(f);
+
+	if(!existe){
+		Log::crit("El grupo %s no existe",nombre_recurso);
+	}
 }
 
 void TokenManager::run() {
@@ -211,8 +218,11 @@ void TokenManager::run() {
 			//Me fijo que token me dieron
 			recurso.assign(mensaje.recurso);
 			if (mensaje.tipo == 3) {
+				std::cout << "Creando grupo " << mensaje.recurso << std::endl;
 				if (!grupo_maestro->existe_grupo(recurso.c_str())) {
 					this->crear_grupo(this->directorio_de_trabajo, this->groups_file, recurso);
+				} else {
+					std::cout << "El grupo " << mensaje.recurso << " ya existe" << std::endl;
 				}
 			} else {
 				if (grupos.count(recurso) < 1) {
@@ -245,7 +255,7 @@ try
 
 	id = atoi(argv [2]);
 	chdir("local_broker");
-   id = id;
+
 	/*if (chdir("local_broker") != 0) {
 	 throw GenericError("Cannot change working dir to %s", "local_broker");
 	 }*/

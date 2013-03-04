@@ -45,11 +45,11 @@ public:
 	 * recibe un path_carga y el id_robot_carga.Va a existir una ApiCarga por cada robot_carga.
 	 **/
 	ApiCarga(const char * app_name, const char * directorio_de_trabajo, const char* config_file, int id_robot_carga,
-		int num_cinta, bool same_dir)
+		int num_cinta, bool create, bool same_dir)
 		: id_robot_carga(id_robot_carga),
 			queue_manager(ApiConfiguracion::get_queue_manager(directorio_de_trabajo, config_file)),
 			cola_tractores(queue_manager->get_queue(PATH_COLA_ROBOTS_ZONA_TRACTORES, 0)),
-        cola_aviso_carga(queue_manager->get_queue(PATH_COLA_CONTROL_CARGA_CHECKIN, id_robot_carga, create))
+			cola_aviso_carga(queue_manager->get_queue(PATH_COLA_CONTROL_CARGA_CHECKIN, id_robot_carga, create))
 
 	{
 		if (same_dir) {
@@ -71,7 +71,6 @@ public:
 	{
 		//cinta_contenedor = new CintaContenedor(app_name, directorio_de_trabajo, num_cinta, false);
 	}
-
 
 	~ApiCarga() {
 	}

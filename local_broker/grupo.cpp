@@ -169,7 +169,7 @@ void Grupo::join(const char nombre [MAX_NOMBRE_RECURSO]) {
 	}
 	if (locked_ya_esta_cliente(nombre)) {
 		semaforos.signalize(mutex_asignado);
-		throw GenericError("El cliente %s ya está registrado en %s", nombre, this->nombre_recurso.c_str());
+		throw GenericError("El cliente %s ya esta registrado en %s", nombre, this->nombre_recurso.c_str());
 	}
 	for (int i = 0 ; i < MAX_CLIENTS ; i++) {
 		if (*(client_names [i]) == '\0') {
@@ -180,8 +180,8 @@ void Grupo::join(const char nombre [MAX_NOMBRE_RECURSO]) {
 		}
 	}
 
-	Log::info("Join: %s to %s\n", nombre, this->nombre_recurso.c_str());
-	std::cout << "Join: " << nombre << " to " << this->nombre_recurso << std::endl;
+	Log::info("Joined: %s to %s\n", nombre, this->nombre_recurso.c_str());
+	std::cout << "Joined: " << nombre << " to " << this->nombre_recurso << std::endl;
 
 	semaforos.signalize(mutex_asignado);
 }

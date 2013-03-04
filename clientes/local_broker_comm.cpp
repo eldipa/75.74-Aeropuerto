@@ -188,15 +188,9 @@ LocalBrokerComm * conectar_con_broker(const std::string & nombre_app, std::vecto
 			conectado_con = i;
 		} catch (CommError & error) {
 			i = (i + 1) % cant_brokers;
-			if (i == conectado_con) {
-				throw error;
-			}
 			conecto = false;
 		} catch (OSError & error) {
 			i = (i + 1) % cant_brokers;
-			if (i == conectado_con) {
-				throw error;
-			}
 			conecto = false;
 		}
 	} while (!conecto && i != conectado_con);

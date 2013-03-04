@@ -31,18 +31,25 @@ ClientHandler::ClientHandler(const std::string & directorio_de_trabajo, /*char i
 }
 
 ClientHandler::~ClientHandler() {
+	leave_group();
 	if (mem_local) {
 		delete [] mem_local;
 	}
 }
 
 void ClientHandler::avisar_creacion_grupo(const std::string & nombre_grupo) {
+	size_t len;
 	traspaso_token_t mensaje;
 	// envio mensaje para que el token manager levante el grupo
 	mensaje.mtype = 1;
 	mensaje.tipo = 3; // crear grupo
 	strncpy(mensaje.recurso, nombre_grupo.c_str(), MAX_NOMBRE_RECURSO);
-	cola_token_manager.push(&mensaje, sizeof(traspaso_token_t) - sizeof(long));
+	len = strlen(mensaje.recurso) + 1;
+	len += sizeof(long);
+	Log::info("Joining: %s to %s\n", this->nombre_cliente.c_str(), nombre_grupo.c_str());
+	std::cout << "Joining: " << this->nombre_cliente << " to " << nombre_grupo << std::endl;
+	//cola_token_manager.push(&mensaje, sizeof(traspaso_token_t) - sizeof(long));
+	cola_token_manager.push(&mensaje, len);
 }
 
 void ClientHandler::join_group(const std::string & nombre_grupo) {
@@ -80,10 +87,8 @@ void ClientHandler::procesar_peticion(mensajes::mensajes_local_broker_t & mensaj
 
 	switch (mensaje.peticion) {
 		case mensajes::REGISTER:
-			//std::cout << "Register: " << mensaje.datos << std::endl;
-			// chequear que la aplicacion no esté logueada actualment
-			//registrar_cliente(mensaje.datos);
-			// generar id de cliente/conexion
+			Log::debug("Register %s", mensaje.datos);
+			std::cout << "Register: " << mensaje.datos << std::endl;
 			nombre_cliente.assign(mensaje.datos);
 			break;
 		case mensajes::JOIN:
@@ -170,8 +175,10 @@ void ClientHandler::loop_token_fork() {
 					grupo->release_token(&cola_token_manager);
 				}
 			} catch (OSError & error) {
+				Log::crit(error.what());
 				leave = true;
 			} catch (CommError & error) {
+				Log::crit(error.what());
 				leave = true;
 			}
 			if (leave) {
@@ -180,6 +187,7 @@ void ClientHandler::loop_token_fork() {
 				try {
 					socket.disassociate();
 				} catch (OSError & error) {
+					//Log::crit(error.what());
 				}
 				waitpid(pid_hijo, &status, 0);
 			}
@@ -194,8 +202,10 @@ void ClientHandler::loop_token_fork() {
 				send_token();
 				tengo_token = false;
 			} catch (OSError & error) {
+				Log::crit(error.what());
 				leave = true;
 			} catch (CommError & error) {
+				Log::crit(error.what());
 				leave = true;
 			}
 		} while (!leave);
@@ -301,7 +311,7 @@ try
 
 	fd = atoi(argv [2]);
 	id = atoi(argv [3]);
-   id = id;
+
 	///// SOCKET ESCUCHA SOLO PARA DEBUG
 	/*int new_socket;
 	 std::string puerto("1234");
