@@ -10,11 +10,11 @@
 
 using namespace std;
 
-ApiTrasbordo::ApiTrasbordo(const char* directorio_de_trabajo, const char* config_file, int numero_de_vuelo) :
-   queue_manager(ApiConfiguracion::get_queue_manager(directorio_de_trabajo, config_file)),
-   cola_cargadores_equipaje(queue_manager->get_queue(PATH_COLA_ROBOTS_INTERCARGO, 0)) {
-   // cola_asignaciones( queue_manager->get_queue(PATH_COLA_ESCUCHA_ZONA_ASIGNADA, 0) ) {
-
+ApiTrasbordo::ApiTrasbordo(const char* directorio_de_trabajo, const char* config_file, int numero_de_vuelo)  { // :
+   // queue_manager(ApiConfiguracion::get_queue_manager(directorio_de_trabajo, config_file)),
+   // cola_cargadores_equipaje(queue_manager->get_queue(PATH_COLA_ROBOTS_INTERCARGO, 0)) {
+   // // cola_asignaciones( queue_manager->get_queue(PATH_COLA_ESCUCHA_ZONA_ASIGNADA, 0) ) {
+   config_file = config_file;
 	cinta = new CintaCentral(std::string("robot_intercargo").append(intToString(numero_de_vuelo)).c_str(),
 		directorio_de_trabajo, -1, -2);
 
@@ -29,11 +29,6 @@ void ApiTrasbordo::poner_en_cinta_principal(const Equipaje& equipaje) {
 	cinta->colocar_elemento(&equipaje, id_productor);
 }
 
-int ApiTrasbordo::esperar_vuelo_entrante(int numero_vuelo_destino) {
-	mensaje.mtype = 0;
-	cola_cargadores_equipaje->pull(&this->mensaje, sizeof(MENSAJE_VUELO_ENTRANTE), numero_vuelo_destino);
-	return mensaje.vuelo_entrante;
-}
 
 // int ApiTrasbordo::esperar_zona_asignada(int numero_vuelo) {
 //    MENSAJE_ZONA_ASIGNADA mensaje;

@@ -21,7 +21,7 @@ static char config_file [MAX_PATH_SIZE];
 char directorio_de_trabajo_relativo [FILENAME_MAX];
 char config_file_relativo [FILENAME_MAX];
 
-static char *args_robot_intercargo [] = {
+static char *args_controlador_intercargo [] = {
 	(char*)"controlador_equipaje_intercargo", directorio_de_trabajo_relativo, config_file_relativo, (char*)id_vuelo_destino, NULL};
 
 // static char *args_escucha_zonas [] = {
@@ -68,7 +68,7 @@ void lanzar_cargador(int vuelo_destino) {
 		throw GenericError("Cannot change working dir to %s", launch_dir);
 	}
 	sprintf(id_vuelo_destino, "%d", vuelo_destino);
-	Process cargador("robot_intercargo", args_robot_intercargo);
+	Process cargador("controlador_equipaje_intercargo", args_controlador_intercargo);
 	if (chdir(current_working_dir) != 0) {
 		throw GenericError("Cannot change working dir to %s", current_working_dir);
 	}
@@ -97,7 +97,7 @@ try
 	strncpy(directorio_de_trabajo, argv [1], MAX_PATH_SIZE);
 	strncpy(config_file, argv [2], MAX_PATH_SIZE);
 
-	ApiComunicacionIntercargo api_comunicacion(directorio_de_trabajo, config_file);
+	ApiComunicacionIntercargo api_comunicacion(directorio_de_trabajo, config_file, true);
 	// lanzar_escucha_zonas();
 
 	std::map<int, int> vuelos_lanzados;

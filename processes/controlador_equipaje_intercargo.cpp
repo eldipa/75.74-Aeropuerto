@@ -5,7 +5,7 @@
 #include <cstdio>
 #include "cintas.h"
 
-#include "api_trasbordo.h"
+#include "api_comunicacion_intercargo.h"
 #include "api_comunicacion_aeropuerto.h"
 #include "contenedor.h"
 #include "constants.h"
@@ -57,8 +57,8 @@ try
 	int numero_vuelo_destino;
 	int numero_vuelo_entrante;
 	std::multimap<int, Equipaje>::iterator it;
-
-	if (argc < 4) {
+   Log::info("OK, lanzando controlador_equipaje_intercargo");
+	if (argc < 3) {
 		Log::crit(
 			"Insuficientes parametros para controlador equipaje de intercargo, se esperaba (directorio_de_trabajo, config_file, num_vuelo_destino)\n");
 		exit(1);
@@ -67,7 +67,7 @@ try
 
 	numero_vuelo_destino = atoi(argv [3]);
 
-	ApiTrasbordo api_trasbordo(argv [1], argv [2],numero_vuelo_destino);
+	ApiComunicacionIntercargo api_intercargo(argv [1], argv [2]);
    ApiComunicacionAeropuerto api_comm_aeropuerto(argv[1], argv[2]);
 
 	std::multimap<int, Equipaje> equipajes_a_cargar;
@@ -82,7 +82,7 @@ try
 
 	while (!equipajes_a_cargar.empty()) {
 		Log::info("Esperando vuelos entrantes con equipaje destino a %d", numero_vuelo_destino);
-		numero_vuelo_entrante = api_trasbordo.esperar_vuelo_entrante(numero_vuelo_destino);
+		numero_vuelo_entrante = api_intercargo.esperar_vuelo_entrante(numero_vuelo_destino);
 		Log::info("Comenzando a cargar equipaje de vuelo entrante %d", numero_vuelo_entrante);
 		for (it = equipajes_a_cargar.equal_range(numero_vuelo_entrante).first;
 			it != equipajes_a_cargar.equal_range(numero_vuelo_entrante).second ; ++it)

@@ -354,6 +354,7 @@ std::list<std::string> ls(const char * folder) {
 }
 
 void chequear_si_hay_duplicados() {
+   /*
 	std::vector<char *>::iterator i;
 	std::list<std::string>::iterator j;
 	std::map<Key, std::string> keys;
@@ -371,6 +372,7 @@ void chequear_si_hay_duplicados() {
 			}
 		}
 	}
+   */
 }
 
 int main(int argc, char** argv)
@@ -451,12 +453,12 @@ try
 
 	sleep(5);
 	Log::notice("Finalizando procesos. Enviando SIGTERM...");
-	for (std::list<Process>::iterator it = processes.begin() ; it != processes.end() ; ++it)
+	for (std::list<Process>::iterator it = processes.end() ; it != processes.begin() ; --it)
 		it->send_signal(SIGTERM);
 
 	sleep(2);
 	Log::notice("Finalizando procesos. Enviando SIGKILL...");
-	for (std::list<Process>::iterator it = processes.begin() ; it != processes.end() ; ++it)
+	for (std::list<Process>::iterator it = processes.end() ; it != processes.begin() ; --it)
 		it->send_signal(SIGKILL);
 
 	Log::info("finalizando simulación...");
