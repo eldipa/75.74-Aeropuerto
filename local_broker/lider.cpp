@@ -12,6 +12,7 @@
 #include <cstring>
 #include <cstdio>
 #include "signalhandler.h"
+#include <unistd.h>
 
 Lider::Lider(const std::string directorio_de_trabajo,
 		const std::string & nombre_grupo, char id_grupo,

@@ -2,6 +2,9 @@
 #define IMESSAGE_BROKER_H_ 
 
 #include "notimplementederror.h"
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <netdb.h>
 
 class IMessageBroker {
 public:

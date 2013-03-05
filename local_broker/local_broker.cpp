@@ -16,6 +16,8 @@
 #include "oserror.h"
 #include "local_broker_constants.h"
 #include <csignal>
+#include <unistd.h>
+#include "daemon.h"
 
 #define MAX_CLIENTES 100
 
@@ -63,6 +65,9 @@ void LocalBroker::run() {
 	Process * p = new Process("token_manager",args_token_manager);
 	hijos.push_back(p);
 #endif
+
+	ignore_signals();
+
 	do {
 		try {
 			new_socket = server_socket.listen_fd(10);

@@ -29,6 +29,7 @@
 
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <arpa/inet.h>
 #include <netdb.h>
 #include <unistd.h>
 #include "oserror.h"
@@ -123,13 +124,14 @@ void Socket::from_who(std::string &host, std::string &service) {
    char host_buf[NI_MAXHOST];
    char service_buf[NI_MAXSERV];
 
-   int status = getnameinfo((struct sockaddr *) &peer_addr, peer_addr_len,
-            host_buf, NI_MAXHOST, service_buf, NI_MAXSERV, NI_NAMEREQD | (isstream? 0 : NI_DGRAM));
 
-   if(status != 0) {
-      if(status != EAI_SYSTEM)
-         errno = 0; //The error code is not in the errno (it has garbage)
-      throw OSError("The name of the host and the service cannot be obtained: %s", gai_strerror(status));
+
+   //int status = getnameinfo((struct sockaddr *) &peer_addr, peer_addr_len,
+   //         host_buf, NI_MAXHOST, service_buf, NI_MAXSERV, NI_NAMEREQD | (isstream? 0 : NI_DGRAM));
+
+   if(inet_ntop(AF_INET, (const void *) &peer_addr,host_buf,NI_MAXHOST) == NULL) {
+       //The error code is not in the errno (it has garbage)
+      throw OSError("The name of the host and the service cannot be obtained: ");
    }
 
    host.assign(host_buf);

@@ -18,6 +18,7 @@
 #include <cstdio>
 #include <fcntl.h>
 #include <string.h>
+#include <unistd.h>
 
 MessageBrokerServer::MessageBrokerServer(yasper::ptr<IMessageBroker> broker, const char* service, const char* log_file_path, 
                                          const char* persist_file_path, bool load_from_file )

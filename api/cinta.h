@@ -43,7 +43,7 @@ public:
 	virtual ~Cinta();
 
 	void poner_equipaje(const T & elemento, int id_productor);
-	T sacar_equipaje(int id_consumidor);
+	T sacar_equipaje();
 };
 
 template <typename T> Cinta<T>::Cinta(const char * app_name, const char * directorio_de_trabajo, char numero_cinta,
@@ -172,13 +172,13 @@ void Cinta<T>::poner_equipaje(const T & elemento, int id_productor) {
 }
 
 template <typename T>
-T Cinta<T>::sacar_equipaje(int id_consumidor) {
+T Cinta<T>::sacar_equipaje() {
 	T elemento;
 	bool extrajo = false;
 
 	while (!extrajo) {
 
-		this->semaforo_consumidores->wait_on(id_consumidor - 1);
+		this->semaforo_consumidores->wait_on(0);
 
 		//mutex->wait_on(0);
 		memoria_compartida->lock();
@@ -196,9 +196,9 @@ T Cinta<T>::sacar_equipaje(int id_consumidor) {
 
 		if (*this->cantidad_elementos == 0) {
 			(*this->cantidad_consumidores_esperando)++;
-			this->ids_consumidores_esperando [id_consumidor - 1] = 1;
+			this->ids_consumidores_esperando [0] = 1;
 		} else {
-			this->semaforo_consumidores->signalize(id_consumidor - 1);
+			this->semaforo_consumidores->signalize(0);
 		}
 
 		//mutex->signalize(0);

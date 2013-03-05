@@ -13,7 +13,7 @@
 int main(int argc, char** argv)
 try
 {
-	int id_robot;
+	//int id_robot;
 	int num_cinta_checkin;
 	if (argc < 5) {
 		Log::crit(
@@ -21,7 +21,7 @@ try
 		exit(1);
 	}
 
-	id_robot = atoi(argv [3]); // de 1 a N
+	//id_robot = atoi(argv [3]); // de 1 a N
 	num_cinta_checkin = atoi(argv [4]);
    num_cinta_checkin = num_cinta_checkin;
 
@@ -36,7 +36,7 @@ try
 
 		sleep(rand() % SLEEP_ROBOT_CHECKIN);
 
-		Equipaje equipaje = cinta_checkin.sacar_equipaje(id_robot);
+		Equipaje equipaje = cinta_checkin.sacar_equipaje();
 		Log::info("sacó %s", equipaje.toString().c_str());
 
 		sleep(rand() % SLEEP_ROBOT_CHECKIN);

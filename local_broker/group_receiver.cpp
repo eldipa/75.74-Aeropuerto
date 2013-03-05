@@ -7,6 +7,7 @@
 
 #include "group_receiver.h"
 
+#include <unistd.h>
 #include <cstring>
 #include <cstdio>
 #include <iostream>

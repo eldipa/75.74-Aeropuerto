@@ -15,6 +15,7 @@
 #include "grupo.h"
 #include "oserror.h"
 #include "genericerror.h"
+#include <unistd.h>
 
 GroupSender::GroupSender(const std::string & directorio_de_trabajo, const std::string & nombre_grupo,
 	const std::string & nombre_broker_local)

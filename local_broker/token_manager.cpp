@@ -235,7 +235,7 @@ void TokenManager::run() {
 				g->replicar_brokers();
 				g->pasar_token_a_proximo_cliente();
 			}
-			usleep(300000);
+			usleep(10000);
 		} catch (OSError & error) {
 			Log::crit("%s", error.what());
 			//std::cerr << error.what() << std::endl;

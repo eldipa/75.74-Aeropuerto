@@ -9,7 +9,9 @@
 #include "imessage_broker.h"
 
 #include "semaphoreset.h"
-
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <netdb.h>
 class MessageBrokerData {
 public:
    char  proj_id_to_queue_id [255][255];

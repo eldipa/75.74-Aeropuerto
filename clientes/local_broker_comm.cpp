@@ -111,7 +111,7 @@ void LocalBrokerComm::wait_mutex(void * memory) {
 			cant += leidos;
 		} while (cant < sizeof(mensajes::mensajes_local_broker_token_t));
 		if (tamanio_memoria != 0 && memory != NULL) {
-			memcpy((char *)memory + i * DATA_SIZE, mensaje.datos, std::min(tamanio_memoria, size_t(DATA_SIZE)));
+			memcpy((char *)memory + i * DATA_SIZE, mensaje.datos, std::min(tamanio_memoria - i * DATA_SIZE, size_t(DATA_SIZE)));
 		}
 	}
 
