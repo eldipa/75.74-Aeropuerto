@@ -10,6 +10,7 @@
 #include "api_constants.h"
 #include "api_common.h"
 
+
 template <typename T>
 class Cinta {
 private:

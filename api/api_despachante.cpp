@@ -24,7 +24,7 @@ ApiDespachante::ApiDespachante(const char* directorio_de_trabajo, const char* co
 	}
 
 	if (clnt_torre_de_control == NULL) {
-		throw GenericError("Error al conectar con rpc_torre_de_control server");
+		//throw GenericError("Error al conectar con rpc_torre_de_control server");
 	}
 }
 

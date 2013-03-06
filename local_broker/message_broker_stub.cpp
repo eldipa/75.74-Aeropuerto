@@ -12,7 +12,7 @@ MessageBrokerStub::MessageBrokerStub(const char* ip, const char* port) :
 
    try {
       sock.destination(ip, port);
-   } catch(std::exception error) {
+   } catch(std::exception & error) {
       throw MessageBrokerError("Can't connect to message broker at %s:%s ", ip, port);
    }
 }
@@ -29,7 +29,7 @@ void MessageBrokerStub::create_queue(const char* queue_id) {
    try {
       MessageBrokerServer::sendall(sock, (char*)&request, sizeof(BrokerRequest));
       MessageBrokerServer::receiveall(sock, (char*)&response, sizeof(BrokerResponse));
-   } catch(OSError error) {
+   } catch(OSError & error) {
       throw MessageBrokerError("Network error, cause: %s", error.what());
    }
 
@@ -52,7 +52,7 @@ void MessageBrokerStub::destroy_queue(const char* queue_id) {
       MessageBrokerServer::sendall(sock, (char*)&request, sizeof(BrokerRequest));
       MessageBrokerServer::receiveall(sock, (char*)&response, sizeof(BrokerResponse));
       Log::debug("MessageBrokerStub: queue destroy ok '%s'", queue_id);
-   } catch(std::exception error) {
+   } catch(std::exception & error) {
       throw MessageBrokerError("Network error, cause: %s", error.what());
    }
 
@@ -80,7 +80,7 @@ void MessageBrokerStub::push(const char* queue_id, const void *msg, size_t size_
    try {
       MessageBrokerServer::sendall(sock, (char*)&request, sizeof(BrokerRequest));
       MessageBrokerServer::receiveall(sock, (char*)&response, sizeof(BrokerResponse));
-   } catch(OSError error) {
+   } catch(OSError & error) {
       throw MessageBrokerError("Network error, cause: %s", error.what());
    }
 
@@ -108,7 +108,7 @@ ssize_t MessageBrokerStub::pull(const char* queue_id, void *msg, size_t max_size
       MessageBrokerServer::sendall(sock, (char*)&request, sizeof(BrokerRequest));
       MessageBrokerServer::receiveall(sock, (char*)&response, sizeof(BrokerResponse));
       Log::debug("MessageBrokerStub: Receive from queue_id %s", queue_id);
-   } catch(OSError error) {
+   } catch(OSError & error) {
       throw MessageBrokerError("Network error, cause: %s", error.what());
    }
 

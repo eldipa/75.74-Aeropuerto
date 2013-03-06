@@ -9,6 +9,10 @@
 #include "semaphore_set_distribuido.h"
 #include <cstring>
 #include "api_constants.h"
+#include <iostream>
+
+
+#define DEBUG_CINTA_PRINCIPAL 0
 
 template <typename T>
 class CintaPrincipal {
@@ -36,7 +40,8 @@ private:
 
 public:
 
-	CintaPrincipal(const char * app_name, const char * absolute_path, int id_consumidor, int id_productor, bool create = true);
+	CintaPrincipal(const char * app_name, const char * absolute_path, int id_consumidor, int id_productor, bool create =
+		true);
 	virtual ~CintaPrincipal();
 
 	void colocar_elemento(const T * elemento, int id_productor);
@@ -52,7 +57,7 @@ template <typename T> CintaPrincipal<T>::CintaPrincipal(const char * app_name, c
 	//int i;
 	//this->memoria_compartida = new SharedMemory(absolute_path, 0, 0, false, false);
 	memoria_compartida = new MemoriaDistribuida(absolute_path, app_name, (char *)"cinta_principal", 0,
-		TAMANIO_MEMORIA_CINTA_PRINCIPAL,create);
+		TAMANIO_MEMORIA_CINTA_PRINCIPAL, create);
 
 	valores.clear();
 	if (id_consumidor == CANTIDAD_MAX_CONSUMIDORES_CINTA_CENTRAL - 1) { //soy el ultimo consumidor
@@ -69,7 +74,7 @@ template <typename T> CintaPrincipal<T>::CintaPrincipal(const char * app_name, c
 		valores.push_back(0);
 	}
 	semaforo_consumidores = new SemaphoreSetDistribuido(valores, absolute_path, app_name, "cpp_sem_cons_", char(0),
-		CANTIDAD_MAX_CONSUMIDORES_CINTA_CENTRAL,create);
+		CANTIDAD_MAX_CONSUMIDORES_CINTA_CENTRAL, create);
 	valores.clear();
 	if (id_productor >= 0) { // soy productor
 		valores.push_back(id_productor);
@@ -83,7 +88,7 @@ template <typename T> CintaPrincipal<T>::CintaPrincipal(const char * app_name, c
 		}
 	}
 	semaforo_productores = new SemaphoreSetDistribuido(valores, absolute_path, app_name, "cpp_sem_prod_", char(0),
-		CANTIDAD_MAX_PRODUCTORES_CINTA_CENTRAL,create);
+		CANTIDAD_MAX_PRODUCTORES_CINTA_CENTRAL, create);
 	//this->mutex = new SemaphoreSet(absolute_path, 1, 0, 0);
 
 	//this->semaforo_productores = new SemaphoreSet(absolute_path, 2, 0, 0);
@@ -128,13 +133,26 @@ void CintaPrincipal<T>::colocar_elemento(const T * elemento, int id_productor) {
 
 	while (!coloque) {
 
+#if  DEBUG_CINTA_PRINCIPAL == 1
+		std::cout << "productor wait cpp_sem_prod_" << id_productor - 1 << std::endl;
+#endif
 		semaforo_productores->wait_on(id_productor - 1); // espera por si esta lleno
 
 		//mutex->wait_on(0);
+#if  DEBUG_CINTA_PRINCIPAL == 1
+		std::cout << "productor wait mutex cinta_principal" << std::endl;
+#endif
 		memoria_compartida->lock();
+#if  DEBUG_CINTA_PRINCIPAL == 1
+		std::cout << "productor cant_elementos = " << *cantidad_elementos << std::endl;
+#endif
 
 		if (*this->cantidad_elementos < *this->tamanio_vector) { // puedo colocar
-			memcpy(&(vector_elementos [*this->posicion_libre]), elemento, sizeof(T));
+			//memcpy(&(vector_elementos [*this->posicion_libre]), elemento, sizeof(T));
+#if  DEBUG_CINTA_PRINCIPAL == 1
+			std::cout << "productor elemento colocado" << std::endl;
+#endif
+			vector_elementos [*this->posicion_libre] = *elemento;
 			*posicion_libre = (*posicion_libre + 1) % *this->tamanio_vector;
 			(*this->cantidad_elementos)++;
 			coloque = true;
@@ -142,6 +160,9 @@ void CintaPrincipal<T>::colocar_elemento(const T * elemento, int id_productor) {
 			if (*this->cantidad_elementos == 1) { // estaba vacio
 				if (*consumidor_esperando > 0) {
 					*consumidor_esperando = 0;
+#if  DEBUG_CINTA_PRINCIPAL == 1
+					std::cout << "productor signal cpp_sem_cons_0" << std::endl;
+#endif
 					semaforo_consumidores->signalize(0);
 				}
 			}
@@ -151,10 +172,17 @@ void CintaPrincipal<T>::colocar_elemento(const T * elemento, int id_productor) {
 			(*this->cantidad_productores_esperando)++;
 			this->ids_productores_esperando [id_productor - 1] = 1;
 		} else {
+#if  DEBUG_CINTA_PRINCIPAL == 1
+			std::cout << "productor signal cpp_sem_prod_" << id_productor - 1 << std::endl;
+#endif
 			semaforo_productores->signalize(id_productor - 1);
 		}
 
 		//mutex->signalize(0);
+#if  DEBUG_CINTA_PRINCIPAL == 1
+		std::cout << "productor cant_elementos = " << *cantidad_elementos << std::endl;
+		std::cout << "productor signal mutex cinta_principal" << std::endl;
+#endif
 		memoria_compartida->unlock();
 	}
 }
@@ -162,8 +190,14 @@ void CintaPrincipal<T>::colocar_elemento(const T * elemento, int id_productor) {
 template <typename T>
 void CintaPrincipal<T>::avanzar_cinta(int id_consumidor) {
 	if (id_consumidor < *this->cantidad_consumidores) {
+#if  DEBUG_CINTA_PRINCIPAL == 1
+		std::cout << "consumidor signal cpp_sem_cons_" << id_consumidor << std::endl;
+#endif
 		this->semaforo_consumidores->signalize(id_consumidor);
 	} else {
+#if  DEBUG_CINTA_PRINCIPAL == 1
+		std::cout << "consumidor signal cpp_sem_cons_0" << std::endl;
+#endif
 		this->semaforo_consumidores->signalize(0);
 	}
 }
@@ -173,15 +207,27 @@ void CintaPrincipal<T>::extraer_elemento() {
 	int i;
 
 	//mutex->wait_on(0);
+#if  DEBUG_CINTA_PRINCIPAL == 1
+	std::cout << "consumidor wait mutex cinta_principal" << std::endl;
+#endif
 	memoria_compartida->lock();
+#if  DEBUG_CINTA_PRINCIPAL == 1
+	std::cout << "consumidor cant_elementos = " << *cantidad_elementos << std::endl;
+#endif
 
 	*this->posicion_ocupada = (*this->posicion_ocupada + 1) % *this->tamanio_vector;
 	(*this->cantidad_elementos)--;
+#if  DEBUG_CINTA_PRINCIPAL == 1
+	std::cout << "consumidor elemento extraido" << std::endl;
+#endif
 
 	if (*cantidad_elementos == *tamanio_vector - 1) { // estaba lleno
 		if (*cantidad_productores_esperando > 0) {
 			for (i = 0; i < *this->cantidad_productores ; i++) {
 				if (this->ids_productores_esperando [i] == 1) {
+#if  DEBUG_CINTA_PRINCIPAL == 1
+					std::cout << "signal cpp_sem_prod_" << i << std::endl;
+#endif
 					semaforo_productores->signalize(i);
 					this->ids_productores_esperando [i] = 0;
 				}
@@ -193,10 +239,17 @@ void CintaPrincipal<T>::extraer_elemento() {
 	if (*this->cantidad_elementos == 0) {
 		*this->consumidor_esperando = 1;
 	} else {
+#if  DEBUG_CINTA_PRINCIPAL == 1
+		std::cout << "consumidor signal cpp_sem_cons_0" << std::endl;
+#endif
 		semaforo_consumidores->signalize(0);
 	}
 
 	//mutex->signalize(0);
+#if  DEBUG_CINTA_PRINCIPAL == 1
+	std::cout << "consumidor cant_elementos = " << *cantidad_elementos << std::endl;
+	std::cout << "consumidor signal mutex cinta_principal" << std::endl;
+#endif
 	memoria_compartida->unlock();
 
 }
@@ -206,15 +259,27 @@ void CintaPrincipal<T>::leer_elemento(T * elemento, int id_consumidor) {
 	bool leyo = false;
 
 	while (!leyo) {
-
+#if  DEBUG_CINTA_PRINCIPAL == 1
+		std::cout << "consumidor wait cpp_sem_cons_" << id_consumidor - 1 << std::endl;
+#endif
 		this->semaforo_consumidores->wait_on(id_consumidor - 1);
 
 		//mutex->wait_on(0);
+#if  DEBUG_CINTA_PRINCIPAL == 1
+		std::cout << "consumidor wait mutex cinta_principal" << std::endl;
+#endif
 		memoria_compartida->lock();
+#if  DEBUG_CINTA_PRINCIPAL == 1
+		std::cout << "consumidor cant_elementos = " << *cantidad_elementos << std::endl;
+#endif
 
 		if (*this->cantidad_elementos > 0) {
 			leyo = true;
-			memcpy((void *)elemento, &(vector_elementos [*this->posicion_ocupada]), sizeof(T));
+			*elemento = vector_elementos [*this->posicion_ocupada];
+#if  DEBUG_CINTA_PRINCIPAL == 1
+			std::cout << "consumidor elemento leido" << std::endl;
+#endif
+			//memcpy((void *)elemento, &(vector_elementos [*this->posicion_ocupada]), sizeof(T));
 		}
 
 		if (*this->cantidad_elementos == 0) {
@@ -222,6 +287,10 @@ void CintaPrincipal<T>::leer_elemento(T * elemento, int id_consumidor) {
 		}
 
 		//mutex->signalize(0);
+#if  DEBUG_CINTA_PRINCIPAL == 1
+		std::cout << "consumidor cant_elementos = " << *cantidad_elementos << std::endl;
+		std::cout << "consumidor signal mutex cinta_principal" << std::endl;
+#endif
 		memoria_compartida->unlock();
 	}
 }

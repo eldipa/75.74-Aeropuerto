@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 
-./free.sh
+#./free.sh
 
 if [ $# -gt 0 ];then
     CONFIG_FILE=`pwd`/$@

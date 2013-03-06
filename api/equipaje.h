@@ -17,8 +17,10 @@ public:
 	Equipaje() :
       rfid(0,0), _peso(0) {
 	}
+
 	Equipaje(Rfid id, int peso = 0) :
 			rfid(id), _peso(peso) {
+		descripcion[0]='\0';
 	}
 
 	Rfid getRfid() const {
@@ -35,7 +37,7 @@ public:
 
 	std::string toString() const {
 		std::ostringstream ostream;
-		ostream << "Equipaje (" << rfid.rfid << ")";
+		ostream << "Equipaje (" << rfid.rfid << ":" << this->descripcion << ")";
 		return ostream.str();
 	}
 

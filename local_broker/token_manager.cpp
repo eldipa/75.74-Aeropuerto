@@ -166,21 +166,6 @@ void TokenManager::crear_grupo(const std::string & directorio_de_trabajo, const 
 			}
 #endif
 			break;
-
-			/*if (InitParser::parse_int_val(tamanio_memoria_str)) {
-			 int pos;
-			 char path [FILENAME_MAX];
-			 strcpy(path, directorio_de_trabajo.c_str());
-			 strcat(path, "/");
-			 strcat(path, nombre_recurso);
-			 pos = strlen(path) - 1;
-			 while (path [pos] <= '9' && path [pos] >= '0') {
-			 path [pos--] = '\0';
-			 }
-			 strcat(path, POSTFIJO_INIT);
-			 g->inicializar_memoria(path);
-			 }*/
-			// DEBUG
 		}
 	}
 	fclose(f);
@@ -235,14 +220,13 @@ void TokenManager::run() {
 				g->replicar_brokers();
 				g->pasar_token_a_proximo_cliente();
 			}
-			usleep(10000);
+			usleep(250000);
 		} catch (OSError & error) {
 			Log::crit("%s", error.what());
 			//std::cerr << error.what() << std::endl;
 			salir = true;
 		}
 	} while (!salir);
-
 }
 
 int main(int argc, char * argv [])

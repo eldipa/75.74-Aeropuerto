@@ -53,6 +53,7 @@ void agregar_equipaje(Equipaje & equipaje,
 int main(int argc, char** argv) try {
 	Equipaje equipaje;
 	bool checkin_cerro;
+	int numero_cinta_contenedor;
 	int id_robot;
 	int numero_de_vuelo;
 	int equipajes_por_cargar, equipajes_cargados;
@@ -60,23 +61,23 @@ int main(int argc, char** argv) try {
 	chdir("processes");
 
 	if (argc < 4) {
-		Log::crit("Insuficientes parametros para robot de carga, se esperaba (directorio_de_trabajo, config_file id_robot)\n");
+		Log::crit("Insuficientes parametros para robot de carga, se esperaba (directorio_de_trabajo, config_file, id_robot, numero_cinta_contenedor)\n");
 		exit(1);
 	}
 
 	id_robot = atoi(argv[3]);
-
+	numero_cinta_contenedor = atoi(argv[4]);
 
 	std::map<std::string, Contenedor> contenedores_por_escala;
 
-	ApiCarga api_carga(std::string("robot_carga").append(argv[3]).c_str(),argv[1], argv[2], id_robot,  id_robot,true,true);
-   ApiDespachante api_despachante(argv[1], argv[2],"robot_carga", id_robot,false);
+	ApiCarga api_carga(std::string("robot_carga").append(argv[3]).c_str(),argv[1], argv[2], numero_cinta_contenedor,  numero_cinta_contenedor,true,true);
+   ApiDespachante api_despachante(argv[1], argv[2],"robot_carga", numero_cinta_contenedor,false);
    ApiTorreDeControl api_torre( argv[1], argv[2] );
 
-	Log::info("Iniciando robot carga(%d)\n", id_robot);
+	Log::info("Iniciando robot carga(%d)\n", numero_cinta_contenedor);
 
 	Log::info("lanzando proceso control_carga_contenedores\n");
-	char *args_control_carga[] = { (char*) "control_carga_contenedores", (char*) argv[1], (char*)argv[2], (char*) argv[3], NULL };
+	char *args_control_carga[] = { (char*) "control_carga_contenedores", (char*) argv[1], (char*)argv[2], (char*) argv[4], NULL };
 	Process control_carga_contenedores("control_carga_contenedores", args_control_carga);
 
 	for (;;) {
@@ -86,7 +87,7 @@ int main(int argc, char** argv) try {
 
 		while ( (!checkin_cerro) || (equipajes_cargados<equipajes_por_cargar) ) {
 			sleep(rand() % SLEEP_ROBOT_CARGA);
-			Log::info("Intentando tomar un nuevo equipaje de cinta(%s)\n",argv[2]);
+			Log::info("Intentando tomar un nuevo equipaje de cinta(%s)\n",argv[3]);
 			equipaje = api_carga.sacar_equipaje();
 
          //TODO: por ahora equipaje con rfid 0 es dummy(sale con este valor cuando se despierta la cinta por cierre de checkin)
@@ -115,8 +116,8 @@ int main(int argc, char** argv) try {
 		}
 
       //el robot de despacho ya no atiende al vuelo
-      Log::info("Deshabilito el vuelo de la zona (%d) en el robot_despacho", id_robot, id_robot);
-      api_despachante.desasignar_vuelo(id_robot); //id_robot = num_zona
+      Log::info("Deshabilito el vuelo de la zona (%d) en el robot_despacho", numero_cinta_contenedor, numero_cinta_contenedor);
+      api_despachante.desasignar_vuelo(numero_cinta_contenedor); //id_robot = num_zona
 
       // cargo el resto de los contenedores
       std::map<std::string, Contenedor>::iterator it;
@@ -127,8 +128,8 @@ int main(int argc, char** argv) try {
 		api_carga.enviar_contenedores_a_avion(numero_de_vuelo);
 		contenedores_por_escala.clear();
 
-		Log::info("fin de carga de equipajes del vuelo %d, libero la zona %d\n", numero_de_vuelo, id_robot);
-      api_torre.liberar_zona(id_robot); // id_robot = num_zona
+		Log::info("fin de carga de equipajes del vuelo %d, libero la zona %d\n", numero_de_vuelo, numero_cinta_contenedor);
+      api_torre.liberar_zona(numero_cinta_contenedor); // id_robot = num_zona
 
       api_carga.comenzar_nueva_carga();
 	}
