@@ -115,7 +115,7 @@ try
 
 	ApiDespachante despachante_cinta_central(argv [1], argv [2], "robot_despachante", id_robot, true);
 
-	for (int i = 0 ; i < 5 ; i++) {
+	for (int i = 0 ; i < 3 ; i++) {
 
 		printf("Intentando tomar un nuevo equipaje de cinta central\n");
 

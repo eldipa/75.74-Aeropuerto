@@ -41,6 +41,8 @@ private:
 	void send_token();
 	size_t recv_token();
 
+	bool leave;
+
 public:
 	ClientHandler(const std::string & directorio_de_trabajo, /*char id,*/int fd);
 	virtual ~ClientHandler();

@@ -46,7 +46,7 @@ Rfid ApiDespachante::leer_proximo_equipaje() {
 
 	return ultimo_equipaje_leido.getRfid();
 
-}
+	}
 
 Equipaje ApiDespachante::extraer_equipaje() {
 

@@ -93,7 +93,7 @@ try
 
 	Log::info("Iniciando scanner(%s), %s\n", argv [3], argv [4]);
 
-	for (int i = 0 ; i < 5 ; i++) {
+	for (int i = 0 ; i < 3 ; i++) {
 
 		Equipaje equipaje(Rfid(i, 1000));
 		equipaje.set_sospechoso(false);

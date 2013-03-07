@@ -25,15 +25,15 @@ private:
 	SemaphoreSetDistribuido * semaforo_consumidores;
 	//SemaphoreSet * mutex;
 
-	const int * tamanio_vector;
-	int * posicion_libre;
-	int * posicion_ocupada;
-	int * cantidad_elementos;
-	int * cantidad_productores;
-	int * cantidad_consumidores;
-	int * cantidad_productores_esperando;
-	int * consumidor_esperando;
-	int * ids_productores_esperando;
+	const int * tamanio_vector; 			//[0]
+	int * posicion_libre;					//[1]
+	int * posicion_ocupada;					//[2]
+	int * cantidad_elementos;				//[3]
+	int * cantidad_productores;				//[4]
+	int * cantidad_consumidores;			//[5]
+	int * cantidad_productores_esperando;	//[6]
+	int * consumidor_esperando;				//[7]
+	int * ids_productores_esperando;		//[8]
 	T * vector_elementos;
 
 	const static int cant_ipc = 4;

@@ -21,19 +21,29 @@
 
 #include "client_handler.h"
 
+#define DEBUG_CLIENT_HANDLER 0
+
+void print_ints(int *p, int cant) {
+	std::cout << p [0];
+	for (int i = 1 ; i < cant ; i++) {
+		std::cout << " " << p [i];
+	}
+	std::cout << std::endl;
+}
+
 ClientHandler::ClientHandler(const std::string & directorio_de_trabajo, /*char id,*/
-		int fd) :
-		socket(fd), directorio_de_trabajo(directorio_de_trabajo), cola_token_manager(
-				std::string(directorio_de_trabajo).append(
-						PATH_COLA_TOKEN_MANAGER).c_str(), char(0)) {
+int fd)
+	: socket(fd), directorio_de_trabajo(directorio_de_trabajo),
+		cola_token_manager(std::string(directorio_de_trabajo).append(PATH_COLA_TOKEN_MANAGER).c_str(), char(0))
+{
 	mem_local = NULL;
 	tipo_join = mensajes::JOIN;
-
+	leave = false;
 }
 
 ClientHandler::~ClientHandler() {
 	if (mem_local) {
-		delete[] mem_local;
+		delete [] mem_local;
 	}
 }
 
@@ -65,10 +75,9 @@ void ClientHandler::join_group(const std::string & nombre_grupo) {
 	std::string servicio;
 
 	socket.from_who(host, servicio);
-
-	std::cout << "Cliente " << nombre_cliente << "(" << host << ") conectado a "
-			<< nombre_grupo << std::endl;
-
+#if DEBUG_CLIENT_HANDLER==1
+	std::cout << "Cliente " << nombre_cliente << "(" << host << ") conectado a " << nombre_grupo << std::endl;
+#endif
 	// calculo la cantidad de bloques a enviar por token
 	tamanio = grupo->get_mem_size();
 
@@ -77,49 +86,62 @@ void ClientHandler::join_group(const std::string & nombre_grupo) {
 	if (tamanio % DATA_SIZE != 0 || tamanio == 0 || tamanio < DATA_SIZE) {
 		cantidad_de_bloques_a_enviar++;
 	}
-
+#if DEBUG_CLIENT_HANDLER==1
+	std::cout << "Tamaño Memoria: " << nombre_grupo << " = " << tamanio << " cantidad de bloques = "
+		<< cantidad_de_bloques_a_enviar << std::endl;
+#endif
 	tamanio_memoria = tamanio;
 
 	if (tamanio != 0) {
-		mem_local = new char[tamanio];
+		mem_local = new char [tamanio];
 	}
 }
 
 void ClientHandler::leave_group() {
 	// Saco al cliente del grupo
+	mensajes::mensajes_local_broker_token_t mensaje;
 	grupo->leave(nombre_cliente.c_str());
+	mensaje.respuesta = mensajes::LEAVE_OK;
+	try {
+#if DEBUG_CLIENT_HANDLER==1
+		std::cout << nombre_cliente << " " << nombre_grupo << " Replying LEAVE" << std::endl;
+#endif
+		socket.sendsome(&mensaje, sizeof(mensajes::mensajes_local_broker_token_t));
+	} catch (OSError & err) {
+
+	}
 }
 
-void ClientHandler::procesar_peticion(
-		mensajes::mensajes_local_broker_t & mensaje) {
+void ClientHandler::procesar_peticion(mensajes::mensajes_local_broker_t & mensaje) {
 
 	switch (mensaje.peticion) {
-	case mensajes::REGISTER:
-		//Log::debug("Register %s", mensaje.datos);
-		//std::cout << "Register: " << mensaje.datos << std::endl;
-		nombre_cliente.assign(mensaje.datos);
-		break;
-	case mensajes::JOIN:
-	case mensajes::JOIN_FORK:
+		case mensajes::REGISTER:
+			//Log::debug("Register %s", mensaje.datos);
+			//std::cout << "Register: " << mensaje.datos << std::endl;
+			nombre_cliente.assign(mensaje.datos);
+			break;
+		case mensajes::JOIN:
+		case mensajes::JOIN_FORK:
 
-		//std::cout << "Join: " << mensaje.datos << std::endl;
-		// buscar el grupo en el que está el recurso, si no existe crearlo
-		join_group(mensaje.datos);
-		tipo_join = mensaje.peticion;
+			//std::cout << "Join: " << mensaje.datos << std::endl;
+			// buscar el grupo en el que está el recurso, si no existe crearlo
+			join_group(mensaje.datos);
+			tipo_join = mensaje.peticion;
 #ifdef __x86_64__
-		snprintf(mensaje.datos, DATA_SIZE, "%lu:%lu", this->cantidad_de_bloques_a_enviar, this->tamanio_memoria);
+			snprintf(mensaje.datos, DATA_SIZE, "%lu:%lu", this->cantidad_de_bloques_a_enviar, this->tamanio_memoria);
 #else
-		snprintf(mensaje.datos, DATA_SIZE, "%u:%u",
+			snprintf(mensaje.datos, DATA_SIZE, "%u:%u",
 				this->cantidad_de_bloques_a_enviar, this->tamanio_memoria);
 #endif
-		mensaje.respuesta = mensajes::OK;
-		break;
-	case mensajes::LEAVE:
-		//std::cout << "Leave: " << mensaje.datos << std::endl;
-		// sacar al cliente del grupo
-		break;
-	default:
-		break;
+			mensaje.respuesta = mensajes::OK;
+			break;
+		case mensajes::LEAVE:
+			//std::cout << "Leave: " << mensaje.datos << std::endl;
+			// sacar al cliente del grupo
+			mensaje.respuesta = mensajes::OK;
+			break;
+		default:
+			break;
 	}
 	socket.sendsome(&mensaje, sizeof(mensajes::mensajes_local_broker_t));
 }
@@ -127,17 +149,13 @@ void ClientHandler::procesar_peticion(
 void ClientHandler::send_token() {
 	mensajes::mensajes_local_broker_token_t mensaje;
 	size_t i;
-	for (i = 0; i < this->cantidad_de_bloques_a_enviar; i++) {
-		strncpy(mensaje.recurso, grupo->get_nombre_recurso().c_str(),
-				MAX_NOMBRE_RECURSO);
+	for (i = 0; i < this->cantidad_de_bloques_a_enviar && !leave ; i++) {
+		strncpy(mensaje.recurso, grupo->get_nombre_recurso().c_str(), MAX_NOMBRE_RECURSO);
 		if (tamanio_memoria != 0) {
-			memcpy(mensaje.datos,
-					((char *) grupo->memory_pointer() + i * DATA_SIZE),
-					std::min(this->tamanio_memoria - i * DATA_SIZE,
-							size_t(DATA_SIZE)));
+			memcpy(mensaje.datos, ((char *)grupo->memory_pointer() + i * DATA_SIZE),
+				std::min(this->tamanio_memoria - i * DATA_SIZE, size_t(DATA_SIZE)));
 		}
-		socket.sendsome(&mensaje,
-				sizeof(mensajes::mensajes_local_broker_token_t));
+		socket.sendsome(&mensaje, sizeof(mensajes::mensajes_local_broker_token_t));
 	}
 }
 
@@ -146,25 +164,47 @@ size_t ClientHandler::recv_token() {
 	size_t cant = 0;
 	size_t leidos;
 	size_t i;
-	if(tamanio_memoria){
+	if (tamanio_memoria != 0) {
 		bzero(mem_local, grupo->get_mem_size());
 	}
-	for (i = 0; i < this->cantidad_de_bloques_a_enviar; i++) {
+	for (i = 0; i < this->cantidad_de_bloques_a_enviar && !leave ; i++) {
 		cant = 0;
 		do {
-			leidos = socket.receivesome(((char *) &mensaje) + cant,
-					sizeof(mensajes::mensajes_local_broker_token_t) - cant);
+			leidos = socket.receivesome(((char *)&mensaje) + cant,
+				sizeof(mensajes::mensajes_local_broker_token_t) - cant);
+#if DEBUG_CLIENT_HANDLER==1
+			if (mensaje.peticion == mensajes::LEAVED) {
+				std::cout << nombre_cliente << " " << nombre_grupo << " LEAVED Received" << std::endl;
+			}
+			if (mensaje.peticion == mensajes::TOKEN_LEAVE) {
+				std::cout << nombre_cliente << " " << nombre_grupo << " TOKEN_LEAVE Received" << std::endl;
+			}
+			if (this->nombre_grupo == "cinta_principal" && i == 0) {
+				std::cout << nombre_cliente << " Recibido: ";
+				print_ints((int *)mensaje.datos, 9);
+			}
+#endif
+			if (mensaje.peticion == mensajes::LEAVED) {
+				return 0;
+			}
+			if (mensaje.peticion == mensajes::TOKEN_LEAVE) {
+				leave = true;
+			}
+
 			if (leidos == 0) {
+#if DEBUG_CLIENT_HANDLER==1
+				std::cout << "Broken Pipe " << this->nombre_cliente << std::endl;
+#endif
 				return 0;
 			}
 			cant += leidos;
-		} while (cant < sizeof(mensajes::mensajes_local_broker_token_t));
+		} while (cant < sizeof(mensajes::mensajes_local_broker_token_t) && !leave);
 		if (tamanio_memoria != 0) {
 			memcpy(mem_local + i * DATA_SIZE, mensaje.datos,
-					std::min(tamanio_memoria - i * DATA_SIZE, size_t(DATA_SIZE)));
+				std::min(tamanio_memoria - i * DATA_SIZE, size_t(DATA_SIZE)));
 		}
 	}
-	// actualizo la memoria con lo recibido
+// actualizo la memoria con lo recibido
 	if (tamanio_memoria != 0) {
 		memcpy(grupo->memory_pointer(), mem_local, grupo->get_mem_size());
 	}
@@ -173,7 +213,6 @@ size_t ClientHandler::recv_token() {
 
 void ClientHandler::loop_token_fork() {
 	pid_t pid_hijo;
-	bool leave = false;
 	ignore_signals();
 
 	pid_hijo = fork();
@@ -186,7 +225,6 @@ void ClientHandler::loop_token_fork() {
 				if (recv_token() == 0) {
 					leave = true;
 				} else {
-					//	Log::debug("Padre: Recibido token %s de %s\n", nombre_grupo.c_str(), nombre_cliente.c_str());
 					grupo->release_token(&cola_token_manager);
 				}
 			} catch (OSError & error) {
@@ -232,16 +270,7 @@ void ClientHandler::loop_token_fork() {
 	}
 }
 
-void print_ints(int *p, int cant) {
-	std::cout << p[0];
-	for (int i = 0; i < cant; i++) {
-		std::cout << " " << p[i];
-	}
-	std::cout << std::endl;
-}
-
 void ClientHandler::loop_token() {
-	bool leave = false;
 	bool tengo_el_token = false;
 	/*int a;
 	 char data [DATA_SIZE];*/
@@ -298,8 +327,7 @@ void ClientHandler::run() {
 	do {
 		try {
 
-			if (socket.receivesome(&mensaje,
-					sizeof(mensajes::mensajes_local_broker_t)) == 0) {
+			if (socket.receivesome(&mensaje, sizeof(mensajes::mensajes_local_broker_t)) == 0) {
 				mensaje.peticion = mensajes::LEAVE;
 			} else {
 				this->procesar_peticion(mensaje);
@@ -310,29 +338,29 @@ void ClientHandler::run() {
 			Log::crit(error.what());
 		}
 
-	} while (mensaje.peticion != mensajes::LEAVE
-			&& mensaje.peticion != mensajes::JOIN
-			&& mensaje.peticion != mensajes::JOIN_FORK);
+	} while (mensaje.peticion != mensajes::LEAVE && mensaje.peticion != mensajes::JOIN
+		&& mensaje.peticion != mensajes::JOIN_FORK);
 
 	if (mensaje.peticion != mensajes::LEAVE) {
 		loop_token();
 	}
 }
 
-int main(int argc, char * argv[])
-try {
+int main(int argc, char * argv [])
+try
+{
 	if (argc != 4) {
 		std::cerr << "Falta el socket" << std::endl;
 		return -1;
 	}
 	int fd;
-	//char id;
-	//std::cout << "client_handler " << argv [1] << " " << argv [2] << " " << argv [3] << std::endl;
+//char id;
+//std::cout << "client_handler " << argv [1] << " " << argv [2] << " " << argv [3] << std::endl;
 
-	fd = atoi(argv[2]);
-	//id = atoi(argv [3]);
+	fd = atoi(argv [2]);
+//id = atoi(argv [3]);
 
-	///// SOCKET ESCUCHA SOLO PARA DEBUG
+///// SOCKET ESCUCHA SOLO PARA DEBUG
 	/*int new_socket;
 	 std::string puerto("1234");
 	 Socket * server_socket = new Socket(true);
@@ -342,7 +370,7 @@ try {
 	 server_socket->disassociate();
 	 delete server_socket;*/
 
-	ClientHandler handler(argv[1], /*id,*/fd);
+	ClientHandler handler(argv [1], /*id,*/fd);
 
 	handler.run();
 
@@ -353,12 +381,11 @@ try {
 
 }
 catch (const std::exception & e) {
-	//std::cerr << "Error Broker Local" << std::endl;
-	//std::cerr << e.what() << std::endl;
+//std::cerr << "Error Broker Local" << std::endl;
+//std::cerr << e.what() << std::endl;
 	Log::crit("%s", e.what());
 }
 catch (...) {
-	//std::cerr << "Error Broker Local" << std::endl;
-	Log::crit(
-			"Critical error. Unknow exception at the end of the 'main' function.");
+//std::cerr << "Error Broker Local" << std::endl;
+	Log::crit("Critical error. Unknow exception at the end of the 'main' function.");
 }

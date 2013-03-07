@@ -12,6 +12,7 @@
 #include "process.h"
 #include <csignal>
 #include "daemon.h"
+#include <iostream>
 
 static char directorio [FILENAME_MAX];
 static char nombre_app [MAX_NOMBRE_RECURSO];
@@ -27,7 +28,8 @@ MemoriaDistribuida::MemoriaDistribuida(const std::string & directorio_de_trabajo
 	: nombre_recurso(nombre_grupo), tamanio(tamanio)
 
 {
-
+	std::string a(nombre_app);
+	a.append("a");
 	// Creo el archivo lck
 	create_if_not_exists(
 		std::string(directorio_de_trabajo).append(PREFIJO_RECURSO).append(nombre_grupo).append(POSTFIJO_LCK).c_str());
@@ -81,8 +83,11 @@ MemoriaDistribuida::~MemoriaDistribuida() {
 
 	try {
 		if (p) {
-			p->send_signal(SIGTERM, false);
+			std::cout << "envio señal SIGUSR1" << std::endl;
+			p->send_signal(SIGUSR1, false);
+			std::cout << "esperando hijo" << std::endl;
 			p->wait();
+			std::cout << "hijo termino" << std::endl;
 			delete p;
 		}
 	} catch (OSError &) {

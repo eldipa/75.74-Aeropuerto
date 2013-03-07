@@ -17,11 +17,11 @@
 namespace mensajes {
 
 typedef enum {
-	REGISTER, JOIN, JOIN_FORK, LEAVE, TOKEN_FREE, END_JOIN
+	REGISTER, JOIN, JOIN_FORK, LEAVE, TOKEN_FREE, END, LEAVED, TOKEN_LEAVE
 } peticiones_t;
 
 typedef enum {
-	OK, ERROR
+	OK, ERROR,LEAVE_OK
 } respuestas_t;
 
 typedef struct {
@@ -31,6 +31,8 @@ typedef struct {
 } mensajes_local_broker_t;
 
 typedef struct {
+	peticiones_t peticion;
+	respuestas_t respuesta;
 	char recurso [MAX_NOMBRE_RECURSO];
 	char datos [DATA_SIZE];
 } mensajes_local_broker_token_t;
