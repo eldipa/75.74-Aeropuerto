@@ -57,12 +57,13 @@ int main(int argc, char** argv) try {
    }
 
    int num_vuelo = atoi(argv[3]);
-   ApiControladorDeVuelo api_vuelo(argv[1], argv[2], num_vuelo);
    ApiTorreDeControl api_torre(argv[1], argv[2]);
    ApiComunicacionAeropuerto api_comm_aeropuerto(argv[1], argv[2]);
 
    Log::info("Pido puesto de checkin libre para vuelo %d", num_vuelo);
    int num_puesto_checkin = api_torre.pedir_puesto_checkin(num_vuelo);
+
+   ApiControladorDeVuelo api_vuelo(argv[1], argv[2], num_vuelo, num_puesto_checkin);
 
    Log::info("Ok, puest = %d. Pido zona libre para vuelo %d", num_puesto_checkin, num_vuelo);
    int zona_utilizada = api_torre.pedir_zona(num_vuelo);
