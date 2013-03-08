@@ -21,8 +21,6 @@
 
 #include "client_handler.h"
 
-
-
 void print_ints(int *p, int cant) {
 	std::cout << p [0];
 	for (int i = 1 ; i < cant ; i++) {
@@ -174,10 +172,10 @@ size_t ClientHandler::recv_token() {
 				sizeof(mensajes::mensajes_local_broker_token_t) - cant);
 #if DEBUG_CLIENT_HANDLER==1
 			if (mensaje.peticion == mensajes::LEAVED) {
-				std::cout << nombre_cliente << " " << nombre_grupo << " LEAVED Received" << std::endl;
+				std::cout << nombre_cliente << "(" << nombre_grupo << ") LEAVED Received" << std::endl;
 			}
 			if (mensaje.peticion == mensajes::TOKEN_LEAVE) {
-				std::cout << nombre_cliente << " " << nombre_grupo << " TOKEN_LEAVE Received" << std::endl;
+				std::cout << nombre_cliente << "(" << nombre_grupo << ") TOKEN_LEAVE Received" << std::endl;
 			}
 			if (this->nombre_grupo == "cinta_checkin" && i == 0) {
 				std::cout << nombre_cliente << " Recibido: ";
@@ -192,9 +190,9 @@ size_t ClientHandler::recv_token() {
 			}
 
 			if (leidos == 0) {
-				Log::crit("El Cliente %s cerro la conexion\n",nombre_cliente.c_str());
+				Log::crit("El Cliente %s cerro la conexion\n", nombre_cliente.c_str());
 #if DEBUG_CLIENT_HANDLER==1
-				std::cout << "Broken Pipe " << this->nombre_cliente << std::endl;
+				std::cout << "Broken Pipe " << this->nombre_cliente << "(" << nombre_grupo << ")" << std::endl;
 #endif
 				return 0;
 			}

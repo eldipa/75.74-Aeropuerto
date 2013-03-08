@@ -31,6 +31,7 @@ try
 		server.run();
 	} catch (OSError & e) {
 		std::cerr << "Error puerto en uso" << std::endl;
+		std::cerr << e.what() << std::endl;
 	}
 
 }

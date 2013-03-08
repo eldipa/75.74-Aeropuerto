@@ -65,7 +65,7 @@ public:
 	CintaScanner(const char * app_name, const char* directorio_de_trabajo, int id_cinta);
 
 	// Se llama a este constructor si es el consumidor de la cinta (robot_scanner)
-	CintaScanner(const char * app_name, const char* path_to_cinta_scanner, int id_cinta, int numero_escaner);
+	CintaScanner(const char * app_name, const char* directorio_de_trabajo, int id_cinta, int numero_escaner);
 	virtual ~CintaScanner();
 
 	void poner_equipaje(const T & equipaje);
@@ -124,7 +124,7 @@ CintaScanner<T>::CintaScanner(const char * app_name, const char* directorio_de_t
 	for (i = 0; i < MAX_SCANNERS ; i++) {
 		//cintas [i] = new SharedMemory(path_to_cinta_scanner, i + inicio_ids + 1, 0, 0, false, false);
 		cintas [i] = new MemoriaDistribuida(directorio_de_trabajo, app_name,
-			std::string("cinta_escaner").append(intToString(i + 1)).c_str(), id_cinta, TAMANIO_MEMORIA_CINTA_SCANNER);
+			std::string("cinta_escaner").append(intToString(i + 1)).c_str(), 0, TAMANIO_MEMORIA_CINTA_SCANNER);
 		asignar_punteros(cintas [i]->memory_pointer(), i);
 	}
 	valores.clear();
@@ -133,6 +133,7 @@ CintaScanner<T>::CintaScanner(const char * app_name, const char* directorio_de_t
 	}
 	semaforos = new SemaphoreSetDistribuido(valores, directorio_de_trabajo, app_name, "csc_semaforos_", char(0),
 		MAX_SCANNERS);
+	id_cinta = id_cinta;
 
 	cantidad_de_escaners_activos = static_cast<int *>(control->memory_pointer());
 	ids_escaners_activos = cantidad_de_escaners_activos + 1;
@@ -161,7 +162,7 @@ CintaScanner<T>::CintaScanner(const char * app_name, const char* directorio_de_t
 	//cintas [numero_escaner - 1] = new SharedMemory(path_to_cinta_scanner, numero_escaner + inicio_ids, 0, 0, false,
 	//	false);
 	cintas [numero_escaner - 1] = new MemoriaDistribuida(directorio_de_trabajo, app_name,
-		std::string("cinta_escaner").append(intToString(numero_escaner)).c_str(), id_cinta,
+		std::string("cinta_escaner").append(intToString(numero_escaner)).c_str(), 0,
 		TAMANIO_MEMORIA_CINTA_SCANNER);
 
 	//semaforos = new SemaphoreSet(path_to_cinta_scanner, inicio_ids + MAX_SCANNERS + 1, 0, 0);
@@ -179,7 +180,7 @@ CintaScanner<T>::CintaScanner(const char * app_name, const char* directorio_de_t
 	productor_esperando = cinta_llena + MAX_SCANNERS;
 
 	this->numero_cinta = numero_escaner - 1;
-
+	id_cinta = id_cinta;
 	//semaforos->wait_on(0);
 	/*control->lock();
 

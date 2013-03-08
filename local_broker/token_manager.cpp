@@ -104,6 +104,7 @@ void TokenManager::crear_grupo(const std::string & directorio_de_trabajo, const 
 	int id_grupo;
 	int valor;
 	bool existe = false;
+	Grupo * g;
 
 	f = fopen(groups_file.c_str(), "rt");
 
@@ -114,14 +115,13 @@ void TokenManager::crear_grupo(const std::string & directorio_de_trabajo, const 
 	fscanf(f, "%s\n", primera_linea);
 
 	//std::cout << "Creando grupo " << group_name << std::endl;
-	Log::debug("Creando grupo %s\n",group_name.c_str());
+	Log::debug("Creando grupo %s\n", group_name.c_str());
 	//manager.levantar_servicio();
 
 	while (fscanf(f, "%[^:]:%[^:]:%d:%d\n", nombre_recurso, tamanio_memoria_str, &valor, &id_grupo) != EOF) {
 		if (group_name == nombre_recurso) {
 			existe = true;
 			// Crear Grupo
-			Grupo * g;
 			// Creo el archivo lck
 			create_if_not_exists(
 				std::string(directorio_de_trabajo).append(PREFIJO_RECURSO).append(nombre_recurso).append(POSTFIJO_LCK).c_str());
@@ -170,8 +170,8 @@ void TokenManager::crear_grupo(const std::string & directorio_de_trabajo, const 
 	}
 	fclose(f);
 
-	if(!existe){
-		Log::crit("El grupo %s no existe",nombre_recurso);
+	if (!existe) {
+		Log::crit("El grupo %s no existe", nombre_recurso);
 	}
 }
 
@@ -212,7 +212,7 @@ void TokenManager::run() {
 			} else {
 				if (grupos.count(recurso) < 1) {
 					Log::crit("Error: Grupo %s no encontrado", mensaje.recurso);
-				//	throw GenericError("Error: Grupo %s no encontrado", mensaje.recurso);
+					//	throw GenericError("Error: Grupo %s no encontrado", mensaje.recurso);
 				}
 				g = grupos.at(recurso);
 				//sleep(1);
