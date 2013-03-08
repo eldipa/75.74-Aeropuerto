@@ -33,12 +33,13 @@ ApiCheckIn::ApiCheckIn(const char* directorio_de_trabajo, const char* config_fil
 	mutex_checkin = new Mutex(*sem_set, 0);
 	queue_manager=ApiConfiguracion::get_queue_manager(directorio_de_trabajo, config_file);
 	queue_pasajeros=queue_manager->get_queue(PATH_PUESTO_CHECKIN, 0);
-	queue_controlador=queue_manager->get_queue(PATH_COLA_CONTROL_CHECKIN, 0);
+	queue_controlador=queue_manager->get_queue(PATH_COLA_CONTROL_CHECKIN, id_checkin);
 #else
 	directorio_de_trabajo = directorio_de_trabajo;
 	config_file = config_file;
 	id_checkin = id_checkin;
 #endif
+
 }
 
 ApiCheckIn::ApiCheckIn(const char* directorio_de_trabajo, const char* config_file, int id_puesto_checkin,
@@ -61,8 +62,8 @@ ApiCheckIn::ApiCheckIn(const char* directorio_de_trabajo, const char* config_fil
 
 	mutex_checkin = new Mutex(*sem_set, 0);
 	queue_manager = ApiConfiguracion::get_queue_manager(directorio_de_trabajo, config_file);
-	queue_pasajeros = (queue_manager)->get_queue(PATH_PUESTO_CHECKIN, 0, create);
-	queue_controlador = (queue_manager)->get_queue(PATH_COLA_CONTROL_CHECKIN, 0, create);
+	queue_pasajeros = (queue_manager)->get_queue(PATH_PUESTO_CHECKIN, 0);
+	queue_controlador = (queue_manager)->get_queue(PATH_COLA_CONTROL_CHECKIN, id_puesto_checkin, create);
 
 
 	ApiTorreDeControl api_torre(directorio_de_trabajo, config_file);

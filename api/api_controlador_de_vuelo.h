@@ -9,7 +9,7 @@
 
 class ApiControladorDeVuelo {
 public:
-   ApiControladorDeVuelo(const char* directorio_de_trabajo, const char* config_file, int num_vuelo);
+   ApiControladorDeVuelo(const char* directorio_de_trabajo, const char* config_file, int num_vuelo, int puesto_checkin);
    void iniciar_checkin(int num_puesto_checkin, int num_zona);
    void cerrar_checkin(int num_puesto_checkin, int num_zona);
    virtual ~ApiControladorDeVuelo();

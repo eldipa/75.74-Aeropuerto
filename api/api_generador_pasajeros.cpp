@@ -9,6 +9,13 @@ ApiGeneradorPasajeros::ApiGeneradorPasajeros(const char* directorio_de_trabajo, 
    queue_pasajeros( queue_manager->get_queue(PATH_PUESTO_CHECKIN, 0) ) {
 }
 
+ApiGeneradorPasajeros::ApiGeneradorPasajeros(const char* directorio_de_trabajo, const char* config_file, bool create) :
+   queue_manager( ApiConfiguracion::get_queue_manager(directorio_de_trabajo, config_file ) ),
+   queue_pasajeros( queue_manager->get_queue(PATH_PUESTO_CHECKIN, 0, create) ) {
+
+   create = !!create;
+}
+
 ApiGeneradorPasajeros::~ApiGeneradorPasajeros() {
 }
 

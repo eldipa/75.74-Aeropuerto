@@ -10,11 +10,11 @@
 
 #include <stdio.h>
 
-ApiControladorDeVuelo::ApiControladorDeVuelo(const char*  directorio_de_trabajo, const char* config_file, int num_vuelo)
+ApiControladorDeVuelo::ApiControladorDeVuelo(const char*  directorio_de_trabajo, const char* config_file, int num_vuelo, int puesto_checkin)
    : path_to_locks(directorio_de_trabajo), num_vuelo(num_vuelo),
      queue_manager( ApiConfiguracion::get_queue_manager(directorio_de_trabajo,config_file) ),
      // queue_trasbordo( queue_manager->get_queue(PATH_COLA_ESCUCHA_ZONA_ASIGNADA, 0) ),
-     queue_checkin( queue_manager->get_queue(PATH_COLA_CONTROL_CHECKIN, 0) ) {
+     queue_checkin( queue_manager->get_queue(PATH_COLA_CONTROL_CHECKIN, puesto_checkin) ) {
 }
 
 void ApiControladorDeVuelo::iniciar_checkin(int num_puesto_checkin, int num_zona) {

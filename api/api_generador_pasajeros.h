@@ -12,6 +12,7 @@
 class ApiGeneradorPasajeros {
 public:
 
+   ApiGeneradorPasajeros(const char* directorio_de_trabajo, const char* config_file, bool create);
    ApiGeneradorPasajeros(const char* directorio_de_trabajo, const char* conig_file);
    virtual ~ApiGeneradorPasajeros();
 
