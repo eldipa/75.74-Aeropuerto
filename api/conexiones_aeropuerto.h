@@ -205,9 +205,9 @@ public:
 		// cola_tractores_avion = new MessageQueue(path_lock, 0, 0664, true);
       // cola_tractores_avion = queue_manager->get_queue(PATH_COLA_TRACTORES_AVIONES, 0, true);
 
-		for (int i = 0; i < cantidad_robots_sospechosos; i++) {
+		/*for (int i = 0; i < cantidad_robots_sospechosos; i++) {
 			control_equipajes.push_back(new ApiControlEquipajes(path_to_locks, config_file, 3, 3, true));
-		}
+		}*/
 
 		// INTERCARGO
 		// snprintf(path_lock, 256, "%s%s", path_to_locks, PATH_COLA_ESCUCHA_ZONA_ASIGNADA);
