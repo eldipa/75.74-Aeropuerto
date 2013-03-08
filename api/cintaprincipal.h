@@ -12,7 +12,6 @@
 #include <iostream>
 
 
-#define DEBUG_CINTA_PRINCIPAL 0
 
 template <typename T>
 class CintaPrincipal {

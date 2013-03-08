@@ -262,7 +262,6 @@ void CintaScanner<T>::poner_equipaje(const T & equipaje) {
 	bool coloque = false;
 	int cantidad_cintas_llenas;
 	int * posicion;
-	T * destino;
 
 	while (!coloque) {
 
@@ -290,8 +289,9 @@ void CintaScanner<T>::poner_equipaje(const T & equipaje) {
 			//semaforos->wait_on(proxima_cinta_a_colocar + 1);
 			cintas [proxima_cinta_a_colocar]->lock();
 			posicion = this->posicion_libre [proxima_cinta_a_colocar];
-			destino = &((vector_elementos [proxima_cinta_a_colocar]) [*posicion]);
-			memcpy(destino, &equipaje, sizeof(T));
+			//destino = &((vector_elementos [proxima_cinta_a_colocar]) [*posicion]);
+			//memcpy(destino, &equipaje, sizeof(T));
+			vector_elementos [proxima_cinta_a_colocar][*posicion] = equipaje;
 			*posicion_libre [proxima_cinta_a_colocar] = (*posicion_libre [proxima_cinta_a_colocar] + 1)
 				% *this->tamanio_vector [proxima_cinta_a_colocar];
 			(*this->cantidad_elementos [proxima_cinta_a_colocar])++;
@@ -339,8 +339,9 @@ T CintaScanner<T>::sacar_equipaje() {
 
 		if (*cantidad_elementos [numero_cinta] > 0) {
 			extrajo = true;
-			memcpy((void *)&elemento, &(vector_elementos [numero_cinta] [*this->posicion_ocupada [numero_cinta]]),
-				sizeof(T));
+			//memcpy((void *)&elemento, &(vector_elementos [numero_cinta] [*this->posicion_ocupada [numero_cinta]]),
+			//	sizeof(T));
+			 elemento = vector_elementos [numero_cinta] [*this->posicion_ocupada [numero_cinta]];
 			*this->posicion_ocupada [numero_cinta] = (*this->posicion_ocupada [numero_cinta] + 1)
 				% *this->tamanio_vector [numero_cinta];
 			(*this->cantidad_elementos [numero_cinta])--;

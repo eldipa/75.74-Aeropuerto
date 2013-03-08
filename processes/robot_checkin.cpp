@@ -9,7 +9,6 @@
 #include <string>
 #include <cstring>
 #include "constants.h"
-#include "debug_processes.h"
 
 #if DEBUG_ROBOT_CHECKIN_EXTRAE_CINTA_CHECKIN==0 && DEBUG_ROBOT_CHECKIN_COLOCA_CINTA_SCANNER==0
 
@@ -93,6 +92,41 @@ catch (...) {
 }
 
 #elif DEBUG_ROBOT_CHECKIN_EXTRAE_CINTA_CHECKIN == 1
+
+#include <cstdio>
+
+int main(int argc, char** argv)
+try
+{
+	//int id_robot;
+	//int num_cinta_checkin;
+
+	if (argc < 5) {
+		Log::crit(
+			"Insuf parametros para robot de checkin,se esperaba (directorio_de_trabajo, config_file, id, num_cinta_checkin_in num_cinta_scanner)\n");
+		exit(1);
+	}
+
+	CintaCheckin cinta_checkin(std::string("robot_checkin").c_str(), argv [1], -1);
+
+	//CintaScanner<Equipaje> cinta_scanner(std::string("robot_checkin").c_str(), argv [1], 1);
+
+	// cada robot de checkin distribuye entre n scanners
+	Equipaje equipaje(Rfid(0, 1000));
+	for (int i = 0 ; i < 3 ; i++) {
+
+		printf("Extraer equipaje cinta checkin\n");
+		equipaje = cinta_checkin.sacar_equipaje();
+
+		printf("Equipaje extraido %s\n", equipaje.toString().c_str());
+	}
+}
+catch (const std::exception &e) {
+	Log::crit("%s", e.what());
+}
+catch (...) {
+	Log::crit("Critical error. Unknow exception at the end of the 'main' function.");
+}
 
 #endif
 

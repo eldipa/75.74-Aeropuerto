@@ -128,7 +128,7 @@ void TokenManager::crear_grupo(const std::string & directorio_de_trabajo, const 
 			g = new Grupo(directorio_de_trabajo, nombre_recurso, InitParser::parse_int_val(tamanio_memoria_str), true);
 			grupos.insert(std::pair<std::string, Grupo *>(std::string(nombre_recurso), g));
 			//agregar_grupo_a_tabla_creados(group_name.c_str());
-			std::cout << "Grupo " << nombre_recurso << " creado" << std::endl;
+			//std::cout << "Grupo " << nombre_recurso << " creado" << std::endl;
 			Log::info("Grupo %s creado", nombre_recurso);
 #if LANZAR_SERVICIO_DE_ANILLOS == 1
 			manager.levantar_grupo(nombre_recurso, valor);

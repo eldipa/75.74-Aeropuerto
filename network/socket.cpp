@@ -39,6 +39,7 @@
 #include <errno.h>
 #include <cstring>
 #include <string>
+#include "interrupted.h"
 
 Socket::Socket(bool isstream)
 	: isstream(isstream), isassociated(false)
@@ -104,7 +105,7 @@ ssize_t Socket::sendsome(const void *buf, size_t data_len) {
 	ssize_t count = ::send(fd, buf, data_len, MSG_NOSIGNAL);
 	if (count == -1) {
 		if (errno == EINTR) {
-			return 0;
+			throw InterruptedSyscall("The syscall send was interrupted by a syscall");
 		}
 		throw OSError("The message length %i cannot be sent.", data_len);
 	}
@@ -116,7 +117,7 @@ ssize_t Socket::receivesome(void *buf, size_t buf_len) {
 	ssize_t count = ::recvfrom(fd, buf, buf_len, 0, (struct sockaddr *)&peer_addr, &peer_addr_len);
 	if (count == -1) {
 		if (errno == EINTR) {
-			return -1;
+			throw InterruptedSyscall("The syscall recvfrom was interrupted by a syscall");
 		}
 		throw OSError("The message cannot be received (of length least or equal to %i).", buf_len);
 	}

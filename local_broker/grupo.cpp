@@ -289,8 +289,8 @@ void Grupo::pasar_token_a_proximo_cliente() {
 	}
 
 	//if (this->nombre_recurso == "cinta_principal" || this->nombre_recurso.substr(0, 4) == "cpp_") {
-	std::cout << "Passing Token from " << this->nombre_recurso.c_str() << " to: " << client_names [cliente_actual]
-		<< " (" << cliente_actual << ")\n";
+	//std::cout << "Passing Token from " << this->nombre_recurso.c_str() << " to: " << client_names [cliente_actual]
+	//	<< " (" << cliente_actual << ")\n";
 
 	//Log::debug("Passing Token from %s to: %s (%d)\n", this->nombre_recurso.c_str(), client_names [cliente_actual],
 	//	cliente_actual);

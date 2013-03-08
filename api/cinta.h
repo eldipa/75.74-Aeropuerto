@@ -59,7 +59,7 @@ template <typename T> Cinta<T>::Cinta(const char * app_name, const char * direct
 	 this->semaforo_consumidores = new SemaphoreSet(absolute_path, cant_ipc * (numero_cinta - 1) + 3, 0, 0);
 	 */
 	this->memoria_compartida = new MemoriaDistribuida(directorio_de_trabajo, app_name,
-		std::string("cinta_checkin")/*.append(intToString(numero_cinta))*/.c_str(), numero_cinta,
+		std::string("cinta_checkin")/*.append(intToString(numero_cinta))*/.c_str(), 0,
 		TAMANIO_MEMORIA_CINTA_CHECKIN, create);
 	valores.clear();
 	if (numero_cinta == -1) {
@@ -150,7 +150,8 @@ void Cinta<T>::poner_equipaje(const T & elemento, int id_productor) {
 		memoria_compartida->lock();
 
 		if (*this->cantidad_elementos < *this->tamanio_vector) { // puedo colocar
-			memcpy(&(vector_elementos [*this->posicion_libre]), &elemento, sizeof(T));
+			//memcpy(&(vector_elementos [*this->posicion_libre]), &elemento, sizeof(T));
+			vector_elementos [*this->posicion_libre] = elemento;
 			*posicion_libre = (*posicion_libre + 1) % *this->tamanio_vector;
 			(*this->cantidad_elementos)++;
 			coloque = true;
@@ -186,7 +187,8 @@ T Cinta<T>::sacar_equipaje() {
 
 		if (*this->cantidad_elementos > 0) {
 			extrajo = true;
-			memcpy((void *)&elemento, &(vector_elementos [*this->posicion_ocupada]), sizeof(T));
+			//memcpy((void *)&elemento, &(vector_elementos [*this->posicion_ocupada]), sizeof(T));
+			elemento = vector_elementos [*this->posicion_ocupada];
 			*this->posicion_ocupada = (*this->posicion_ocupada + 1) % *this->tamanio_vector;
 			(*this->cantidad_elementos)--;
 

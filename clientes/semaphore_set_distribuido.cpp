@@ -84,7 +84,7 @@ SemaphoreSetDistribuido::~SemaphoreSetDistribuido() {
 
 	try {
 		for (i = handlers.begin(); i != handlers.end() ; i++) {
-			(*i)->send_signal(SIGTERM, false);
+			(*i)->send_signal(SIGUSR1, false);
 			result = (*i)->wait();
          result = result -1+1;
 		}

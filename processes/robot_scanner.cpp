@@ -7,7 +7,7 @@
 #include "log.h"
 #include "cintas.h"
 #include "constants.h"
-#include "debug_processes.h"
+
 
 #if DEBUG_ROBOT_SCANNER_COLOCA_CINTA_PPAL == 0 && DEBUG_ROBOT_SCANNER_EXTRAE_CINTA_SCANNER == 0
 

@@ -12,33 +12,78 @@
 #include "socket.h"
 #include "mensajes_de_red.h"
 #include <csignal>
+#include "signalhandler.h"
+#include "eventhandler.h"
+#include <vector>
+#include "memoria_distribuida.h"
+#include "mutex_distribuido.h"
+#include "semaphore_set_distribuido.h"
+#include "yasper.h"
 
-class LocalBrokerComm {
+typedef enum {
+	SHAREDMEMORY, MUTEX, SEMAFORO
+} tipo_ipc_t;
+
+class LocalBrokerComm: public EventHandler {
 private:
 
-	Socket socket_broker;
+	yasper::ptr<Socket> socket_broker;
 	size_t cantidad_de_bloques;
 	size_t tamanio_memoria;
 	std::string nombre_aplicacion;
 	std::string nombre_grupo;
-	bool tengo_token;
 
-public:
-	LocalBrokerComm(const std::string & app_name, const std::string & broker_hostname, const std::string & service);
-	virtual ~LocalBrokerComm();
+	yasper::ptr<MemoriaDistribuida> memoria;
+	yasper::ptr<MutexDistribuido> mutex;
+	yasper::ptr<SemaphoreSetDistribuido> semaforo;
+	int numero_de_semaforo;
+	tipo_ipc_t tipo_de_recurso;
 
-	void join(const std::string & nombre_recurso, mensajes::peticiones_t tipo_join);
+	std::vector<std::string> lista_de_brokers;
+	std::vector<std::string> lista_de_servicios;
+
+	bool conectado;
+	size_t numero_broker_conectado;
+
+	mensajes::mensajes_local_broker_token_t mensaje;
+
+	ControlTokens * control;
+
+	sig_atomic_t salir;
+	sig_atomic_t leyendo_de_socket;
+	sig_atomic_t esperando_aplicacion;
+	sig_atomic_t recibi_algo_del_token;
+	sig_atomic_t tengo_token;
+
+
+	void registrar();
+	void join();
+	void reconectar();
+
+	virtual void handleSignal(int signum);
+
+	void loop_memoria();
+	void loop_mutex();
+	void loop_mutex_padre();
+	void loop_mutex_hijo();
+	void loop_semaforo();
+	void loop_semaforo_padre();
+	void loop_semaforo_hijo();
+
+	void wait_token(void * memory);
+	void send_token(void * memory);
+
 	void leave();
 
-	void wait_mutex(void * memory);
-	void free_mutex(void * memory);
-	void set_tiene_token(bool t);
-	void set_salir();
+public:
+	LocalBrokerComm(const std::string & directorio_de_trabajo, const std::string & app_name,
+		const std::string & group_name, const std::vector<std::string> & broker_hostnames,
+		const std::vector<std::string> & services, tipo_ipc_t tipo, int numero_de_semaforo = 0,
+		int cantidad_de_semaforos = 0);
+	virtual ~LocalBrokerComm();
 
-	size_t get_mem_size();
-	static sig_atomic_t salir;
+	void run();
 
-	bool tiene_token();
 };
 
 #endif /* LOCALBROKERCOMM_H_ */

@@ -16,7 +16,6 @@
 
 #include <string>
 #include "yasper.h"
-#include "debug_processes.h"
 
 #if DEBUG_ROBOT_DESPACHO_EXTRAE_CINTA_PPAL==0 && DEBUG_ROBOT_DESPACHO_COLOCA_CINTA_CONTENEDOR==0
 

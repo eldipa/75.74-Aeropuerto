@@ -83,11 +83,11 @@ MemoriaDistribuida::~MemoriaDistribuida() {
 
 	try {
 		if (p) {
-			std::cout << "envio señal SIGUSR1" << std::endl;
+			//std::cout << "envio señal SIGUSR1" << std::endl;
 			p->send_signal(SIGUSR1, false);
-			std::cout << "esperando hijo" << std::endl;
+			//std::cout << "esperando hijo" << std::endl;
 			p->wait();
-			std::cout << "hijo termino" << std::endl;
+			//std::cout << "hijo termino" << std::endl;
 			delete p;
 		}
 	} catch (OSError &) {

@@ -25,7 +25,7 @@ ApiCheckIn::ApiCheckIn(const char* directorio_de_trabajo, const char* config_fil
 	: path_to_locks(directorio_de_trabajo), id_checkin(id_checkin)
 
 {
-
+#if DEBUG_CINTA_CHECKIN == 0
 	vuelo_actual = new SharedObject<tVueloEnCheckin>(
 		std::string(directorio_de_trabajo).append(PATH_PUESTO_CHECKIN).c_str(), id_checkin * cant_ipcs + 2);
 
@@ -34,7 +34,11 @@ ApiCheckIn::ApiCheckIn(const char* directorio_de_trabajo, const char* config_fil
 	queue_manager=ApiConfiguracion::get_queue_manager(directorio_de_trabajo, config_file);
 	queue_pasajeros=queue_manager->get_queue(PATH_PUESTO_CHECKIN, 0);
 	queue_controlador=queue_manager->get_queue(PATH_COLA_CONTROL_CHECKIN, 0);
-
+#else
+	directorio_de_trabajo = directorio_de_trabajo;
+	config_file = config_file;
+	id_checkin = id_checkin;
+#endif
 }
 
 ApiCheckIn::ApiCheckIn(const char* directorio_de_trabajo, const char* config_file, int id_puesto_checkin,
@@ -42,15 +46,16 @@ ApiCheckIn::ApiCheckIn(const char* directorio_de_trabajo, const char* config_fil
 	: path_to_locks(directorio_de_trabajo), id_checkin(id_puesto_checkin)
 
 {
+	create = !!create;
 	create_if_not_exists(std::string(directorio_de_trabajo).append(PATH_PUESTO_CHECKIN).c_str());
 	create_if_not_exists(std::string(directorio_de_trabajo).append(PATH_COLA_CONTROL_CHECKIN).c_str());
-
+#if DEBUG_CINTA_CHECKIN == 0
 	vuelo_actual = new SharedObject<tVueloEnCheckin>(tVueloEnCheckin(id_cinta_checkin),
 		std::string(directorio_de_trabajo).append(PATH_PUESTO_CHECKIN).c_str(), id_puesto_checkin * cant_ipcs + 2);
-
+#endif
 	cinta_checkin_out = new CintaCheckin(std::string("checkin").append(intToString(id_puesto_checkin)).c_str(),
 		std::string(directorio_de_trabajo).c_str(), id_puesto_checkin);
-
+#if DEBUG_CINTA_CHECKIN == 0
 	sem_set = new SemaphoreSet(std::vector<unsigned short>(1, 1),
 		std::string(directorio_de_trabajo).append(PATH_PUESTO_CHECKIN).c_str(), id_puesto_checkin * cant_ipcs);
 
@@ -59,9 +64,13 @@ ApiCheckIn::ApiCheckIn(const char* directorio_de_trabajo, const char* config_fil
 	queue_pasajeros = (queue_manager)->get_queue(PATH_PUESTO_CHECKIN, 0, create);
 	queue_controlador = (queue_manager)->get_queue(PATH_COLA_CONTROL_CHECKIN, 0, create);
 
-	create = !!create;
+
 	ApiTorreDeControl api_torre(directorio_de_trabajo, config_file);
 	api_torre.liberar_puesto_checkin(id_puesto_checkin);
+#else
+	id_cinta_checkin = id_cinta_checkin;
+	config_file = config_file;
+#endif
 }
 
 ApiCheckIn::~ApiCheckIn() {
@@ -111,6 +120,7 @@ void ApiCheckIn::fin_checkin_pasajero() {
 
 void ApiCheckIn::registrar_equipaje(Equipaje& equipaje) {
 
+#if DEBUG_CINTA_CHECKIN == 0
 	(*mutex_checkin).lock();
 	int vuelo = (*vuelo_actual)->num_vuelo;
 
@@ -123,9 +133,12 @@ void ApiCheckIn::registrar_equipaje(Equipaje& equipaje) {
 	(*mutex_checkin).unlock();
 
    Log::debug("ApiCheckIn: Poniendo valija");
-	(*cinta_checkin_out).poner_equipaje(equipaje, id_checkin);
+#endif
+	cinta_checkin_out->poner_equipaje(equipaje, id_checkin);
+#if DEBUG_CINTA_CHECKIN == 0
    Log::debug("ApiCheckIn: ok Poniendo valija total:%d", (*vuelo_actual)->cant_equipajes);
    equipaje = equipaje;
+#endif
 }
 
 int ApiCheckIn::get_vuelo_actual() {
