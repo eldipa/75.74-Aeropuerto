@@ -75,7 +75,7 @@ void lanzar_vuelo(tTaskVuelo t, const char* dir, const char* config_file) {
 	Log::info("Lanzando vuelo %d", t.num_vuelo);
 
 	std::stringstream sstr;
-	//sstr << t.num_vuelo;
+	sstr << t.num_vuelo;
 	strcpy(buffer_num_vuelo, sstr.str().c_str());
 
    sstr << "controlador_de_vuelo_" << t.num_vuelo;

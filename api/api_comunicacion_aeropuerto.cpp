@@ -37,6 +37,8 @@ void ApiComunicacionAeropuerto::zona_asignada(int num_vuelo, int num_zona, int i
    if(id_aeropuerto==-1)
       throw GenericError("Llamada inválida a zona_asignada sin id_aeropuerto");
 
+   Log::debug("ApiComunicacionAeropuerto: zona_asignada->push: num_vuelo=%d", num_vuelo);
+
    MENSAJE_ZONA_ASIGNADA msg_trasbordo;
    msg_trasbordo.mtype = num_vuelo;
    msg_trasbordo.id_aeropuerto = id_aeropuerto;

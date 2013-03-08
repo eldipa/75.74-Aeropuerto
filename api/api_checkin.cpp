@@ -71,9 +71,7 @@ void ApiCheckIn::iniciar_checkin(int numero_vuelo) {
 	(*mutex_checkin).lock();
 
 	if ((*vuelo_actual)->num_vuelo == -1) {
-		// yasper::ptr<IMessageQueue> checkin = queue_manager->get_queue(PATH_TORRE_DE_CONTROL, Q_CHECKINS_HABILITADOS);
-		//MessageQueue checkin(std::string(PATH_KEYS).append(PATH_TORRE_DE_CONTROL).c_str(), Q_CHECKINS_HABILITADOS);
-
+      Log::info("CHECKIN vuelo %d comienza en puesto %d", numero_vuelo, id_checkin);
 		(*vuelo_actual)->num_vuelo = numero_vuelo;
 		(*vuelo_actual)->cant_equipajes = 0;
 	} else {
@@ -92,7 +90,9 @@ int ApiCheckIn::cerrar_checkin() {
 		throw std::runtime_error("No había ningún checkin abierto");
 	}
 
-	Log::info("Notificando checkin cerrado para vuelo %i", (*vuelo_actual)->num_vuelo);
+   Log::info("CHECKIN vuelo %d finaliza en puesto %d", (*vuelo_actual)->num_vuelo, id_checkin);
+
+	// Log::info("Notificando checkin cerrado para vuelo %i", (*vuelo_actual)->num_vuelo);
 	//checkin.push(&(*vuelo_actual), sizeof((*vuelo_actual))); TODO:
 
 	(*vuelo_actual)->num_vuelo = -1;
@@ -102,11 +102,11 @@ int ApiCheckIn::cerrar_checkin() {
 }
 
 void ApiCheckIn::comienza_checkin_pasajero() {
-	(*mutex_checkin).lock();
+	// (*mutex_checkin).lock();
 }
 
 void ApiCheckIn::fin_checkin_pasajero() {
-	(*mutex_checkin).unlock();
+	// (*mutex_checkin).unlock();
 }
 
 void ApiCheckIn::registrar_equipaje(Equipaje& equipaje) {
@@ -125,6 +125,7 @@ void ApiCheckIn::registrar_equipaje(Equipaje& equipaje) {
    Log::debug("ApiCheckIn: Poniendo valija");
 	(*cinta_checkin_out).poner_equipaje(equipaje, id_checkin);
    Log::debug("ApiCheckIn: ok Poniendo valija total:%d", (*vuelo_actual)->cant_equipajes);
+   equipaje = equipaje;
 }
 
 int ApiCheckIn::get_vuelo_actual() {

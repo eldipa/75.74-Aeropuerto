@@ -21,6 +21,7 @@
 #include <sys/stat.h>
 #include "dir.h"
 
+#include "api_torre_de_control.h"
 class ApiCarga {
 private:
 	//std::string path;
@@ -52,6 +53,9 @@ public:
 			cola_aviso_carga(queue_manager->get_queue(PATH_COLA_CONTROL_CARGA_CHECKIN, id_robot_carga, create))
 
 	{
+
+      Log::debug("Inicializando robot carga %d", id_robot_carga);
+
 		if (same_dir) {
 			cinta_contenedor = new CintaContenedor(app_name, directorio_de_trabajo, num_cinta, true);
 		} else {
@@ -61,6 +65,10 @@ public:
 			cinta_contenedor = new CintaContenedor(app_name,
 				std::string(directorio_de_trabajo).append("/other_dir").c_str(), num_cinta, true);
 		}
+
+      Log::debug("Lista la zona %d para ser asignada", id_robot_carga);
+      ApiTorreDeControl api_torre( ApiConfiguracion::get_wkdir(config_file).c_str(), config_file);
+      api_torre.liberar_zona(id_robot_carga);
 	}
 
 	ApiCarga(const char * directorio_de_trabajo, const char* config_file, int id_robot_carga)

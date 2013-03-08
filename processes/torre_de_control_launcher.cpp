@@ -31,9 +31,9 @@ int main(int argc, char** argv) {
 		 	api_torre.liberar_contenedor();
       }
 
-      for (int i = 1; i <= ApiConfiguracion::get_zonas(config_file.c_str()); i++) {
-		 	api_torre.liberar_zona(i);
-      }
+      // for (int i = 1; i <= ApiConfiguracion::get_zonas(config_file.c_str()); i++) {
+		//  	api_torre.liberar_zona(i);
+      // }
 
       Process process_server("./../rpc/torre_de_control_svc", args_torre_de_control);
       
