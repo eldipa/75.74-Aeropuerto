@@ -209,7 +209,7 @@ void copy_files() {
 	cp(std::string(working_dir_local_broker3).append(file_dest).c_str(), file_src);
 	cp(std::string(working_dir_local_broker4).append(file_dest).c_str(), file_src);
 	strcpy(file_dest, "/cinta_escaner_control.init");
-	strcpy(file_src, file_src);
+	strcpy(file_src, "../local_broker/locks/cinta_escaner_control.init");
 	cp(std::string(working_dir_local_broker1).append(file_dest).c_str(), file_src);
 	cp(std::string(working_dir_local_broker2).append(file_dest).c_str(), file_src);
 	cp(std::string(working_dir_local_broker3).append(file_dest).c_str(), file_src);
