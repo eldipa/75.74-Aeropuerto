@@ -20,6 +20,7 @@
 #include "daemon.h"
 #include "log.h"
 #include "debug_flags.h"
+#include <sstream>
 
 void print_ints(int *p, int cant) {
 	std::cout << p [0];
@@ -264,7 +265,7 @@ void LocalBrokerComm::send_token() {
 			socket_broker->sendsome((char *)&mensaje, sizeof(mensajes::mensajes_local_broker_token_t));
 			reintentar = false;
 		} catch (InterruptedSyscall & interruption) {
-			Log::alert(interruption.what());
+			Log::alert("%s(%s) %s", nombre_aplicacion.c_str(), nombre_grupo.c_str(), interruption.what());
 			reintentar = true;
 		}
 	}
@@ -473,8 +474,8 @@ void LocalBrokerComm::loop_semaforo_hijo() {
 
 			send_token();
 
-		}  catch (OSError & error) {
-			Log::alert("%s(%s): Broken Pipe\n",nombre_aplicacion.c_str(),nombre_grupo.c_str());
+		} catch (OSError & error) {
+			Log::alert("%s(%s): Broken Pipe\n", nombre_aplicacion.c_str(), nombre_grupo.c_str());
 			//Log::alert(error.what());
 			break;
 		}
@@ -638,6 +639,16 @@ try
 		return -1;
 	}
 
+#if DEBUG_LOCAL_BROKER_COMM ==1
+	std::string args("argc= ");
+	std::stringstream ss;
+	ss << argc;
+	args.append(ss.str());
+	for (int i = 0 ; i < argc ; i++) {
+		args.append(" ").append(argv [i]);
+	}
+	Log::info("%s", args.c_str());
+#endif
 	obtener_lista_de_brokers(brokers, servicios, argv [3]);
 
 	strncpy(grupo, argv [4], MAX_NOMBRE_RECURSO);

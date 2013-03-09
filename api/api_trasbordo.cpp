@@ -16,7 +16,7 @@ ApiTrasbordo::ApiTrasbordo(const char* directorio_de_trabajo, const char* config
    // // cola_asignaciones( queue_manager->get_queue(PATH_COLA_ESCUCHA_ZONA_ASIGNADA, 0) ) {
    config_file = config_file;
 	cinta = new CintaCentral(std::string("robot_intercargo").append(intToString(numero_de_vuelo)).c_str(),
-		directorio_de_trabajo, -1, -2);
+		directorio_de_trabajo, -1, MAX_SCANNERS + 2);
 
 	id_productor = 1 + MAX_SCANNERS + 1;
 
