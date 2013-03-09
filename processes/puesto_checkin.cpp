@@ -49,7 +49,7 @@ int main(int argc, char *argv[]) try {
 		vuelo_pasajero = get_vuelo(id_pasajero);
 
 		Log::info("Llego el pasajero %d con %d valijas para hacer checkin\n", id_pasajero, equipajes.size());
-		// checkin.comienza_checkin_pasajero();
+		checkin.comienza_checkin_pasajero();
 
 		try {
 
@@ -69,13 +69,21 @@ int main(int argc, char *argv[]) try {
 			}
 		} catch (PuestoCheckinSinVueloAsignado &) {
 			Log::info("No hay checkin habilitado en este momento\n" );
-		}
-		// checkin.fin_checkin_pasajero();
+		} catch (const std::exception& e) {
+         checkin.fin_checkin_pasajero();
+         throw e;
+      }
+
+		checkin.fin_checkin_pasajero();
 	}
 } catch(const std::exception &e) {
+   Log::crit("Exception: termina el puesto_checkin: %s", e.what());
 	Log::crit("%s", e.what());
+   sleep(2);
 } catch(...) {
+   Log::crit("Exception: termina el puesto_checkin");
 	Log::crit("Critical error. Unknow exception at the end of the 'main' function.");
+   sleep(2);
 }
 
 int get_vuelo(int id_pasajero) {
