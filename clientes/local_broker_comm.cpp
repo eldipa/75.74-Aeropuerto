@@ -652,7 +652,7 @@ try
 	obtener_lista_de_brokers(brokers, servicios, argv [3]);
 
 	strncpy(grupo, argv [4], MAX_NOMBRE_RECURSO);
-	id = atoi(argv [5]);
+	id = atoi(argv [5]);id = id;
 
 #ifdef __x86_64__
 	sscanf(argv [6], "%lu", &tamanio);

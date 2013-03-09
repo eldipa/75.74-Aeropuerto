@@ -75,6 +75,7 @@ ApiCheckIn::ApiCheckIn(const char* directorio_de_trabajo, const char* config_fil
 }
 
 ApiCheckIn::~ApiCheckIn() {
+   Log::debug("ApiCheckIn destructor");
 }
 
 void ApiCheckIn::iniciar_checkin(int numero_vuelo) {
@@ -112,26 +113,23 @@ int ApiCheckIn::cerrar_checkin() {
 }
 
 void ApiCheckIn::comienza_checkin_pasajero() {
-	// (*mutex_checkin).lock();
+   (*mutex_checkin).lock();
 }
 
 void ApiCheckIn::fin_checkin_pasajero() {
-	// (*mutex_checkin).unlock();
+   (*mutex_checkin).unlock();
 }
 
 void ApiCheckIn::registrar_equipaje(Equipaje& equipaje) {
 
 #if DEBUG_CINTA_CHECKIN == 0
-	(*mutex_checkin).lock();
 	int vuelo = (*vuelo_actual)->num_vuelo;
 
 	if (vuelo == -1) {
-      (*mutex_checkin).unlock();
-		throw std::runtime_error("Registrando equipaje en puesto_checkin sin vuelo asignado");
+		throw PuestoCheckinSinVueloAsignado(id_checkin);
    }
 
 	(*vuelo_actual)->cant_equipajes++;
-	(*mutex_checkin).unlock();
 
    Log::debug("ApiCheckIn: Poniendo valija");
 #endif
@@ -144,9 +142,7 @@ void ApiCheckIn::registrar_equipaje(Equipaje& equipaje) {
 
 int ApiCheckIn::get_vuelo_actual() {
 
-	(*mutex_checkin).lock();
 	int result = (*vuelo_actual)->num_vuelo;
-   (*mutex_checkin).unlock();
 
 	if (result == -1) {
 		throw PuestoCheckinSinVueloAsignado(id_checkin);
