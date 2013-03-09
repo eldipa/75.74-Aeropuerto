@@ -68,7 +68,7 @@ int Process::wait() {
 
 void Process::send_signal(int signal, bool expect_alive) {
     if(kill(pid, signal) == -1) {
-        if(errno == ESRCH and not expect_alive) return
+        if(errno == ESRCH and not expect_alive) return;
         throw OSError("Error when sending a signal -%i to the process children with PID %i", signal, pid);
     }
 }

@@ -16,12 +16,17 @@
 #include "grupo.h"
 #include "process.h"
 #include <vector>
+#include "signalhandler.h"
+#include "eventhandler.h"
 
-class LocalBroker {
+class LocalBroker : public EventHandler{
 private:
 
 	Socket server_socket;
 	std::vector<Process *> hijos;
+	sig_atomic_t salir;
+
+	virtual void handleSignal(int signum);
 
 public:
 

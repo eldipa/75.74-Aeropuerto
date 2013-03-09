@@ -82,10 +82,14 @@ static char *args_puesto_checkin3 [] = {
 static char *args_robot_checkin [] = {
 	(char*)"robot_checkin", working_dir_robot_checkin, config_file, (char*)"1", (char*)"1", (char*)"1", NULL};
 
-static char *args_robot_carga1 [] = {(char*)"robot_carga_1", working_dir_robot_carga1, config_file, (char*)"1", (char*)"1", NULL};
-static char *args_robot_carga2 [] = {(char*)"robot_carga_2", working_dir_robot_carga2, config_file, (char*)"2", (char*)"2", NULL};
-static char *args_robot_carga3 [] = {(char*)"robot_carga_3", working_dir_robot_carga3, config_file, (char*)"3", (char*)"3", NULL};
-static char *args_robot_carga4 [] = {(char*)"robot_carga_4", working_dir_robot_carga4, config_file, (char*)"4", (char*)"4", NULL};
+static char *args_robot_carga1 [] = {
+	(char*)"robot_carga_1", working_dir_robot_carga1, config_file, (char*)"1", (char*)"1", NULL};
+static char *args_robot_carga2 [] = {
+	(char*)"robot_carga_2", working_dir_robot_carga2, config_file, (char*)"2", (char*)"2", NULL};
+static char *args_robot_carga3 [] = {
+	(char*)"robot_carga_3", working_dir_robot_carga3, config_file, (char*)"3", (char*)"3", NULL};
+static char *args_robot_carga4 [] = {
+	(char*)"robot_carga_4", working_dir_robot_carga4, config_file, (char*)"4", (char*)"4", NULL};
 
 static char *args_scanner1 [] = {
 	(char*)"robot_scanner_1", working_dir_robot_escaner1, config_file, (char*)"1", (char*)"1", (char*)"1", NULL};
@@ -109,8 +113,7 @@ static char *args_robot_sospechosos [] = {
 	(char*)"robot_control_equipaje_sospechoso", working_dir_robot_control_equipaje, config_file, (char*)"3",
 	id_productor_cinta_central, NULL};
 
-static char *args_robot_intercargo [] = {
-	(char*)"robot_intercargo", working_dir_robot_intercargo, config_file, NULL};
+static char *args_robot_intercargo [] = {(char*)"robot_intercargo", working_dir_robot_intercargo, config_file, NULL};
 
 /*static char *args_control_sospechosos [] = {
  (char*)"robot_control_equipaje_sospechoso", working_dir_control_equipaje_sospechoso, config_file, (char*)"3",
@@ -181,8 +184,6 @@ void mkdirs() {
 		mkdir(*i, 0770);
 	}
 }
-
-
 
 void copy_files() {
 	std::vector<char *>::iterator i;
@@ -327,25 +328,25 @@ std::list<std::string> ls(const char * folder) {
 }
 
 void chequear_si_hay_duplicados() {
-   /*
-	std::vector<char *>::iterator i;
-	std::list<std::string>::iterator j;
-	std::map<Key, std::string> keys;
-	std::list<std::string> lista;
-	for (i = all_dirs.begin(); i != all_dirs.end() ; i++) {
-		lista = ls(*i);
-		for (j = lista.begin(); j != lista.end() ; j++) {
-			if ((*j).find(".lck", (*j).size() - 4) != std::string::npos) {
-				Key k = get_key(std::string(*i).append("/").append(*j).c_str(), 0);
-				if(keys.count(k)>0){
-					std::cout << "Colision " << std::string(*i).append("/").append(*j) << ":" << keys.at(k) << std::endl;
-				}else {
-					keys.insert(std::pair<Key,std::string>(k,std::string(*i).append("/").append(*j)));
-				}
-			}
-		}
-	}
-   */
+	/*
+	 std::vector<char *>::iterator i;
+	 std::list<std::string>::iterator j;
+	 std::map<Key, std::string> keys;
+	 std::list<std::string> lista;
+	 for (i = all_dirs.begin(); i != all_dirs.end() ; i++) {
+	 lista = ls(*i);
+	 for (j = lista.begin(); j != lista.end() ; j++) {
+	 if ((*j).find(".lck", (*j).size() - 4) != std::string::npos) {
+	 Key k = get_key(std::string(*i).append("/").append(*j).c_str(), 0);
+	 if(keys.count(k)>0){
+	 std::cout << "Colision " << std::string(*i).append("/").append(*j) << ":" << keys.at(k) << std::endl;
+	 }else {
+	 keys.insert(std::pair<Key,std::string>(k,std::string(*i).append("/").append(*j)));
+	 }
+	 }
+	 }
+	 }
+	 */
 }
 
 int main(int argc, char** argv)
@@ -385,7 +386,7 @@ try
 		processes.push_back(Process("message_broker_launcher", args_message_broker));
 		sleep(2);
 		processes.push_back(Process("torre_de_control_launcher", args_torre_de_control));
-      sleep(1);
+		sleep(1);
 
 		processes.push_back(Process("puesto_checkin", args_puesto_checkin1));
 		processes.push_back(Process("puesto_checkin", args_puesto_checkin2));
@@ -420,22 +421,32 @@ try
 		//       lanzar_vuelo(i);
 		//    }
 		// }
+		//std::cout << "Procesos Lanzados" << std::endl;
 
 		Log::notice("Done, waiting for a SIGINT or a SIGTERM signal.");
 		wait_signal();
 		Log::notice("Signal recieved. Shutdown...");
 	}
 
-	sleep(5);
 	Log::notice("Finalizando procesos. Enviando SIGTERM...");
-	for (std::list<Process>::iterator it = processes.end() ; it != processes.begin() ; --it)
-		it->send_signal(SIGTERM);
+	//std::cout << "Finalizando procesos. Enviando SIGTERM...";
+	for (std::list<Process>::iterator it = processes.end() ; it != processes.begin() ; --it) {
+		try {
+			it->send_signal(SIGTERM, false);
+		} catch (OSError & error) {
 
-	sleep(2);
+		}
+	}
+	std::list<Process>::iterator it = processes.begin();
+	it->send_signal(SIGTERM, false);
+
+	//std::cout << "Procesos Señalizados" << std::endl;
+	sleep(5);
 	Log::notice("Finalizando procesos. Enviando SIGKILL...");
 	for (std::list<Process>::iterator it = processes.end() ; it != processes.begin() ; --it)
 		it->send_signal(SIGKILL);
 
+	sleep(2);
 	Log::info("finalizando simulación...");
 
 	return 0;

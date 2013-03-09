@@ -18,6 +18,7 @@
 #include <csignal>
 #include <unistd.h>
 #include "daemon.h"
+#include "interrupted.h"
 
 #define MAX_CLIENTES 100
 
@@ -28,6 +29,8 @@ static char groups_file [200];
 static char * args_client_handler [] = {
 	(char*)"client_handler", directorio_de_trabajo, num_socket, id_cola_token_manager, NULL};
 
+#define DEBUG_LOCAL_BROKER 0
+
 #define LANZAR_TOKEN_MANAGER 1
 
 #if LANZAR_TOKEN_MANAGER == 1
@@ -35,7 +38,7 @@ static char * args_token_manager [] = {
 	(char*)"token_manager", directorio_de_trabajo, id_cola_token_manager, groups_file, NULL};
 #endif
 
-LocalBroker::LocalBroker(const std::string & directorio, const std::string & groups,const std::string & servicio)
+LocalBroker::LocalBroker(const std::string & directorio, const std::string & groups, const std::string & servicio)
 	: server_socket(true)
 {
 
@@ -43,30 +46,63 @@ LocalBroker::LocalBroker(const std::string & directorio, const std::string & gro
 
 	strncpy(directorio_de_trabajo, directorio.c_str(), 200);
 	strncpy(groups_file, groups.c_str(), 200);
-
+	salir = 0;
+	SignalHandler::getInstance()->registrarHandler(SIGTERM, this);
 }
 
 LocalBroker::~LocalBroker() {
-	std::vector<Process *> :: iterator i;
-	for(i = hijos.begin();i!=hijos.end();i++){
-		(*i)->send_signal(SIGTERM,false);
-		(*i)->wait();
+	std::vector<Process *>::iterator i;
+	for (i = hijos.begin(); i != hijos.end() ; i++) {
+		try {
+#if DEBUG_LOCAL_BROKER == 1
+			if (i == hijos.begin()) {
+				std::cout << "enviando señal a token_manager" << std::endl;
+			}
+#endif
+			(*i)->send_signal(SIGTERM, false);
+#if DEBUG_LOCAL_BROKER == 1
+			if (i == hijos.begin()) {
+				std::cout << "señal enviada" << std::endl;
+			}
+#endif
+		} catch (OSError & interruption) {
+#if DEBUG_LOCAL_BROKER == 1
+			std::cout << "Cannot signalize" << std::endl;
+#endif
+		}
+		try {
+			(*i)->wait();
+		} catch (OSError & interruption) {
+#if DEBUG_LOCAL_BROKER == 1
+			std::cout << interruption.what() << std::endl;
+			std::cout << "Error in wait" << std::endl;
+#endif
+		}
 		delete (*i);
+	}
+	SignalHandler::destruir();
+}
+
+void LocalBroker::handleSignal(int signum) {
+	if (signum == SIGUSR1 || signum == SIGTERM) {
+		salir = 1;
+#if DEBUG_LOCAL_BROKER == 1
+		std::cout << "Local Broker -" << getpid() << ": señal recibida salir = 1" << std::endl;
+#endif
 	}
 }
 
 void LocalBroker::run() {
 	//char debug [200];
 	int new_socket;
-	bool exit = 0;
 	Process * handler;
 	long cantidad_de_clientes = 0;
 #if LANZAR_TOKEN_MANAGER == 1
-	Process * p = new Process("token_manager",args_token_manager);
+	Process * p = new Process("token_manager", args_token_manager);
 	hijos.push_back(p);
 #endif
 
-	ignore_signals();
+	//ignore_signals();
 
 	do {
 		try {
@@ -89,12 +125,15 @@ void LocalBroker::run() {
 
 			close(new_socket);
 
-			Log::info("Conectado cliente numero %d",cantidad_de_clientes++);
+			Log::info("Conectado cliente numero %d", cantidad_de_clientes++);
 			//exit = true;
 		} catch (OSError & error) {
-			exit = 1;
+			salir = 1;
+		} catch (InterruptedSyscall & interruption) {
+			std::cout << "local_broker_launcher interrupted" << std::endl;
+			salir = 1;
 		}
-	} while (!exit);
+	} while (salir == 0);
 	//p.wait();
 
 }

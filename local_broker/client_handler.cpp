@@ -38,12 +38,17 @@ int fd)
 	tipo_join = mensajes::JOIN;
 	leave = false;
 	salir = 0;
+
+	SignalHandler::getInstance()->registrarHandler(SIGUSR1, this);
+	SignalHandler::getInstance()->registrarHandler(SIGUSR2, this);
+	SignalHandler::getInstance()->registrarHandler(SIGTERM, this);
 }
 
 ClientHandler::~ClientHandler() {
 	if (mem_local) {
 		delete [] mem_local;
 	}
+	SignalHandler::destruir();
 }
 
 void ClientHandler::avisar_creacion_grupo(const std::string & nombre_grupo) {
@@ -88,7 +93,7 @@ void ClientHandler::join_group(const std::string & nombre_grupo) {
 	}
 #if DEBUG_CLIENT_HANDLER==1
 	std::cout << "Tamaño Memoria: " << nombre_grupo << " = " << tamanio << " cantidad de bloques = "
-		<< cantidad_de_bloques_a_enviar << std::endl;
+	<< cantidad_de_bloques_a_enviar << std::endl;
 #endif
 	tamanio_memoria = tamanio;
 
@@ -98,7 +103,7 @@ void ClientHandler::join_group(const std::string & nombre_grupo) {
 }
 
 void ClientHandler::leave_group() {
-
+	Log::info("Leaving group %s(%s)", nombre_cliente.c_str(), nombre_grupo.c_str());
 	grupo->leave(nombre_cliente.c_str());
 
 }
@@ -108,14 +113,16 @@ void ClientHandler::handleSignal(int signum) {
 		salir = 1;
 #if DEBUG_CLIENT_HANDLER == 1
 		std::cout << nombre_cliente << "(" << nombre_grupo << "-" << getpid() << "): señal recibida salir = 1"
-			<< std::endl;
+		<< std::endl;
 #endif
 	} else if (signum == SIGUSR2) {
 		salir = 2;
 #if DEBUG_CLIENT_HANDLER == 1
 		std::cout << nombre_cliente << "(" << nombre_grupo << "-" << getpid() << "): señal recibida salir = 2"
-			<< std::endl;
+		<< std::endl;
 #endif
+	} else if (signum == SIGTERM) {
+		salir = 3;
 	}
 }
 
@@ -178,7 +185,9 @@ void ClientHandler::recv_token_sem() {
 	} catch (InterruptedSyscall & interruption) {
 		Log::alert(interruption.what());
 		tengo_token = 0;
-		salir = 2;
+		if (salir != 3) {
+			salir = 2;
+		}
 	}
 }
 
@@ -216,11 +225,12 @@ size_t ClientHandler::recv_token() {
 			}
 #endif
 			if (mensaje.peticion == mensajes::LEAVE) {
+				Log::info("%s(%s) Leave received", nombre_cliente.c_str(), nombre_grupo.c_str());
 				return 0;
 			}
 
 			if (leidos == 0) {
-				Log::alert("El Cliente %s cerro la conexion\n", nombre_cliente.c_str());
+				Log::alert("El Cliente %s(%s) cerro la conexion\n", nombre_cliente.c_str(), nombre_grupo.c_str());
 #if DEBUG_CLIENT_HANDLER==1
 				std::cout << "Saliendo " << this->nombre_cliente << "(" << nombre_grupo << ")" << std::endl;
 #endif
@@ -268,7 +278,7 @@ void ClientHandler::chequear_status_salida_hijo() {
 		if (grupo->tengo_el_token_cliente()) {
 #if DEBUG_CLIENT_HANDLER==1
 			std::cout << nombre_cliente << "(" << nombre_grupo << ") Chequeando si el cliente tiene el token"
-				<< std::endl;
+			<< std::endl;
 #endif
 			mensaje.respuesta = mensajes::R_TOKEN_CHECK;
 			try {
@@ -282,7 +292,7 @@ void ClientHandler::chequear_status_salida_hijo() {
 				mensaje.respuesta = mensajes::LEAVE_OK;
 #if DEBUG_CLIENT_HANDLER==1
 				std::cout << nombre_cliente << "(" << nombre_grupo << ") Tiene el token: "
-					<< ((tengo_token == 0) ? "True" : "False") << std::endl;
+				<< ((tengo_token == 0) ? "True" : "False") << std::endl;
 #endif
 				socket.sendsome(&mensaje, sizeof(mensajes::mensajes_local_broker_token_t));
 			} catch (OSError & err) {
@@ -301,6 +311,7 @@ void ClientHandler::chequear_status_salida_hijo() {
 			}
 		}
 	} else if (salir == 2) {
+		Log::info("%s(%s) Saliendo", nombre_cliente.c_str(), nombre_grupo.c_str());
 #if DEBUG_CLIENT_HANDLER==1
 		std::cout << nombre_cliente << "(" << nombre_grupo << ") Broken Pipe" << std::endl;
 #endif
@@ -330,7 +341,9 @@ void ClientHandler::loop_semaforo_hijo() {
 			}
 		} catch (OSError & error) {
 			Log::crit(error.what());
-			salir = 2;
+			if (salir != 3) {
+				salir = 2;
+			}
 			tengo_token = 1;
 		} catch (InterruptedSyscall & interruption) {
 			Log::alert(interruption.what());
@@ -354,16 +367,20 @@ void ClientHandler::loop_semaforo() {
 		leave_group();
 		if (salir == 2) {
 			kill(pid_hijo, SIGUSR2);
-		} else {
+		} else if (salir == 1) {
 			kill(pid_hijo, SIGUSR1);
+		} else if (salir == 3) {
+			kill(pid_hijo, SIGTERM);
 		}
 #if DEBUG_CLIENT_HANDLER==1
 		std::cout << nombre_cliente << "(" << nombre_grupo << ") esperando hijo" << std::endl;
 #endif
+		Log::info("%s(%s) esperando hijo", nombre_cliente.c_str(), nombre_grupo.c_str());
 		waitpid(pid_hijo, &status, 0);
 #if DEBUG_CLIENT_HANDLER==1
 		std::cout << nombre_cliente << "(" << nombre_grupo << ") hijo termino" << std::endl;
 #endif
+		Log::info("%s(%s) fin hijo", nombre_cliente.c_str(), nombre_grupo.c_str());
 	} else {
 		loop_semaforo_hijo();
 		chequear_status_salida_hijo();
@@ -398,13 +415,16 @@ void ClientHandler::loop_memoria() {
 			leave = true;
 		}
 
-		if (leave) {
-			leave_group();
+		try {
+			if (leave) {
+				leave_group();
+			}
+			if (tengo_el_token) {
+				grupo->release_token(&cola_token_manager);
+			}
+			tengo_el_token = false;
+		} catch (OSError & error) {
 		}
-		if (tengo_el_token) {
-			grupo->release_token(&cola_token_manager);
-		}
-		tengo_el_token = false;
 	} while (!leave);
 	try {
 		mensaje.respuesta = mensajes::LEAVE_OK;

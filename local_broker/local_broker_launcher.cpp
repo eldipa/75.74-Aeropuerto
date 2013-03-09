@@ -10,29 +10,29 @@
 #include "local_broker.h"
 #include "daemon.h"
 #include "oserror.h"
+#include "yasper.h"
 
 int main(int argc, char * argv [])
 try
 {
 	char groups [MAX_PATH_SIZE];
-	if(argc < 3){
+	if (argc < 3) {
 		std::cout << "Faltan Argumentos (directorio de trabajo, puerto)" << std::endl;
 		return 1;
 	}
 
-	strcpy(groups,argv[1]);
-	strcat(groups,"/group_list.txt");
+	strcpy(groups, argv [1]);
+	strcat(groups, "/group_list.txt");
 
-	ignore_signals();
-
+	yasper::ptr<LocalBroker> server;
 	try {
-		LocalBroker server(argv[1], groups,argv[2]);
-
-		server.run();
+		server = new LocalBroker(argv [1], groups, argv [2]);
 	} catch (OSError & e) {
 		std::cerr << "Error puerto en uso" << std::endl;
 		std::cerr << e.what() << std::endl;
 	}
+
+	server->run();
 
 }
 catch (const std::exception & e) {

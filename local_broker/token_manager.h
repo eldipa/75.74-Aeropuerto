@@ -13,8 +13,11 @@
 #include "group_comm_manager.h"
 #include <vector>
 #include <map>
+#include "signalhandler.h"
+#include "eventhandler.h"
 
-class TokenManager {
+
+class TokenManager : EventHandler {
 private:
 	MessageQueue clientes;
 	std::map<std::string, Grupo *> grupos;
@@ -28,6 +31,10 @@ private:
 
 	size_t memoria_total;
 	size_t cantidad_de_grupos;
+
+	sig_atomic_t salir;
+
+	virtual void handleSignal(int signum);
 
 	void agregar_grupo_a_tabla_creados(const char nombre_grupo [MAX_NOMBRE_RECURSO]);
 	void crear_grupo(const std::string & directorio_de_trabajo,

@@ -30,6 +30,8 @@
 #include <cstring>
 #include "oserror.h"
 #include "log.h"
+#include <cerrno>
+#include "interrupted.h"
 
 #include "semaphoreset.h"
 #include "commonipc.h"
@@ -128,6 +130,10 @@ void SemaphoreSet::op(int semnum, bool signal_action) {
    dataop.sem_op = signal_action? 1 : -1;
    dataop.sem_flg = 0;
    if(semop(fd, &dataop, 1) == -1) {
+	   if(errno == EINTR){
+		   throw InterruptedSyscall("The syscall semop %s was interrupted in semaphore %d",
+			   signal_action ? "signal":"wait",semnum);
+	   }
       throw OSError("The semaphore number %i in the set "
             MESSAGE_Key_Path_Permissions
             " cannot be %s",

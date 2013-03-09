@@ -65,6 +65,7 @@ LocalBrokerComm::LocalBrokerComm(const std::string & directorio_de_trabajo, cons
 
 LocalBrokerComm::~LocalBrokerComm() {
 	ControlTokens::destroy_instance();
+	SignalHandler::destruir();
 }
 
 void LocalBrokerComm::handleSignal(int signum) {
@@ -416,9 +417,13 @@ void LocalBrokerComm::loop_mutex() {
 			loop_mutex_padre();
 			int status = -1;
 			kill(pid_hijo, SIGUSR1);
+#if DEBUG_LOCAL_BROKER_COMM == 1
 			std::cout << nombre_aplicacion << "(" << nombre_grupo << "): esperando hijo" << std::endl;
+#endif
 			waitpid(pid_hijo, &status, 0);
+#if DEBUG_LOCAL_BROKER_COMM == 1
 			std::cout << nombre_aplicacion << "(" << nombre_grupo << "): hijo termino" << std::endl;
+#endif
 		} else {
 			loop_mutex_hijo();
 		}
@@ -468,12 +473,9 @@ void LocalBrokerComm::loop_semaforo_hijo() {
 
 			send_token();
 
-		} catch (CommError & error) {
-			Log::crit(error.what());
-			break;
-
-		} catch (OSError & error) {
-			Log::crit(error.what());
+		}  catch (OSError & error) {
+			Log::alert("%s(%s): Broken Pipe\n",nombre_aplicacion.c_str(),nombre_grupo.c_str());
+			//Log::alert(error.what());
 			break;
 		}
 	}
@@ -495,9 +497,13 @@ void LocalBrokerComm::loop_semaforo() {
 			loop_semaforo_padre();
 			int status = -1;
 			kill(pid_hijo, SIGUSR1);
+#if DEBUG_LOCAL_BROKER_COMM == 1
 			std::cout << nombre_aplicacion << "(" << nombre_grupo << "): esperando hijo" << std::endl;
+#endif
 			waitpid(pid_hijo, &status, 0);
+#if DEBUG_LOCAL_BROKER_COMM == 1
 			std::cout << nombre_aplicacion << "(" << nombre_grupo << "): hijo termino" << std::endl;
+#endif
 		} else {
 			loop_semaforo_hijo();
 		}

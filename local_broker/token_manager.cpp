@@ -12,6 +12,7 @@
 #include <cstdio>
 #include "log.h"
 #include "oserror.h"
+#include "interrupted.h"
 #include "genericerror.h"
 #include <fcntl.h>
 #include <unistd.h>
@@ -41,6 +42,8 @@ TokenManager::TokenManager(const std::string & directorio, const std::string & g
 	manager.levantar_multiplexor(1);
 #endif
 
+	salir = 0;
+	SignalHandler::getInstance()->registrarHandler(SIGTERM, this);
 	//Grupo::alocar_memoria_grupo(directorio, memoria_total, cantidad_de_grupos);
 }
 
@@ -54,6 +57,16 @@ TokenManager::~TokenManager() {
 	}
 	manager.bajar_servicio();
 	delete grupo_maestro;
+	SignalHandler::destruir();
+}
+
+void TokenManager::handleSignal(int signum) {
+	if (signum == SIGTERM) {
+#if DEBUG_TOKEN_MANAGER == 1
+		std::cout << "Token Manager-" << getpid() << ": señal recibida salir = 1" << std::endl;
+#endif
+		salir = 1;
+	}
 }
 
 void TokenManager::chequear_memoria_disponible() {
@@ -176,7 +189,6 @@ void TokenManager::crear_grupo(const std::string & directorio_de_trabajo, const 
 }
 
 void TokenManager::run() {
-	bool salir = false;
 	traspaso_token_t mensaje;
 	Grupo * g;
 	std::string recurso;
@@ -194,7 +206,7 @@ void TokenManager::run() {
 	 ((char *)g->memory_pointer()) [1023] = '\0';
 	 std::cout << (char *)g->memory_pointer() << std::endl;*/
 
-	ignore_signals();
+	//ignore_signals();
 	//char data [30];
 
 	//std::cout << data << std::endl;
@@ -202,31 +214,34 @@ void TokenManager::run() {
 		try {
 			// Recibo todos los tokens
 			clientes.pull(&mensaje, sizeof(traspaso_token_t) - sizeof(long), 0);
-			//Me fijo que token me dieron
-			recurso.assign(mensaje.recurso);
-			if (mensaje.tipo == 3) {
-				//
-				if (!grupo_maestro->existe_grupo(recurso.c_str())) {
-					this->crear_grupo(this->directorio_de_trabajo, this->groups_file, recurso);
-				}
-			} else {
-				if (grupos.count(recurso) < 1) {
-					Log::crit("Error: Grupo %s no encontrado", mensaje.recurso);
-					//	throw GenericError("Error: Grupo %s no encontrado", mensaje.recurso);
-				}
-				g = grupos.at(recurso);
-				//sleep(1);
+			if (salir == 0) {
+				//Me fijo que token me dieron
+				recurso.assign(mensaje.recurso);
+				if (mensaje.tipo == 3) {
+					if (!grupo_maestro->existe_grupo(recurso.c_str())) {
+						this->crear_grupo(this->directorio_de_trabajo, this->groups_file, recurso);
+					}
+				} else {
+					if (grupos.count(recurso) < 1) {
+						Log::crit("Error: Grupo %s no encontrado", mensaje.recurso);
+						//	throw GenericError("Error: Grupo %s no encontrado", mensaje.recurso);
+					}
+					g = grupos.at(recurso);
+					//sleep(1);
 
-				g->replicar_brokers();
-				g->pasar_token_a_proximo_cliente();
+					g->replicar_brokers();
+					g->pasar_token_a_proximo_cliente();
+				}
+				usleep(350000);
 			}
-			usleep(350000);
 		} catch (OSError & error) {
 			Log::crit("%s", error.what());
-			//std::cerr << error.what() << std::endl;
-			salir = true;
+			salir = 1;
+		} catch (InterruptedSyscall & interruption) {
+			Log::info("Cerrando token Manager");
+			salir = 1;
 		}
-	} while (!salir);
+	} while (salir == 0);
 }
 
 int main(int argc, char * argv [])

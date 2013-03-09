@@ -33,13 +33,13 @@ EventHandler* SignalHandler::registrarHandler(int signum, EventHandler* eh) {
 
 	error = sigemptyset(&sa.sa_mask);
 	if (error != 0) {
-		perror("No se puede vaiar la mascara");
+		perror("No se puede vaiar la mascara\n");
 		//throw Error
 	}
 	sa.sa_flags = 0;
 	error = sigaction(signum, &sa, 0); // cambiar accion de la senial
 	if (error != 0) {
-		perror("No se pudo registrar el manejador de señal");
+		perror("No se pudo registrar el manejador de señal\n");
 		//throw Error
 	}
 	return old_eh;
