@@ -21,7 +21,7 @@ typedef enum {
 } peticiones_t;
 
 typedef enum {
-	OK, ERROR,LEAVE_OK
+	OK, ERROR, LEAVE_OK, R_TOKEN, R_TOKEN_CHECK
 } respuestas_t;
 
 typedef struct {

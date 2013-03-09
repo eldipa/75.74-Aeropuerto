@@ -104,7 +104,7 @@ Grupo::Grupo(const std::string & directorio_de_trabajo, std::string nombre_recur
 		*mem_size = tamanio_memoria;
 		*avisar_envio = 0;
 
-		*tengo_token = 0;
+		*tengo_token_grupo = 0;
 		cliente_actual = 0;
 		token_owner = -1;
 		*token_enviado = 1;
@@ -141,9 +141,9 @@ void Grupo::asignar_punteros(void * p) {
 	for (int i = 1 ; i < MAX_CLIENTS ; i++) {
 		client_names [i] = client_names [i - 1] + MAX_NOMBRE_RECURSO * sizeof(char);
 	}
-	tengo_token = reinterpret_cast<int *>(client_names [0] + MAX_CLIENTS * MAX_NOMBRE_RECURSO * sizeof(char));
-
-	token_enviado = tengo_token + 1;
+	tengo_token_grupo = reinterpret_cast<int *>(client_names [0] + MAX_CLIENTS * MAX_NOMBRE_RECURSO * sizeof(char));
+	tengo_token_cliente = tengo_token_grupo + 1;
+	token_enviado = tengo_token_cliente + 1;
 	avisar_envio = token_enviado + 1;
 	memoria_compartida = reinterpret_cast<void *>(avisar_envio + 1);
 }
@@ -181,8 +181,9 @@ void Grupo::join(const char nombre [MAX_NOMBRE_RECURSO]) {
 	}
 
 	Log::debug("Joined: %s to %s\n", nombre, this->nombre_recurso.c_str());
-	//std::cout << "Joined: " << nombre << " to " << this->nombre_recurso << std::endl;
-
+#if DEBUG_TOKEN_MANAGER==1
+	std::cout << "Joined: " << nombre << " to " << this->nombre_recurso << std::endl;
+#endif
 	semaforos.signalize(mutex_asignado);
 }
 
@@ -212,8 +213,9 @@ void Grupo::leave(const char nombre [MAX_NOMBRE_RECURSO]) {
 		}
 	}
 	Log::debug("Leave: %s from %s\n", nombre, this->nombre_recurso.c_str());
-	//std::cout << "Leave: " << nombre << " from " << this->nombre_recurso << std::endl;
-
+#if DEBUG_TOKEN_MANAGER==1
+	std::cout << "Leave: " << nombre << " from " << this->nombre_recurso << std::endl;
+#endif
 	semaforos.signalize(mutex_asignado);
 }
 
@@ -282,16 +284,18 @@ void Grupo::pasar_token_a_proximo_cliente() {
 	}
 
 	if (strncmp(client_names [cliente_actual], "localbroker", strlen("localbroker")) == 0) {
-		*tengo_token = 0;
+		*tengo_token_grupo = 0;
 		*token_enviado = 0;
 	} else {
-		*tengo_token = 1;
+		*tengo_token_grupo = 1;
 	}
+	*tengo_token_cliente = cliente_actual;
 
 	//if (this->nombre_recurso == "cinta_principal" || this->nombre_recurso.substr(0, 4) == "cpp_") {
-	//std::cout << "Passing Token from " << this->nombre_recurso.c_str() << " to: " << client_names [cliente_actual]
-	//	<< " (" << cliente_actual << ")\n";
-
+#if DEBUG_TOKEN_MANAGER==1
+	std::cout << "Passing Token from " << this->nombre_recurso.c_str() << " to: " << client_names [cliente_actual]
+		<< " (" << cliente_actual << ")\n";
+#endif
 	//Log::debug("Passing Token from %s to: %s (%d)\n", this->nombre_recurso.c_str(), client_names [cliente_actual],
 	//	cliente_actual);
 
@@ -387,7 +391,7 @@ void Grupo::inicializar_memoria(const std::string & init_file) {
 bool Grupo::tengo_el_token() {
 	bool result;
 	semaforos.wait_on(mutex_asignado);
-	result = (*tengo_token) == 1;
+	result = (*tengo_token_grupo) == 1;
 	semaforos.signalize(mutex_asignado);
 	return result;
 }
@@ -443,7 +447,7 @@ void Grupo::el_token_se_envio() {
 
 void Grupo::avisar_si_se_esta_enviando_token() {
 	semaforos.wait_on(mutex_asignado);
-	if (*tengo_token == 0 && *token_enviado == 0) {
+	if (*tengo_token_grupo == 0 && *token_enviado == 0) {
 		(*avisar_envio) = 1;
 	}
 	semaforos.signalize(mutex_asignado);
@@ -453,6 +457,18 @@ bool Grupo::tengo_que_avisar_envio() {
 	bool result;
 	semaforos.wait_on(mutex_asignado);
 	result = ((*avisar_envio) == 1);
+	semaforos.signalize(mutex_asignado);
+	return result;
+}
+
+bool Grupo::tengo_el_token_cliente(){
+	bool result;
+	semaforos.wait_on(mutex_asignado);
+	if(numero_cola_asignada - numero_base_cola_asignada == *tengo_token_cliente){
+		result = true;
+	}else {
+		result = false;
+	}
 	semaforos.signalize(mutex_asignado);
 	return result;
 }

@@ -138,7 +138,7 @@ try
 
 	ApiCheckIn checkin(argv [1], argv [2], atoi(argv [3]), atoi(argv [4]), true);
 
-	for (int i = 0 ; i < 3 ; i++) {
+	for (int i = 0 ; i < 4 ; i++) {
 
 		Equipaje equipaje(Rfid(i, 1000));
 		equipaje.set_descripcion("Descripcion");

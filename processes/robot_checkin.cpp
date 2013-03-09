@@ -113,7 +113,7 @@ try
 
 	// cada robot de checkin distribuye entre n scanners
 	Equipaje equipaje(Rfid(0, 1000));
-	for (int i = 0 ; i < 3 ; i++) {
+	for (int i = 0 ; i < 4 ; i++) {
 
 		printf("Extraer equipaje cinta checkin\n");
 		equipaje = cinta_checkin.sacar_equipaje();

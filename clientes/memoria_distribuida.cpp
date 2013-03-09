@@ -104,6 +104,7 @@ MemoriaDistribuida::~MemoriaDistribuida() {
 void MemoriaDistribuida::lock() {
 	control->cargar_esperando_token(nombre_recurso.c_str());
 	mutex->wait_on(0);
+	control->limpiar_esperando_token();
 }
 
 void MemoriaDistribuida::unlock() {

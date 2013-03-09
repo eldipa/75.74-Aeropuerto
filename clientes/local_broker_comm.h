@@ -50,11 +50,7 @@ private:
 	ControlTokens * control;
 
 	sig_atomic_t salir;
-	sig_atomic_t leyendo_de_socket;
-	sig_atomic_t esperando_aplicacion;
-	sig_atomic_t recibi_algo_del_token;
 	sig_atomic_t tengo_token;
-
 
 	void registrar();
 	void join();
@@ -70,6 +66,8 @@ private:
 	void loop_semaforo_padre();
 	void loop_semaforo_hijo();
 
+	void wait_token();
+	void send_token();
 	void wait_token(void * memory);
 	void send_token(void * memory);
 

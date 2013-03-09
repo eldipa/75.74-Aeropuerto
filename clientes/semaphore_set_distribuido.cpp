@@ -100,6 +100,7 @@ void SemaphoreSetDistribuido::wait_on(int num_sem) {
 	ss << num_sem;
 	control->cargar_esperando_token(std::string(nombre_recurso).append(ss.str()).c_str());
 	semaforos->wait_on(num_sem);
+	control->limpiar_esperando_token();
 }
 
 void SemaphoreSetDistribuido::signalize(int num_sem) {

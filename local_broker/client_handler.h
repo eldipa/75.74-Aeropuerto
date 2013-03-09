@@ -12,8 +12,10 @@
 #include "messagequeue.h"
 #include "grupo.h"
 #include "socket.h"
+#include "signalhandler.h"
+#include "eventhandler.h"
 
-class ClientHandler {
+class ClientHandler: EventHandler {
 private:
 	void procesar_peticion(mensajes::mensajes_local_broker_t & mensaje);
 	Socket socket;
@@ -31,12 +33,27 @@ private:
 	int * cantidad_clientes_esperando;
 	char * grupos_creados [MAX_GRUPOS];
 
+	mensajes::mensajes_local_broker_token_t mensaje;
+
+	sig_atomic_t salir;
+	sig_atomic_t tengo_token;
+	sig_atomic_t chequear_asignacion;
+
 	void avisar_creacion_grupo(const std::string & nombre_grupo);
 	void registrar_cliente(const std::string & nombre_cliente);
 	void join_group(const std::string & grupo);
 	void leave_group();
-	void loop_token_fork();
+	void loop_semaforo_padre();
+	void chequear_status_salida_hijo();
+	void loop_semaforo_hijo();
+	void loop_semaforo();
+	void loop_memoria();
 	void loop_token();
+
+	virtual void handleSignal(int signum);
+
+	void send_token_sem();
+	void recv_token_sem();
 
 	void send_token();
 	size_t recv_token();

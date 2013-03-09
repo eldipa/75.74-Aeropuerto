@@ -28,6 +28,7 @@
 
 #include <sys/msg.h>
 #include "oserror.h"
+#include "interrupted.h"
 #include "log.h"
 
 #include "messagequeue.h"
@@ -87,6 +88,9 @@ void MessageQueue::push(const void *msg, size_t size_txt) {
 ssize_t MessageQueue::pull(void *msg, size_t max_size_txt, long type) {
    ssize_t copyied = msgrcv(fd, msg, max_size_txt, type, 0);
    if(copyied == -1) {
+	   if(errno == EINTR){
+		   throw InterruptedSyscall("Interrupted Syscall in msgrcv");
+	   }
       throw OSError("The message (text) of at most %i bytes and type '%i' in the queue "
             MESSAGE_Key_Path_Permissions
             " cannot be recieved", 

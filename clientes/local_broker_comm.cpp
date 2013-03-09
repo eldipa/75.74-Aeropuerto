@@ -10,14 +10,24 @@
 #include <cstring>
 #include <iostream>
 #include <cstdlib>
+#include <sys/wait.h>
+#include <unistd.h>
+
 #include "genericerror.h"
 #include "control_tokens.h"
 #include "commerror.h"
-#include <sys/wait.h>
-#include <unistd.h>
+#include "interrupted.h"
 #include "daemon.h"
 #include "log.h"
 #include "debug_flags.h"
+
+void print_ints(int *p, int cant) {
+	std::cout << p [0];
+	for (int i = 1 ; i < cant ; i++) {
+		std::cout << " " << p [i];
+	}
+	std::cout << std::endl;
+}
 
 LocalBrokerComm::LocalBrokerComm(const std::string & directorio_de_trabajo, const std::string & app_name,
 	const std::string & group_name, const std::vector<std::string> & broker_hostnames,
@@ -54,10 +64,6 @@ LocalBrokerComm::LocalBrokerComm(const std::string & directorio_de_trabajo, cons
 }
 
 LocalBrokerComm::~LocalBrokerComm() {
-	try {
-		leave();
-	} catch (OSError &) {
-	}
 	ControlTokens::destroy_instance();
 }
 
@@ -65,22 +71,16 @@ void LocalBrokerComm::handleSignal(int signum) {
 	if (signum == SIGUSR1) {
 		salir = 1;
 #if DEBUG_LOCAL_BROKER_COMM == 1
-		std::cout << getpid() << ": señal recibida salir = 1" << std::endl;
+		std::cout << nombre_aplicacion << "(" << nombre_grupo << "-" << getpid() << "): señal recibida salir = 1"
+			<< std::endl;
 #endif
 	} else if (signum == SIGUSR2) {
 		salir = 2;
 #if DEBUG_LOCAL_BROKER_COMM == 1
-		std::cout << getpid() << ": señal recibida salir = 2" << std::endl;
+		std::cout << nombre_aplicacion << "(" << nombre_grupo << "-" << getpid() << "): señal recibida salir = 2"
+			<< std::endl;
 #endif
 	}
-}
-
-void print_ints(int *p, int cant) {
-	std::cout << p [0];
-	for (int i = 1 ; i < cant ; i++) {
-		std::cout << " " << p [i];
-	}
-	std::cout << std::endl;
 }
 
 void LocalBrokerComm::registrar() {
@@ -193,23 +193,83 @@ void LocalBrokerComm::reconectar() {
 }
 
 void LocalBrokerComm::leave() {
-	/*mensajes::mensajes_local_broker_token_t mensaje;
-	 try {
-	 #if DEBUG_LOCAL_BROKER_COMM == 1
-	 std::cout << nombre_aplicacion << " " << nombre_grupo << " Enviando LEAVED" << std::endl;
-	 #endif
-	 mensaje.peticion = mensajes::LEAVED;
-	 socket_broker->sendsome((char *)&mensaje, sizeof(mensajes::mensajes_local_broker_token_t));
-	 #if DEBUG_LOCAL_BROKER_COMM == 1
-	 std::cout << nombre_aplicacion << " " << nombre_grupo << " Waiting LEAVED Reply" << std::endl;
-	 #endif
-	 socket_broker->receivesome((char *)&mensaje, sizeof(mensajes::mensajes_local_broker_token_t));
-	 #if DEBUG_LOCAL_BROKER_COMM == 1
-	 std::cout << nombre_aplicacion << " " << nombre_grupo << " Finishing" << std::endl;
-	 #endif
-	 socket_broker->disassociate();
-	 } catch (OSError &) {
-	 }*/
+	mensajes::mensajes_local_broker_token_t mensaje;
+	mensaje.peticion = mensajes::LEAVE;
+	try {
+		do {
+#if DEBUG_LOCAL_BROKER_COMM == 1
+			std::cout << nombre_aplicacion << "(" << nombre_grupo << ") Enviando Leave " << "" << std::endl;
+#endif
+			socket_broker->sendsome((char *)&mensaje, sizeof(mensajes::mensajes_local_broker_token_t));
+#if DEBUG_LOCAL_BROKER_COMM == 1
+			std::cout << nombre_aplicacion << "(" << nombre_grupo << ") Esperando respuesta Leave" << std::endl;
+#endif
+			if (tipo_de_recurso != SHAREDMEMORY) {
+				socket_broker->receivesome((char *)&mensaje, sizeof(mensajes::mensajes_local_broker_token_t));
+				if (mensaje.respuesta == mensajes::R_TOKEN) {
+#if DEBUG_LOCAL_BROKER_COMM == 1
+					std::cout << nombre_aplicacion << "(" << nombre_grupo << ") Recibido Token" << std::endl;
+#endif
+					mensaje.peticion = mensajes::TOKEN_LEAVE;
+				} else {
+#if DEBUG_LOCAL_BROKER_COMM == 1
+					std::cout << nombre_aplicacion << "(" << nombre_grupo << ") Recibido R_TOKEN_CHECK" << std::endl;
+#endif
+					mensaje.peticion = mensajes::LEAVE;
+				}
+			} else {
+				mensaje.respuesta = mensajes::LEAVE_OK;
+			}
+		} while (mensaje.respuesta != mensajes::LEAVE_OK);
+#if DEBUG_LOCAL_BROKER_COMM == 1
+		std::cout << nombre_aplicacion << " " << nombre_grupo << " Terminando" << std::endl;
+#endif
+		socket_broker->disassociate();
+	} catch (OSError &) {
+	}
+}
+
+void LocalBrokerComm::wait_token() {
+	ssize_t leidos;
+
+	tengo_token = 0;
+	try {
+		leidos = socket_broker->receivesome((char *)&mensaje, sizeof(mensajes::mensajes_local_broker_token_t));
+		tengo_token = 1;
+
+		if (leidos == 0) {
+			throw CommError("El broker cerro la conexion\n");
+		}
+	} catch (InterruptedSyscall & interruption) {
+#if DEBUG_LOCAL_BROKER_COMM == 1
+		std::cout << nombre_aplicacion << "(" << nombre_grupo << "): Interrupted receive" << std::endl;
+		//std::cout << nombre_aplicacion << "(" << nombre_grupo << "): " << interruption.what() << std::endl;
+#endif
+		Log::alert(interruption.what());
+		tengo_token = 0;
+	}
+
+#if DEBUG_LOCAL_BROKER_COMM == 1
+	std::cout << nombre_aplicacion << "(" << nombre_grupo << ") tengo token: " << std::endl;
+#endif
+}
+
+void LocalBrokerComm::send_token() {
+	bool reintentar = true;
+	mensaje.peticion = mensajes::TOKEN_FREE;
+
+	while (reintentar) {
+		try {
+			socket_broker->sendsome((char *)&mensaje, sizeof(mensajes::mensajes_local_broker_token_t));
+			reintentar = false;
+		} catch (InterruptedSyscall & interruption) {
+			Log::alert(interruption.what());
+			reintentar = true;
+		}
+	}
+#if DEBUG_LOCAL_BROKER_COMM == 1
+	std::cout << "Enviado token " << nombre_grupo << std::endl;
+#endif
 }
 
 void LocalBrokerComm::wait_token(void * memory) {
@@ -217,15 +277,12 @@ void LocalBrokerComm::wait_token(void * memory) {
 	size_t cant = 0;
 	size_t i;
 
-	recibi_algo_del_token = 0;
-	for (i = 0; i < this->cantidad_de_bloques && salir == 0 ; i++) {
+	for (i = 0; i < this->cantidad_de_bloques ; i++) {
 		cant = 0;
 
 		do {
-			leyendo_de_socket = 1;
 			leidos = socket_broker->receivesome((char *)&mensaje + cant,
 				sizeof(mensajes::mensajes_local_broker_token_t) - cant);
-			recibi_algo_del_token = 1;
 
 			if (leidos == 0) {
 				throw CommError("El broker cerro la conexion\n");
@@ -247,7 +304,7 @@ void LocalBrokerComm::wait_token(void * memory) {
 	}
 	tengo_token = 1;
 #if DEBUG_LOCAL_BROKER_COMM == 1
-	std::cout << nombre_aplicacion << "(" << nombre_grupo << ") tengo token: " << std::endl;
+	std::cout << nombre_aplicacion << "(" << nombre_grupo << ") tengo token" << std::endl;
 #endif
 }
 
@@ -267,17 +324,18 @@ void LocalBrokerComm::send_token(void * memory) {
 			enviados = 0;
 			while (enviados < sizeof(mensajes::mensajes_local_broker_token_t)) {
 				mensaje.peticion = (salir == 0) ? mensajes::TOKEN_FREE : mensajes::TOKEN_LEAVE;
-				enviados += socket_broker->sendsome((char *)&mensaje + enviados,
-					sizeof(mensajes::mensajes_local_broker_token_t) - enviados);
+				try {
+					enviados += socket_broker->sendsome((char *)&mensaje + enviados,
+						sizeof(mensajes::mensajes_local_broker_token_t) - enviados);
+				} catch (InterruptedSyscall & interruption) {
+					Log::alert(interruption.what());
+				}
 			}
 			tengo_token = false;
 		} catch (OSError & error) {
 			throw CommError("%s", error.what());
 		}
 #if DEBUG_LOCAL_BROKER_COMM == 1
-		if (nombre_grupo == "cpp_sem_cons_0") {
-			std::cout << "Enviado token cpp_sem_cons_0" << std::endl;
-		}
 		if (i == 0 && tamanio_memoria != 0) {
 			std::cout << nombre_aplicacion << " Enviado: ";
 			print_ints((int *)memory, 9);
@@ -289,82 +347,114 @@ void LocalBrokerComm::send_token(void * memory) {
 void LocalBrokerComm::loop_mutex_padre() {
 	while (salir == 0) {
 		try {
-			wait_token(NULL);
-			if (control->comparar_token(nombre_grupo.c_str())) {
-				mutex->entregar_token();
-			} else {
-				// devuelvo el token al local_broker
-				mutex->forwardear_token();
+			wait_token();
+			if (tengo_token == 1) {
+				if (control->comparar_token(nombre_grupo.c_str())) {
+					mutex->entregar_token();
+				} else {
+					// devuelvo el token al local_broker
+#if DEBUG_LOCAL_BROKER_COMM == 1
+					std::cout << "Forward token " << nombre_grupo << std::endl;
+#endif
+					mutex->forwardear_token();
+					tengo_token = 0;
+				}
 			}
 		} catch (CommError & error) {
+#if DEBUG_LOCAL_BROKER_COMM == 1
+			std::cout << "CommError " << nombre_grupo << std::endl;
+			std::cout << error.what() << std::endl;
+#endif
+			salir = 1;
 			Log::crit(error.what());
 			break;
 		} catch (OSError & error) {
+#if DEBUG_LOCAL_BROKER_COMM == 1
+			std::cout << "OSerror " << nombre_grupo << std::endl;
+#endif
 			Log::crit(error.what());
+			salir = 1;
 			break;
 		}
 	}
 }
 
 void LocalBrokerComm::loop_mutex_hijo() {
+
 	while (salir == 0) { // hijo envia token
 		try {
 
 			mutex->esperar_token();
-			//Log::debug("Devolviendo token %s (%s)", nombre_grupo.c_str(), nombre_aplicacion.c_str());
-			send_token(NULL);
+
+			send_token();
 
 		} catch (CommError & error) {
 			Log::crit(error.what());
 			break;
+
 		} catch (OSError & error) {
 			Log::crit(error.what());
 			break;
 		}
 	}
+
+	leave();
 }
 
 void LocalBrokerComm::loop_mutex() {
-
 	pid_t pid_hijo;
 
 	ignore_signals();
 
 	while (salir == 0) {
 		reconectar();
-
+		ignore_signals();
 		pid_hijo = fork();
+
 		if (pid_hijo) { // padre recibe token
+			ignore_childs();
 			loop_mutex_padre();
+			int status = -1;
+			kill(pid_hijo, SIGUSR1);
+			std::cout << nombre_aplicacion << "(" << nombre_grupo << "): esperando hijo" << std::endl;
+			waitpid(pid_hijo, &status, 0);
+			std::cout << nombre_aplicacion << "(" << nombre_grupo << "): hijo termino" << std::endl;
 		} else {
 			loop_mutex_hijo();
 		}
-	}
-	if (LocalBrokerComm::salir == 1 && pid_hijo != 0) {
-		int status = -1;
-		kill(pid_hijo, SIGUSR1);
-		waitpid(pid_hijo, &status, 0);
 	}
 }
 
 void LocalBrokerComm::loop_semaforo_padre() {
 	while (salir == 0) {
 		try {
-			wait_token(NULL);
-			if (control->comparar_token(nombre_grupo.c_str())) {
-				semaforo->entregar_token(numero_de_semaforo);
-			} else {
-				// devuelvo el token al local_broker
+			wait_token();
+			if (tengo_token == 1) {
+				if (control->comparar_token(nombre_grupo.c_str())) {
+					semaforo->entregar_token(numero_de_semaforo);
+				} else {
+					// devuelvo el token al local_broker
 #if DEBUG_LOCAL_BROKER_COMM == 1
-				std::cout << "Forward token " << nombre_grupo << std::endl;
+					std::cout << "Forward token " << nombre_grupo << std::endl;
 #endif
-				semaforo->forwardear_token(numero_de_semaforo);
+					semaforo->forwardear_token(numero_de_semaforo);
+					tengo_token = 0;
+				}
 			}
 		} catch (CommError & error) {
+#if DEBUG_LOCAL_BROKER_COMM == 1
+			std::cout << "CommError " << nombre_grupo << std::endl;
+			std::cout << error.what() << std::endl;
+#endif
+			salir = 1;
 			Log::crit(error.what());
 			break;
 		} catch (OSError & error) {
+#if DEBUG_LOCAL_BROKER_COMM == 1
+			std::cout << "OSerror " << nombre_grupo << std::endl;
+#endif
 			Log::crit(error.what());
+			salir = 1;
 			break;
 		}
 	}
@@ -375,8 +465,8 @@ void LocalBrokerComm::loop_semaforo_hijo() {
 		try {
 
 			semaforo->esperar_token(numero_de_semaforo);
-			//Log::debug("Devolviendo token %s (%s)", nombre_grupo.c_str(), nombre_aplicacion.c_str());
-			send_token(NULL);
+
+			send_token();
 
 		} catch (CommError & error) {
 			Log::crit(error.what());
@@ -387,6 +477,9 @@ void LocalBrokerComm::loop_semaforo_hijo() {
 			break;
 		}
 	}
+
+	// hijo envia FIN
+	leave();
 }
 
 void LocalBrokerComm::loop_semaforo() {
@@ -400,20 +493,14 @@ void LocalBrokerComm::loop_semaforo() {
 		if (pid_hijo) { // padre recibe token
 			ignore_childs();
 			loop_semaforo_padre();
+			int status = -1;
+			kill(pid_hijo, SIGUSR1);
+			std::cout << nombre_aplicacion << "(" << nombre_grupo << "): esperando hijo" << std::endl;
+			waitpid(pid_hijo, &status, 0);
+			std::cout << nombre_aplicacion << "(" << nombre_grupo << "): hijo termino" << std::endl;
 		} else {
 			loop_semaforo_hijo();
 		}
-	}
-	if (LocalBrokerComm::salir == 1 && pid_hijo != 0) {
-		int status = -1;
-		kill(pid_hijo, SIGUSR1);
-#if DEBUG_LOCAL_BROKER_COMM == 1
-		std::cout << nombre_aplicacion << "( " << nombre_grupo << "): esperando hijo" << std::endl;
-#endif
-		waitpid(pid_hijo, &status, 0);
-#if DEBUG_LOCAL_BROKER_COMM == 1
-		std::cout << nombre_aplicacion << "( " << nombre_grupo << "): hijo termino" << std::endl;
-#endif
 	}
 }
 
@@ -444,6 +531,18 @@ void LocalBrokerComm::loop_memoria() {
 				break;
 			}
 		}
+	}
+	leave();
+}
+
+void LocalBrokerComm::run() {
+
+	if (tipo_de_recurso == SEMAFORO) {
+		loop_semaforo();
+	} else if (tipo_de_recurso == MUTEX) {
+		loop_mutex();
+	} else if (tipo_de_recurso == SHAREDMEMORY) {
+		loop_memoria();
 	}
 }
 
@@ -479,17 +578,6 @@ void print_args(int argc, char * argv []) {
 		std::cout << " " << argv [i];
 	}
 	std::cout << std::endl;
-}
-
-void LocalBrokerComm::run() {
-
-	if (tipo_de_recurso == SEMAFORO) {
-		loop_semaforo();
-	} else if (tipo_de_recurso == MUTEX) {
-		loop_mutex();
-	} else if (tipo_de_recurso == SHAREDMEMORY) {
-		loop_memoria();
-	}
 }
 
 void obtener_lista_de_brokers(std::vector<std::string> & brokers, std::vector<std::string> & servicios, char * archivo)
@@ -571,7 +659,6 @@ try
 
 	comunicacion.run();
 
-	sleep(2);
 }
 catch (CommError & e) {
 //std::cerr << e.what() << std::endl;

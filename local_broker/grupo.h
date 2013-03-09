@@ -11,6 +11,7 @@
 #include "sharedmemory.h"
 #include "semaphoreset.h"
 #include "messagequeue.h"
+#include "debug_flags.h"
 
 #include "local_broker_messages.h"
 #include "local_broker_constants.h"
@@ -32,7 +33,8 @@ private:
 	size_t * mem_size;
 	char * client_names [MAX_CLIENTS];
 	unsigned short * colas_asignadas;
-	int * tengo_token;
+	int * tengo_token_grupo;
+	int * tengo_token_cliente;
 	int * token_enviado;
 	int * avisar_envio;
 	int * id;
@@ -89,6 +91,7 @@ public:
 	void inicializar_memoria(const std::string & init_file);
 
 	bool tengo_el_token();
+	bool tengo_el_token_cliente();
 	bool esta_enviando_token();
 	void el_token_se_envio();
 	void avisar_si_se_esta_enviando_token();
