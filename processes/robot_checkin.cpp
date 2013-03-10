@@ -34,17 +34,18 @@ try
 
 	// cada robot de checkin distribuye entre n scanners
 	for (;;) {
-		Log::info("va a sacar equipaje.");
 
 		sleep(rand() % SLEEP_ROBOT_CHECKIN);
 
+		Log::info("Tomando equipaje de Cinta Checkin\n");
 		Equipaje equipaje = cinta_checkin.sacar_equipaje();
-		Log::info("sacó %s", equipaje.toString().c_str());
+		Log::info("Equipaje (%s) extraido de Cinta Checkin\n", equipaje.toString().c_str());
 
 		sleep(rand() % SLEEP_ROBOT_CHECKIN);
 
-		Log::info("pone %s en siguiente cinta", equipaje.toString().c_str());
+		Log::info("Coloco Equipaje (%s) en Cinta Scanner\n", equipaje.toString().c_str());
 		cinta_scanner.poner_equipaje(equipaje);
+		Log::info("Equipaje (%s) colocado en Cinta Scanner\n", equipaje.toString().c_str());
 	}
 }
 catch (const std::exception &e) {

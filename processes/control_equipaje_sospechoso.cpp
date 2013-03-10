@@ -15,9 +15,9 @@ int main(int argc, char* argv [])
 try
 {
 
-	if (argc < 5) {
+	if (argc < 3) {
 		Log::crit(
-			"Insuf parametros para controlador_equipajes_sospechosos,se esperaba (directorio_de_trabajo, config_file pos_consumidor_cinta_central,pos_productor_cinta_central)\n");
+			"Insuf parametros para controlador_equipajes_sospechosos,se esperaba (directorio_de_trabajo, config_file)\n");
 		exit(1);
 	}
 

@@ -38,8 +38,9 @@ try
 	Log::info("Iniciando scanner(%s), %s\n", argv [3], argv [4]);
 
 	for (;;) {
-		Log::info("Intentando tomar un nuevo equipaje de cinta de scanner\n");
+		Log::info("Tomando equipaje de Cinta Scanner\n");
 		Equipaje equipaje = cinta_scanner.sacar_equipaje();
+		Log::info("Equipaje (%s) extraido de Cinta Scanner\n", equipaje.toString().c_str());
 
 		Log::info("Escaneando equipaje %s\n", equipaje.toString().c_str());
 		equipaje.set_sospechoso((rand() % CANT_SOSPECHOSOS) == 0);
@@ -47,13 +48,14 @@ try
 		sleep(rand() % SLEEP_ROBOT_SCANNER);
 
 		if (equipaje.es_sospechoso()) {
-			Log::info("se encontro sospechoso el equipaje %s\n", equipaje.toString().c_str());
+			Log::info("Equipaje sospechoso (%s)\n", equipaje.toString().c_str());
 		} else {
-			Log::info("equipaje limpio: %s\n", equipaje.toString().c_str());
+			Log::info("Equipaje limpio (%s)\n", equipaje.toString().c_str());
 		}
 
-		Log::info("pasando equipaje a cinta central (%s)\n", argv [3]);
+		Log::info("Coloco Equipaje (%s) en Cinta Principal\n", equipaje.toString().c_str());
 		api_escaner_cinta_central.colocar_equipaje_en_cinta_principal(equipaje);
+		Log::info("Equipaje (%s) colocado en Cinta Principal\n", equipaje.toString().c_str());
 	}
 
 }

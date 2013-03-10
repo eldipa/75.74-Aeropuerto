@@ -131,11 +131,12 @@ void ApiCheckIn::registrar_equipaje(Equipaje& equipaje) {
 
 	(*vuelo_actual)->cant_equipajes++;
 
-   Log::debug("ApiCheckIn: Poniendo valija");
+	// los logs los pongo en el robot
+   //Log::debug("ApiCheckIn: Poniendo valija");
 #endif
 	cinta_checkin_out->poner_equipaje(equipaje, id_checkin);
 #if DEBUG_CINTA_CHECKIN == 0
-   Log::debug("ApiCheckIn: ok Poniendo valija total:%d", (*vuelo_actual)->cant_equipajes);
+   //Log::debug("ApiCheckIn: ok Poniendo valija total:%d", (*vuelo_actual)->cant_equipajes);
    equipaje = equipaje;
 #endif
 }

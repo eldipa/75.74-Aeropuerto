@@ -39,13 +39,13 @@ try {
 	for (;;) {
 		sleep(rand() % SLEEP_ROBOT_SOSPECHOSOS);
 
-		Log::info("esperando un equipaje sospechoso de cinta central(%s)\n", argv[4]);
+		Log::info("Tomando Equipaje Sospechoso de Cinta Principal\n");
 		Equipaje equipaje = api_control_equipajes.obtener_proximo_equipaje_sospechoso();
+		Log::info("Equipaje Sospechoso (%s) extraido de Cinta Principal\n", equipaje.toString().c_str());
 
-		Log::info("recibo equipaje %s y lo envío a control\n",
-			equipaje.toString().c_str());
-
+		Log::info("Enviando Equipaje Sospechoso (%s) a Control Equipajes\n", equipaje.toString().c_str());
 		api_control_equipajes.enviar_equipaje_a_control(equipaje);
+		Log::info("Equipaje Sospechoso (%s) enviado a Control Equipajes\n", equipaje.toString().c_str());
 	}
 
 }

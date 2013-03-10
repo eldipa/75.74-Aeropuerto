@@ -38,7 +38,7 @@ public:
 
 	std::string toString() const {
 		std::ostringstream ostream;
-		ostream << "Equipaje (" << rfid.rfid << ":" << this->descripcion << ")";
+		ostream << "( Rfid:" << rfid.rfid << ":vuelo " << rfid.numero_de_vuelo_destino << ":" << this->descripcion << ")";
 		return ostream.str();
 	}
 

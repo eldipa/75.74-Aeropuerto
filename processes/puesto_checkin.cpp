@@ -59,8 +59,9 @@ int main(int argc, char *argv[]) try {
 				//envio los equipajes a la cinta de checkin.
 				std::vector<Equipaje>::iterator it;
 				for( it=equipajes.begin();it!=equipajes.end();it++ ) {
-					Log::info("enviando equipaje %d a cinta de checkin\n", it->getRfid().rfid);
+					Log::info("Coloco Equipaje (%s) en Cinta Checkin\n", it->toString().c_str());
 					checkin.registrar_equipaje(*it);
+					Log::info("Equipaje (%s) colocado en Cinta Checkin\n", it->toString().c_str());
 				}
 
 			} else {

@@ -87,8 +87,9 @@ int main(int argc, char** argv) try {
 
 		while ( (!checkin_cerro) || (equipajes_cargados<equipajes_por_cargar) ) {
 			sleep(rand() % SLEEP_ROBOT_CARGA);
-			Log::info("Intentando tomar un nuevo equipaje de cinta(%s)\n",argv[3]);
+			Log::info("Tomando equipaje de Cinta Contenedor\n");
 			equipaje = api_carga.sacar_equipaje();
+			Log::info("Equipaje (%s) extraido de Cinta Contenedor\n", equipaje.toString().c_str());
 
 			//TODO: por ahora equipaje con rfid 0 es dummy(sale con este valor cuando se despierta la cinta por cierre de checkin)
 			if(equipaje.getRfid().rfid != 0) {

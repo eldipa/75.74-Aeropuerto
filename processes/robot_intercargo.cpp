@@ -29,8 +29,9 @@ try
 
 	for(;;) {
 		Equipaje equipaje_trasbordo = api_comm_aeropuerto.get_proximo_equipaje_intercargo(id_aeropuerto);
-		Log::info("Colocando equipaje %d:%s", equipaje_trasbordo.getRfid().rfid, equipaje_trasbordo.get_descripcion());
+		Log::info("Coloco Equipaje (%s) en Cinta Principal\n", equipaje_trasbordo.toString().c_str());
 		api_trasbordo.poner_en_cinta_principal(equipaje_trasbordo);
+		Log::info("Equipaje (%s) colocado en Cinta Principal\n", equipaje_trasbordo.toString().c_str());
 	}
 }
 
