@@ -21,6 +21,7 @@ public:
 	Equipaje(Rfid id, int peso = 0) :
 			rfid(id), _peso(peso) {
 		descripcion[0]='\0';
+		this->rfid.sospechoso = false;
 	}
 
 	Rfid getRfid() const {
