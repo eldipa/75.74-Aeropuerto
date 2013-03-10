@@ -44,6 +44,7 @@ TokenManager::TokenManager(const std::string & directorio, const std::string & g
 
 	salir = 0;
 	SignalHandler::getInstance()->registrarHandler(SIGTERM, this);
+	SignalHandler::getInstance()->registrarHandler(SIGINT, this);
 	//Grupo::alocar_memoria_grupo(directorio, memoria_total, cantidad_de_grupos);
 }
 
@@ -61,7 +62,8 @@ TokenManager::~TokenManager() {
 }
 
 void TokenManager::handleSignal(int signum) {
-	if (signum == SIGTERM) {
+	// PRIMERO RECIBE SEÑAL SIGINT DESDE CONSOLA
+	if (signum == SIGTERM || signum == SIGINT) {
 #if DEBUG_TOKEN_MANAGER == 1
 		std::cout << "Token Manager-" << getpid() << ": señal recibida salir = 1" << std::endl;
 #endif
@@ -206,7 +208,6 @@ void TokenManager::run() {
 	 ((char *)g->memory_pointer()) [1023] = '\0';
 	 std::cout << (char *)g->memory_pointer() << std::endl;*/
 
-	//ignore_signals();
 	//char data [30];
 
 	//std::cout << data << std::endl;

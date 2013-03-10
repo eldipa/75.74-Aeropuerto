@@ -12,6 +12,8 @@
 #include <cstdlib>
 #include "api_common.h"
 
+#define CANTIDAD_SEMAFOROS_CINTA_SCANNER (MAX_SCANNERS + 1)
+
 // 1 productor N consumidores 1 cinta(shared memory) por consumidor
 template <typename T>
 class CintaScanner {
@@ -22,13 +24,6 @@ private:
 	MemoriaDistribuida * cintas [MAX_SCANNERS];
 	MemoriaDistribuida * control;
 	SemaphoreSetDistribuido * semaforos;
-
-	// MUTEX
-	// 0 MUTEX CONTROL
-	// 1 MUTEX Scanner 1
-	// 2 MUTEX Scanner 2
-	// 3 MUTEX Scanner 3
-	// 4 MUTEX Scanner 4
 
 	// SEMAFOROS
 	// 5  0 Semaforo Espera Productor
@@ -48,10 +43,10 @@ private:
 	int proxima_cinta_a_colocar;
 	int numero_cinta;
 
-	int * cantidad_de_escaners_activos;
-	int * ids_escaners_activos;
-	int * cinta_llena;
-	int * productor_esperando;
+	int * control_cantidad_de_escaners_activos;
+	int * control_ids_escaners_activos;
+	int * control_cinta_llena;
+	int * control_productor_esperando;
 
 	void asignar_punteros(void * memory_pointer, int numero_cinta);
 	void inicializar_estructuras(int tamanio_vectores);
@@ -81,7 +76,7 @@ CintaScanner<T>::CintaScanner(const char * app_name, const char* directorio_de_t
 	//control = new SharedMemory(path_to_cinta_scanner, inicio_ids, 0, 0, false, false);
 	control = new MemoriaDistribuida(directorio_de_trabajo, app_name, (char *)"cinta_escaner_control", 0,
 		TAMANIO_MEMORIA_CONTROL_CINTA_SCANNER);
-	for (i = 0; i < MAX_SCANNERS ; i++) {
+	for (i = 0; i < MAX_SCANNERS  ; i++) {
 		//cintas [i] = new SharedMemory(path_to_cinta_scanner, i + inicio_ids + 1, 0, 0, false, false);
 		cintas [i] = new MemoriaDistribuida(directorio_de_trabajo, app_name,
 			std::string("cinta_escaner").append(intToString(i + 1)).c_str(), id_cinta - 1,
@@ -89,17 +84,17 @@ CintaScanner<T>::CintaScanner(const char * app_name, const char* directorio_de_t
 		asignar_punteros(cintas [i]->memory_pointer(), i);
 	}
 	valores.clear();
-	for (unsigned short j = 0 ; j < MAX_SCANNERS ; j++) {
+	for (unsigned short j = 0 ; j < CANTIDAD_SEMAFOROS_CINTA_SCANNER ; j++) {
 		valores.push_back(j);
 	}
 	semaforos = new SemaphoreSetDistribuido(valores, directorio_de_trabajo, app_name, "csc_semaforos_", id_cinta - 1,
-		MAX_SCANNERS);
+		CANTIDAD_SEMAFOROS_CINTA_SCANNER);
 	id_cinta = id_cinta;
 
-	cantidad_de_escaners_activos = static_cast<int *>(control->memory_pointer());
-	ids_escaners_activos = cantidad_de_escaners_activos + 1;
-	cinta_llena = ids_escaners_activos + MAX_SCANNERS;
-	productor_esperando = cinta_llena + MAX_SCANNERS;
+	control_cantidad_de_escaners_activos = static_cast<int *>(control->memory_pointer());
+	control_ids_escaners_activos = control_cantidad_de_escaners_activos + 1;
+	control_cinta_llena = control_ids_escaners_activos + MAX_SCANNERS;
+	control_productor_esperando = control_cinta_llena + MAX_SCANNERS;
 
 	proxima_cinta_a_colocar = 0;
 	numero_cinta = -1;
@@ -130,49 +125,56 @@ CintaScanner<T>::CintaScanner(const char * app_name, const char* directorio_de_t
 	valores.push_back(0);
 	valores.push_back(numero_escaner);
 	semaforos = new SemaphoreSetDistribuido(valores, directorio_de_trabajo, app_name, "csc_semaforos_", char(0),
-		MAX_SCANNERS);
+		MAX_SCANNERS + 1);
 
 	asignar_punteros(cintas [numero_escaner - 1]->memory_pointer(), numero_escaner - 1);
 
-	cantidad_de_escaners_activos = static_cast<int *>(control->memory_pointer());
-	ids_escaners_activos = cantidad_de_escaners_activos + 1;
-	cinta_llena = ids_escaners_activos + MAX_SCANNERS;
-	productor_esperando = cinta_llena + MAX_SCANNERS;
+	control_cantidad_de_escaners_activos = static_cast<int *>(control->memory_pointer());
+	control_ids_escaners_activos = control_cantidad_de_escaners_activos + 1;
+	control_cinta_llena = control_ids_escaners_activos + MAX_SCANNERS;
+	control_productor_esperando = control_cinta_llena + MAX_SCANNERS;
 
 	this->numero_cinta = numero_escaner - 1;
 	id_cinta = id_cinta;
 	//semaforos->wait_on(0);
-	/*control->lock();
+#if  DEBUG_CINTA_SCANNER == 1
+	std::cout << "consumidor wait mutex control" << std::endl;
+#endif
+	control->lock();
 
-	 if (ids_escaners_activos [this->numero_cinta] == numero_escaner) {
-	 //semaforos->signalize(0);//modificar
-	 control->unlock();
-	 delete this->semaforos;
-	 delete this->control;
-	 delete this->cintas [this->numero_cinta];
-	 throw ValueError("El escaner %d ya estába trabajando", numero_escaner);
-	 } else {
-	 ids_escaners_activos [this->numero_cinta] = numero_escaner;
-	 (*cantidad_de_escaners_activos)++;
+	control_ids_escaners_activos [this->numero_cinta] = numero_escaner;
+	(*control_cantidad_de_escaners_activos)++;
 
-	 cinta_llena [numero_cinta] = 0;
-	 if (*productor_esperando == 1) {
-	 *productor_esperando = 0;
-	 //semaforos->signalize(MAX_SCANNERS + 1); //modificar
-	 semaforos->signalize(0);
-	 }
-	 }
-	 //semaforos->signalize(0);
-	 control->unlock();*/
+	if (control_cinta_llena [numero_cinta] == -1) {
+		control_cinta_llena [numero_cinta] = 0;
+	}
+	if (*control_productor_esperando == 1) {
+		*control_productor_esperando = 0;
+		//semaforos->signalize(MAX_SCANNERS + 1); //modificar
+#if  DEBUG_CINTA_SCANNER == 1
+		std::cout << "consumidor signal mutex control" << std::endl;
+#endif
+		control->unlock();
+#if  DEBUG_CINTA_SCANNER == 1
+		std::cout << "consumidor signal sem0" << std::endl;
+#endif
+		semaforos->signalize(0);
+	} else {
+		//semaforos->signalize(0);
+#if  DEBUG_CINTA_SCANNER == 1
+		std::cout << "consumidor signal mutex control" << std::endl;
+#endif
+		control->unlock();
+	}
 }
 
 template <typename T>
 CintaScanner<T>::~CintaScanner() {
 	int i;
 	if (numero_cinta != -1) {
-		ids_escaners_activos [this->numero_cinta] = 0;
-		(*cantidad_de_escaners_activos)--;
-		cinta_llena [numero_cinta] = -1;
+		control_ids_escaners_activos [this->numero_cinta] = 0;
+		(*control_cantidad_de_escaners_activos)--;
+		control_cinta_llena [numero_cinta] = -1;
 	}
 	if (this->control) {
 		delete this->control;
@@ -211,11 +213,11 @@ void CintaScanner<T>::inicializar_estructuras(int tamanio_vectores) {
 		*posicion_ocupada [i] = 0;
 		*cantidad_elementos [i] = 0;
 		*consumidor_esperando [i] = 0;
-		ids_escaners_activos [i] = 0;
-		cinta_llena [i] = -1;
+		control_ids_escaners_activos [i] = 0;
+		control_cinta_llena [i] = -1;
 	}
-	*cantidad_de_escaners_activos = 0;
-	*productor_esperando = 0;
+	*control_cantidad_de_escaners_activos = 0;
+	*control_productor_esperando = 0;
 }
 
 template <typename T>
@@ -227,31 +229,48 @@ void CintaScanner<T>::poner_equipaje(const T & equipaje) {
 	while (!coloque) {
 
 		//semaforos->wait_on(MAX_SCANNERS + 1);
-		semaforos->wait_on(0);
 
+#if  DEBUG_CINTA_SCANNER == 1
+		std::cout << "productor wait sem0" << std::endl;
+#endif
+		semaforos->wait_on(0);
 		//semaforos->wait_on(0); // Verifica si las cintas estan llenas
+#if  DEBUG_CINTA_SCANNER == 1
+		std::cout << "productor wait mutex control" << std::endl;
+#endif
 		control->lock();
 
 		cantidad_cintas_llenas = 0;
 
-		while (cantidad_cintas_llenas < MAX_SCANNERS && cinta_llena [proxima_cinta_a_colocar] != 0) {
+		while (cantidad_cintas_llenas < MAX_SCANNERS && control_cinta_llena [proxima_cinta_a_colocar] != 0) {
 			proxima_cinta_a_colocar = (proxima_cinta_a_colocar + 1) % MAX_SCANNERS;
 			cantidad_cintas_llenas++;
 		}
 		if (cantidad_cintas_llenas == MAX_SCANNERS) {
-			*this->productor_esperando = 1;
+#if  DEBUG_CINTA_SCANNER == 1
+			std::cout << "productor durmiendo " << std::endl;
+#endif
+			*this->control_productor_esperando = 1;
 		}
-
+#if  DEBUG_CINTA_SCANNER == 1
+		std::cout << "productor signal mutex control" << std::endl;
+#endif
 		control->unlock();
 		//semaforos->signalize(0);
 
 		if (cantidad_cintas_llenas < MAX_SCANNERS) {
 			coloque = true;
 			//semaforos->wait_on(proxima_cinta_a_colocar + 1);
+#if  DEBUG_CINTA_SCANNER == 1
+			std::cout << "productor wait mutex cinta" << proxima_cinta_a_colocar + 1 << std::endl;
+#endif
 			cintas [proxima_cinta_a_colocar]->lock();
 			posicion = this->posicion_libre [proxima_cinta_a_colocar];
 			//destino = &((vector_elementos [proxima_cinta_a_colocar]) [*posicion]);
 			//memcpy(destino, &equipaje, sizeof(T));
+#if  DEBUG_CINTA_SCANNER == 1
+					std::cout << "productor colocado elemento en cinta" << proxima_cinta_a_colocar + 1 << std::endl;
+#endif
 			vector_elementos [proxima_cinta_a_colocar] [*posicion] = equipaje;
 			*posicion_libre [proxima_cinta_a_colocar] = (*posicion_libre [proxima_cinta_a_colocar] + 1)
 				% *this->tamanio_vector [proxima_cinta_a_colocar];
@@ -259,6 +278,9 @@ void CintaScanner<T>::poner_equipaje(const T & equipaje) {
 
 			if (*this->cantidad_elementos [proxima_cinta_a_colocar] == 1) {
 				if (*consumidor_esperando [proxima_cinta_a_colocar] == 1) {
+#if  DEBUG_CINTA_SCANNER == 1
+					std::cout << "productor despertando consumidor " << proxima_cinta_a_colocar + 1 << std::endl;
+#endif
 					semaforos->signalize(proxima_cinta_a_colocar + 1);
 					//semaforos->signalize(proxima_cinta_a_colocar + MAX_SCANNERS + 2);
 					*consumidor_esperando [proxima_cinta_a_colocar] = 0;
@@ -268,17 +290,29 @@ void CintaScanner<T>::poner_equipaje(const T & equipaje) {
 			if (*this->cantidad_elementos [proxima_cinta_a_colocar] == *this->tamanio_vector [proxima_cinta_a_colocar])
 			{
 				//this->semaforos->wait_on(0);
+#if  DEBUG_CINTA_SCANNER == 1
+				std::cout << "productor wait mutex control" << std::endl;
+#endif
 				control->lock();
-				cinta_llena [proxima_cinta_a_colocar] = 1;
+				control_cinta_llena [proxima_cinta_a_colocar] = 1;
 				//this->semaforos->signalize(0);
 				control->unlock();
+#if  DEBUG_CINTA_SCANNER == 1
+				std::cout << "productor signal mutex control" << std::endl;
+#endif
 			}
+#if  DEBUG_CINTA_SCANNER == 1
+			std::cout << "productor signal mutex cinta" << proxima_cinta_a_colocar + 1 << std::endl;
+#endif
 			//semaforos->signalize(proxima_cinta_a_colocar + 1);
 			cintas [proxima_cinta_a_colocar]->unlock();
 
 			proxima_cinta_a_colocar = (proxima_cinta_a_colocar + 1) % MAX_SCANNERS;
 
 			//semaforos->signalize(MAX_SCANNERS + 1);
+#if  DEBUG_CINTA_SCANNER == 1
+			std::cout << "productor signal sem0" << std::endl;
+#endif
 			semaforos->signalize(0);
 		}
 
@@ -293,9 +327,15 @@ T CintaScanner<T>::sacar_equipaje() {
 	while (!extrajo) {
 
 		//this->semaforos->wait_on(numero_cinta + MAX_SCANNERS + 2);
+#if  DEBUG_CINTA_SCANNER == 1
+		std::cout << "consumidor wait sem" << this->numero_cinta + 1 << std::endl;
+#endif
 		semaforos->wait_on(this->numero_cinta + 1);
 
 		//this->semaforos->wait_on(numero_cinta + 1);
+#if  DEBUG_CINTA_SCANNER == 1
+		std::cout << "consumidor wait mutex cinta" << numero_cinta + 1 << std::endl;
+#endif
 		cintas [numero_cinta]->lock();
 
 		if (*cantidad_elementos [numero_cinta] > 0) {
@@ -309,15 +349,27 @@ T CintaScanner<T>::sacar_equipaje() {
 
 			if (*cantidad_elementos [numero_cinta] == *tamanio_vector [numero_cinta] - 1) { // estaba lleno
 				//this->semaforos->wait_on(0);
+#if  DEBUG_CINTA_SCANNER == 1
+				std::cout << "consumidor wait mutex control" << std::endl;
+#endif
 				control->lock();
-				if (cinta_llena [numero_cinta] == 1) {
-					cinta_llena [numero_cinta] = 0;
-					if (*productor_esperando == 1) {
-						*productor_esperando = 0;
+				if (control_cinta_llena [numero_cinta] == 1) {
+					control_cinta_llena [numero_cinta] = 0;
+					if (*control_productor_esperando == 1) {
+#if  DEBUG_CINTA_SCANNER == 1
+						std::cout << "consumidor " << numero_cinta + 1 << "despertando productor" << std::endl;
+#endif
+						*control_productor_esperando = 0;
 						//semaforos->signalize(MAX_SCANNERS + 1);
 						semaforos->signalize(0);
+#if  DEBUG_CINTA_SCANNER == 1
+						std::cout << "consumidor signal sem" << 0 << std::endl;
+#endif
 					}
 				}
+#if  DEBUG_CINTA_SCANNER == 1
+				std::cout << "consumidor signal mutex control" << std::endl;
+#endif
 				//this->semaforos->signalize(0);
 				control->unlock();
 			}
@@ -327,10 +379,16 @@ T CintaScanner<T>::sacar_equipaje() {
 			*this->consumidor_esperando [numero_cinta] = 1;
 		} else {
 			//this->semaforos->signalize(numero_cinta + MAX_SCANNERS + 2);
+#if  DEBUG_CINTA_SCANNER == 1
+			std::cout << "consumidor signal sem" << this->numero_cinta + 1 << std::endl;
+#endif
 			semaforos->signalize(this->numero_cinta + 1);
 		}
 
 		//this->semaforos->signalize(numero_cinta + 1);
+#if  DEBUG_CINTA_SCANNER == 1
+		std::cout << "consumidor signal mutex cinta" << this->numero_cinta + 1 << std::endl;
+#endif
 		cintas [numero_cinta]->unlock();
 	}
 	return elemento;

@@ -48,6 +48,7 @@ LocalBroker::LocalBroker(const std::string & directorio, const std::string & gro
 	strncpy(groups_file, groups.c_str(), 200);
 	salir = 0;
 	SignalHandler::getInstance()->registrarHandler(SIGTERM, this);
+	SignalHandler::getInstance()->registrarHandler(SIGINT, this);
 }
 
 LocalBroker::~LocalBroker() {
@@ -84,7 +85,8 @@ LocalBroker::~LocalBroker() {
 }
 
 void LocalBroker::handleSignal(int signum) {
-	if (signum == SIGUSR1 || signum == SIGTERM) {
+	//std::cout << "Local Broker -" << getpid() << ": señal recibida salir = 1" << std::endl;
+	if (signum == SIGUSR1 || signum == SIGTERM || signum == SIGINT) {
 		salir = 1;
 #if DEBUG_LOCAL_BROKER == 1
 		std::cout << "Local Broker -" << getpid() << ": señal recibida salir = 1" << std::endl;

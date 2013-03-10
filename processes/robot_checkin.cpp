@@ -75,14 +75,15 @@ try
 	CintaScanner<Equipaje> cinta_scanner(std::string("robot_checkin").c_str(), argv [1], 1);
 
 	// cada robot de checkin distribuye entre n scanners
-	for (int i = 0 ; i < 5 ; i++) {
+	for (int i = 0 ; i < 8 ; i++) {
 
 		Equipaje equipaje(Rfid(i, 1000));
 		equipaje.set_descripcion("Descripcion");
 
-		printf("pone %s en siguiente cinta", equipaje.toString().c_str());
+		printf("pone %s en siguiente cinta\n", equipaje.toString().c_str());
 		cinta_scanner.poner_equipaje(equipaje);
 	}
+	printf("Robot Checkin Terminando\n");
 }
 catch (const std::exception &e) {
 	Log::crit("%s", e.what());
