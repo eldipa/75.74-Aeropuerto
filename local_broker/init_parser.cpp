@@ -58,7 +58,9 @@ int InitParser::parse_int_val(const char * val) {
 		return CANTIDAD_MAX_CONSUMIDORES_CINTA_CENTRAL;
 		//} else if (cmp(val, "CANTIDAD_DE_CONSUMIDORES_PPAL")) {
 		//	return CANTIDAD_DE_CONSUMIDORES_PPAL;
-	} else if (cmp(val, "CAPACIDAD_CINTA_CONTENEDOR")) {
+	} else if (cmp(val, "CANTIDAD_MAX_CINTAS_CONTENEDOR")) {
+		return CANTIDAD_MAX_CINTAS_CONTENEDOR;
+	}else if (cmp(val, "CAPACIDAD_CINTA_CONTENEDOR")) {
 		return CAPACIDAD_CINTA_CONTENEDOR;
 	} else if (cmp(val, "MAX_SCANNERS")) {
 		return MAX_SCANNERS;
@@ -135,7 +137,9 @@ size_t InitParser::parse_size_t_val(const char * val) {
 		return CANTIDAD_MAX_CONSUMIDORES_CINTA_CENTRAL;
 		//} else if (cmp(val, "CANTIDAD_DE_CONSUMIDORES_PPAL")) {
 		//	return CANTIDAD_DE_CONSUMIDORES_PPAL;
-	} else if (cmp(val, "CAPACIDAD_CINTA_CONTENEDOR")) {
+	} else if (cmp(val, "CANTIDAD_MAX_CINTAS_CONTENEDOR")) {
+		return CANTIDAD_MAX_CINTAS_CONTENEDOR;
+	}else if (cmp(val, "CAPACIDAD_CINTA_CONTENEDOR")) {
 		return CAPACIDAD_CINTA_CONTENEDOR;
 	} else if (cmp(val, "TAMANIO_MEMORIA_CINTA_PRINCIPAL")) {
 		return TAMANIO_MEMORIA_CINTA_PRINCIPAL;

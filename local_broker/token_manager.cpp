@@ -232,7 +232,7 @@ void TokenManager::run() {
 					g->replicar_brokers();
 					g->pasar_token_a_proximo_cliente();
 				}
-				usleep(25000);
+				usleep(50000);
 			}
 		} catch (OSError & error) {
 			Log::crit("%s", error.what());
