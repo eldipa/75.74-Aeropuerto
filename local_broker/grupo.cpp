@@ -291,10 +291,12 @@ void Grupo::pasar_token_a_proximo_cliente() {
 	}
 	*tengo_token_cliente = cliente_actual;
 
-	//if (this->nombre_recurso == "cinta_principal" || this->nombre_recurso.substr(0, 4) == "cpp_") {
 #if DEBUG_TOKEN_MANAGER==1
-	std::cout << "Passing Token from " << this->nombre_recurso.c_str() << " to: " << client_names [cliente_actual]
-		<< " (" << cliente_actual << ")\n";
+	if (this->nombre_recurso == "cpp_sem_prod_3") {
+
+		std::cout << "Passing Token from " << this->nombre_recurso.c_str() << " to: " << client_names [cliente_actual]
+			<< " (" << cliente_actual << ")\n";
+	}
 #endif
 	//Log::debug("Passing Token from %s to: %s (%d)\n", this->nombre_recurso.c_str(), client_names [cliente_actual],
 	//	cliente_actual);
@@ -461,12 +463,12 @@ bool Grupo::tengo_que_avisar_envio() {
 	return result;
 }
 
-bool Grupo::tengo_el_token_cliente(){
+bool Grupo::tengo_el_token_cliente() {
 	bool result;
 	semaforos.wait_on(mutex_asignado);
-	if(numero_cola_asignada - numero_base_cola_asignada == *tengo_token_cliente){
+	if (numero_cola_asignada - numero_base_cola_asignada == *tengo_token_cliente) {
 		result = true;
-	}else {
+	} else {
 		result = false;
 	}
 	semaforos.signalize(mutex_asignado);

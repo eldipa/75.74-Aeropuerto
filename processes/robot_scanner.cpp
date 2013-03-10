@@ -15,7 +15,6 @@ int main(int argc, char *argv [])
 try
 {
 	int id_robot;
-	int id_cinta_scanner;
 	if (argc < 3) {
 		Log::crit(
 			"Insuficientes parametros para scanner, se esperaba (directorio_de_trabajo, config_file, id)\n");
@@ -29,10 +28,8 @@ try
 		exit(1);
 	}
 
-	id_cinta_scanner = atoi(argv [4]);
-
 	CintaScanner<Equipaje> cinta_scanner(std::string("escaner").append(intToString(id_robot)).c_str(), argv [1],
-		id_cinta_scanner, id_robot);
+		id_robot, id_robot);
 	ApiScanner api_escaner_cinta_central(argv [1], argv [2], id_robot);
 
 	Log::info("Iniciando scanner(%s), %s\n", argv [3], argv [4]);
