@@ -95,7 +95,7 @@ try
 
 	Log::info("Iniciando scanner(%s), %s\n", argv [3], argv [4]);
 
-	for (int i = 0 ; i < 3 ; i++) {
+	for (int i = 0 ; i < 8 ; i++) {
 
 		Equipaje equipaje(Rfid(i, 1000));
 #if DEBUG_ROBOT_CONTROL_EXTRAE_CINTA_PRINCIPAL == 1
@@ -105,6 +105,7 @@ try
 		equipaje.set_sospechoso(false);
 		equipaje.set_descripcion("Descripcion");
 #endif
+		equipaje.getRfid().numero_de_vuelo_destino = i % 4 + 1;
 
 		printf("pasando equipaje (%s) a cinta central (%s)\n", equipaje.toString().c_str(), argv [3]);
 		api_escaner_cinta_central.colocar_equipaje_en_cinta_principal(equipaje);

@@ -163,7 +163,7 @@ try
 	numero_cinta_contenedor = atoi(argv [4]);
 
 	ApiCarga api_carga(std::string("robot_carga").append(argv [3]).c_str(), argv [1], argv [2], id_robot,
-		numero_cinta_contenedor, true, true);
+		true, true);
 
 	for (int i = 0 ; i < 3 ; i++) {
 

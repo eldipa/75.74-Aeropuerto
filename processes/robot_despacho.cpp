@@ -43,7 +43,7 @@ try
 
 	std::vector<yasper::ptr<CintaContenedor> > cintas_contenedor;
 
-	for (int i = zona_desde ; i <= zona_hasta ; i++) {
+	for (int i = zona_desde; i <= zona_hasta; i++) {
 		Log::debug("Conectando con cinta %d\n", i);
 
 		cintas_contenedor.push_back(
@@ -51,7 +51,7 @@ try
 
 	}
 
-	for (; ;) {
+	for (;;) {
 
 		sleep(rand() % SLEEP_ROBOT_DESPACHO);
 
@@ -80,7 +80,7 @@ try
 			Log::info("Equipaje (%s) extraido de Cinta Principal\n", equipaje.toString().c_str());
 
 			Log::info("Coloco Equipaje (%s) en Cinta Contenedor (zona %d)\n", equipaje.toString().c_str(), num_zona);
-			cintas_contenedor [num_zona - zona_desde]->poner_equipaje(equipaje, 1);
+			cintas_contenedor [num_zona - zona_desde]->poner_equipaje(equipaje, num_zona);
 			Log::info("Equipaje (%s) colocado en Cinta Contenedor (zona %d)\n", equipaje.toString().c_str(), num_zona);
 		}
 	}
@@ -119,15 +119,26 @@ try
 
 	ApiDespachante despachante_cinta_central(argv [1], argv [2], "robot_despachante", id_robot, true);
 
-	for (int i = 0; i < 6; i++) {
+	std::vector<yasper::ptr<CintaContenedor> > cintas_contenedor;
+
+	for (int i = zona_desde ; i <= zona_hasta ; i++) {
+		Log::debug("Conectando con cinta %d\n", i);
+
+		cintas_contenedor.push_back(
+			new CintaContenedor(std::string("robot_despacho").append(argv [3]).c_str(), argv [1], i, true));
+
+	}
+
+	for (int i = 0 ; i < 8 ; i++) {
 
 		printf("Intentando tomar un nuevo equipaje de cinta central\n");
 
 		Rfid rfid_equipaje = despachante_cinta_central.leer_proximo_equipaje();
 
-		printf("Leido equipaje %d con destino a vuelo (%d)\n", rfid_equipaje.rfid, rfid_equipaje.numero_de_vuelo_destino);
+		printf("Leido equipaje %d con destino a vuelo (%d)\n", rfid_equipaje.rfid,
+			rfid_equipaje.numero_de_vuelo_destino);
 
-		int num_zona = zona_desde + 1;
+		int num_zona = rfid_equipaje.numero_de_vuelo_destino;
 
 		if (rfid_equipaje.sospechoso) {
 
@@ -144,6 +155,7 @@ try
 			printf("OK, es para mi. Extrayendo equipaje %d de cinta\n", rfid_equipaje.rfid);
 			Equipaje equipaje = despachante_cinta_central.extraer_equipaje();
 			printf("Equipaje extraido %s\n", equipaje.toString().c_str());
+			cintas_contenedor [(rfid_equipaje.numero_de_vuelo_destino - 1) % 2]->poner_equipaje(equipaje, num_zona);
 		}
 	}
 
