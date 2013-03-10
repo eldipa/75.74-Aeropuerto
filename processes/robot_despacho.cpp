@@ -39,9 +39,17 @@ try
 	int zona_desde = atoi(argv [4]);
 	int zona_hasta = atoi(argv [5]);
 
-	ApiDespachante despachante_cinta_central(argv [1], argv [2],"robot_despachante", id_robot,true);
+	// robot despacho 1 (cintas 1 y 2), robot despacho 2 (cintas 2 y 3)
+	int numero_de_cinta = 2 * id_robot - 1;
 
-	for (;;) {
+	ApiDespachante despachante_cinta_central(argv [1], argv [2], "robot_despachante", id_robot, true);
+
+	CintaContenedor cinta_contenedor1(std::string("robot_despacho").append(argv [3]).c_str(),
+		std::string(argv [1]).c_str(), numero_de_cinta, true);
+	//CintaContenedor cinta_contenedor2(std::string("robot_despacho").append(argv [3]).c_str(),
+	//	std::string(argv [1]).c_str(), numero_de_cinta + 1, true);
+
+	for (; ;) {
 
 		sleep(rand() % SLEEP_ROBOT_DESPACHO);
 
@@ -55,28 +63,28 @@ try
 
 		int num_zona = despachante_cinta_central.get_zona(rfid_equipaje.numero_de_vuelo_destino);
 
-		Log::info("toma el equipaje %d con destino a zona (%d)",
-			rfid_equipaje.rfid, num_zona);
+		Log::info("toma el equipaje %d con destino a zona (%d)", rfid_equipaje.rfid, num_zona);
 
 		if (rfid_equipaje.sospechoso) {
 
-			Log::info("Equipaje %d sospechoso, vuelvo a ponerlo en la cinta central\n",
-				rfid_equipaje.rfid);
+			Log::info("Equipaje %d sospechoso, vuelvo a ponerlo en la cinta central\n", rfid_equipaje.rfid);
 			despachante_cinta_central.avanzar_cinta();
 
 		} else if ((num_zona == -1) || (num_zona < zona_desde) || (num_zona > zona_hasta)) {
 
-			Log::info("Equipaje %d no pertenece a mis zonas, vuelve a cinta central\n",
-				rfid_equipaje.rfid);
+			Log::info("Equipaje %d no pertenece a mis zonas, vuelve a cinta central\n", rfid_equipaje.rfid);
 			despachante_cinta_central.avanzar_cinta();
 
 		} else {
 
-			Log::info("OK, es para mi.Equipaje %d limpio envio a robot_carga zona %d\n",
-				rfid_equipaje.rfid, num_zona);
+			Log::info("OK, es para mi.Equipaje %d limpio envio a robot_carga zona %d\n", rfid_equipaje.rfid, num_zona);
 			Equipaje equipaje = despachante_cinta_central.extraer_equipaje();
-			CintaContenedor cinta_contenedor(std::string("robot_despacho").append(argv [3]).c_str(),std::string(argv[1]).append(PATH_CINTA_CONTENEDOR).c_str(), num_zona, true);
-			cinta_contenedor.poner_equipaje(equipaje, 1);
+
+			//if (equipaje.zona esta en cinta_contenedor1) {
+			cinta_contenedor1.poner_equipaje(equipaje, 1);
+			// } else if (equipaje.zona esta en cinta_contenedor2) {
+			//	cinta_contenedor2.poner_equipaje(equipaje, 1);
+			//}
 		}
 	}
 
@@ -114,7 +122,7 @@ try
 
 	ApiDespachante despachante_cinta_central(argv [1], argv [2], "robot_despachante", id_robot, true);
 
-	for (int i = 0 ; i < 3 ; i++) {
+	for (int i = 0; i < 3; i++) {
 
 		printf("Intentando tomar un nuevo equipaje de cinta central\n");
 

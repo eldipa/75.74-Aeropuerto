@@ -74,13 +74,13 @@ void LocalBrokerComm::handleSignal(int signum) {
 		salir = 1;
 #if DEBUG_LOCAL_BROKER_COMM == 1
 		std::cout << nombre_aplicacion << "(" << nombre_grupo << "-" << getpid() << "): señal recibida salir = 1"
-			<< std::endl;
+		<< std::endl;
 #endif
 	} else if (signum == SIGUSR2) {
 		salir = 2;
 #if DEBUG_LOCAL_BROKER_COMM == 1
 		std::cout << nombre_aplicacion << "(" << nombre_grupo << "-" << getpid() << "): señal recibida salir = 2"
-			<< std::endl;
+		<< std::endl;
 #endif
 	}
 }
@@ -140,7 +140,8 @@ void LocalBrokerComm::reconectar() {
 	if (!conectado) { // primera vez que me conecto
 		do {
 			try {
-				Log::debug("Conectando con %s : %s\n", lista_de_brokers [i].c_str(), lista_de_servicios [i].c_str());
+				Log::debug("%s(%s) Conectando con %s : %s\n", nombre_aplicacion.c_str(), nombre_grupo.c_str(),
+					lista_de_brokers [i].c_str(), lista_de_servicios [i].c_str());
 				//std::cout << "conectando: " << brokers [i] << ":" << servicios [i] << std::endl;
 				socket_broker = new Socket(true);
 				socket_broker->destination(lista_de_brokers [i].c_str(), lista_de_servicios [i].c_str());
@@ -160,7 +161,8 @@ void LocalBrokerComm::reconectar() {
 		for (i = 0; i < 3 ; i++) {
 			try {
 				socket_broker = new Socket(true);
-				Log::debug("Reconectando con %s intento %d", lista_de_brokers [numero_broker_conectado].c_str(), i + 1);
+				Log::debug("%s(%s) Reconectando con %s intento %d", nombre_aplicacion.c_str(), nombre_grupo.c_str(),
+					lista_de_brokers [numero_broker_conectado].c_str(), i + 1);
 				socket_broker->destination(lista_de_brokers [numero_broker_conectado].c_str(),
 					lista_de_servicios [numero_broker_conectado].c_str());
 				conecto = true;
@@ -172,7 +174,8 @@ void LocalBrokerComm::reconectar() {
 			i = (numero_broker_conectado + 1) % cant_brokers;
 			try {
 				socket_broker = new Socket(true);
-				Log::debug("Conectando con %s : %s\n", lista_de_brokers [i].c_str(), lista_de_servicios [i].c_str());
+				Log::debug("%s(%s) Conectando con %s : %s\n", nombre_aplicacion.c_str(), nombre_grupo.c_str(),
+					lista_de_brokers [i].c_str(), lista_de_servicios [i].c_str());
 				socket_broker->destination(lista_de_brokers [i].c_str(), lista_de_servicios [i].c_str());
 				conecto = true;
 				numero_broker_conectado = i;
@@ -247,7 +250,7 @@ void LocalBrokerComm::wait_token() {
 		std::cout << nombre_aplicacion << "(" << nombre_grupo << "): Interrupted receive" << std::endl;
 		//std::cout << nombre_aplicacion << "(" << nombre_grupo << "): " << interruption.what() << std::endl;
 #endif
-		Log::alert(interruption.what());
+		Log::alert("%s(%s) %s", nombre_aplicacion.c_str(), nombre_grupo.c_str(), interruption.what());
 		tengo_token = 0;
 	}
 
@@ -330,7 +333,7 @@ void LocalBrokerComm::send_token(void * memory) {
 					enviados += socket_broker->sendsome((char *)&mensaje + enviados,
 						sizeof(mensajes::mensajes_local_broker_token_t) - enviados);
 				} catch (InterruptedSyscall & interruption) {
-					Log::alert(interruption.what());
+					Log::alert("%s(%s) %s", nombre_aplicacion.c_str(), nombre_grupo.c_str(), interruption.what());
 				}
 			}
 			tengo_token = false;
@@ -368,13 +371,13 @@ void LocalBrokerComm::loop_mutex_padre() {
 			std::cout << error.what() << std::endl;
 #endif
 			salir = 1;
-			Log::crit(error.what());
+			Log::crit("%s(%s) %s", nombre_aplicacion.c_str(), nombre_grupo.c_str(), error.what());
 			break;
 		} catch (OSError & error) {
 #if DEBUG_LOCAL_BROKER_COMM == 1
 			std::cout << "OSerror " << nombre_grupo << std::endl;
 #endif
-			Log::crit(error.what());
+			Log::crit("%s(%s) %s", nombre_aplicacion.c_str(), nombre_grupo.c_str(), error.what());
 			salir = 1;
 			break;
 		}
@@ -391,11 +394,11 @@ void LocalBrokerComm::loop_mutex_hijo() {
 			send_token();
 
 		} catch (CommError & error) {
-			Log::crit(error.what());
+			Log::crit("%s(%s) %s", nombre_aplicacion.c_str(), nombre_grupo.c_str(), error.what());
 			break;
 
 		} catch (OSError & error) {
-			Log::crit(error.what());
+			Log::crit("%s(%s) %s", nombre_aplicacion.c_str(), nombre_grupo.c_str(), error.what());
 			break;
 		}
 	}
@@ -453,13 +456,13 @@ void LocalBrokerComm::loop_semaforo_padre() {
 			std::cout << error.what() << std::endl;
 #endif
 			salir = 1;
-			Log::crit(error.what());
+			Log::crit("%s(%s) %s", nombre_aplicacion.c_str(), nombre_grupo.c_str(), error.what());
 			break;
 		} catch (OSError & error) {
 #if DEBUG_LOCAL_BROKER_COMM == 1
 			std::cout << "OSerror " << nombre_grupo << std::endl;
 #endif
-			Log::crit(error.what());
+			Log::crit("%s(%s) %s", nombre_aplicacion.c_str(), nombre_grupo.c_str(), error.what());
 			salir = 1;
 			break;
 		}
@@ -531,10 +534,10 @@ void LocalBrokerComm::loop_memoria() {
 
 				send_token(memory);
 			} catch (CommError & error) {
-				Log::crit(error.what());
+				Log::crit("%s(%s) %s", nombre_aplicacion.c_str(), nombre_grupo.c_str(), error.what());
 				break;
 			} catch (OSError & error) {
-				Log::crit(error.what());
+				Log::crit("%s(%s) %s", nombre_aplicacion.c_str(), nombre_grupo.c_str(), error.what());
 				break;
 			}
 		}
@@ -644,7 +647,7 @@ try
 	std::stringstream ss;
 	ss << argc;
 	args.append(ss.str());
-	for (int i = 0 ; i < argc ; i++) {
+	for (int i = 0; i < argc; i++) {
 		args.append(" ").append(argv [i]);
 	}
 	Log::info("%s", args.c_str());
@@ -652,7 +655,8 @@ try
 	obtener_lista_de_brokers(brokers, servicios, argv [3]);
 
 	strncpy(grupo, argv [4], MAX_NOMBRE_RECURSO);
-	id = atoi(argv [5]);id = id;
+	id = atoi(argv [5]);
+	id = id;
 
 #ifdef __x86_64__
 	sscanf(argv [6], "%lu", &tamanio);
@@ -679,15 +683,15 @@ try
 }
 catch (CommError & e) {
 //std::cerr << e.what() << std::endl;
-	Log::crit(e.what());
+	Log::crit("%s(%s) %s", argv [2], argv [4], e.what());
 }
 catch (OSError & e) {
 //std::cerr << e.what() << std::endl;
 //std::cerr << "Unable to connect to local_brokers" << std::endl;
-	Log::crit(e.what());
+	Log::crit("%s(%s) %s", argv [2], argv [4], e.what());
 }
 catch (std::exception & e) {
 //std::cerr << e.what() << std::endl;
-	Log::crit(e.what());
+	Log::crit("%s(%s) %s", argv [2], argv [4], e.what());
 }
 

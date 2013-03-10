@@ -60,7 +60,7 @@ void ClientHandler::avisar_creacion_grupo(const std::string & nombre_grupo) {
 	strncpy(mensaje.recurso, nombre_grupo.c_str(), MAX_NOMBRE_RECURSO);
 	len = strlen(mensaje.recurso) + 1;
 	len += sizeof(long);
-	//Log::info("Joining: %s to %s\n", this->nombre_cliente.c_str(), nombre_grupo.c_str());
+	Log::info("Joining: %s to %s\n", this->nombre_cliente.c_str(), nombre_grupo.c_str());
 	//std::cout << "Joining: " << this->nombre_cliente << " to " << nombre_grupo << std::endl;
 	//cola_token_manager.push(&mensaje, sizeof(traspaso_token_t) - sizeof(long));
 	cola_token_manager.push(&mensaje, len);

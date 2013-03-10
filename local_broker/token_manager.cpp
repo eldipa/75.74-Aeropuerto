@@ -184,7 +184,7 @@ void TokenManager::crear_grupo(const std::string & directorio_de_trabajo, const 
 	fclose(f);
 
 	if (!existe) {
-		Log::crit("El grupo %s no existe", nombre_recurso);
+		Log::crit("El grupo %s no existe", group_name.c_str());
 	}
 }
 

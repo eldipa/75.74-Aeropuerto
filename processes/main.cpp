@@ -114,9 +114,9 @@ static char *args_robot_sospechosos [] = {
 	(char*)"robot_control_equipaje_sospechoso", working_dir_robot_control_equipaje, config_file, (char*)"3",
 	id_productor_cinta_central, NULL};
 
-//static char *args_robot_intercargo [] = {(char*)"robot_intercargo", working_dir_robot_intercargo, config_file, NULL};
-
-/*static char *args_control_sospechosos [] = {
+static char *args_robot_intercargo [] = {(char*)"robot_intercargo", working_dir_robot_intercargo, config_file, NULL};
+/*
+static char *args_control_sospechosos [] = {
  (char*)"robot_control_equipaje_sospechoso", working_dir_control_equipaje_sospechoso, config_file, (char*)"3",
  id_productor_cinta_central, NULL};*/
 
@@ -128,19 +128,19 @@ static char *args_local_broker1 [] = {(char*)"localbroker1", working_dir_local_b
 
 //static char *args_local_broker4 [] = {(char*)"localbroker4", working_dir_local_broker4, "1237", NULL};
 
-/*static char * args_generador_vuelos_trasbordo [] = {
+static char * args_generador_vuelos_trasbordo [] = {
 	(char*)"generador_vuelos_trasbordo", working_dir_generador_vuelos_trasbordo, config_file,
 	(char*)"./entrada/vuelos_entrantes.csv", (char*)"./entrada/vuelos_interconexion.csv", NULL};
-*/
+
 //static char *args_avion1 [] = {(char*)"avion1", working_dir_avion1, config_file, (char*)"1", NULL};
 
-//static char *args_tractor1 [] = {(char*)"tractor_1", working_dir_tractor1, config_file, (char*)"1", NULL};
+static char *args_tractor1 [] = {(char*)"tractor_1", working_dir_tractor1, config_file, (char*)"1", NULL};
 //static char *args_tractor2 [] = {(char*)"tractor_2", working_dir_tractor2, config_file, (char*)"2", NULL};
 //static char *args_tractor3 [] = {(char*)"tractor_3", working_dir_tractor3, config_file, (char*)"3", NULL};
 
-/*static char *args_scheduler_aviones [] = {(char*)"scheduler_aviones", directorio_de_trabajo, config_file, NULL};
+static char *args_scheduler_aviones [] = {(char*)"scheduler_aviones", directorio_de_trabajo, config_file, NULL};
 static char *args_scheduler_vuelos [] = {(char*)"scheduler_vuelos", directorio_de_trabajo, config_file, NULL};
-*/
+
 static std::vector<char *> all_dirs;
 
 void load_all_dirs() {
@@ -403,15 +403,15 @@ try
 		processes.push_back(Process("robot_carga", args_robot_carga3));
 		//processes.push_back(Process("robot_carga", args_robot_carga4));
 		processes.push_back(Process("robot_control_equipaje_sospechoso", args_robot_sospechosos));
-		//processes.push_back(Process("robot_intercargo", args_robot_intercargo));
+		processes.push_back(Process("robot_intercargo", args_robot_intercargo));
 		//processes.push_back(Process("control_equipaje_sospechoso", args_robot_sospechosos));
-		//processes.push_back(Process("generador_vuelos_trasbordo", args_generador_vuelos_trasbordo));
+		processes.push_back(Process("generador_vuelos_trasbordo", args_generador_vuelos_trasbordo));
 		// processes.push_back(Process("escucha_zonas_asignadas", args_escucha_zonas_asignadas));
 //		processes.push_back(Process("torre_de_control", args_torre_de_control));
-		//processes.push_back(Process("tractor", args_tractor1));
+		processes.push_back(Process("tractor", args_tractor1));
 		//processes.push_back(Process("tractor", args_tractor2));
-		//processes.push_back(Process("scheduler_aviones", args_scheduler_aviones));
-		//processes.push_back(Process("scheduler_vuelos", args_scheduler_vuelos));
+		processes.push_back(Process("scheduler_aviones", args_scheduler_aviones));
+		processes.push_back(Process("scheduler_vuelos", args_scheduler_vuelos));
 
 		// sin argumentos lanzo todos los vuelos posibles.
 		// if (argc == 1) {
