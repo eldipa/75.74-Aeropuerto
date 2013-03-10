@@ -6,6 +6,8 @@ import os
 import time
 import optparse
 import signal
+import shutil
+
 BASE = "/tmp/"
 processes = []
 
@@ -19,6 +21,16 @@ class Aeropuerto(cmd.Cmd):
 
             proc_name = "localbroker"+id_broker
             wkdir = os.path.join( BASE, "wd"+proc_name )
+
+            self.makedirsp(wkdir)
+            shutil.copy("../local_broker/locks/group_list_all.txt", os.path.join(wkdir, "group_list.txt") )
+            shutil.copy("../local_broker/locks/cinta_checkin.init", os.path.join(wkdir, "cinta_checkin.init") )
+            shutil.copy("../local_broker/locks/cinta_contenedor.init", os.path.join(wkdir, "cinta_contenedor.init") )
+            shutil.copy("../local_broker/locks/cinta_escaner_control.init", os.path.join(wkdir, "cinta_escaner_control.init") )
+            shutil.copy("../local_broker/locks/cinta_escaner.init", os.path.join(wkdir, "cinta_escaner.init") )
+            shutil.copy("../local_broker/locks/cinta_principal.init", os.path.join(wkdir, "cinta_principal.init") )
+            shutil.copy("./locks/local_broker.list", os.path.join(wkdir, "local_broker.list") )
+
             p = self.run_process("./../local_broker/local_broker_launcher", [proc_name, wkdir, port], "./../local_broker")
 
             if(p):
@@ -34,7 +46,7 @@ class Aeropuerto(cmd.Cmd):
     def do_message_broker(self, line):
         """ Parameters: config_file """
         try:
-            config_file_name = str.split(line)
+            config_file_name = str.split(line)[0]
             
             proc_name = "message_broker"
             config_file = os.path.join(os.getcwd(), config_file_name)
@@ -55,7 +67,7 @@ class Aeropuerto(cmd.Cmd):
     def do_intermediate_broker(self, line):
         """ Parameters: config_file """
         try:
-            config_file_name = str.split(line)
+            config_file_name = str.split(line)[0]
             
             proc_name = "intermediate_broker"
             config_file = os.path.join(os.getcwd(), config_file_name)
@@ -75,7 +87,7 @@ class Aeropuerto(cmd.Cmd):
     def do_torre_de_control(self, line):
         """ Parameters: config_file """
         try:
-            config_file_name = str.split(line)
+            config_file_name = str.split(line)[0]
             
             proc_name = "torre_de_control"
             config_file = os.path.join(os.getcwd(), config_file_name)
@@ -99,6 +111,10 @@ class Aeropuerto(cmd.Cmd):
 
             proc_name = "puesto_checkin"+id_checkin
             wkdir = os.path.join( BASE, "wd"+proc_name )            
+
+            self.makedirsp(wkdir)
+            shutil.copy("../local_broker/locks/local_broker.list", os.path.join(wkdir, "local_broker.list") )
+
             config_file = os.path.join(os.getcwd(), config_file_name)
             p = self.run_process("./puesto_checkin", [proc_name, wkdir, config_file, id_checkin, "1"])
 
@@ -120,6 +136,10 @@ class Aeropuerto(cmd.Cmd):
             
             proc_name = "robot_checkin"+id_robot
             wkdir = os.path.join( BASE, "wd"+proc_name )            
+
+            self.makedirsp(wkdir)
+            shutil.copy("../local_broker/locks/local_broker.list", os.path.join(wkdir, "local_broker.list") )
+
             config_file = os.path.join(os.getcwd(), config_file_name)
             p = self.run_process("./robot_checkin", [proc_name, wkdir, config_file, id_robot, "1", "1"])
 
@@ -142,6 +162,10 @@ class Aeropuerto(cmd.Cmd):
             
             proc_name = "robot_scanner"+id_robot_scanner
             wkdir = os.path.join( BASE, "wd"+proc_name )            
+
+            self.makedirsp(wkdir)
+            shutil.copy("../local_broker/locks/local_broker.list", os.path.join(wkdir, "local_broker.list") )
+
             config_file = os.path.join(os.getcwd(), config_file_name)
             p = self.run_process("./robot_scanner", [proc_name, wkdir, config_file, id_robot_scanner, "1", "1"])
 
@@ -163,6 +187,10 @@ class Aeropuerto(cmd.Cmd):
             
             proc_name = "robot_despacho"+id_robot_despacho
             wkdir = os.path.join( BASE, "wd"+proc_name )            
+
+            self.makedirsp(wkdir)
+            shutil.copy("../local_broker/locks/local_broker.list", os.path.join(wkdir, "local_broker.list") )
+
             config_file = os.path.join(os.getcwd(), config_file_name)
             p = self.run_process("./robot_despacho", [proc_name, wkdir, config_file, id_robot_despacho, zona_desde, zona_hasta])
 
@@ -183,7 +211,11 @@ class Aeropuerto(cmd.Cmd):
             id_robot_carga, config_file_name = str.split(line)
             
             proc_name = "robot_carga"+id_robot_carga
-            wkdir = os.path.join( BASE, "wd"+proc_name )            
+            wkdir = os.path.join( BASE, "wd"+proc_name )
+
+            self.makedirsp(wkdir)
+            shutil.copy("../local_broker/locks/local_broker.list", os.path.join(wkdir, "local_broker.list") )
+
             config_file = os.path.join(os.getcwd(), config_file_name)
             p = self.run_process("./robot_carga", [proc_name, wkdir, config_file, id_robot_carga, id_robot_carga, id_robot_carga ])
 
@@ -201,10 +233,14 @@ class Aeropuerto(cmd.Cmd):
         """ Parameters: config_file pos_cinta_central=3"""
 
         try:
-            config_file_name = str.split(line)
+            config_file_name = str.split(line)[0]
             
             proc_name = "robot_control_equipaje_sospechoso"
             wkdir = os.path.join( BASE, "wd"+proc_name )            
+
+            self.makedirsp(wkdir)
+            shutil.copy("../local_broker/locks/local_broker.list", os.path.join(wkdir, "local_broker.list") )
+
             config_file = os.path.join(os.getcwd(), config_file_name)
             p = self.run_process("./robot_carga", [proc_name, wkdir, config_file, "3" ])
 
@@ -222,10 +258,15 @@ class Aeropuerto(cmd.Cmd):
     def do_robot_intercargo(self, line):
         """ Parameters: config_file"""
         try:
-            config_file_name = str.split(line)
+            config_file_name = str.split(line)[0]
             
             proc_name = "robot_intercargo"
-            wkdir = os.path.join( BASE, "wd"+proc_name )            
+
+            wkdir = os.path.join( BASE, "wd"+proc_name )
+
+            self.makedirsp(wkdir)
+            shutil.copy("../local_broker/locks/local_broker.list", os.path.join(wkdir, "local_broker.list") )
+
             config_file = os.path.join(os.getcwd(), config_file_name)
             p = self.run_process("./robot_intercargo", [proc_name, wkdir, config_file])
 
@@ -245,7 +286,21 @@ class Aeropuerto(cmd.Cmd):
             config_file_name, path_entrantes, path_interconexion = str.split(line)
             
             proc_name = "generador_vuelos_trasbordo"
+
             wkdir = os.path.join( BASE, "wd"+proc_name )            
+
+            self.makedirsp(wkdir)
+            shutil.copy("../local_broker/locks/local_broker.list", os.path.join(wkdir, "local_broker.list") )
+            shutil.copy("./locks/vuelos_entrantes.csv", os.path.join(wkdir, "vuelos_entrantes.csv") )
+            shutil.copy("./locks/equipaje_destino_1.csv", os.path.join(wkdir, "equipaje_destino_1.csv") )
+            shutil.copy("./locks/equipaje_destino_101.csv", os.path.join(wkdir, "equipaje_destino_101.csv") )
+            shutil.copy("./locks/equipaje_destino_102.csv", os.path.join(wkdir, "equipaje_destino_102.csv") )
+            shutil.copy("./locks/equipaje_destino_3.csv", os.path.join(wkdir, "equipaje_destino_3.csv") )
+            shutil.copy("./locks/equipajes_intercargo.csv", os.path.join(wkdir, "equipajes_intercargo.csv") )
+            shutil.copy("./locks/equipajes.csv", os.path.join(wkdir, "equipajes.csv") )
+            shutil.copy("./locks/pasajeros.csv", os.path.join(wkdir, "pasajeros.csv") )
+            shutil.copy("./locks/vuelos.csv", os.path.join(wkdir, "vuelos.csv") )
+
             config_file = os.path.join(os.getcwd(), config_file_name)
             file_vuelos_entrantes = os.path.join(os.getcwd(), path_entrantes)
             file_vuelos_interconexion = os.path.join(os.getcwd(), path_interconexion)
@@ -266,10 +321,14 @@ class Aeropuerto(cmd.Cmd):
     def do_scheduler_vuelos(self, line):
         """ Parameters: config_file"""
         try:
-            config_file_name = str.split(line)
+            config_file_name = str.split(line)[0]
             
             proc_name = "scheduler_vuelos"
             wkdir = os.path.join( BASE, "wd"+proc_name )            
+
+            self.makedirsp(wkdir)
+            shutil.copy("../local_broker/locks/local_broker.list", os.path.join(wkdir, "local_broker.list") )
+
             config_file = os.path.join(os.getcwd(), config_file_name)
             p = self.run_process("./scheduler_vuelos", [proc_name, wkdir, config_file])
 
@@ -286,10 +345,15 @@ class Aeropuerto(cmd.Cmd):
     def do_scheduler_aviones(self, line):
         """ Parameters: config_file"""
         try:
-            config_file_name = str.split(line)
+            config_file_name = str.split(line)[0]
             
             proc_name = "scheduler_aviones"
             wkdir = os.path.join( BASE, "wd"+proc_name )            
+
+            self.makedirsp(wkdir)
+            shutil.copy("../local_broker/locks/local_broker.list", os.path.join(wkdir, "local_broker.list") )
+            shutil.copy("./locks/aviones.csv", os.path.join(wkdir, "aviones.csv") )
+
             config_file = os.path.join(os.getcwd(), config_file_name)
             p = self.run_process("./scheduler_aviones", [proc_name, wkdir, config_file])
 
@@ -311,6 +375,10 @@ class Aeropuerto(cmd.Cmd):
             
             proc_name = "tractor"+id_tractor
             wkdir = os.path.join( BASE, "wd"+proc_name )            
+
+            self.makedirsp(wkdir)
+            shutil.copy("../local_broker/locks/local_broker.list", os.path.join(wkdir, "local_broker.list") )
+
             config_file = os.path.join(os.getcwd(), config_file_name)
             p = self.run_process("./tractor", [proc_name, wkdir, config_file, id_tractor])
 
@@ -369,6 +437,10 @@ class Aeropuerto(cmd.Cmd):
             raise Exception("The processes children cannot be created")
 
         return [args[0], pid]
+
+    def makedirsp(self, directory):
+        if not os.path.isdir(directory):
+            os.makedirs(directory)
 
 if __name__ == '__main__':
     try:
