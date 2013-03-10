@@ -74,46 +74,6 @@ public:
 };
 
 template <typename T>
-CintaScanner<T>::CintaScanner(const char * app_name, const char* directorio_de_trabajo, int id_cinta,
-	int tamanio_cintas, bool create)
-{
-	int i;
-	int inicio_ids = (id_cinta - 1) * cant_ipc;
-	int tamanio_total;
-	int tamanio_control;
-
-	tamanio_total = sizeof(int) * 5;
-	tamanio_total += tamanio_cintas * sizeof(T);
-
-	tamanio_control = sizeof(int) * 2;
-	tamanio_control += sizeof(int) * MAX_SCANNERS * 2;
-
-	if (create) {
-		//control = new SharedMemory(path_to_cinta_scanner, inicio_ids, tamanio_control, 0664, true, false);
-		control = new MemoriaDistribuida(directorio_de_trabajo, app_name, (char *)"cinta_escaner_control", 0,
-			TAMANIO_MEMORIA_CONTROL_CINTA_SCANNER);
-
-		for (i = 0; i < MAX_SCANNERS ; i++) {
-			//cintas [i] = new SharedMemory(directorio_de_trabajo, i + inicio_ids + 1, tamanio_total, 0664, true, false);
-			cintas [i] = new MemoriaDistribuida(directorio_de_trabajo, app_name,
-				std::string("cinta_scanner").append(intToString(i + 1)).c_str(), 0,
-				TAMANIO_MEMORIA_CONTROL_CINTA_SCANNER);
-			asignar_punteros(cintas [i]->memory_pointer(), i);
-		}
-
-		semaforos = new SemaphoreSet(std::vector<short unsigned int>(2 + 2 * MAX_SCANNERS, 1), directorio_de_trabajo,
-			inicio_ids + MAX_SCANNERS + 1, 0664);
-		cantidad_de_escaners_activos = static_cast<int *>(control->memory_pointer());
-		ids_escaners_activos = cantidad_de_escaners_activos + 1;
-		cinta_llena = ids_escaners_activos + MAX_SCANNERS;
-		productor_esperando = cinta_llena + MAX_SCANNERS;
-		inicializar_estructuras(tamanio_cintas);
-		proxima_cinta_a_colocar = 0;
-		numero_cinta = -1;
-	}
-}
-
-template <typename T>
 CintaScanner<T>::CintaScanner(const char * app_name, const char* directorio_de_trabajo, int id_cinta) {
 	int i;
 	std::vector<short unsigned int> valores;
@@ -124,14 +84,15 @@ CintaScanner<T>::CintaScanner(const char * app_name, const char* directorio_de_t
 	for (i = 0; i < MAX_SCANNERS ; i++) {
 		//cintas [i] = new SharedMemory(path_to_cinta_scanner, i + inicio_ids + 1, 0, 0, false, false);
 		cintas [i] = new MemoriaDistribuida(directorio_de_trabajo, app_name,
-			std::string("cinta_escaner").append(intToString(i + 1)).c_str(), 0, TAMANIO_MEMORIA_CINTA_SCANNER);
+			std::string("cinta_escaner").append(intToString(i + 1)).c_str(), id_cinta - 1,
+			TAMANIO_MEMORIA_CINTA_SCANNER);
 		asignar_punteros(cintas [i]->memory_pointer(), i);
 	}
 	valores.clear();
 	for (unsigned short j = 0 ; j < MAX_SCANNERS ; j++) {
 		valores.push_back(j);
 	}
-	semaforos = new SemaphoreSetDistribuido(valores, directorio_de_trabajo, app_name, "csc_semaforos_", char(0),
+	semaforos = new SemaphoreSetDistribuido(valores, directorio_de_trabajo, app_name, "csc_semaforos_", id_cinta - 1,
 		MAX_SCANNERS);
 	id_cinta = id_cinta;
 
@@ -162,8 +123,7 @@ CintaScanner<T>::CintaScanner(const char * app_name, const char* directorio_de_t
 	//cintas [numero_escaner - 1] = new SharedMemory(path_to_cinta_scanner, numero_escaner + inicio_ids, 0, 0, false,
 	//	false);
 	cintas [numero_escaner - 1] = new MemoriaDistribuida(directorio_de_trabajo, app_name,
-		std::string("cinta_escaner").append(intToString(numero_escaner)).c_str(), 0,
-		TAMANIO_MEMORIA_CINTA_SCANNER);
+		std::string("cinta_escaner").append(intToString(numero_escaner)).c_str(), 0, TAMANIO_MEMORIA_CINTA_SCANNER);
 
 	//semaforos = new SemaphoreSet(path_to_cinta_scanner, inicio_ids + MAX_SCANNERS + 1, 0, 0);
 	valores.clear();
@@ -292,7 +252,7 @@ void CintaScanner<T>::poner_equipaje(const T & equipaje) {
 			posicion = this->posicion_libre [proxima_cinta_a_colocar];
 			//destino = &((vector_elementos [proxima_cinta_a_colocar]) [*posicion]);
 			//memcpy(destino, &equipaje, sizeof(T));
-			vector_elementos [proxima_cinta_a_colocar][*posicion] = equipaje;
+			vector_elementos [proxima_cinta_a_colocar] [*posicion] = equipaje;
 			*posicion_libre [proxima_cinta_a_colocar] = (*posicion_libre [proxima_cinta_a_colocar] + 1)
 				% *this->tamanio_vector [proxima_cinta_a_colocar];
 			(*this->cantidad_elementos [proxima_cinta_a_colocar])++;
@@ -342,7 +302,7 @@ T CintaScanner<T>::sacar_equipaje() {
 			extrajo = true;
 			//memcpy((void *)&elemento, &(vector_elementos [numero_cinta] [*this->posicion_ocupada [numero_cinta]]),
 			//	sizeof(T));
-			 elemento = vector_elementos [numero_cinta] [*this->posicion_ocupada [numero_cinta]];
+			elemento = vector_elementos [numero_cinta] [*this->posicion_ocupada [numero_cinta]];
 			*this->posicion_ocupada [numero_cinta] = (*this->posicion_ocupada [numero_cinta] + 1)
 				% *this->tamanio_vector [numero_cinta];
 			(*this->cantidad_elementos [numero_cinta])--;

@@ -31,7 +31,7 @@ void print_ints(int *p, int cant) {
 }
 
 LocalBrokerComm::LocalBrokerComm(const std::string & directorio_de_trabajo, const std::string & app_name,
-	const std::string & group_name, const std::vector<std::string> & broker_hostnames,
+	const std::string & group_name, char id, const std::vector<std::string> & broker_hostnames,
 	const std::vector<std::string> & services, tipo_ipc_t tipo, int num_sem, int cantidad_de_semaforos)
 	: nombre_aplicacion(app_name), nombre_grupo(group_name), numero_de_semaforo(num_sem), tipo_de_recurso(tipo),
 		lista_de_brokers(broker_hostnames), lista_de_servicios(services)
@@ -44,9 +44,9 @@ LocalBrokerComm::LocalBrokerComm(const std::string & directorio_de_trabajo, cons
 	tengo_token = false;
 
 	if (tipo_de_recurso == SHAREDMEMORY) {
-		memoria = new MemoriaDistribuida(directorio_de_trabajo, nombre_grupo, char(0));
+		memoria = new MemoriaDistribuida(directorio_de_trabajo, nombre_grupo, id);
 	} else if (tipo_de_recurso == MUTEX) {
-		mutex = new MutexDistribuido(directorio_de_trabajo, nombre_grupo, char(0));
+		mutex = new MutexDistribuido(directorio_de_trabajo, nombre_grupo, id);
 	} else if (tipo_de_recurso == SEMAFORO) {
 		std::string nombre(nombre_grupo);
 		size = nombre.size();
@@ -54,7 +54,7 @@ LocalBrokerComm::LocalBrokerComm(const std::string & directorio_de_trabajo, cons
 			nombre.erase(size - 1, 1);
 			size--;
 		}
-		semaforo = new SemaphoreSetDistribuido(directorio_de_trabajo, nombre, char(0), cantidad_de_semaforos);
+		semaforo = new SemaphoreSetDistribuido(directorio_de_trabajo, nombre, id, cantidad_de_semaforos);
 	}
 
 	SignalHandler::getInstance()->registrarHandler(SIGUSR1, this);
@@ -642,21 +642,19 @@ try
 		return -1;
 	}
 
-#if DEBUG_LOCAL_BROKER_COMM ==1
 	std::string args("argc= ");
 	std::stringstream ss;
 	ss << argc;
 	args.append(ss.str());
-	for (int i = 0; i < argc; i++) {
+	for (int i = 0 ; i < argc ; i++) {
 		args.append(" ").append(argv [i]);
 	}
 	Log::info("%s", args.c_str());
-#endif
+
 	obtener_lista_de_brokers(brokers, servicios, argv [3]);
 
 	strncpy(grupo, argv [4], MAX_NOMBRE_RECURSO);
 	id = atoi(argv [5]);
-	id = id;
 
 #ifdef __x86_64__
 	sscanf(argv [6], "%lu", &tamanio);
@@ -676,7 +674,7 @@ try
 		tipo = SHAREDMEMORY;
 	}
 
-	LocalBrokerComm comunicacion(argv [1], argv [2], argv [4], brokers, servicios, tipo, num_sem, cant_sem);
+	LocalBrokerComm comunicacion(argv [1], argv [2], argv [4], id, brokers, servicios, tipo, num_sem, cant_sem);
 
 	comunicacion.run();
 

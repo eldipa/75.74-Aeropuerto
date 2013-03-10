@@ -75,7 +75,7 @@ private:
 
 public:
 	LocalBrokerComm(const std::string & directorio_de_trabajo, const std::string & app_name,
-		const std::string & group_name, const std::vector<std::string> & broker_hostnames,
+		const std::string & group_name, char id, const std::vector<std::string> & broker_hostnames,
 		const std::vector<std::string> & services, tipo_ipc_t tipo, int numero_de_semaforo = 0,
 		int cantidad_de_semaforos = 0);
 	virtual ~LocalBrokerComm();

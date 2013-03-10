@@ -60,7 +60,7 @@ SemaphoreSetDistribuido::SemaphoreSetDistribuido(std::vector<unsigned short> & n
 
 		lanzar_comunicacion(directorio_de_trabajo, nombre_app,
 			std::string(directorio_de_trabajo).append(PATH_LOCAL_BROKER_LIST_FILE).c_str(),
-			std::string(nombre_grupo).append(numero), 0, 0, valor);
+			std::string(nombre_grupo).append(numero), id, 0, valor);
 	}
 }
 

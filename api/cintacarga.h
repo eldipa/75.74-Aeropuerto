@@ -69,13 +69,13 @@ template <typename T> CintaCarga<T>::CintaCarga(const char * app_name, const cha
 	//this->semaforo_consumidores = new SemaphoreSet(absolute_path, cant_ipc * (numero_cinta - 1) + 3, 0, 0);
 
 	this->memoria_compartida = new MemoriaDistribuida(directorio_de_trabajo, app_name,
-		std::string("cinta_contenedor").append(intToString(numero_cinta)).c_str(), 0, TAMANIO_MEMORIA_CINTA_CARGA,
+		std::string("cinta_contenedor").append(intToString(numero_cinta)).c_str(), numero_cinta - 1, TAMANIO_MEMORIA_CINTA_CARGA,
 		create);
 	valores.push_back(numero_cinta - 1);
 	this->semaforo_productores = new SemaphoreSetDistribuido(valores, directorio_de_trabajo, app_name, "cco_sem_prod_",
-		char(0), CANTIDAD_MAX_CINTAS_CONTENEDOR, create);
+		numero_cinta - 1, CANTIDAD_MAX_CINTAS_CONTENEDOR, create);
 	this->semaforo_consumidores = new SemaphoreSetDistribuido(valores, directorio_de_trabajo, app_name, "cco_sem_cons_",
-		char(0), CANTIDAD_MAX_CINTAS_CONTENEDOR, create);
+		numero_cinta - 1, CANTIDAD_MAX_CINTAS_CONTENEDOR, create);
 
 	tamanio_vector = static_cast<const int *>(memoria_compartida->memory_pointer());
 	posicion_libre = const_cast<int*>(tamanio_vector) + 1;

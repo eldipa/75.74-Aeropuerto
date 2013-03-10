@@ -11,7 +11,7 @@
 #include "database.h"
 #include "stmt.h"
 #include "tupleiter.h"
-
+#include "dir.h"
 #include "log.h"
 
 #include <string>
@@ -39,16 +39,20 @@ try
 	int zona_desde = atoi(argv [4]);
 	int zona_hasta = atoi(argv [5]);
 
+	Log::info("creando Api");
 	ApiDespachante despachante_cinta_central(argv [1], argv [2], "robot_despachante", id_robot, true);
-   
-   std::vector< yasper::ptr< CintaContenedor > > cintas_contenedor;
 
-   for(int i=zona_desde; i<=zona_hasta; i++) {
-      Log::debug("Conectando con cinta %d", i);
-      cintas_contenedor.push_back( new CintaContenedor(std::string("robot_despacho").append(argv [3]).c_str(),
-                                                       std::string(argv [1]).c_str(), i, true) );
-   }
+	std::vector<yasper::ptr<CintaContenedor> > cintas_contenedor;
 
+	Log::info("creando Cintas Contenedor\n");
+	for (int i = zona_desde ; i <= zona_hasta ; i++) {
+		Log::debug("Conectando con cinta %d\n", i);
+
+		cintas_contenedor.push_back(
+			new CintaContenedor(std::string("robot_despacho").append(argv [3]).c_str(), argv [1], i, true));
+
+	}
+	Log::debug("Cintas Creadas\n");
 	for (; ;) {
 
 		sleep(rand() % SLEEP_ROBOT_DESPACHO);
@@ -72,9 +76,10 @@ try
 
 		} else {
 
-			Log::info("OK, es para mi.Equipaje %d limpio envio a robot_carga zona %d\n", rfid_equipaje.rfid, num_zona);
+			Log::info("OK, es para mi. Equipaje %d limpio, extraigo de cinta principal\n", rfid_equipaje.rfid);
 			Equipaje equipaje = despachante_cinta_central.extraer_equipaje();
-         cintas_contenedor[num_zona-zona_desde]->poner_equipaje(equipaje, 1);
+			Log::info("Coloco Equipaje %d en cinta contenedor zona %d\n", rfid_equipaje.rfid, num_zona);
+			cintas_contenedor [num_zona - zona_desde]->poner_equipaje(equipaje, 1);
 		}
 	}
 
