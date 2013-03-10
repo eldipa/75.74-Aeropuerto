@@ -68,7 +68,7 @@ void ApiDespachante::avanzar_cinta() {
 }
 
 void ApiDespachante::asignar_vuelo(int zona, int vuelo) {
-	Log::info("asignando zona %d a vuelo %d", numero_despachante, zona, vuelo);
+	Log::info("asignando zona %d a vuelo %d", zona, vuelo);
 
 	Operandos op;
 	op.num_zona = zona;

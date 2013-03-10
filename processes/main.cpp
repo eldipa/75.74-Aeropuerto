@@ -84,13 +84,13 @@ static char *args_robot_checkin [] = {
 
 static char *args_robot_carga1 [] = {
 	(char*)"robot_carga_1", working_dir_robot_carga1, config_file, (char*)"1", (char*)"1", NULL};
-/*static char *args_robot_carga2 [] = {
-	(char*)"robot_carga_2", working_dir_robot_carga2, config_file, (char*)"2", (char*)"2", NULL};*/
+static char *args_robot_carga2 [] = {
+	(char*)"robot_carga_2", working_dir_robot_carga2, config_file, (char*)"2", (char*)"2", NULL};
 static char *args_robot_carga3 [] = {
 	(char*)"robot_carga_3", working_dir_robot_carga3, config_file, (char*)"3", (char*)"3", NULL};
-/*static char *args_robot_carga4 [] = {
+static char *args_robot_carga4 [] = {
 	(char*)"robot_carga_4", working_dir_robot_carga4, config_file, (char*)"4", (char*)"4", NULL};
-*/
+
 static char *args_scanner1 [] = {
 	(char*)"robot_scanner_1", working_dir_robot_escaner1, config_file, (char*)"1", (char*)"1", (char*)"1", NULL};
 /*
@@ -399,9 +399,9 @@ try
 		processes.push_back(Process("robot_despacho", args_robot_despacho1));
 		processes.push_back(Process("robot_despacho", args_robot_despacho2));
 		processes.push_back(Process("robot_carga", args_robot_carga1));
-		//processes.push_back(Process("robot_carga", args_robot_carga2));
+		processes.push_back(Process("robot_carga", args_robot_carga2));
 		processes.push_back(Process("robot_carga", args_robot_carga3));
-		//processes.push_back(Process("robot_carga", args_robot_carga4));
+		processes.push_back(Process("robot_carga", args_robot_carga4));
 		processes.push_back(Process("robot_control_equipaje_sospechoso", args_robot_sospechosos));
 		processes.push_back(Process("robot_intercargo", args_robot_intercargo));
 		//processes.push_back(Process("control_equipaje_sospechoso", args_robot_sospechosos));
