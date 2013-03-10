@@ -2,17 +2,20 @@
 
 import cmd
 import subprocess
-import os
+import os, sys
 import time
 import optparse
 import signal
 import shutil
 
 BASE = "/tmp/"
-processes = []
 
 class Aeropuerto(cmd.Cmd):
     """Simple command processor example."""
+
+    def __init__(self):
+        cmd.Cmd.__init__(self)
+        self._processes = []
 
     def do_local_broker(self, line):
         """ Parameters: id_broker port """
@@ -32,9 +35,10 @@ class Aeropuerto(cmd.Cmd):
             shutil.copy("./locks/local_broker.list", os.path.join(wkdir, "local_broker.list") )
 
             p = self.run_process("./../local_broker/local_broker_launcher", [proc_name, wkdir, port], "./../local_broker")
-
+            time.sleep(2)
+            
             if(p):
-                processes.append(p)
+                self._processes.append(p)
 
         except ValueError:
             print "Bad Argument:"+self.do_local_broker.__doc__;
@@ -46,15 +50,19 @@ class Aeropuerto(cmd.Cmd):
     def do_message_broker(self, line):
         """ Parameters: config_file """
         try:
+            if len(line) == 0:
+                raise ValueError("")
+
             config_file_name = str.split(line)[0]
             
             proc_name = "message_broker"
             config_file = os.path.join(os.getcwd(), config_file_name)
 
             p = self.run_process("./message_broker_launcher", [proc_name, config_file])
+            time.sleep(2)
 
             if(p):
-                processes.append(p)
+                self._processes.append(p)
 
         except ValueError:
             print "Bad Argument:"+self.do_message_broker.__doc__;
@@ -67,14 +75,18 @@ class Aeropuerto(cmd.Cmd):
     def do_intermediate_broker(self, line):
         """ Parameters: config_file """
         try:
+            if len(line) == 0:
+                raise ValueError("")
+
             config_file_name = str.split(line)[0]
             
             proc_name = "intermediate_broker"
             config_file = os.path.join(os.getcwd(), config_file_name)
             p = self.run_process("./intermediate_broker_launcher", [proc_name, config_file])
+            time.sleep(2)
 
             if(p):
-                processes.append(p)
+                self._processes.append(p)
 
         except ValueError:
             print "Bad Argument:"+self.do_intermediate_broker.__doc__;
@@ -87,17 +99,20 @@ class Aeropuerto(cmd.Cmd):
     def do_torre_de_control(self, line):
         """ Parameters: config_file """
         try:
+            if len(line) == 0:
+                raise ValueError("")
+
             config_file_name = str.split(line)[0]
             
             proc_name = "torre_de_control"
             config_file = os.path.join(os.getcwd(), config_file_name)
             p = self.run_process("./torre_de_control_launcher", [proc_name, config_file])
-
+            time.sleep(2)
             if(p):
-                processes.append(p)
+                self._processes.append(p)
 
         except ValueError:
-            print "Bad Argument:"+self.torre_de_control_launcher.__doc__;
+            print "Bad Argument:"+self.do_torre_de_control.__doc__;
         except Exception as error:
             print str(error)
 
@@ -113,16 +128,16 @@ class Aeropuerto(cmd.Cmd):
             wkdir = os.path.join( BASE, "wd"+proc_name )            
 
             self.makedirsp(wkdir)
-            shutil.copy("../local_broker/locks/local_broker.list", os.path.join(wkdir, "local_broker.list") )
+            shutil.copy("./locks/local_broker.list", os.path.join(wkdir, "local_broker.list") )
 
             config_file = os.path.join(os.getcwd(), config_file_name)
             p = self.run_process("./puesto_checkin", [proc_name, wkdir, config_file, id_checkin, "1"])
 
             if(p):
-                processes.append(p)
+                self._processes.append(p)
 
         except ValueError:
-            print "Bad Argument:"+self.puesto_checkin.__doc__;
+            print "Bad Argument:"+self.do_puesto_checkin.__doc__;
         except Exception as error:
             print str(error)
 
@@ -138,16 +153,16 @@ class Aeropuerto(cmd.Cmd):
             wkdir = os.path.join( BASE, "wd"+proc_name )            
 
             self.makedirsp(wkdir)
-            shutil.copy("../local_broker/locks/local_broker.list", os.path.join(wkdir, "local_broker.list") )
+            shutil.copy("./locks/local_broker.list", os.path.join(wkdir, "local_broker.list") )
 
             config_file = os.path.join(os.getcwd(), config_file_name)
             p = self.run_process("./robot_checkin", [proc_name, wkdir, config_file, id_robot, "1", "1"])
 
             if(p):
-                processes.append(p)
+                self._processes.append(p)
 
         except ValueError:
-            print "Bad Argument:"+self.robot_checkin.__doc__;
+            print "Bad Argument:"+self.do_robot_checkin.__doc__;
         except Exception as error:
             print str(error)
 
@@ -164,16 +179,16 @@ class Aeropuerto(cmd.Cmd):
             wkdir = os.path.join( BASE, "wd"+proc_name )            
 
             self.makedirsp(wkdir)
-            shutil.copy("../local_broker/locks/local_broker.list", os.path.join(wkdir, "local_broker.list") )
+            shutil.copy("./locks/local_broker.list", os.path.join(wkdir, "local_broker.list") )
 
             config_file = os.path.join(os.getcwd(), config_file_name)
             p = self.run_process("./robot_scanner", [proc_name, wkdir, config_file, id_robot_scanner, "1", "1"])
 
             if(p):
-                processes.append(p)
+                self._processes.append(p)
 
         except ValueError:
-            print "Bad Argument:"+self.robot_scanner.__doc__;
+            print "Bad Argument:"+self.do_robot_scanner.__doc__;
         except Exception as error:
             print str(error)
 
@@ -189,19 +204,22 @@ class Aeropuerto(cmd.Cmd):
             wkdir = os.path.join( BASE, "wd"+proc_name )            
 
             self.makedirsp(wkdir)
-            shutil.copy("../local_broker/locks/local_broker.list", os.path.join(wkdir, "local_broker.list") )
+            shutil.copy("./locks/local_broker.list", os.path.join(wkdir, "local_broker.list") )
 
             config_file = os.path.join(os.getcwd(), config_file_name)
             p = self.run_process("./robot_despacho", [proc_name, wkdir, config_file, id_robot_despacho, zona_desde, zona_hasta])
 
             if(p):
-                processes.append(p)
+                self._processes.append(p)
 
         except ValueError:
-            print "Bad Argument:"+self.robot_despacho.__doc__;
+            print "Bad Argument:"+self.do_robot_despacho.__doc__;
         except Exception as error:
             print str(error)
 
+        pass
+
+    def do_EOF(self, line):
         pass
 
     def do_robot_carga(self, line):
@@ -214,16 +232,16 @@ class Aeropuerto(cmd.Cmd):
             wkdir = os.path.join( BASE, "wd"+proc_name )
 
             self.makedirsp(wkdir)
-            shutil.copy("../local_broker/locks/local_broker.list", os.path.join(wkdir, "local_broker.list") )
+            shutil.copy("./locks/local_broker.list", os.path.join(wkdir, "local_broker.list") )
 
             config_file = os.path.join(os.getcwd(), config_file_name)
             p = self.run_process("./robot_carga", [proc_name, wkdir, config_file, id_robot_carga, id_robot_carga, id_robot_carga ])
 
             if(p):
-                processes.append(p)
+                self._processes.append(p)
 
         except ValueError:
-            print "Bad Argument:"+self.robot_carga.__doc__;
+            print "Bad Argument:"+self.do_robot_carga.__doc__;
         except Exception as error:
             print str(error)
 
@@ -233,19 +251,22 @@ class Aeropuerto(cmd.Cmd):
         """ Parameters: config_file pos_cinta_central=3"""
 
         try:
+            if len(line) == 0:
+                raise ValueError("")
+
             config_file_name = str.split(line)[0]
             
             proc_name = "robot_control_equipaje_sospechoso"
             wkdir = os.path.join( BASE, "wd"+proc_name )            
 
             self.makedirsp(wkdir)
-            shutil.copy("../local_broker/locks/local_broker.list", os.path.join(wkdir, "local_broker.list") )
+            shutil.copy("./locks/local_broker.list", os.path.join(wkdir, "local_broker.list") )
 
             config_file = os.path.join(os.getcwd(), config_file_name)
             p = self.run_process("./robot_carga", [proc_name, wkdir, config_file, "3" ])
 
             if(p):
-                processes.append(p)
+                self._processes.append(p)
 
         except ValueError:
             print "Bad Argument:"+self.do_robot_equipaje_sospechoso.__doc__;
@@ -258,6 +279,9 @@ class Aeropuerto(cmd.Cmd):
     def do_robot_intercargo(self, line):
         """ Parameters: config_file"""
         try:
+            if len(line) == 0:
+                raise ValueError("")
+
             config_file_name = str.split(line)[0]
             
             proc_name = "robot_intercargo"
@@ -265,16 +289,16 @@ class Aeropuerto(cmd.Cmd):
             wkdir = os.path.join( BASE, "wd"+proc_name )
 
             self.makedirsp(wkdir)
-            shutil.copy("../local_broker/locks/local_broker.list", os.path.join(wkdir, "local_broker.list") )
+            shutil.copy("./locks/local_broker.list", os.path.join(wkdir, "local_broker.list") )
 
             config_file = os.path.join(os.getcwd(), config_file_name)
             p = self.run_process("./robot_intercargo", [proc_name, wkdir, config_file])
 
             if(p):
-                processes.append(p)
+                self._processes.append(p)
 
         except ValueError:
-            print "Bad Argument:"+self.robot_intercargo.__doc__;
+            print "Bad Argument:"+self.do_robot_intercargo.__doc__;
         except Exception as error:
             print str(error)
 
@@ -290,7 +314,7 @@ class Aeropuerto(cmd.Cmd):
             wkdir = os.path.join( BASE, "wd"+proc_name )            
 
             self.makedirsp(wkdir)
-            shutil.copy("../local_broker/locks/local_broker.list", os.path.join(wkdir, "local_broker.list") )
+            shutil.copy("./locks/local_broker.list", os.path.join(wkdir, "local_broker.list") )
             shutil.copy("./locks/vuelos_entrantes.csv", os.path.join(wkdir, "vuelos_entrantes.csv") )
             shutil.copy("./locks/equipaje_destino_1.csv", os.path.join(wkdir, "equipaje_destino_1.csv") )
             shutil.copy("./locks/equipaje_destino_101.csv", os.path.join(wkdir, "equipaje_destino_101.csv") )
@@ -308,7 +332,7 @@ class Aeropuerto(cmd.Cmd):
             p = self.run_process("./robot_intercargo", [proc_name, wkdir, config_file, file_vuelos_entrantes, file_vuelos_interconexion])
 
             if(p):
-                processes.append(p)
+                self._processes.append(p)
 
         except ValueError:
             print "Bad Argument:"+self.do_generador_trasbordo.__doc__;
@@ -321,19 +345,22 @@ class Aeropuerto(cmd.Cmd):
     def do_scheduler_vuelos(self, line):
         """ Parameters: config_file"""
         try:
+            if len(line) == 0:
+                raise ValueError("")
+
             config_file_name = str.split(line)[0]
             
             proc_name = "scheduler_vuelos"
             wkdir = os.path.join( BASE, "wd"+proc_name )            
 
             self.makedirsp(wkdir)
-            shutil.copy("../local_broker/locks/local_broker.list", os.path.join(wkdir, "local_broker.list") )
+            shutil.copy("./locks/local_broker.list", os.path.join(wkdir, "local_broker.list") )
 
             config_file = os.path.join(os.getcwd(), config_file_name)
             p = self.run_process("./scheduler_vuelos", [proc_name, wkdir, config_file])
 
             if(p):
-                processes.append(p)
+                self._processes.append(p)
 
         except ValueError:
             print "Bad Argument:"+self.do_scheduler_vuelos.__doc__;
@@ -345,20 +372,23 @@ class Aeropuerto(cmd.Cmd):
     def do_scheduler_aviones(self, line):
         """ Parameters: config_file"""
         try:
+            if len(line) == 0:
+                raise ValueError("")
+
             config_file_name = str.split(line)[0]
             
             proc_name = "scheduler_aviones"
             wkdir = os.path.join( BASE, "wd"+proc_name )            
 
             self.makedirsp(wkdir)
-            shutil.copy("../local_broker/locks/local_broker.list", os.path.join(wkdir, "local_broker.list") )
+            shutil.copy("./locks/local_broker.list", os.path.join(wkdir, "local_broker.list") )
             shutil.copy("./locks/aviones.csv", os.path.join(wkdir, "aviones.csv") )
 
             config_file = os.path.join(os.getcwd(), config_file_name)
             p = self.run_process("./scheduler_aviones", [proc_name, wkdir, config_file])
 
             if(p):
-                processes.append(p)
+                self._processes.append(p)
 
         except ValueError:
             print "Bad Argument:"+self.do_scheduler_aviones.__doc__;
@@ -377,13 +407,13 @@ class Aeropuerto(cmd.Cmd):
             wkdir = os.path.join( BASE, "wd"+proc_name )            
 
             self.makedirsp(wkdir)
-            shutil.copy("../local_broker/locks/local_broker.list", os.path.join(wkdir, "local_broker.list") )
+            shutil.copy("./locks/local_broker.list", os.path.join(wkdir, "local_broker.list") )
 
             config_file = os.path.join(os.getcwd(), config_file_name)
             p = self.run_process("./tractor", [proc_name, wkdir, config_file, id_tractor])
 
             if(p):
-                processes.append(p)
+                self._processes.append(p)
 
         except ValueError:
             print "Bad Argument:"+self.do_tractor.__doc__;
@@ -394,23 +424,23 @@ class Aeropuerto(cmd.Cmd):
 
 
     def do_list(self, line):
-        print "processes ("+str(len(processes))+")"
-        for p in processes:
+        print "process ("+str(len(self._processes))+")"
+        for p in self._processes:
             print "\t"+str(p[0])+" pid="+str(p[1])
         return False
            
     def do_exit(self, line):
-        print "Finalizando procesos.Enviando SIGTERM..."
-        #        for p in processes:
-        #            print "kill "+str(p[1])
-        #            os.kill(p[1], signal.SIGTERM)
 
+        print "Finalizando procesos.Enviando SIGTERM..."
+        for p in self._processes:
+            print "kill "+str(p[1])
+            os.kill(int(p[1]), signal.SIGTERM)
 
         print "Finalizando procesos.Enviando SIGKILL..."
-        time.sleep(2)
-        for p in processes:
+        time.sleep(5)
+        for p in self._processes:
             print "kill "+str(p[1])
-            os.kill(p[1], signal.SIGKILL)
+            os.kill(int(p[1]), signal.SIGKILL)
 
 
         return True
@@ -443,17 +473,26 @@ class Aeropuerto(cmd.Cmd):
             os.makedirs(directory)
 
 if __name__ == '__main__':
+
+    input = None
+    aeropuerto = Aeropuerto()
+
     try:
-        Aeropuerto().cmdloop()
+
+        if ( len(sys.argv)>1 ):
+            input = open(sys.argv[1], 'rt')
+            for line in input:
+                line = line.strip()
+                if(len(line)>0):
+                    print str(line)
+                    aeropuerto.onecmd(line)
+
+        aeropuerto.cmdloop()
     except Exception as error:
         print str(error)
-
-        print "Finalizando procesos.Enviando SIGTERM..."
-        time.sleep(5)
-        for p in processes:
-            p.terminate()
-
-        print "Finalizando procesos.Enviando SIGKILL..."
-        time.sleep(2)
-        for p in processes:
-            p.kill()
+        aeropuerto.do_exit("")
+        exit(0)
+    finally:
+        if input:
+            input.close()
+    
