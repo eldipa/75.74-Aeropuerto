@@ -5,29 +5,20 @@
 #include <string>
 
 ApiControlEquipajes::ApiControlEquipajes(const char * directorio_de_trabajo, const char* config_file,
-	int pos_consumidor_cinta_central, bool create)
-	: pos_consumidor_cinta_central(pos_consumidor_cinta_central), pos_productor_cinta_central(0),
-		cinta_central("robot_control_equipaje_sospechoso", std::string(directorio_de_trabajo).c_str(),
-			pos_consumidor_cinta_central -1, -1, create),
-
-		queue_manager(ApiConfiguracion::get_queue_manager(directorio_de_trabajo, config_file)),
-		queue_to_control_sospechosos(queue_manager->get_queue(PATH_CONTROL_SOSPECHOSOS, 1, create))
-{
-
-	create = !!create;
-}
-
-ApiControlEquipajes::ApiControlEquipajes(const char * directorio_de_trabajo, const char* config_file,
-	int pos_consumidor_cinta_central, int pos_productor_cinta_central)
+	int pos_consumidor_cinta_central, int pos_productor_cinta_central, bool create)
 	: pos_consumidor_cinta_central(pos_consumidor_cinta_central),
 		pos_productor_cinta_central(pos_productor_cinta_central),
-		cinta_central("control_equipaje_sospechoso", std::string(directorio_de_trabajo).c_str(), -1,
-			pos_productor_cinta_central -1, false),
-
-		queue_manager(ApiConfiguracion::get_queue_manager(directorio_de_trabajo, config_file)),
-		queue_to_control_sospechosos(queue_manager->get_queue(PATH_CONTROL_SOSPECHOSOS, 1))
+		cinta_central(std::string("control_equipaje").append((pos_productor_cinta_central == -1) ? "cons":"prod").c_str(), std::string(directorio_de_trabajo).c_str(),
+			pos_consumidor_cinta_central - 1, pos_productor_cinta_central - 1, create)
+#if DEBUG_ROBOT_CONTROL_EXTRAE_CINTA_PRINCIPAL == 0 || DEBUG_ROBOT_CONTROL_COLOCA_CINTA_PRINCIPAL == 1
+			, queue_manager(ApiConfiguracion::get_queue_manager(directorio_de_trabajo, config_file)),
+		queue_to_control_sospechosos(queue_manager->get_queue(PATH_CONTROL_SOSPECHOSOS, 1, create))
+#endif
 {
-
+#if DEBUG_ROBOT_CONTROL_EXTRAE_CINTA_PRINCIPAL == 1
+	config_file = config_file + 1 - 1;
+#endif
+	create = !!create;
 }
 
 ApiControlEquipajes::~ApiControlEquipajes() {

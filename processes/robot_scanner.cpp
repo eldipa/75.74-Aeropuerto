@@ -96,8 +96,13 @@ try
 	for (int i = 0 ; i < 3 ; i++) {
 
 		Equipaje equipaje(Rfid(i, 1000));
+#if DEBUG_ROBOT_CONTROL_EXTRAE_CINTA_PRINCIPAL == 1
+		equipaje.set_sospechoso(true);
+		equipaje.set_descripcion("Sospechoso");
+#else
 		equipaje.set_sospechoso(false);
 		equipaje.set_descripcion("Descripcion");
+#endif
 
 		printf("pasando equipaje (%s) a cinta central (%s)\n", equipaje.toString().c_str(), argv [3]);
 		api_escaner_cinta_central.colocar_equipaje_en_cinta_principal(equipaje);

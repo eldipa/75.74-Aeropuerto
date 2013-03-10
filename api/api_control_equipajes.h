@@ -26,10 +26,8 @@ private:
 
 public:
    ApiControlEquipajes(const char * directorio_de_trabajo,const char* config_file, 
-                       int pos_consumidor_cinta_central, bool create);
+                       int pos_consumidor_cinta_centralint,int pos_productor_cinta_central, bool create);
 
-	ApiControlEquipajes(const char * directorio_de_trabajo, const char* config_file,
-                       int pos_consumidor_cinta_central, int pos_productor_cinta_central);
 	virtual ~ApiControlEquipajes();
 
 	Equipaje obtener_proximo_equipaje_sospechoso();

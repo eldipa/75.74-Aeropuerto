@@ -142,6 +142,12 @@ static char *args_tractor1 [] = {(char*)"tractor_1", working_dir_tractor1, confi
 static char *args_scheduler_aviones [] = {(char*)"scheduler_aviones", directorio_de_trabajo, config_file, NULL};
 static char *args_scheduler_vuelos [] = {(char*)"scheduler_vuelos", directorio_de_trabajo, config_file, NULL};
 */
+
+static char *args_intermediate_broker [] = {(char*)"intermediate_broker_launcher", NULL};
+static char *args_message_broker [] = {(char*)"message_broker_launcher", NULL};
+/*static char *args_torre_de_control [] = {(char*)"torre_de_control_launcher", NULL};
+*/
+
 static std::vector<char *> all_dirs;
 
 void load_all_dirs() {
@@ -284,11 +290,7 @@ void copy_files() {
 	strcpy(file_src, "./locks/vuelos.csv");
 	cp(std::string(working_dir_generador_vuelos_trasbordo).append(file_dest).c_str(), file_src);
 }
-/*
-static char *args_intermediate_broker [] = {(char*)"intermediate_broker_launcher", NULL};
-static char *args_message_broker [] = {(char*)"message_broker_launcher", NULL};
-static char *args_torre_de_control [] = {(char*)"torre_de_control_launcher", NULL};
-*/
+
 static int selecc_arch(const struct dirent *entry) {
 	if ((strcmp(entry->d_name, ".") == 0) || (strcmp(entry->d_name, "..") == 0))
 		return 0;
@@ -383,8 +385,8 @@ try
 
 		chdir("../processes");
 
-		//processes.push_back(Process("intermediate_broker_launcher", args_intermediate_broker));
-		//processes.push_back(Process("message_broker_launcher", args_message_broker));
+		processes.push_back(Process("intermediate_broker_launcher", args_intermediate_broker));
+		processes.push_back(Process("message_broker_launcher", args_message_broker));
 		sleep(2);
 		//processes.push_back(Process("torre_de_control_launcher", args_torre_de_control));
 		sleep(1);

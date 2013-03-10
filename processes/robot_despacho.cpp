@@ -101,7 +101,7 @@ try
 
 	if (argc < 5) {
 		printf(
-			"insuf. param para robot de despacho,se esperaba(directorio_de_trabajo, config_file, id, zona_desde, zona_hasta...)\n");
+			"insuf. param para robot de despacho,se esperaba(directorio_de_trabajo, config_file, id, zona_desde, zona_hasta)\n");
 		exit(1);
 	}
 
@@ -117,13 +117,13 @@ try
 
 	ApiDespachante despachante_cinta_central(argv [1], argv [2], "robot_despachante", id_robot, true);
 
-	for (int i = 0; i < 3; i++) {
+	for (int i = 0; i < 6; i++) {
 
 		printf("Intentando tomar un nuevo equipaje de cinta central\n");
 
 		Rfid rfid_equipaje = despachante_cinta_central.leer_proximo_equipaje();
 
-		printf("Leido equipaje %d con destino a vuelo (%d)", rfid_equipaje.rfid, rfid_equipaje.numero_de_vuelo_destino);
+		printf("Leido equipaje %d con destino a vuelo (%d)\n", rfid_equipaje.rfid, rfid_equipaje.numero_de_vuelo_destino);
 
 		int num_zona = zona_desde + 1;
 
