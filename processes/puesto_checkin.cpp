@@ -34,11 +34,7 @@ int main(int argc, char *argv[]) try {
 	int vuelo_pasajero, id_pasajero;
 
 	Log::info("Iniciando puesto_checkin(%s), conectado a cinta %i\n", argv[3], checkin.get_cinta_checkin() );
-	Log::info("lanzando controlador_puesto_checkin\n" );
 
-	char *args_controlador[] = {(char*) "controlador_puesto_checkin", (char*) argv[1], (char*)argv[2],
-		(char*) argv[3], (char*)"./entrada/equipajes_intercargo.csv", NULL};
-	Process controlador_puesto_checkin("controlador_puesto_checkin", args_controlador);
 
 	for(;;) {
 
