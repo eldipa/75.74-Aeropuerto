@@ -92,16 +92,16 @@ static char *args_robot_carga4 [] = {
 	(char*)"robot_carga_4", working_dir_robot_carga4, config_file, (char*)"4", (char*)"4", NULL};
 
 static char *args_scanner1 [] = {
-	(char*)"robot_scanner_1", working_dir_robot_escaner1, config_file, (char*)"1", (char*)"1", (char*)"1", NULL};
+	(char*)"robot_scanner_1", working_dir_robot_escaner1, config_file, (char*)"1",  NULL};
 
 static char *args_scanner2 [] = {
-	(char*)"robot_scanner_2", working_dir_robot_escaner2, config_file, (char*)"2", (char*)"1", (char*)"1", NULL};
+	(char*)"robot_scanner_2", working_dir_robot_escaner2, config_file, (char*)"2",  NULL};
 
 static char *args_scanner3 [] = {
- (char*)"robot_scanner_3", working_dir_robot_escaner3, config_file, (char*)"3", (char*)"1", (char*)"1", NULL};
+ (char*)"robot_scanner_3", working_dir_robot_escaner3, config_file, (char*)"3", NULL};
 
 static char *args_scanner4 [] = {
- (char*)"robot_scanner_4", working_dir_robot_escaner4, config_file, (char*)"4", (char*)"1", (char*)"1", NULL};
+ (char*)"robot_scanner_4", working_dir_robot_escaner4, config_file, (char*)"4", NULL};
 
 static char *args_robot_despacho1 [] = {
 

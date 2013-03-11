@@ -219,10 +219,10 @@ size_t ClientHandler::recv_token() {
 			if (mensaje.peticion == mensajes::LEAVE) {
 				std::cout << nombre_cliente << "(" << nombre_grupo << ") Leave Received" << std::endl;
 			}
-			if (this->nombre_grupo == "cinta_checkin" && i == 0) {
+			/*if (this->nombre_grupo == "cinta_checkin" && i == 0) {
 				std::cout << nombre_cliente << " Recibido: ";
 				print_ints((int *)mensaje.datos, 9);
-			}
+			}*/
 #endif
 			if (mensaje.peticion == mensajes::LEAVE) {
 				Log::info("%s(%s) Leave received", nombre_cliente.c_str(), nombre_grupo.c_str());
