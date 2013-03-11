@@ -12,6 +12,9 @@ BASE = "/tmp/"
 BASE_WK_DIR = "wd_"
 MAX_SCANNERS = 4
 
+def ignore_signal(signal, frame):
+    pass
+
 class Aeropuerto(cmd.Cmd):
     """Simple command processor example."""
 
@@ -439,16 +442,14 @@ class Aeropuerto(cmd.Cmd):
 
         print "Finalizando procesos.Enviando SIGTERM..."
         for p in reversed(self._processes):
-            print "kill "+str(p[1])
-            os.kill(int(p[1]), signal.SIGTERM)
+            os.kill(int(p[1]), signal.SIGINT)
 
         time.sleep(5)
-        print "Finalizando procesos.Enviando SIGKILL..."
-        for p in reversed(self._processes):
-            print "kill "+str(p[1])
-            os.kill(int(p[1]), signal.SIGKILL)
+#        print "Finalizando procesos.Enviando SIGKILL..."
+#        for p in reversed(self._processes):
+#            os.kill(int(p[1]), signal.SIGKILL)
 
-        time.sleep(5)
+        time.sleep(4)
         return True
            
     def do_shell(self, line):
@@ -480,6 +481,9 @@ class Aeropuerto(cmd.Cmd):
 
 if __name__ == '__main__':
 
+    signal.signal(signal.SIGINT, ignore_signal)
+    signal.signal(signal.SIGTERM, ignore_signal)
+
     input = None
     aeropuerto = Aeropuerto()
 
@@ -489,7 +493,7 @@ if __name__ == '__main__':
             input = open(sys.argv[1], 'rt')
             for line in input:
                 line = line.strip()
-                if(len(line)>0):
+                if( (len(line)>0) and (line[0]!='#')):
                     print str(line)
                     aeropuerto.onecmd(line)
 

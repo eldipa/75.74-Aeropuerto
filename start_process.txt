@@ -1,33 +1,33 @@
-local_broker 1 1234
+#local_broker 1 1234
 
 message_broker config/simulacion.ini
 intermediate_broker config/simulacion.ini
 torre_de_control config/simulacion.ini
 
-puesto_checkin 1 config/simulacion.ini
-puesto_checkin 2 config/simulacion.ini
-puesto_checkin 3 config/simulacion.ini
-puesto_checkin 4 config/simulacion.ini
+#puesto_checkin 1 config/simulacion.ini
+#puesto_checkin 2 config/simulacion.ini
+#puesto_checkin 3 config/simulacion.ini
+#puesto_checkin 4 config/simulacion.ini
 
-robot_checkin 1 config/simulacion.ini
+#robot_checkin 1 config/simulacion.ini
 
-robot_scanner 1 config/simulacion.ini
-robot_scanner 2 config/simulacion.ini
+#robot_scanner 1 config/simulacion.ini
+#robot_scanner 2 config/simulacion.ini
 
-robot_despacho 1 config/simulacion.ini 1 2
-robot_despacho 2 config/simulacion.ini 3 4
+#robot_despacho 1 config/simulacion.ini 1 2
+#robot_despacho 2 config/simulacion.ini 3 4
 
-robot_carga 1 config/simulacion.ini
-robot_carga 2 config/simulacion.ini
-robot_carga 3 config/simulacion.ini
-robot_carga 4 config/simulacion.ini
+#robot_carga 1 config/simulacion.ini
+#robot_carga 2 config/simulacion.ini
+#robot_carga 3 config/simulacion.ini
+#robot_carga 4 config/simulacion.ini
 
-robot_equipaje_sospechoso config/simulacion.ini
-robot_intercargo config/simulacion.ini
-generador_trasbordo config/simulacion.ini ./entrada/vuelos_entrantes.csv ./entrada/vuelos_interconexion.csv
-tractor 1 config/simulacion.ini
-scheduler_aviones config/simulacion.ini
-scheduler_vuelos config/simulacion.ini
+#robot_equipaje_sospechoso config/simulacion.ini
+#robot_intercargo config/simulacion.ini
+#generador_trasbordo config/simulacion.ini ./entrada/vuelos_entrantes.csv ./entrada/vuelos_interconexion.csv
+#tractor 1 config/simulacion.ini
+#scheduler_aviones config/simulacion.ini
+#scheduler_vuelos config/simulacion.ini
 list
 help
 

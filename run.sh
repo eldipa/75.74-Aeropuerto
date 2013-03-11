@@ -4,11 +4,15 @@
 
 if [ $# -gt 0 ];then
     CONFIG_FILE=`pwd`/$@
+else
+    CONFIG_FILE=`pwd`/"start_process.txt"
 fi
 
 cd processes
 
-./main $CONFIG_FILE
+./run.py $CONFIG_FILE
+
+#./main $CONFIG_FILE
 
 
 
