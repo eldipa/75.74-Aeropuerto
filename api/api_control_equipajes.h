@@ -5,6 +5,7 @@
 #include "messagequeue.h"
 #include "cintas.h"
 #include "rfid.h"
+#include "torre_de_control.h"
 
 #include "yasper.h"
 #include "imessagequeue.h"
@@ -17,6 +18,8 @@ typedef struct t_msg_sospechoso {
 
 class ApiControlEquipajes {
 private:
+   CLIENT *clnt_torre_de_control;
+
 	int pos_consumidor_cinta_central;
 	int pos_productor_cinta_central;
 	CintaCentral cinta_central;
@@ -36,6 +39,9 @@ public:
 
    void enviar_equipaje_a_control(Equipaje&);
    Equipaje get_equipaje_a_controlar();
+
+   int get_zona(int num_vuelo);
+
 };
 
 #endif /* APICONTROLEQUIPAJES_H_ */

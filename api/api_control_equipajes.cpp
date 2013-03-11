@@ -6,7 +6,9 @@
 
 ApiControlEquipajes::ApiControlEquipajes(const char * directorio_de_trabajo, const char* config_file,
 	int pos_consumidor_cinta_central, int pos_productor_cinta_central, bool create)
-	: pos_consumidor_cinta_central(pos_consumidor_cinta_central),
+	: 
+		clnt_torre_de_control(clnt_create(ApiConfiguracion::get_torre_ip(config_file).c_str(), TORREDECONTROLPROG, TORREDECONTROLVERS, "tcp")),
+      pos_consumidor_cinta_central(pos_consumidor_cinta_central),
 		pos_productor_cinta_central(pos_productor_cinta_central),
 		cinta_central(std::string("control_equipaje").append((pos_productor_cinta_central == -1) ? "cons":"prod").c_str(), std::string(directorio_de_trabajo).c_str(),
 			pos_consumidor_cinta_central - 1, pos_productor_cinta_central - 1, create)
@@ -48,4 +50,18 @@ Equipaje ApiControlEquipajes::get_equipaje_a_controlar() {
 	tMsgSospechoso msg;
 	queue_to_control_sospechosos->pull(&msg, sizeof(tMsgSospechoso) - sizeof(long));
 	return msg.equipaje;
+}
+
+int ApiControlEquipajes::get_zona(int num_vuelo) {
+
+	int* num_zona = get_zona_1(&num_vuelo, clnt_torre_de_control);
+
+	if (num_zona != NULL) {
+		Log::info("ApiControlEquipajes obtuve resultado del rpc server: zona del vuelo %d es %d", num_vuelo, (*num_zona));
+	} else {
+		throw GenericError("ApiControlEquipajes: Error al llamar al métdoo remoto desasignar _vuelo_1 sobre el rpc server");
+	}
+
+	return (*num_zona);
+
 }

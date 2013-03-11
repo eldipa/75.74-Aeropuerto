@@ -40,54 +40,45 @@ public:
 
 };
 
-class AsignacionZona {
-private:
-   int num_zona;
-   int num_vuelo;
-public:
-   AsignacionZona():num_zona(0), num_vuelo(0) {
-   }
-
-   AsignacionZona(int zona, int vuelo):num_zona(zona), num_vuelo(vuelo) {
-   }
-
-   int zona() const { return num_zona; }
-   int vuelo() const { return num_vuelo; }
-   int get_zona(int num_vuelo);
-};
 
 class ZonasAsignadas {
 public:
-   ZonasAsignadas() : cant_zonas_asignadas(0) {
+   ZonasAsignadas() {
+      for(int i=0; i<MAX_ZONAS; i++) {
+         zonas[i] = -1;
+      }
    }
 
    void asignar_vuelo(int zona, int vuelo) {
-      if(cant_zonas_asignadas == MAX_ZONAS)
-         throw std::runtime_error("Maximo de zonas asignadas");
+      if((zona<=0) || (zona >= MAX_ZONAS))
+         throw std::runtime_error("Numero de zona inválido");
 
-      zonas[cant_zonas_asignadas] = AsignacionZona(zona, vuelo);
-      cant_zonas_asignadas++;
-      Log::info("ApiDespachante zona asignada zona=%d vuelo=%d cant=%d", zonas[cant_zonas_asignadas-1].zona(),
-                zonas[cant_zonas_asignadas-1].vuelo(), cant_zonas_asignadas);
+      zonas[zona-1] = vuelo;
+
+      Log::info("ApiDespachante zona asignada zona=%d vuelo=%d", zona, vuelo);
    }
 
    void desasignar_vuelo(int vuelo) {
-      int eliminados = 0;
-      for (int i=0; i<cant_zonas_asignadas; i++) {
-         if(zonas[i].vuelo() == vuelo)
-            eliminados++;
-         else
-            zonas[i-eliminados] = zonas[i];
+      for( int i=0; i<MAX_ZONAS; i++ ) {
+         if(zonas[i] == vuelo) {
+            zonas[i] = -1;
+         }
       }
+
+      Log::info("ZonasAsignadas zona desasignada  vuelo=%d",  vuelo);
    }
 
    int get_zona(int num_vuelo) const {
       int zona = -1;
       int i = 0;
-      while( (zona==-1) && (i<cant_zonas_asignadas)) {
-         Log::info("ApiDespachante get_zona(num_vuelo=%d): zona=%d vuelo =%d", num_vuelo, zonas[i].zona(), zonas[i].vuelo());
-         if(zonas[i].vuelo() == num_vuelo) {
-            zona = zonas[i].zona();
+
+      while( (zona==-1) && (i<MAX_ZONAS)) {
+
+         if(zonas[i] != -1)
+            Log::info("ZonasAsignadas get_zona(num_vuelo=%d): zona=%d vuelo =%d", num_vuelo, i, zonas[i]);
+
+         if(zonas[i] == num_vuelo) {
+            zona = i;
          }
          i++;
       }
@@ -95,8 +86,7 @@ public:
    }
 
 private:
-   int cant_zonas_asignadas;
-   AsignacionZona zonas[MAX_ZONAS];
+   int zonas[MAX_ZONAS];
 };
 
 #endif

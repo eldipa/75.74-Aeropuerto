@@ -43,7 +43,13 @@ try
 		Equipaje equipaje = api_control_equipajes.obtener_proximo_equipaje_sospechoso();
 		Log::info("Equipaje Sospechoso (%s) extraido de Cinta Principal\n", equipaje.toString().c_str());
 
-		if (equipaje.getRfid().rfid != 0) {
+      int zona_asignada = api_control_equipajes.get_zona(equipaje.getRfid().numero_de_vuelo_destino);
+      if( zona_asignada == -1 ) {
+			Log::alert("Equipaje perdido, se descarta!!! equipaje:%d, vuelo:%d sin zona asignada", 
+                    (int)equipaje, equipaje.getRfid().numero_de_vuelo_destino);
+      }
+
+		if ((equipaje.getRfid().rfid != 0) && (zona_asignada!=-1)) {
 			Log::info("Enviando Equipaje Sospechoso (%s) a Control Equipajes\n", equipaje.toString().c_str());
 			api_control_equipajes.enviar_equipaje_a_control(equipaje);
 			Log::info("Equipaje Sospechoso (%s) enviado a Control Equipajes\n", equipaje.toString().c_str());
