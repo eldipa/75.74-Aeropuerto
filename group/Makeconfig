@@ -1,2 +1,0 @@
-INCLUDE_PATHS = ../common ../ipc ../os
-TARGET = libgroup.a 

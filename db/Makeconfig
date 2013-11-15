@@ -1,5 +1,0 @@
-INCLUDE_PATHS = ../common ../log ../external
-LIBRARIES = ../common/libcommon.a ../log/liblog.a
-EXTERNAL_LIBRARIES = dl sqlite3
-LINKER_FLAGS += -rdynamic
-TARGET = libdb.a example
