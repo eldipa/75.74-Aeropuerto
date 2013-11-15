@@ -53,7 +53,7 @@ export timeit = 1
 #  SUBMODULES = .
 #
 #  Note that the order is important and is honored in the building process.
-SUBMODULES =  log common os ipc ipc/network_examples
+SUBMODULES =  log common os ipc ipc/network_examples pyipc
 
 #
 # END OF THE CONFIGURATION

@@ -1,4 +1,4 @@
-75.74-Aeropuerto
-================
+IPC - Inter Process Communication
+=================================
 
-TP grupal para la simulación del manejo de valijas dentro de un aeropuerto
+Wrappers for the most common IPC in linux in C++. Shared memories, sockets, semaphores, etc. Includes a wrapper of them into Python too.
