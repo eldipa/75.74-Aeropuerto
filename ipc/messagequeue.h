@@ -31,9 +31,7 @@
 #include "key.h"
 #include <string>
 
-#include "imessagequeue.h"
-
-class MessageQueue : public IMessageQueue {
+class MessageQueue {
     private:
         int fd;
         const bool owner;

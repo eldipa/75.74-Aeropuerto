@@ -1,2 +1,5 @@
-INCLUDE_PATHS =  ../os ../log ../common ../api
-TARGET = libipc.a libapi.a python_wrap.make 
+INCLUDE_PATHS =  ../os ../common ../log ../common
+LIBRARIES = ../os/libos.a ../log/liblog.a ../common/libcommon.a
+EXTERNAL_LIBRARIES = dl 
+LINKER_FLAGS += -rdynamic
+TARGET = libipc.a python_wrap.make libnetwork.a

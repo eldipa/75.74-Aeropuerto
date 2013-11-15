@@ -1,5 +1,0 @@
-INCLUDE_PATHS = ../../network ../../os ../../common ../../log
-LIBRARIES = ../../network/libnetwork.a ../../os/libos.a ../../log/liblog.a ../../common/libcommon.a
-EXTERNAL_LIBRARIES = dl 
-LINKER_FLAGS += -rdynamic
-TARGET = connection connectionless

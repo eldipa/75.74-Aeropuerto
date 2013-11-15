@@ -37,21 +37,3 @@ Key get_key(const char *absolute_path, char proj_id) {
 	return key;
 }
 
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/stat.h>
-#include <cstring>
-
-void create_if_not_exists(const char * absolute_path) {
-	struct stat buf;
-	int file;
-	if (stat(absolute_path, &buf) != 0) {
-		file = open(absolute_path, O_CREAT , 0660);
-		if (file != -1) {
-			write(file,absolute_path,strlen(absolute_path));
-			close(file);
-		} else {
-			throw OSError("Unable to create file '%s'", absolute_path);
-		}
-	}
-}
