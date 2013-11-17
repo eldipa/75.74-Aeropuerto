@@ -18,15 +18,5 @@
 *.deps
 
 # Binaries
-db/example
-processes/main
-processes/notificador_descarga
-processes/puesto_checkin
-processes/robot_carga
-processes/robot_checkin
-processes/robot_despacho
-processes/robot_intercargo
-processes/scanner
-processes/torre_de_control
-network/examples/connection
-network/examples/connectionless
+ipc/network_examples/connection
+ipc/network_examples/connectionless
